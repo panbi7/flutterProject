@@ -32,42 +32,51 @@ function initializeGemini() {
 
 async function callGeminiClassifier(userMessage) {
   const prompt =
-  `너는 Flutter 도우미다. 사용자의 상황에 맞는 최적의 패키지를 추천해야 한다.
+  `너는 Flutter 도우미다. 사용자의 문장을 정확하게 분류해야 한다.
 
-다음 규칙에 따라 사용자의 문장을 분류하라:
+**중요: type을 먼저 정확히 판단하라!**
 
-**type 분류:**
-- feature_request: Flutter 기능 구현/패키지 추천이 필요한 질문
-- followup_question: 이미 추천한 기능에 대한 추가 질문
-- smalltalk: 인사/잡담
-- clarify: 모호하거나 추가 정보가 필요한 경우
+**type 분류 (최우선):**
+1. smalltalk: 인사, 감사, 잡담 (예: "안녕", "고마워", "반가워")
+2. feature_request: 구체적인 Flutter 기능/패키지 요청
+3. followup_question: 추천받은 기능에 대한 추가 질문
+4. clarify: 모호하거나 이해할 수 없는 질문
 
-**intent 분류 (사용자 시나리오 기반):**
+**intent 분류 (type 결정 후):**
+- auth_quick_start: 빠른 시작 원함
+- auth_korea: 한국 타겟 (카카오, 네이버)
+- auth_social: 소셜 로그인 (구글, 애플)
+- auth_secure: 보안 중시
+- auth_custom: 커스텀 백엔드/JWT
+- auth_basic: 일반 로그인
+- map: 지도 관련
 
-인증 관련:
-- auth_quick_start: "빠르게", "간단하게", "프로토타입", "MVP", "급해" 등 → 빠른 구현을 원함
-- auth_korea: "한국", "카카오", "네이버", "국내" 등 → 한국 사용자 타겟
-- auth_social: "구글", "애플", "소셜", "Google", "Apple", "Facebook" 등 → 소셜 로그인
-- auth_secure: "보안", "안전", "금융", "의료", "암호화" 등 → 보안 중시
-- auth_custom: "백엔드", "서버", "JWT", "토큰", "API" 언급 → 커스텀 백엔드
-- auth_basic: 위에 해당 안 되는 일반 로그인/회원가입
+**중요 규칙:**
+- 인사말은 ALWAYS type: "smalltalk"
+- 기능 요청만 type: "feature_request"
 
-기타:
-- map: 지도, 위치, 맵 관련
+**예시 (반드시 참고):**
+인사/잡담:
+- "안녕" → {"type":"smalltalk","intent":"auth_basic"}
+- "안녕하세요" → {"type":"smalltalk","intent":"auth_basic"}
+- "고마워" → {"type":"smalltalk","intent":"auth_basic"}
+- "반가워요" → {"type":"smalltalk","intent":"auth_basic"}
 
-**우선순위:**
-1. 사용자가 명시한 시나리오나 요구사항을 최우선으로 고려
-2. 키워드가 여러 개면 가장 강조된 것 선택
-3. 불명확하면 auth_basic 또는 clarify
-
-출력은 JSON 한 줄만 반환하라.
-예시:
+기능 요청:
 - "카카오톡으로 로그인하고 싶어" → {"type":"feature_request","intent":"auth_korea"}
-- "빠르게 로그인 기능 만들고 싶어" → {"type":"feature_request","intent":"auth_quick_start"}
-- "보안이 중요한 앱인데 로그인 어떻게?" → {"type":"feature_request","intent":"auth_secure"}
-- "내 서버 API가 있는데 토큰 저장" → {"type":"feature_request","intent":"auth_custom"}
+- "빠르게 로그인 만들어줘" → {"type":"feature_request","intent":"auth_quick_start"}
+- "구글 로그인 붙이고 싶어" → {"type":"feature_request","intent":"auth_social"}
+- "지도 보여주고 싶어" → {"type":"feature_request","intent":"map"}
 
-사용자 문장: "${userMessage}"`
+추가 질문:
+- "어떻게 설치해?" → {"type":"followup_question","intent":"auth_basic"}
+
+모호한 질문:
+- "뭐" → {"type":"clarify","intent":"auth_basic"}
+
+사용자 문장: "${userMessage}"
+
+출력은 JSON만 반환 (설명 없이):`
 
   try {
     initializeGemini()
