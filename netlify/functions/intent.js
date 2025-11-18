@@ -33,14 +33,57 @@ function initializeGemini() {
 async function callGeminiClassifier(userMessage) {
   const msg = (userMessage || '').trim().toLowerCase()
 
-  // 규칙 기반 우선 처리 (간단한 케이스)
+  // 1. 인사말 체크
   const greetings = ['안녕', '안녕하세요', 'hi', 'hello', '반가워', '반갑', '고마워', '감사', 'thanks', 'thank you']
   if (greetings.some(g => msg.includes(g) && msg.length < 10)) {
-    console.log('[AI INTENT] Rule-based: smalltalk')
+    console.log('[AI INTENT] Rule: smalltalk')
     return { type: 'smalltalk', intent: 'auth_basic' }
   }
 
-  // 복잡한 케이스는 Gemini에게
+  // 2. Intent 키워드 체크 (강력한 매칭)
+  let detectedIntent = null
+  let detectedType = 'feature_request'
+
+  // 한국 타겟 (카카오, 네이버)
+  if (msg.includes('카카오') || msg.includes('kakao') || msg.includes('네이버') || msg.includes('naver')) {
+    detectedIntent = 'auth_korea'
+  }
+  // 소셜 로그인
+  else if (msg.includes('소셜') || msg.includes('social') || msg.includes('구글') || msg.includes('google') ||
+           msg.includes('애플') || msg.includes('apple') || msg.includes('페이스북') || msg.includes('facebook')) {
+    detectedIntent = 'auth_social'
+  }
+  // 빠른 시작
+  else if (msg.includes('빠르게') || msg.includes('빠른') || msg.includes('간단') || msg.includes('쉽게') ||
+           msg.includes('급') || msg.includes('mvp') || msg.includes('프로토타입')) {
+    detectedIntent = 'auth_quick_start'
+  }
+  // 보안
+  else if (msg.includes('보안') || msg.includes('안전') || msg.includes('암호화') || msg.includes('금융') || msg.includes('의료')) {
+    detectedIntent = 'auth_secure'
+  }
+  // 커스텀 백엔드
+  else if (msg.includes('백엔드') || msg.includes('서버') || msg.includes('jwt') || msg.includes('토큰') ||
+           msg.includes('api') || msg.includes('커스텀')) {
+    detectedIntent = 'auth_custom'
+  }
+  // 지도
+  else if (msg.includes('지도') || msg.includes('맵') || msg.includes('map') || msg.includes('위치') || msg.includes('location')) {
+    detectedIntent = 'map'
+  }
+  // 로그인 관련 (일반)
+  else if (msg.includes('로그인') || msg.includes('login') || msg.includes('인증') || msg.includes('auth') ||
+           msg.includes('회원가입') || msg.includes('signup')) {
+    detectedIntent = 'auth_basic'
+  }
+
+  // 키워드로 찾았으면 바로 반환
+  if (detectedIntent) {
+    console.log('[AI INTENT] Rule: type=' + detectedType + ', intent=' + detectedIntent)
+    return { type: detectedType, intent: detectedIntent }
+  }
+
+  // 3. 키워드 없으면 Gemini에게
   const prompt =
   `Classify the user message into type and intent.
 
