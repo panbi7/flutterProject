@@ -31,13 +31,23 @@ function initializeGemini() {
 }
 
 async function callGeminiClassifier(userMessage) {
+  const msg = (userMessage || '').trim().toLowerCase()
+
+  // 규칙 기반 우선 처리 (간단한 케이스)
+  const greetings = ['안녕', '안녕하세요', 'hi', 'hello', '반가워', '반갑', '고마워', '감사', 'thanks', 'thank you']
+  if (greetings.some(g => msg.includes(g) && msg.length < 10)) {
+    console.log('[AI INTENT] Rule-based: smalltalk')
+    return { type: 'smalltalk', intent: 'auth_basic' }
+  }
+
+  // 복잡한 케이스는 Gemini에게
   const prompt =
   `Classify the user message into type and intent.
 
 User message: "${userMessage}"
 
 Rules:
-1. If message is greeting/chitchat ("안녕", "hi", "hello", "고마워", "thanks") → type: "smalltalk"
+1. If message is greeting/chitchat → type: "smalltalk"
 2. If message requests Flutter feature ("로그인", "지도", "결제") → type: "feature_request"
 3. If message asks followup question ("어떻게", "설치") → type: "followup_question"
 4. If unclear → type: "clarify"
@@ -50,7 +60,6 @@ For intent:
 - Default → auth_basic
 
 Examples:
-"안녕" → {"type":"smalltalk","intent":"auth_basic"}
 "카카오 로그인" → {"type":"feature_request","intent":"auth_korea"}
 "지도 보여줘" → {"type":"feature_request","intent":"map"}
 
