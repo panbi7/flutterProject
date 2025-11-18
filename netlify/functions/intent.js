@@ -81,14 +81,20 @@ async function callGeminiClassifier(userMessage) {
     const response = await result.response
     const text = response.text()
 
+    console.log('[AI INTENT] Gemini raw response:', text)
+
     const match = text.match(/\{[^}]*\}/)
     if (match) {
+      console.log('[AI INTENT] Matched JSON:', match[0])
       try {
         const parsed = JSON.parse(match[0])
+        console.log('[AI INTENT] Parsed:', parsed)
         const type = parsed.type && String(parsed.type).trim()
         const intent = parsed.intent && String(parsed.intent).trim()
+        console.log('[AI INTENT] Type:', type, 'Intent:', intent)
         const validType = ALLOWED_TYPES.includes(type) ? type : 'clarify'
         const validIntent = ALLOWED_INTENTS.includes(intent) ? intent : 'auth_basic'
+        console.log('[AI INTENT] Valid Type:', validType, 'Valid Intent:', validIntent)
         return { type: validType, intent: validIntent }
       } catch (parseError) {
         console.warn('[AI INTENT] JSON parse error:', parseError)
