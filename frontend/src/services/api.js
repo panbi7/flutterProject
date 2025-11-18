@@ -1,5 +1,8 @@
 export async function postIntent(message) {
-  const res = await fetch('http://localhost:3000/api/intent', {
+  // Use relative URL - works on both localhost and Netlify
+  const apiUrl = '/api/intent'
+
+  const res = await fetch(apiUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message }),
