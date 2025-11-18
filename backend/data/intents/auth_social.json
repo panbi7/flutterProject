@@ -1,0 +1,7 @@
+{
+  "title": "소셜 로그인",
+  "description": "구글/애플/네이버/카카오 등 외부 계정으로 로그인",
+  "scenario": "소셜 계정을 통한 간편 로그인",
+  "packages": ["google_sign_in", "sign_in_with_apple", "kakao_flutter_sdk", "flutter_naver_login"]
+}
+

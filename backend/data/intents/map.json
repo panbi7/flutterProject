@@ -1,0 +1,6 @@
+{
+  "title": "지도 기능",
+  "description": "Flutter 앱에 지도를 표시하고 상호작용 기능을 추가합니다",
+  "packages": ["flutter_map"]
+}
+

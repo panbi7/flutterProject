@@ -1,0 +1,7 @@
+{
+  "title": "일반 로그인",
+  "description": "Firebase Auth 또는 이메일/비밀번호 기반 로그인",
+  "scenario": "기본적인 이메일/비밀번호 인증",
+  "packages": ["firebase_auth", "flutter_secure_storage"]
+}
+

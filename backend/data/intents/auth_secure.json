@@ -1,0 +1,6 @@
+{
+  "title": "보안 중시",
+  "description": "보안이 중요한 앱을 위한 안전한 인증",
+  "scenario": "금융, 의료 등 보안이 중요한 앱",
+  "packages": ["firebase_auth", "flutter_secure_storage", "sign_in_with_apple"]
+}

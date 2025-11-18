@@ -1,0 +1,122 @@
+[
+  {
+    "id": "google_sign_in",
+    "name": "google_sign_in",
+    "category": "auth",
+    "pub_url": "https://pub.dev/packages/google_sign_in",
+    "description_ko": "Google 계정으로 간편하게 로그인",
+    "description": "Google Sign-In for Flutter",
+    "difficulty": "쉬움",
+    "setup_time": "20-30분",
+    "pros": [
+      "전 세계적으로 많이 사용",
+      "Google Cloud Console에서 쉽게 설정",
+      "Firebase Auth와 연동 가능",
+      "공식 패키지로 안정적"
+    ],
+    "cons": [
+      "Google API Console 설정 필요",
+      "SHA-1 fingerprint 설정 (Android)",
+      "iOS는 URL scheme 설정 필요"
+    ],
+    "best_for": [
+      "글로벌 앱 개발",
+      "빠른 회원가입 원할 때",
+      "Google 서비스와 연동"
+    ],
+    "setup_guide": "1. Google Cloud Console에서 OAuth 클라이언트 ID 생성\n2. SHA-1 등록 (Android)\n3. pubspec.yaml에 추가\n4. 플랫폼별 설정",
+    "example_code": "final GoogleSignIn googleSignIn = GoogleSignIn();\nfinal account = await googleSignIn.signIn();\nif (account != null) {\n  // 로그인 성공\n}",
+    "popularity": "매우 높음",
+    "cost": "무료"
+  },
+  {
+    "id": "sign_in_with_apple",
+    "name": "sign_in_with_apple",
+    "category": "auth",
+    "pub_url": "https://pub.dev/packages/sign_in_with_apple",
+    "description_ko": "Apple ID로 안전하게 로그인 (iOS 필수)",
+    "description": "Sign in with Apple for Flutter",
+    "difficulty": "보통",
+    "setup_time": "30-45분",
+    "pros": [
+      "iOS 앱스토어 필수 요구사항",
+      "프라이버시 보호 강력 (이메일 숨김 가능)",
+      "빠른 인증",
+      "신뢰도 높음"
+    ],
+    "cons": [
+      "Apple Developer 계정 필요 ($99/년)",
+      "Android 지원은 제한적",
+      "백엔드 검증 복잡"
+    ],
+    "best_for": [
+      "iOS 앱 출시 시 필수",
+      "프라이버시 중시 앱",
+      "Apple 생태계 사용자 타겟"
+    ],
+    "setup_guide": "1. Apple Developer에서 Sign in with Apple 활성화\n2. Service ID 생성\n3. pubspec.yaml에 추가\n4. Capability 설정 (Xcode)",
+    "example_code": "final credential = await SignInWithApple.getAppleIDCredential(\n  scopes: [AppleIDAuthorizationScopes.email],\n);\n// credential.identityToken 사용",
+    "popularity": "높음",
+    "cost": "무료 (Apple Developer 계정 필요)"
+  },
+  {
+    "id": "flutter_naver_login",
+    "name": "flutter_naver_login",
+    "category": "auth",
+    "pub_url": "https://pub.dev/packages/flutter_naver_login",
+    "description_ko": "네이버 계정으로 한국 사용자 로그인",
+    "description": "Naver Login for Flutter",
+    "difficulty": "보통",
+    "setup_time": "25-35분",
+    "pros": [
+      "한국 사용자에게 친숙",
+      "네이버 서비스 많이 사용",
+      "무료"
+    ],
+    "cons": [
+      "네이버 개발자 센터 설정 필요",
+      "한국 외 지역에서는 비선호",
+      "공식 패키지 아님"
+    ],
+    "best_for": [
+      "한국 타겟 앱",
+      "네이버 서비스 연동",
+      "40대 이상 사용자"
+    ],
+    "setup_guide": "1. 네이버 개발자 센터에서 앱 등록\n2. Client ID/Secret 발급\n3. pubspec.yaml에 추가\n4. 플랫폼별 설정",
+    "example_code": "final result = await FlutterNaverLogin.logIn();\nif (result.status == NaverLoginStatus.loggedIn) {\n  // 로그인 성공\n}",
+    "popularity": "중간 (한국)",
+    "cost": "무료"
+  },
+  {
+    "id": "kakao_flutter_sdk",
+    "name": "kakao_flutter_sdk",
+    "category": "auth",
+    "pub_url": "https://pub.dev/packages/kakao_flutter_sdk",
+    "description_ko": "카카오톡 계정으로 간편 로그인 (한국 1위)",
+    "description": "Official Kakao SDK for Flutter",
+    "difficulty": "보통",
+    "setup_time": "25-35분",
+    "pros": [
+      "한국 사용률 1위",
+      "카카오톡 설치 시 앱 전환 로그인",
+      "공식 SDK",
+      "카카오 서비스 연동 가능"
+    ],
+    "cons": [
+      "Kakao Developers 설정 복잡",
+      "한국 외 지역에서는 사용 불가",
+      "버전 업데이트 잦음"
+    ],
+    "best_for": [
+      "한국 타겟 앱 (필수)",
+      "젊은 사용자층",
+      "카카오톡 메시지, 친구 연동"
+    ],
+    "setup_guide": "1. Kakao Developers에서 앱 등록\n2. 네이티브 앱 키 발급\n3. pubspec.yaml에 추가\n4. AndroidManifest.xml, Info.plist 설정",
+    "example_code": "if (await isKakaoTalkInstalled()) {\n  await UserApi.instance.loginWithKakaoTalk();\n} else {\n  await UserApi.instance.loginWithKakaoAccount();\n}",
+    "popularity": "매우 높음 (한국)",
+    "cost": "무료"
+  }
+]
+

@@ -1,0 +1,6 @@
+{
+  "title": "한국 사용자 타겟",
+  "description": "한국 사용자에게 친숙한 로그인 방법",
+  "scenario": "한국 시장을 타겟으로 하는 앱",
+  "packages": ["kakao_flutter_sdk", "flutter_naver_login", "firebase_auth"]
+}

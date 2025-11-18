@@ -1,0 +1,92 @@
+[
+  {
+    "id": "firebase_auth",
+    "name": "firebase_auth",
+    "category": "auth",
+    "pub_url": "https://pub.dev/packages/firebase_auth",
+    "description_ko": "Firebase에서 제공하는 강력한 인증 솔루션",
+    "description": "Firebase Authentication provides backend services to authenticate users",
+    "difficulty": "쉬움",
+    "setup_time": "15-30분",
+    "pros": [
+      "설정이 간단하고 빠름",
+      "이메일, 전화번호, 소셜 로그인 모두 지원",
+      "무료로 시작 가능",
+      "Google 클라우드 인프라 사용"
+    ],
+    "cons": [
+      "Firebase에 종속됨",
+      "커스터마이징 제한적",
+      "대용량 앱은 비용 발생 가능"
+    ],
+    "best_for": [
+      "빠르게 프로토타입 만들기",
+      "백엔드 개발 없이 시작하기",
+      "소규모~중규모 앱"
+    ],
+    "setup_guide": "1. Firebase 프로젝트 생성\n2. pubspec.yaml에 추가\n3. Firebase 초기화\n4. 인증 메서드 활성화",
+    "example_code": "final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(\n  email: email,\n  password: password,\n);",
+    "popularity": "매우 높음",
+    "cost": "무료 (일정 사용량까지)"
+  },
+  {
+    "id": "flutter_secure_storage",
+    "name": "flutter_secure_storage",
+    "category": "auth",
+    "pub_url": "https://pub.dev/packages/flutter_secure_storage",
+    "description_ko": "토큰, 비밀번호 등 민감한 데이터를 안전하게 저장",
+    "description": "Secure storage for sensitive data using Keychain/Keystore",
+    "difficulty": "쉬움",
+    "setup_time": "5-10분",
+    "pros": [
+      "iOS Keychain, Android Keystore 사용",
+      "암호화된 저장소",
+      "사용법이 매우 간단",
+      "무료 오픈소스"
+    ],
+    "cons": [
+      "인증 기능 자체는 없음 (저장소만)",
+      "대용량 데이터 저장에는 부적합"
+    ],
+    "best_for": [
+      "JWT 토큰 저장",
+      "사용자 인증 정보 보관",
+      "커스텀 백엔드 사용 시"
+    ],
+    "setup_guide": "1. pubspec.yaml에 추가\n2. 권한 설정 (Android)\n3. 저장/불러오기 코드 작성",
+    "example_code": "final storage = FlutterSecureStorage();\nawait storage.write(key: 'token', value: myToken);\nfinal token = await storage.read(key: 'token');",
+    "popularity": "높음",
+    "cost": "무료"
+  },
+  {
+    "id": "supabase_auth",
+    "name": "supabase_flutter",
+    "category": "auth",
+    "pub_url": "https://pub.dev/packages/supabase_flutter",
+    "description_ko": "오픈소스 Firebase 대안, 강력한 인증과 DB 제공",
+    "description": "Supabase client for Flutter with authentication and database",
+    "difficulty": "보통",
+    "setup_time": "20-40분",
+    "pros": [
+      "오픈소스로 벤더 락인 없음",
+      "PostgreSQL 기반 실시간 DB",
+      "Row Level Security 지원",
+      "소셜 로그인, 이메일 인증 모두 지원"
+    ],
+    "cons": [
+      "Firebase보다 커뮤니티 작음",
+      "한국어 자료 부족",
+      "일부 기능은 Firebase보다 복잡"
+    ],
+    "best_for": [
+      "오픈소스 선호",
+      "백엔드와 인증을 함께 해결",
+      "PostgreSQL 사용 원할 때"
+    ],
+    "setup_guide": "1. Supabase 프로젝트 생성\n2. API 키 발급\n3. pubspec.yaml에 추가\n4. 초기화 코드 작성",
+    "example_code": "final response = await Supabase.instance.client.auth.signInWithPassword(\n  email: email,\n  password: password,\n);",
+    "popularity": "증가 중",
+    "cost": "무료 (제한적)"
+  }
+]
+

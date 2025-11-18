@@ -1,0 +1,6 @@
+{
+  "title": "커스텀 백엔드",
+  "description": "자체 백엔드 서버를 사용하는 경우",
+  "scenario": "이미 백엔드 API가 있거나 JWT 토큰 기반 인증",
+  "packages": ["flutter_secure_storage", "supabase_auth"]
+}

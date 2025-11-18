@@ -1,0 +1,6 @@
+{
+  "title": "빠른 시작",
+  "description": "최소한의 설정으로 빠르게 인증 기능 구현",
+  "scenario": "프로토타입이나 MVP를 빠르게 만들고 싶을 때",
+  "packages": ["firebase_auth"]
+}
