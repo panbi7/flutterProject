@@ -41,8 +41,8 @@ export default function Chat() {
       const botMsg = {
         role: 'assistant',
         text: isFeature
-          ? `의도(intent): ${intent} (source: ${source})`
-          : `${nonFeatureMessages[fallbackType] || nonFeatureMessages.clarify} (type: ${fallbackType}, source: ${source})`,
+          ? `[DEBUG] Type: ${type}, Intent: ${intent}, Source: ${source}\n의도(intent): ${intent}`
+          : `${nonFeatureMessages[fallbackType] || nonFeatureMessages.clarify}\n[DEBUG] Type: ${type}, Intent: ${intent}, Source: ${source}`,
       }
       setMessages((prev) => [...prev, botMsg])
       setLatestPackages(isFeature ? packages : [])
