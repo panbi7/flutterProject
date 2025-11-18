@@ -28,7 +28,7 @@ export default function Chat() {
     setLoading(true)
     try {
       const resp = await postIntent(text)
-      const { type, intent, source, packages = [] } = resp || {}
+      const { type, intent, source, packages = [], geminiRaw } = resp || {}
       const isFeature = type === 'feature_request'
 
       const fallbackType = type || 'clarify'
@@ -38,11 +38,15 @@ export default function Chat() {
         clarify: '어떤 Flutter 기능을 구현하고 싶은지 조금 더 자세히 설명해 주실 수 있을까요? 🤔',
       }
 
+      const debugInfo = geminiRaw
+        ? `\n\n[GEMINI RAW]\n${geminiRaw}\n\n[DEBUG] Type: ${type}, Intent: ${intent}, Source: ${source}`
+        : `\n[DEBUG] Type: ${type}, Intent: ${intent}, Source: ${source}`
+
       const botMsg = {
         role: 'assistant',
         text: isFeature
-          ? `[DEBUG] Type: ${type}, Intent: ${intent}, Source: ${source}\n의도(intent): ${intent}`
-          : `${nonFeatureMessages[fallbackType] || nonFeatureMessages.clarify}\n[DEBUG] Type: ${type}, Intent: ${intent}, Source: ${source}`,
+          ? `의도(intent): ${intent}${debugInfo}`
+          : `${nonFeatureMessages[fallbackType] || nonFeatureMessages.clarify}${debugInfo}`,
       }
       setMessages((prev) => [...prev, botMsg])
       setLatestPackages(isFeature ? packages : [])

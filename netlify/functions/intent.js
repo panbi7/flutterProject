@@ -33,57 +33,14 @@ function initializeGemini() {
 async function callGeminiClassifier(userMessage) {
   const msg = (userMessage || '').trim().toLowerCase()
 
-  // 1. 인사말 체크
+  // 인사말만 규칙으로 처리 (빠른 응답)
   const greetings = ['안녕', '안녕하세요', 'hi', 'hello', '반가워', '반갑', '고마워', '감사', 'thanks', 'thank you']
   if (greetings.some(g => msg.includes(g) && msg.length < 10)) {
     console.log('[AI INTENT] Rule: smalltalk')
-    return { type: 'smalltalk', intent: 'auth_basic' }
+    return { type: 'smalltalk', intent: 'auth_basic', geminiRaw: 'Rule-based (greeting)' }
   }
 
-  // 2. Intent 키워드 체크 (강력한 매칭)
-  let detectedIntent = null
-  let detectedType = 'feature_request'
-
-  // 한국 타겟 (카카오, 네이버)
-  if (msg.includes('카카오') || msg.includes('kakao') || msg.includes('네이버') || msg.includes('naver')) {
-    detectedIntent = 'auth_korea'
-  }
-  // 소셜 로그인
-  else if (msg.includes('소셜') || msg.includes('social') || msg.includes('구글') || msg.includes('google') ||
-           msg.includes('애플') || msg.includes('apple') || msg.includes('페이스북') || msg.includes('facebook')) {
-    detectedIntent = 'auth_social'
-  }
-  // 빠른 시작
-  else if (msg.includes('빠르게') || msg.includes('빠른') || msg.includes('간단') || msg.includes('쉽게') ||
-           msg.includes('급') || msg.includes('mvp') || msg.includes('프로토타입')) {
-    detectedIntent = 'auth_quick_start'
-  }
-  // 보안
-  else if (msg.includes('보안') || msg.includes('안전') || msg.includes('암호화') || msg.includes('금융') || msg.includes('의료')) {
-    detectedIntent = 'auth_secure'
-  }
-  // 커스텀 백엔드
-  else if (msg.includes('백엔드') || msg.includes('서버') || msg.includes('jwt') || msg.includes('토큰') ||
-           msg.includes('api') || msg.includes('커스텀')) {
-    detectedIntent = 'auth_custom'
-  }
-  // 지도
-  else if (msg.includes('지도') || msg.includes('맵') || msg.includes('map') || msg.includes('위치') || msg.includes('location')) {
-    detectedIntent = 'map'
-  }
-  // 로그인 관련 (일반)
-  else if (msg.includes('로그인') || msg.includes('login') || msg.includes('인증') || msg.includes('auth') ||
-           msg.includes('회원가입') || msg.includes('signup')) {
-    detectedIntent = 'auth_basic'
-  }
-
-  // 키워드로 찾았으면 바로 반환
-  if (detectedIntent) {
-    console.log('[AI INTENT] Rule: type=' + detectedType + ', intent=' + detectedIntent)
-    return { type: detectedType, intent: detectedIntent }
-  }
-
-  // 3. 키워드 없으면 Gemini에게
+  // 나머지는 전부 Gemini가 판단
   const prompt =
   `Classify the user message into type and intent.
 
@@ -140,17 +97,17 @@ Return ONLY JSON, no explanation:`
         const validType = ALLOWED_TYPES.includes(type) ? type : 'clarify'
         const validIntent = ALLOWED_INTENTS.includes(intent) ? intent : 'auth_basic'
         console.log('[AI INTENT] Valid Type:', validType, 'Valid Intent:', validIntent)
-        return { type: validType, intent: validIntent }
+        return { type: validType, intent: validIntent, geminiRaw: text }
       } catch (parseError) {
         console.warn('[AI INTENT] JSON parse error:', parseError)
       }
     }
 
     console.warn('[AI INTENT] No valid JSON found in response:', text)
-    return { type: 'feature_request', intent: 'auth_basic' }
+    return { type: 'feature_request', intent: 'auth_basic', geminiRaw: text }
   } catch (error) {
     console.warn('[AI INTENT] Gemini API error, using fallback. Error:', error.message)
-    return { type: 'feature_request', intent: 'auth_basic' }
+    return { type: 'feature_request', intent: 'auth_basic', geminiRaw: 'Error: ' + error.message }
   }
 }
 
@@ -308,7 +265,7 @@ export async function handler(event, context) {
 
     // Gemini로 분류
     const classification = await callGeminiClassifier(message)
-    const { type, intent } = classification
+    const { type, intent, geminiRaw } = classification
 
     console.log('[AI INTENT]', { message, type, intent })
 
@@ -323,6 +280,7 @@ export async function handler(event, context) {
         intent,
         source: 'ai',
         packages,
+        geminiRaw, // Gemini 원본 응답 추가
       }),
     }
   } catch (error) {
