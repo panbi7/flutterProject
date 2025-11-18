@@ -1,8 +1,8 @@
 [build]
   # 프론트엔드 빌드 명령
-  command = "npm run build"
+  command = "cd frontend && npm install && npm run build"
   # 빌드 결과물 디렉토리
-  publish = "dist"
+  publish = "frontend/dist"
 
 [functions]
   # Netlify Functions 디렉토리
