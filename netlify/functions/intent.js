@@ -32,51 +32,29 @@ function initializeGemini() {
 
 async function callGeminiClassifier(userMessage) {
   const prompt =
-  `너는 Flutter 도우미다. 사용자의 문장을 정확하게 분류해야 한다.
+  `Classify the user message into type and intent.
 
-**중요: type을 먼저 정확히 판단하라!**
+User message: "${userMessage}"
 
-**type 분류 (최우선):**
-1. smalltalk: 인사, 감사, 잡담 (예: "안녕", "고마워", "반가워")
-2. feature_request: 구체적인 Flutter 기능/패키지 요청
-3. followup_question: 추천받은 기능에 대한 추가 질문
-4. clarify: 모호하거나 이해할 수 없는 질문
+Rules:
+1. If message is greeting/chitchat ("안녕", "hi", "hello", "고마워", "thanks") → type: "smalltalk"
+2. If message requests Flutter feature ("로그인", "지도", "결제") → type: "feature_request"
+3. If message asks followup question ("어떻게", "설치") → type: "followup_question"
+4. If unclear → type: "clarify"
 
-**intent 분류 (type 결정 후):**
-- auth_quick_start: 빠른 시작 원함
-- auth_korea: 한국 타겟 (카카오, 네이버)
-- auth_social: 소셜 로그인 (구글, 애플)
-- auth_secure: 보안 중시
-- auth_custom: 커스텀 백엔드/JWT
-- auth_basic: 일반 로그인
-- map: 지도 관련
+For intent:
+- If mentions "카카오" or "네이버" → auth_korea
+- If mentions "구글" or "애플" → auth_social
+- If mentions "빠르게" or "간단" → auth_quick_start
+- If mentions "지도" or "맵" → map
+- Default → auth_basic
 
-**중요 규칙:**
-- 인사말은 ALWAYS type: "smalltalk"
-- 기능 요청만 type: "feature_request"
+Examples:
+"안녕" → {"type":"smalltalk","intent":"auth_basic"}
+"카카오 로그인" → {"type":"feature_request","intent":"auth_korea"}
+"지도 보여줘" → {"type":"feature_request","intent":"map"}
 
-**예시 (반드시 참고):**
-인사/잡담:
-- "안녕" → {"type":"smalltalk","intent":"auth_basic"}
-- "안녕하세요" → {"type":"smalltalk","intent":"auth_basic"}
-- "고마워" → {"type":"smalltalk","intent":"auth_basic"}
-- "반가워요" → {"type":"smalltalk","intent":"auth_basic"}
-
-기능 요청:
-- "카카오톡으로 로그인하고 싶어" → {"type":"feature_request","intent":"auth_korea"}
-- "빠르게 로그인 만들어줘" → {"type":"feature_request","intent":"auth_quick_start"}
-- "구글 로그인 붙이고 싶어" → {"type":"feature_request","intent":"auth_social"}
-- "지도 보여주고 싶어" → {"type":"feature_request","intent":"map"}
-
-추가 질문:
-- "어떻게 설치해?" → {"type":"followup_question","intent":"auth_basic"}
-
-모호한 질문:
-- "뭐" → {"type":"clarify","intent":"auth_basic"}
-
-사용자 문장: "${userMessage}"
-
-출력은 JSON만 반환 (설명 없이):`
+Return ONLY JSON, no explanation:`
 
   try {
     initializeGemini()
@@ -86,7 +64,13 @@ async function callGeminiClassifier(userMessage) {
       return { type: 'feature_request', intent: 'auth_basic' }
     }
 
-    const result = await model.generateContent(prompt)
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0,
+        maxOutputTokens: 100,
+      },
+    })
     const response = await result.response
     const text = response.text()
 
