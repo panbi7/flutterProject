@@ -39,14 +39,21 @@ export default function Chat() {
         clarify: '어떤 Flutter 기능을 구현하고 싶은지 조금 더 자세히 설명해 주실 수 있을까요? 🤔',
       }
 
-      const debugInfo = `\n\n📝 입력: "${text}"\n🤖 Gemini 분류: type="${type}", intent="${intent}"\n📊 처리: ${source}`
-      const geminiDetails = `\n\n━━━━━━━━━━━━━━━━━━━━━━\n[GEMINI RAW 응답]\n${geminiRaw || '(응답 없음)'}\n━━━━━━━━━━━━━━━━━━━━━━`
+      const featureMessages = {
+        auth_social: '소셜 로그인을 구현하시려면 아래 패키지를 추천드립니다! 🔐',
+        auth_korea: '한국 로그인 서비스를 구현하시려면 아래 패키지를 추천드립니다! 🇰🇷',
+        auth_quick_start: '빠르게 로그인 기능을 구현하시려면 아래 패키지를 추천드립니다! ⚡',
+        auth_secure: '보안이 중요한 인증을 구현하시려면 아래 패키지를 추천드립니다! 🔒',
+        auth_custom: '커스텀 백엔드 인증을 구현하시려면 아래 패키지를 추천드립니다! 🛠️',
+        auth_basic: '로그인 기능을 구현하시려면 아래 패키지를 추천드립니다! 🔑',
+        map: '지도 기능을 구현하시려면 아래 패키지를 추천드립니다! 🗺️',
+      }
 
       const botMsg = {
         role: 'assistant',
         text: isFeature
-          ? `의도(intent): ${intent}${debugInfo}${geminiDetails}`
-          : `${nonFeatureMessages[fallbackType] || nonFeatureMessages.clarify}${debugInfo}${geminiDetails}`,
+          ? featureMessages[intent] || `${intent} 관련 패키지를 추천드립니다!`
+          : nonFeatureMessages[fallbackType] || nonFeatureMessages.clarify,
       }
       setMessages((prev) => [...prev, botMsg])
       setLatestPackages(isFeature ? packages : [])
