@@ -74,8 +74,15 @@ NO explanation, NO markdown, ONLY JSON:`
     initializeGemini()
 
     if (!model) {
+      const errorMsg = !GEMINI_API_KEY
+        ? 'GEMINI_API_KEY 환경 변수가 설정되지 않았습니다. Netlify 환경 변수를 확인하세요.'
+        : 'Gemini 모델 초기화 실패'
       console.warn('[AI INTENT] Gemini API key not configured, using fallback')
-      return { type: 'feature_request', intent: 'auth_basic' }
+      return {
+        type: 'feature_request',
+        intent: 'auth_basic',
+        geminiRaw: `ERROR: ${errorMsg}`
+      }
     }
 
     const result = await model.generateContent({
