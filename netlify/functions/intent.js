@@ -32,16 +32,7 @@ function initializeGemini() {
 }
 
 async function callGeminiClassifier(userMessage) {
-  const msg = (userMessage || '').trim().toLowerCase()
-
-  // 인사말만 규칙으로 처리 (빠른 응답)
-  const greetings = ['안녕', '안녕하세요', 'hi', 'hello', '반가워', '반갑', '고마워', '감사', 'thanks', 'thank you']
-  if (greetings.some(g => msg.includes(g) && msg.length < 10)) {
-    console.log('[AI INTENT] Rule: smalltalk')
-    return { type: 'smalltalk', intent: 'auth_basic', geminiRaw: 'Rule-based (greeting)' }
-  }
-
-  // 나머지는 전부 Gemini가 판단
+  // 모든 메시지를 Gemini가 판단
   const prompt =
   `Classify the user message into type and intent.
 
@@ -226,7 +217,7 @@ const INTENT_PACKAGES = {
   ],
 }
 
-export async function handler(event, context) {
+export async function handler(event) {
   // CORS 헤더
   const headers = {
     'Access-Control-Allow-Origin': '*',
