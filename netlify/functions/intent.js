@@ -34,28 +34,38 @@ function initializeGemini() {
 async function callGeminiClassifier(userMessage) {
   // 모든 메시지를 Gemini가 판단
   const prompt =
-  `Classify the user message into type and intent.
+  `You are a Flutter assistant. Classify the user message into type and intent.
 
 User message: "${userMessage}"
 
-Rules:
-1. If message is greeting/chitchat → type: "smalltalk"
-2. If message requests Flutter feature ("로그인", "지도", "결제") → type: "feature_request"
-3. If message asks followup question ("어떻게", "설치") → type: "followup_question"
-4. If unclear → type: "clarify"
+**Classification Rules:**
 
-For intent:
-- If mentions "카카오" or "네이버" → auth_korea
-- If mentions "구글" or "애플" → auth_social
-- If mentions "빠르게" or "간단" → auth_quick_start
-- If mentions "지도" or "맵" → map
-- Default → auth_basic
+**Type (분류):**
+- "smalltalk": 인사, 감사, 일상 대화 (예: "안녕", "고마워", "잘가")
+- "feature_request": Flutter 기능 구현 요청 (예: "로그인 만들고 싶어", "지도 보여줘")
+- "followup_question": 이전 답변에 대한 추가 질문 (예: "어떻게 설치해?", "더 자세히 알려줘")
+- "clarify": 모호하거나 이해 불가능한 메시지
 
-Examples:
-"카카오 로그인" → {"type":"feature_request","intent":"auth_korea"}
+**Intent (의도):**
+- "auth_korea": 카카오, 네이버 등 한국 로그인
+- "auth_social": 구글, 애플, 페이스북 등 글로벌 소셜 로그인
+- "auth_quick_start": 빠르게, 간단하게 등 빠른 구현 원함
+- "auth_secure": 보안, 안전, 금융 등 보안 중시
+- "auth_custom": JWT, 토큰, 백엔드, 서버 등 커스텀 인증
+- "map": 지도, 위치, 맵 관련
+- "auth_basic": 위에 해당 안 되는 일반 인증 (기본값)
+
+**Examples:**
+"안녕" → {"type":"smalltalk","intent":"auth_basic"}
+"안녕하세요" → {"type":"smalltalk","intent":"auth_basic"}
+"고마워" → {"type":"smalltalk","intent":"auth_basic"}
+"카카오 로그인 만들고 싶어" → {"type":"feature_request","intent":"auth_korea"}
+"구글 로그인 붙이고 싶어" → {"type":"feature_request","intent":"auth_social"}
+"빠르게 로그인 기능 만들고 싶어" → {"type":"feature_request","intent":"auth_quick_start"}
 "지도 보여줘" → {"type":"feature_request","intent":"map"}
+"로그인 어떻게 하는데?" → {"type":"feature_request","intent":"auth_basic"}
 
-Return ONLY JSON, no explanation:`
+**IMPORTANT:** Return ONLY a valid JSON object, no explanation.`
 
   try {
     initializeGemini()
