@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
-// 최신 Gemini 2.5 Flash 모델 사용 (2025)
-const GEMINI_MODEL = (process.env.GEMINI_MODEL || 'gemini-2.5-flash').replace('-latest', '')
+// 무조건 Gemini 2.5 Flash 사용
+const GEMINI_MODEL = 'gemini-2.5-flash'
 
 const ALLOWED_INTENTS = [
   'auth_basic',
