@@ -39,7 +39,7 @@ export default function Chat() {
       }
 
       const debugInfo = `\n\n📝 입력: "${text}"\n🤖 Gemini 분류: type="${type}", intent="${intent}"\n📊 처리: ${source}`
-      const geminiDetails = geminiRaw ? `\n\n[GEMINI RAW 응답]\n${geminiRaw}` : ''
+      const geminiDetails = `\n\n━━━━━━━━━━━━━━━━━━━━━━\n[GEMINI RAW 응답]\n${geminiRaw || '(응답 없음)'}\n━━━━━━━━━━━━━━━━━━━━━━`
 
       const botMsg = {
         role: 'assistant',

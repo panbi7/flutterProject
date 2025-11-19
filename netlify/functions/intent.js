@@ -48,7 +48,7 @@ CLASSIFICATION RULES:
 
 2. INTENT (choose exactly one):
    - "auth_korea" = Korean login (카카오, 네이버)
-   - "auth_social" = Global social login (구글, 애플, Google, Apple, Facebook)
+   - "auth_social" = Social login (소셜, 구글, 애플, Google, Apple, Facebook, social)
    - "auth_quick_start" = Quick implementation (빠르게, 간단)
    - "auth_secure" = Security focus (보안, 안전)
    - "auth_custom" = Custom backend (JWT, 토큰, 서버)
@@ -61,6 +61,7 @@ Input: "안녕하세요" → Output: {"type":"smalltalk","intent":"auth_basic"}
 Input: "hi" → Output: {"type":"smalltalk","intent":"auth_basic"}
 Input: "고마워" → Output: {"type":"smalltalk","intent":"auth_basic"}
 Input: "카카오 로그인" → Output: {"type":"feature_request","intent":"auth_korea"}
+Input: "소셜 로그인" → Output: {"type":"feature_request","intent":"auth_social"}
 Input: "구글 로그인" → Output: {"type":"feature_request","intent":"auth_social"}
 Input: "지도 보여줘" → Output: {"type":"feature_request","intent":"map"}
 
