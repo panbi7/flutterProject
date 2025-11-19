@@ -34,38 +34,40 @@ function initializeGemini() {
 async function callGeminiClassifier(userMessage) {
   // 모든 메시지를 Gemini가 판단
   const prompt =
-  `You are a Flutter assistant. Classify the user message into type and intent.
+  `Classify the following user message into type and intent. You MUST return ONLY a valid JSON object.
 
 User message: "${userMessage}"
 
-**Classification Rules:**
+CLASSIFICATION RULES:
 
-**Type (분류):**
-- "smalltalk": 인사, 감사, 일상 대화 (예: "안녕", "고마워", "잘가")
-- "feature_request": Flutter 기능 구현 요청 (예: "로그인 만들고 싶어", "지도 보여줘")
-- "followup_question": 이전 답변에 대한 추가 질문 (예: "어떻게 설치해?", "더 자세히 알려줘")
-- "clarify": 모호하거나 이해 불가능한 메시지
+1. TYPE (choose exactly one):
+   - "smalltalk" = Greetings, thanks, casual chat (안녕, 고마워, hi, hello, 잘가, 반가워)
+   - "feature_request" = Wants to implement Flutter feature (로그인 만들고 싶어, 지도 보여줘, 결제 붙이고 싶어)
+   - "followup_question" = Follow-up question about previous answer
+   - "clarify" = Unclear or ambiguous message
 
-**Intent (의도):**
-- "auth_korea": 카카오, 네이버 등 한국 로그인
-- "auth_social": 구글, 애플, 페이스북 등 글로벌 소셜 로그인
-- "auth_quick_start": 빠르게, 간단하게 등 빠른 구현 원함
-- "auth_secure": 보안, 안전, 금융 등 보안 중시
-- "auth_custom": JWT, 토큰, 백엔드, 서버 등 커스텀 인증
-- "map": 지도, 위치, 맵 관련
-- "auth_basic": 위에 해당 안 되는 일반 인증 (기본값)
+2. INTENT (choose exactly one):
+   - "auth_korea" = Korean login (카카오, 네이버)
+   - "auth_social" = Global social login (구글, 애플, Google, Apple, Facebook)
+   - "auth_quick_start" = Quick implementation (빠르게, 간단)
+   - "auth_secure" = Security focus (보안, 안전)
+   - "auth_custom" = Custom backend (JWT, 토큰, 서버)
+   - "map" = Map/location feature (지도, 맵, 위치)
+   - "auth_basic" = Default/general auth
 
-**Examples:**
-"안녕" → {"type":"smalltalk","intent":"auth_basic"}
-"안녕하세요" → {"type":"smalltalk","intent":"auth_basic"}
-"고마워" → {"type":"smalltalk","intent":"auth_basic"}
-"카카오 로그인 만들고 싶어" → {"type":"feature_request","intent":"auth_korea"}
-"구글 로그인 붙이고 싶어" → {"type":"feature_request","intent":"auth_social"}
-"빠르게 로그인 기능 만들고 싶어" → {"type":"feature_request","intent":"auth_quick_start"}
-"지도 보여줘" → {"type":"feature_request","intent":"map"}
-"로그인 어떻게 하는데?" → {"type":"feature_request","intent":"auth_basic"}
+EXAMPLES (copy the exact format):
+Input: "안녕" → Output: {"type":"smalltalk","intent":"auth_basic"}
+Input: "안녕하세요" → Output: {"type":"smalltalk","intent":"auth_basic"}
+Input: "hi" → Output: {"type":"smalltalk","intent":"auth_basic"}
+Input: "고마워" → Output: {"type":"smalltalk","intent":"auth_basic"}
+Input: "카카오 로그인" → Output: {"type":"feature_request","intent":"auth_korea"}
+Input: "구글 로그인" → Output: {"type":"feature_request","intent":"auth_social"}
+Input: "지도 보여줘" → Output: {"type":"feature_request","intent":"map"}
 
-**IMPORTANT:** Return ONLY a valid JSON object, no explanation.`
+NOW CLASSIFY: "${userMessage}"
+
+Return format: {"type":"...","intent":"..."}
+NO explanation, NO markdown, ONLY JSON:`
 
   try {
     initializeGemini()
