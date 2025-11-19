@@ -89,7 +89,7 @@ NO explanation, NO markdown, ONLY JSON:`
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0,
-        maxOutputTokens: 100,
+        maxOutputTokens: 1000, // Gemini 2.5 Flash의 thinking + 응답을 위해 충분한 토큰
       },
     })
     const response = await result.response
