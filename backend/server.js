@@ -19,14 +19,15 @@ app.post('/api/intent', async (req, res) => {
     source = 'ai'
     console.log('[AI INTENT]', { message, ...classification })
 
+    const { geminiRaw } = classification
     classification = normalizeClassification(classification, { source })
     const { type, intent } = classification
     if (type !== 'feature_request') {
-      return res.status(200).json({ type: type || 'clarify', intent: intent || 'auth_basic', source, packages: [] })
+      return res.status(200).json({ type: type || 'clarify', intent: intent || 'auth_basic', source, packages: [], geminiRaw })
     }
 
     const packages = await getPackagesByIntent(intent)
-    return res.status(200).json({ type, intent, source, packages })
+    return res.status(200).json({ type, intent, source, packages, geminiRaw })
   } catch (err) {
     console.error('Error handling /api/intent:', err)
     try {

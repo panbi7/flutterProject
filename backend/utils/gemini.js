@@ -54,13 +54,22 @@ export async function callGeminiClassifier(userMessage) {
     initializeGemini()
 
     if (!model) {
+      const errorMsg = !GEMINI_API_KEY
+        ? 'GEMINI_API_KEY 환경 변수가 설정되지 않았습니다.'
+        : 'Gemini 모델 초기화 실패'
       console.warn('[AI INTENT] Gemini API key not configured, using fallback')
-      return { type: 'feature_request', intent: 'auth_basic' }
+      return {
+        type: 'feature_request',
+        intent: 'auth_basic',
+        geminiRaw: `ERROR: ${errorMsg}`
+      }
     }
 
     const result = await model.generateContent(prompt)
     const response = await result.response
     const text = response.text()
+
+    console.log('[AI INTENT] Gemini raw response:', text)
 
     // JSON 추출
     const match = text.match(/\{[^}]*\}/)
@@ -71,16 +80,17 @@ export async function callGeminiClassifier(userMessage) {
         const intent = parsed.intent && String(parsed.intent).trim()
         const validType = ALLOWED_TYPES.includes(type) ? type : 'clarify'
         const validIntent = ALLOWED_INTENTS.includes(intent) ? intent : 'auth_basic'
-        return { type: validType, intent: validIntent }
+        return { type: validType, intent: validIntent, geminiRaw: text }
       } catch (parseError) {
         console.warn('[AI INTENT] JSON parse error:', parseError)
+        return { type: 'clarify', intent: 'auth_basic', geminiRaw: text }
       }
     }
 
     console.warn('[AI INTENT] No valid JSON found in response:', text)
-    return { type: 'feature_request', intent: 'auth_basic' }
+    return { type: 'feature_request', intent: 'auth_basic', geminiRaw: text }
   } catch (error) {
     console.warn('[AI INTENT] Gemini API error, using fallback. Error:', error.message)
-    return { type: 'feature_request', intent: 'auth_basic' }
+    return { type: 'feature_request', intent: 'auth_basic', geminiRaw: `Error: ${error.message}` }
   }
 }
