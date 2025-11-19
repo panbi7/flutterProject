@@ -38,15 +38,14 @@ export default function Chat() {
         clarify: '어떤 Flutter 기능을 구현하고 싶은지 조금 더 자세히 설명해 주실 수 있을까요? 🤔',
       }
 
-      const debugInfo = geminiRaw
-        ? `\n\n[GEMINI RAW]\n${geminiRaw}\n\n[DEBUG] Type: ${type}, Intent: ${intent}, Source: ${source}`
-        : `\n[DEBUG] Type: ${type}, Intent: ${intent}, Source: ${source}`
+      const debugInfo = `\n\n📝 입력: "${text}"\n🤖 Gemini 분류: type="${type}", intent="${intent}"\n📊 처리: ${source}`
+      const geminiDetails = geminiRaw ? `\n\n[GEMINI RAW 응답]\n${geminiRaw}` : ''
 
       const botMsg = {
         role: 'assistant',
         text: isFeature
-          ? `의도(intent): ${intent}${debugInfo}`
-          : `${nonFeatureMessages[fallbackType] || nonFeatureMessages.clarify}${debugInfo}`,
+          ? `의도(intent): ${intent}${debugInfo}${geminiDetails}`
+          : `${nonFeatureMessages[fallbackType] || nonFeatureMessages.clarify}${debugInfo}${geminiDetails}`,
       }
       setMessages((prev) => [...prev, botMsg])
       setLatestPackages(isFeature ? packages : [])
