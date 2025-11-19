@@ -67,7 +67,7 @@ NO explanation, NO markdown, ONLY JSON:`
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0,
-        maxOutputTokens: 1000,
+        maxOutputTokens: 2000,
       },
     })
     const response = await result.response
