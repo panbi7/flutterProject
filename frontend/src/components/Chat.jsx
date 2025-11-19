@@ -2,60 +2,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import MessageList from './MessageList.jsx'
 import MessageInput from './MessageInput.jsx'
 import PackageCards from './PackageCards.jsx'
-import { classifyWithGemini } from '../services/gemini.js'
-
-// Intent별 패키지 매핑 (백엔드 없이 프론트엔드에서 처리)
-const INTENT_PACKAGES = {
-  auth_basic: [
-    {
-      id: 'firebase_auth',
-      name: 'firebase_auth',
-      category: 'auth',
-      pub_url: 'https://pub.dev/packages/firebase_auth',
-      description_ko: 'Firebase에서 제공하는 강력한 인증 솔루션',
-      difficulty: '쉬움',
-      setup_time: '15-30분',
-      pros: ['설정이 간단하고 빠름', '이메일, 전화번호, 소셜 로그인 모두 지원'],
-      cons: ['Firebase에 종속됨'],
-      best_for: ['빠르게 프로토타입 만들기'],
-    },
-  ],
-  auth_social: [
-    {
-      id: 'google_sign_in',
-      name: 'google_sign_in',
-      category: 'auth',
-      pub_url: 'https://pub.dev/packages/google_sign_in',
-      description_ko: 'Google 계정으로 간편하게 로그인',
-      difficulty: '쉬움',
-      setup_time: '20-30분',
-    },
-  ],
-  auth_korea: [
-    {
-      id: 'kakao_flutter_sdk',
-      name: 'kakao_flutter_sdk',
-      category: 'auth',
-      pub_url: 'https://pub.dev/packages/kakao_flutter_sdk',
-      description_ko: '카카오톡 계정으로 간편 로그인',
-      difficulty: '보통',
-      setup_time: '25-35분',
-    },
-  ],
-  map: [
-    {
-      id: 'flutter_map',
-      name: 'flutter_map',
-      category: 'map',
-      pub_url: 'https://pub.dev/packages/flutter_map',
-      description_ko: 'Flutter용 오픈소스 지도 라이브러리',
-    },
-  ],
-}
-
-function getPackagesByIntent(intent) {
-  return INTENT_PACKAGES[intent] || []
-}
+import { postIntent } from '../services/api.js'
 
 export default function Chat() {
   const [messages, setMessages] = useState([
@@ -80,12 +27,9 @@ export default function Chat() {
     setMessages((prev) => [...prev, userMsg])
     setLoading(true)
     try {
-      // 프론트엔드에서 직접 Gemini API 호출
-      const resp = await classifyWithGemini(text)
-      const { type, intent, source, geminiRaw } = resp || {}
-
-      // 패키지 데이터는 하드코딩 (백엔드 없음)
-      const packages = getPackagesByIntent(intent)
+      // 백엔드 API 호출 (Gemini 분류 + 패키지 추천)
+      const resp = await postIntent(text)
+      const { type, intent, source, packages = [], geminiRaw } = resp || {}
       const isFeature = type === 'feature_request'
 
       const fallbackType = type || 'clarify'
