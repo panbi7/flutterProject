@@ -25,6 +25,8 @@ const ALLOWED_TYPES = [
 ]
 
 export async function classifyWithGemini(userMessage) {
+  console.log('[GEMINI] Starting classification for:', userMessage)
+
   const prompt = `Classify the following user message into type and intent. You MUST return ONLY a valid JSON object.
 
 User message: "${userMessage}"
@@ -62,18 +64,25 @@ Return format: {"type":"...","intent":"..."}
 NO explanation, NO markdown, ONLY JSON:`
 
   try {
+    console.log('[GEMINI] Calling API...')
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0,
-        maxOutputTokens: 100,
+        maxOutputTokens: 200, // Gemini 2.5 Flash의 thinking을 위해 충분한 토큰 제공
       },
     })
 
-    const response = await result.response
-    const text = response.text()
+    console.log('[GEMINI] API call successful')
+    console.log('[GEMINI] Full result:', result)
 
-    console.log('[GEMINI RAW]', text)
+    const response = await result.response
+    console.log('[GEMINI] Response object:', response)
+    console.log('[GEMINI] Candidates:', response.candidates)
+
+    const text = response.text()
+    console.log('[GEMINI RAW] Text:', text)
+    console.log('[GEMINI RAW] Text length:', text.length)
 
     // JSON 추출
     const match = text.match(/\{[^}]*\}/)
@@ -97,11 +106,13 @@ NO explanation, NO markdown, ONLY JSON:`
       geminiRaw: text,
     }
   } catch (error) {
-    console.error('[GEMINI ERROR]', error)
+    console.error('[GEMINI ERROR] Full error:', error)
+    console.error('[GEMINI ERROR] Message:', error.message)
+    console.error('[GEMINI ERROR] Stack:', error.stack)
     return {
-      type: 'feature_request',
+      type: 'clarify',
       intent: 'auth_basic',
-      source: 'fallback',
+      source: 'error',
       geminiRaw: `Error: ${error.message}`,
     }
   }
