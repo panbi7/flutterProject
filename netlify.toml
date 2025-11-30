@@ -18,6 +18,12 @@
   status = 200
 
 [[redirects]]
+  # 가이드 API 요청을 Netlify Functions로 리다이렉트
+  from = "/api/guide"
+  to = "/.netlify/functions/guide"
+  status = 200
+
+[[redirects]]
   # SPA를 위한 리다이렉트 (모든 요청을 index.html로)
   from = "/*"
   to = "/index.html"

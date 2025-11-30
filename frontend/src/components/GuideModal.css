@@ -1,0 +1,466 @@
+/* 모달 오버레이 */
+.guide-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 모달 컨테이너 */
+.guide-modal {
+  background: white;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 헤더 */
+.guide-modal-header {
+  padding: 24px;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.guide-header-content h2 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.guide-description {
+  margin: 0 0 12px 0;
+  opacity: 0.9;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.guide-meta {
+  display: flex;
+  gap: 8px;
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 콘텐츠 영역 */
+.guide-modal-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.guide-section {
+  margin-bottom: 32px;
+}
+
+.guide-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: #1f2937;
+}
+
+/* 사전 준비사항 */
+.prerequisites-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.prerequisites-list li {
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.prerequisites-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: bold;
+}
+
+/* 단계별 가이드 */
+.steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.step-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.step-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.step-header {
+  padding: 16px;
+  background: #f9fafb;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.step-header:hover {
+  background: #f3f4f6;
+}
+
+.step-number {
+  font-size: 18px;
+}
+
+.step-title {
+  flex: 1;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.step-toggle {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.step-content {
+  padding: 16px;
+  background: white;
+}
+
+.step-description {
+  margin: 0 0 16px 0;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.substeps-list {
+  margin: 0 0 16px 0;
+  padding-left: 20px;
+}
+
+.substeps-list li {
+  margin: 8px 0;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+/* 코드 블록 */
+.code-block {
+  margin: 16px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #1f2937;
+}
+
+.code-header {
+  background: #374151;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.code-filename {
+  color: #9ca3af;
+  font-size: 12px;
+  font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.copy-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.code-block code {
+  color: #e5e7eb;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* 터미널 명령어 */
+.command-block,
+.commands-block {
+  margin: 16px 0;
+}
+
+.command-header {
+  background: #1f2937;
+  color: #10b981;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.commands-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 노트 */
+.step-note {
+  margin: 16px 0 0 0;
+  padding: 12px;
+  background: #fef3c7;
+  border-left: 3px solid #f59e0b;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #92400e;
+}
+
+/* 에러 섹션 */
+.errors-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.error-item {
+  padding: 16px;
+  background: #fef2f2;
+  border-left: 3px solid #ef4444;
+  border-radius: 4px;
+}
+
+.error-title {
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  color: #991b1b;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.error-solution {
+  color: #7f1d1d;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.error-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.error-link:hover {
+  text-decoration: underline;
+}
+
+/* 팁 리스트 */
+.tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tips-list li {
+  padding: 12px;
+  margin-bottom: 8px;
+  background: #f0fdf4;
+  border-left: 3px solid #10b981;
+  border-radius: 4px;
+  color: #065f46;
+  line-height: 1.6;
+}
+
+/* 다음 단계 */
+.next-steps-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.next-step-item {
+  padding: 16px;
+  background: #eff6ff;
+  border-radius: 8px;
+  border: 1px solid #dbeafe;
+}
+
+.next-step-title {
+  font-weight: 600;
+  color: #1e40af;
+  margin-bottom: 8px;
+}
+
+.next-step-description {
+  font-size: 14px;
+  color: #1e3a8a;
+  line-height: 1.5;
+}
+
+/* 참고 자료 */
+.references-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.references-list li {
+  margin-bottom: 8px;
+}
+
+.references-list a {
+  color: #2563eb;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+  transition: color 0.2s;
+}
+
+.references-list a:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+/* 반응형 - 모바일 */
+@media (max-width: 768px) {
+  .guide-modal-overlay {
+    padding: 0;
+  }
+
+  .guide-modal {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .guide-modal-header {
+    border-radius: 0;
+    padding: 20px;
+  }
+
+  .guide-header-content h2 {
+    font-size: 20px;
+  }
+
+  .guide-modal-content {
+    padding: 16px;
+  }
+
+  .guide-section h3 {
+    font-size: 16px;
+  }
+
+  .next-steps-container {
+    grid-template-columns: 1fr;
+  }
+
+  .code-block code {
+    font-size: 12px;
+  }
+
+  .command-header {
+    font-size: 12px;
+  }
+}
+
+/* 스크롤바 스타일 */
+.guide-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.guide-modal-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.guide-modal-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.guide-modal-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

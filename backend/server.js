@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import { loadGuide } from './utils/guideLoader.js'
 
 import { PORT, ALLOWED_INTENTS, ALLOWED_TYPES } from './utils/constants.js'
 import { callGeminiClassifier } from './utils/gemini.js'
@@ -43,6 +44,35 @@ app.post('/api/intent', async (req, res) => {
 
 app.get('/health', (req, res) => {
   res.json({ ok: true })
+})
+
+app.get('/api/guide', (req, res) => {
+  const { packageId } = req.query
+
+  if (!packageId) {
+    return res.status(400).json({
+      success: false,
+      error: 'packageId 파라미터가 필요합니다.'
+    })
+  }
+
+  const guide = loadGuide(packageId)
+
+  if (!guide) {
+    return res.status(404).json({
+      success: false,
+      error: `'${packageId}' 가이드를 찾을 수 없습니다.`,
+      fallback: {
+        message: 'pub.dev에서 공식 문서를 확인해주세요.',
+        url: `https://pub.dev/packages/${packageId}`
+      }
+    })
+  }
+
+  return res.status(200).json({
+    success: true,
+    guide
+  })
 })
 
 app.listen(PORT, () => {
