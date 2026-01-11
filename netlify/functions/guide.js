@@ -1,8 +1,13 @@
-// Netlify Function for guide API (Alternative - 데이터 직접 임베드)
-// 만약 require()가 안 되면 이 파일을 guide.js로 이름 변경하세요
+/**
+ * 패키지 가이드 조회 Netlify Function
+ * - 하드코딩된 3개 가이드 (firebase_auth, google_sign_in, sign_in_with_apple)
+ * - 나머지는 동적 검색 (package-search.js)
+ */
 
-// JSON 데이터를 직접 객체로 임베드
-const GUIDES = {
+import { searchPackage } from '../../backend/services/package-search.js';
+
+// 하드코딩된 상세 가이드 (구조화된 형식)
+const HARDCODED_GUIDES = {
   firebase_auth: {
     "packageId": "firebase_auth",
     "packageName": "firebase_auth",
@@ -377,7 +382,7 @@ const GUIDES = {
   }
 };
 
-exports.handler = async (event, context) => {
+export async function handler(event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -410,29 +415,79 @@ exports.handler = async (event, context) => {
     };
   }
 
-  const guide = GUIDES[packageId];
+  console.log(`[GUIDE] 📦 "${packageId}" 가이드 조회 요청`);
 
-  if (!guide) {
+  // 1단계: 하드코딩된 상세 가이드 확인
+  const hardcodedGuide = HARDCODED_GUIDES[packageId];
+
+  if (hardcodedGuide) {
+    console.log(`[GUIDE] ✅ "${packageId}" 하드코딩 가이드 반환`);
     return {
-      statusCode: 404,
+      statusCode: 200,
       headers,
       body: JSON.stringify({
-        success: false,
-        error: `'${packageId}' 가이드를 찾을 수 없습니다.`,
-        fallback: {
-          message: 'pub.dev에서 공식 문서를 확인해주세요.',
-          url: `https://pub.dev/packages/${packageId}`
-        }
+        success: true,
+        guide: hardcodedGuide,
+        source: 'hardcoded'
       })
     };
   }
 
-  return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify({
-      success: true,
-      guide
-    })
-  };
-};
+  // 2단계: 동적 검색 (top100 → generated-guides → pub.dev)
+  try {
+    console.log(`[GUIDE] 🔍 "${packageId}" 동적 검색 시작...`);
+    const result = await searchPackage(packageId);
+
+    if (!result) {
+      console.log(`[GUIDE] ❌ "${packageId}" 패키지를 찾을 수 없습니다`);
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({
+          success: false,
+          error: `'${packageId}' 가이드를 찾을 수 없습니다.`,
+          fallback: {
+            message: 'pub.dev에서 공식 문서를 확인해주세요.',
+            url: `https://pub.dev/packages/${packageId}`
+          }
+        })
+      };
+    }
+
+    console.log(`[GUIDE] ✅ "${packageId}" 동적 가이드 생성 성공 (source: ${result.source})`);
+
+    // Q&A 텍스트 형식을 간단한 구조로 변환
+    const dynamicGuide = {
+      packageId: packageId,
+      packageName: packageId,
+      title: `${packageId} 패키지 가이드`,
+      description: result.packageInfo?.description || `${packageId} 패키지 사용 가이드`,
+      difficulty: '중급',
+      estimatedTime: '20-30분',
+      plainText: result.guide, // Q&A 텍스트를 plainText에 저장
+      source: result.source // 'pregenerated' 또는 'realtime'
+    };
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        success: true,
+        guide: dynamicGuide,
+        source: result.source
+      })
+    };
+
+  } catch (error) {
+    console.error(`[GUIDE] ❌ 오류 발생:`, error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        success: false,
+        error: 'Internal Server Error',
+        message: error.message
+      })
+    };
+  }
+}

@@ -43,8 +43,42 @@ function GuideModal({ guide, onClose }) {
 
         {/* 콘텐츠 */}
         <div className="guide-modal-content">
-          {/* 사전 준비사항 */}
-          {guide.prerequisites && guide.prerequisites.length > 0 && (
+          {/* Q&A 텍스트 가이드 (동적 생성된 가이드) */}
+          {guide.plainText ? (
+            <section className="guide-section">
+              <div style={{
+                background: '#f8f9fa',
+                padding: '20px',
+                borderRadius: '8px',
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'monospace',
+                fontSize: '14px',
+                lineHeight: '1.6',
+                maxHeight: '70vh',
+                overflow: 'auto'
+              }}>
+                {guide.plainText}
+              </div>
+              {guide.source && (
+                <div style={{
+                  marginTop: '12px',
+                  padding: '8px 12px',
+                  background: guide.source === 'pregenerated' ? '#e7f5ff' : '#fff4e6',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  color: '#495057'
+                }}>
+                  {guide.source === 'pregenerated'
+                    ? '✅ 사전 생성된 가이드 (즉시 응답)'
+                    : '🔄 실시간 생성된 가이드 (자동 캐싱됨)'}
+                </div>
+              )}
+            </section>
+          ) : (
+            /* 기존 구조화된 가이드 */
+            <>
+              {/* 사전 준비사항 */}
+              {guide.prerequisites && guide.prerequisites.length > 0 && (
             <section className="guide-section">
               <h3>📝 사전 준비사항</h3>
               <ul className="prerequisites-list">
@@ -204,20 +238,22 @@ function GuideModal({ guide, onClose }) {
             </section>
           )}
 
-          {/* 참고 자료 */}
-          {guide.references && guide.references.length > 0 && (
-            <section className="guide-section">
-              <h3>🔗 참고 자료</h3>
-              <ul className="references-list">
-                {guide.references.map((ref, idx) => (
-                  <li key={idx}>
-                    <a href={ref.url} target="_blank" rel="noopener noreferrer">
-                      {ref.title} →
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </section>
+              {/* 참고 자료 */}
+              {guide.references && guide.references.length > 0 && (
+                <section className="guide-section">
+                  <h3>🔗 참고 자료</h3>
+                  <ul className="references-list">
+                    {guide.references.map((ref, idx) => (
+                      <li key={idx}>
+                        <a href={ref.url} target="_blank" rel="noopener noreferrer">
+                          {ref.title} →
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </>
           )}
         </div>
       </div>

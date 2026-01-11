@@ -29,14 +29,18 @@ export default function Chat() {
     try {
       // 백엔드 API 호출 (Gemini 분류 + 패키지 추천)
       const resp = await postIntent(text)
-      const { type, intent, source, packages = [], geminiRaw } = resp || {}
+      const { type, intent, source, packages = [], packageName, geminiRaw } = resp || {}
       const isFeature = type === 'feature_request'
+      const isPackageQuery = type === 'package_query'
 
       const fallbackType = type || 'clarify'
       const nonFeatureMessages = {
         followup_question: '조금 더 구체적으로 어떤 기능이 필요한지 알려주시면 도와드릴게요! 😊',
         smalltalk: '안녕하세요! Flutter 관련 질문이 있다면 말씀해 주세요. 🚀',
         clarify: '어떤 Flutter 기능을 구현하고 싶은지 조금 더 자세히 설명해 주실 수 있을까요? 🤔',
+        package_query: packageName
+          ? `📦 "${packageName}" 패키지에 대한 가이드를 찾았습니다! 아래 "구현 가이드" 버튼을 클릭해서 확인하세요.`
+          : '어떤 패키지에 대해 알고 싶으신가요? 패키지 이름을 말씀해 주세요.',
       }
 
       const featureMessages = {
@@ -56,7 +60,24 @@ export default function Chat() {
           : nonFeatureMessages[fallbackType] || nonFeatureMessages.clarify,
       }
       setMessages((prev) => [...prev, botMsg])
-      setLatestPackages(isFeature ? packages : [])
+
+      // 패키지 목록 설정
+      if (isFeature) {
+        setLatestPackages(packages)
+      } else if (isPackageQuery && packageName) {
+        // 패키지 직접 질문: packageName을 카드로 표시
+        setLatestPackages([
+          {
+            id: packageName,
+            name: packageName,
+            pub_url: `https://pub.dev/packages/${packageName}`,
+            category: 'package',
+            description_ko: `${packageName} 패키지`,
+          }
+        ])
+      } else {
+        setLatestPackages([])
+      }
     } catch (e) {
       const botMsg = {
         role: 'assistant',

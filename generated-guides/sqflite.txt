@@ -1,0 +1,134 @@
+Q: sqflite 패키지가 뭐야?
+
+A: sqflite 패키지는 Flutter 앱에서 SQLite 데이터베이스를 사용할 수 있게 해주는 아주 유용한 도구야! SQLite는 스마트폰이나 컴퓨터에 데이터를 저장할 때 많이 쓰이는 작고 빠르고 안정적인 데이터베이스 엔진이지. sqflite를 쓰면 앱 내부에 데이터를 안전하게 저장하고 관리할 수 있어. 마치 앱을 위한 개인 금고 같은 거라고 생각하면 돼!
+
+   난이도: 초급
+   예상 학습 시간: 5분
+
+Q: 설치는 어떻게 해?
+
+A: 설치하는 건 정말 간단해! 먼저 Flutter 프로젝트의 pubspec.yaml 파일에 sqflite 패키지를 추가해줘야 해.
+
+────────────────────────────────────────────────────────────────────────
+dependencies:
+  flutter:
+    sdk: flutter
+
+  sqflite: ^2.0.0+4  # 최신 버전으로 바꾸는 게 좋아!
+  path: ^1.8.0
+────────────────────────────────────────────────────────────────────────
+
+이렇게 추가하고 나서 터미널에서 flutter pub get 명령어를 실행하면 설치가 완료돼. path 패키지도 같이 추가해주는 게 일반적이야.
+
+Q: sqflite의 기본 사용법을 알려줘.
+
+A: sqflite를 사용하려면 몇 가지 단계를 거쳐야 해.
+
+1.  데이터베이스 열기 또는 생성하기: 먼저 데이터베이스 파일을 열거나, 없으면 새로 만들어야 해. `openDatabase` 함수를 사용하는데, 이때 데이터베이스 파일 경로를 지정해줘야 해. 보통 `getDatabasesPath` 함수로 얻은 경로를 사용하면 돼.
+
+2.  테이블 생성하기: 데이터베이스를 열었다면, 데이터를 저장할 테이블을 만들어야 해. `onCreate` 콜백 함수 안에서 `db.execute`를 사용해서 SQL `CREATE TABLE` 문을 실행하면 돼.
+
+3.  데이터 삽입하기: 이제 테이블에 데이터를 넣을 차례야. `db.insert` 함수를 사용하면 SQL `INSERT` 문을 직접 쓰지 않고도 데이터를 쉽게 추가할 수 있어.
+
+4.  데이터 조회하기: 저장된 데이터를 불러올 때는 `db.query` 함수를 사용해. SQL `SELECT` 문과 비슷한 방식으로 조건을 지정해서 원하는 데이터를 가져올 수 있지.
+
+5.  데이터 수정하기: 데이터를 변경하고 싶을 때는 `db.update` 함수를 사용하면 돼.
+
+6.  데이터 삭제하기: 필요 없는 데이터를 지우려면 `db.delete` 함수를 쓰면 돼.
+
+7.  데이터베이스 닫기: 사용이 끝나면 `db.close()` 함수로 데이터베이스를 닫아주는 게 좋아.
+
+Q: sqflite의 주요 기능 3-5가지 정도만 설명해줘.
+
+A: sqflite의 주요 기능들을 몇 가지 알려줄게!
+
+1.  데이터 영속성: 앱이 종료되어도 데이터가 사라지지 않고 계속 유지돼. 사용자가 앱을 다시 열었을 때 이전 데이터를 그대로 볼 수 있게 해주는 아주 중요한 기능이지.
+
+2.  SQL 쿼리 지원: 표준 SQL 문법을 그대로 사용할 수 있어서 데이터베이스를 다루는 데 익숙하다면 어렵지 않게 사용할 수 있어. 복잡한 데이터 조회나 조작도 SQL 쿼리로 간단하게 해결할 수 있지.
+
+3.  트랜잭션 지원: 여러 데이터베이스 작업을 하나의 단위로 묶어서 처리할 수 있어. 만약 중간에 오류가 발생하면 지금까지의 모든 작업이 취소되기 때문에 데이터의 일관성을 유지하는 데 도움이 돼.
+
+4.  비동기 처리: 데이터베이스 작업은 시간이 좀 걸릴 수 있는데, sqflite는 비동기적으로 작동해서 앱이 멈추는 현상 없이 부드럽게 실행되도록 도와줘.
+
+5.  동시성 관리: 여러 곳에서 동시에 데이터베이스에 접근하려고 할 때, sqflite가 충돌 없이 안전하게 데이터를 처리하도록 관리해줘.
+
+Q: sqflite 사용하다가 자주 발생하는 에러 2-3개와 해결 방법을 알려줘.
+
+A: sqflite를 사용하다 보면 몇 가지 에러를 만날 수 있는데, 대표적인 것들과 해결 방법을 알려줄게.
+
+1.  "DatabaseException (no such table: your_table_name)" 에러:
+    이 에러는 보통 테이블을 생성하는 SQL 문이 실행되지 않았거나, 잘못된 테이블 이름을 사용했을 때 발생해.
+    해결 방법:
+    - `onCreate` 콜백 함수에서 `CREATE TABLE` 문이 제대로 실행되는지 확인해봐.
+    - 테이블 이름에 오타는 없는지 꼼꼼히 확인해봐.
+    - 앱을 처음 실행할 때만 `onCreate`가 실행되니까, 테이블 구조를 변경했다면 앱을 완전히 삭제하고 다시 설치해서 테스트해보는 것이 좋아.
+
+2.  "DatabaseException (cannot perform this operation. in a non-transactional context)" 에러:
+    이 에러는 여러 데이터베이스 작업을 트랜잭션으로 묶어서 처리해야 하는데, 그렇지 않았을 때 발생할 수 있어. 특히 여러 개의 `insert`나 `update`를 연속으로 할 때 자주 나타나.
+    해결 방법:
+    - `db.transaction((txn) async { ... })` 형태로 여러 작업을 묶어서 실행해봐. 트랜잭션 안에서 `txn.insert`, `txn.update` 등을 사용하면 돼.
+
+3.  "FlutterError (path_provider plugin not configured correctly)" 에러:
+    데이터베이스 파일 경로를 얻기 위해 `path_provider` 패키지를 사용하는데, 이 패키지가 제대로 설정되지 않았을 때 발생할 수 있어.
+    해결 방법:
+    - `pubspec.yaml` 파일에 `path_provider` 패키지가 추가되어 있는지 확인하고, `flutter pub get`을 다시 실행해봐.
+    - iOS의 경우, `ios/Runner/Info.plist` 파일에 `Application supports iTunes file sharing`을 `YES`로 설정해야 할 수도 있어 (이건 데이터베이스 파일에 접근하는 데 도움이 될 수 있어).
+
+Q: sqflite 실무 팁 2-3가지 알려줘.
+
+A: sqflite를 실무에서 더 잘 활용하기 위한 몇 가지 팁을 줄게!
+
+1.  데이터베이스 버전 관리: 앱을 업데이트하면서 데이터베이스 스키마(테이블 구조)를 변경해야 할 때가 있어. sqflite의 `version`과 `onUpgrade` 콜백을 사용하면 이런 변경 사항을 체계적으로 관리할 수 있어. `openDatabase` 함수에 `version`을 지정하고, `onUpgrade`에서 이전 버전에서 새 버전으로 업그레이드하는 SQL 문들을 작성하면 돼.
+
+2.  SQL 쿼리 분리 및 관리: 복잡한 SQL 쿼리들은 코드 안에 직접 넣기보다 별도의 파일에 저장하거나, 상수(constant)로 정의해서 관리하는 것이 좋아. 이렇게 하면 코드가 더 깔끔해지고 SQL 쿼리를 수정하거나 재사용하기 쉬워져.
+
+3.  데이터베이스 접근 객체(DAO) 패턴 활용: 데이터베이스 관련 로직을 따로 모아두는 DAO(Data Access Object) 패턴을 사용하면 코드의 재사용성을 높이고 유지보수하기가 훨씬 수월해져. 예를 들어, `UserDao` 클래스를 만들어서 사용자 관련 데이터베이스 작업(삽입, 조회, 수정, 삭제)을 모두 이 클래스 안에서 처리하는 거지.
+
+Q: 예시 코드를 보여줄 수 있어?
+
+A: 물론이지! 간단하게 데이터를 삽입하고 조회하는 예시 코드를 보여줄게.
+
+────────────────────────────────────────────────────────────────────────
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+
+Future<void> main() async {
+  // 1. 데이터베이스 열기 또는 생성
+  final database = await openDatabase(
+    join(await getDatabasesPath(), 'my_database.db'), // 데이터베이스 파일 경로
+    onCreate: (db, version) {
+      // 테이블 생성
+      return db.execute(
+        'CREATE TABLE users(id INTEGER PRIMARY KEY, name TEXT, age INTEGER)',
+      );
+    },
+    version: 1, // 데이터베이스 버전
+  );
+
+  // 2. 데이터 삽입
+  var newUser = {'name': 'Alice', 'age': 30};
+  await database.insert(
+    'users',
+    newUser,
+    conflictAlgorithm: ConflictAlgorithm.replace, // 같은 ID가 있으면 덮어쓰기
+  );
+
+  // 3. 데이터 조회
+  // 모든 사용자 조회
+  final List<Map<String, dynamic>> users = await database.query('users');
+  print('모든 사용자: $users');
+
+  // ID로 사용자 조회
+  final List<Map<String, dynamic>> userById = await database.query(
+    'users',
+    where: 'id = ?', // WHERE 절
+    whereArgs: [1], // WHERE 절의 ?에 들어갈 값
+  );
+  print('ID가 1인 사용자: $userById');
+
+  // 4. 데이터베이스 닫기
+  await database.close();
+}
+────────────────────────────────────────────────────────────────────────
+
+이 코드는 'my_database.db'라는 이름의 SQLite 데이터베이스 파일을 만들고, 'users'라는 테이블을 생성한 다음, 'Alice'라는 사용자를 추가하고, 마지막으로 모든 사용자와 ID가 1인 사용자를 조회하는 과정을 보여줘.

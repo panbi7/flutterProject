@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
-// 무조건 Gemini 2.5 Flash 사용
-const GEMINI_MODEL = 'gemini-2.5-flash'
+// 무조건 Gemini 2.5 Flash Lite 사용
+const GEMINI_MODEL = 'gemini-2.5-flash-lite'
 
 const ALLOWED_INTENTS = [
   'auth_basic',
@@ -19,6 +19,7 @@ const ALLOWED_TYPES = [
   'followup_question',
   'smalltalk',
   'clarify',
+  'package_query', // 패키지 직접 질문
 ]
 
 let genAI = null
@@ -42,6 +43,7 @@ CLASSIFICATION RULES:
 
 1. TYPE (choose exactly one):
    - "smalltalk" = Greetings, thanks, casual chat (안녕, 고마워, hi, hello, 잘가, 반가워)
+   - "package_query" = Asking about specific package (http 패키지, provider 사용법, dio 알려줘, flutter_map 어떻게)
    - "feature_request" = Wants to implement Flutter feature (로그인 만들고 싶어, 지도 보여줘, 결제 붙이고 싶어)
    - "followup_question" = Follow-up question about previous answer
    - "clarify" = Unclear or ambiguous message
@@ -60,6 +62,9 @@ Input: "안녕" → Output: {"type":"smalltalk","intent":"auth_basic"}
 Input: "안녕하세요" → Output: {"type":"smalltalk","intent":"auth_basic"}
 Input: "hi" → Output: {"type":"smalltalk","intent":"auth_basic"}
 Input: "고마워" → Output: {"type":"smalltalk","intent":"auth_basic"}
+Input: "http 패키지 알려줘" → Output: {"type":"package_query","intent":"auth_basic","packageName":"http"}
+Input: "provider 사용법" → Output: {"type":"package_query","intent":"auth_basic","packageName":"provider"}
+Input: "dio는 어떻게 써?" → Output: {"type":"package_query","intent":"auth_basic","packageName":"dio"}
 Input: "카카오 로그인" → Output: {"type":"feature_request","intent":"auth_korea"}
 Input: "소셜 로그인" → Output: {"type":"feature_request","intent":"auth_social"}
 Input: "구글 로그인" → Output: {"type":"feature_request","intent":"auth_social"}
@@ -67,7 +72,7 @@ Input: "지도 보여줘" → Output: {"type":"feature_request","intent":"map"}
 
 NOW CLASSIFY: "${userMessage}"
 
-Return format: {"type":"...","intent":"..."}
+Return format: {"type":"...","intent":"...","packageName":"..."} (packageName only if type is package_query)
 NO explanation, NO markdown, ONLY JSON:`
 
   try {
@@ -105,11 +110,12 @@ NO explanation, NO markdown, ONLY JSON:`
         console.log('[AI INTENT] Parsed:', parsed)
         const type = parsed.type && String(parsed.type).trim()
         const intent = parsed.intent && String(parsed.intent).trim()
-        console.log('[AI INTENT] Type:', type, 'Intent:', intent)
+        const packageName = parsed.packageName ? String(parsed.packageName).trim() : null
+        console.log('[AI INTENT] Type:', type, 'Intent:', intent, 'PackageName:', packageName)
         const validType = ALLOWED_TYPES.includes(type) ? type : 'clarify'
         const validIntent = ALLOWED_INTENTS.includes(intent) ? intent : 'auth_basic'
         console.log('[AI INTENT] Valid Type:', validType, 'Valid Intent:', validIntent)
-        return { type: validType, intent: validIntent, geminiRaw: text }
+        return { type: validType, intent: validIntent, packageName, geminiRaw: text }
       } catch (parseError) {
         console.warn('[AI INTENT] JSON parse error:', parseError)
       }
@@ -299,9 +305,9 @@ export async function handler(event) {
 
     // Gemini로 분류
     const classification = await callGeminiClassifier(message)
-    const { type, intent, geminiRaw } = classification
+    const { type, intent, packageName, geminiRaw } = classification
 
-    console.log('[AI INTENT]', { message, type, intent })
+    console.log('[AI INTENT]', { message, type, intent, packageName })
 
     // 패키지 가져오기
     const packages = INTENT_PACKAGES[intent] || []
@@ -312,6 +318,7 @@ export async function handler(event) {
       body: JSON.stringify({
         type,
         intent,
+        packageName: packageName || null, // 패키지 직접 질문일 때만 값이 있음
         source: 'ai',
         packages,
         geminiRaw, // Gemini 원본 응답 추가

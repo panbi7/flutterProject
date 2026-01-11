@@ -1,0 +1,182 @@
+Q: crypto 패키지가 뭐야?
+
+A: crypto 패키지는 Dart에서 암호화 관련 함수들을 사용할 수 있게 도와주는 유용한 패키지야. 주로 SHA, MD5, HMAC 같은 해싱 함수들을 구현하고 있어서, 데이터를 안전하게 다루거나 무결성을 검증할 때 많이 사용된단다.
+
+   난이도: 초급
+   예상 학습 시간: 5분
+
+
+Q: 설치는 어떻게 해?
+
+A: 아주 간단해! Flutter나 Dart 프로젝트의 `pubspec.yaml` 파일에 `crypto` 패키지를 추가하고 `flutter pub get` 또는 `dart pub get` 명령어를 실행하면 돼.
+
+   ```yaml
+   dependencies:
+     flutter:
+       sdk: flutter
+
+     crypto: ^3.0.3 # 최신 버전으로 바꿔서 사용해도 좋아!
+   ```
+
+   이렇게 `pubspec.yaml` 파일에 추가한 후에 터미널에서 프로젝트 루트 디렉토리로 이동해서 다음 명령어를 실행하면 설치가 완료된단다.
+
+   ```bash
+   flutter pub get
+   ```
+
+   혹은
+
+   ```bash
+   dart pub get
+   ```
+
+
+Q: 기본 사용법은 어떻게 돼?
+
+A: 기본적으로 암호화하려는 데이터(보통 바이트 배열 형태)를 `crypto` 패키지의 함수에 전달해서 해시 값을 얻는 방식으로 사용해. 예를 들어, SHA256으로 해싱하는 방법은 다음과 같아.
+
+   ```dart
+   import 'dart:convert';
+   import 'package:crypto/crypto.dart';
+
+   void main() {
+     String message = "안녕하세요, crypto 패키지!";
+     // 문자열을 바이트 배열로 변환
+     List<int> bytes = utf8.encode(message);
+
+     // SHA256 해싱
+     Digest sha256Result = sha256.convert(bytes);
+
+     print("원본 메시지: $message");
+     print("SHA256 해시: $sha256Result");
+   }
+   ```
+
+   보통 문자열을 바로 해싱하기보다는 `utf8.encode()` 같은 함수를 사용해서 바이트 배열로 변환한 후에 해싱하는 것이 일반적이야.
+
+
+Q: 이 패키지의 주요 기능은 뭐가 있을까?
+
+A: crypto 패키지의 주요 기능은 다음과 같아.
+
+1.  SHA-1, SHA-256, SHA-512 등 다양한 SHA 해싱 알고리즘을 지원해. 데이터를 고유한 짧은 문자열(해시값)로 변환할 때 유용하지.
+
+2.  MD5 해싱도 지원해. MD5는 SHA 계열보다는 보안성이 낮지만, 간단한 무결성 검증 등에는 여전히 사용될 수 있어.
+
+3.  HMAC(Hash-based Message Authentication Code) 기능을 제공해. 이건 비밀키를 이용해서 데이터의 무결성과 인증을 동시에 검증할 때 사용돼. 예를 들어, API 요청의 보안을 강화할 때 쓸 수 있지.
+
+4.  다양한 형식으로 해시 값을 문자열로 표현할 수 있어. 보통 16진수(hexadecimal) 문자열로 많이 사용하는데, `toString()` 메서드를 사용하면 쉽게 얻을 수 있단다.
+
+5.  바이트 배열(`List<int>`)을 직접 다루기 때문에, 파일 내용이나 네트워크로 받은 데이터를 직접 해싱하는 데 편리해.
+
+
+Q: 사용하다 보면 자주 발생하는 에러가 있을까?
+
+A: 몇 가지 흔하게 볼 수 있는 에러들이 있어.
+
+1.  `ArgumentError`: 해싱하려는 데이터가 비어 있거나, 예상치 못한 형식일 때 발생할 수 있어. 예를 들어, `sha256.convert([])` 와 같이 빈 리스트를 전달하면 에러가 날 수 있지. 항상 유효한 바이트 배열을 전달해야 해.
+
+2.  `FormatException`: 해시 값을 특정 형식(예: 16진수)으로 변환하는 과정에서 잘못된 입력이 있을 때 발생할 수 있어. 이건 보통 직접 변환하는 코드를 잘못 작성했을 때 나타나. `digest.toString()`처럼 패키지에서 제공하는 메서드를 사용하는 것이 안전해.
+
+3.  `UnsupportedError` (가능성은 낮지만): 아주 오래된 Dart 버전이나 특정 환경에서는 특정 암호화 알고리즘이 지원되지 않을 수도 있어. 하지만 최신 버전에서는 흔하게 발생하는 문제는 아니야.
+
+
+Q: 실무에서 사용할 때 유용한 팁이 있다면?
+
+A: 실무에서 crypto 패키지를 더 잘 활용하기 위한 몇 가지 팁을 알려줄게.
+
+1.  비밀번호 저장 시에는 반드시 단방향 해싱(SHA-256 등)과 솔트(Salt)를 함께 사용해야 해. 솔트는 해싱 전에 데이터에 무작위 값을 추가하는 건데, 동일한 비밀번호라도 해시 값이 달라져서 레인보우 테이블 공격을 막는 데 도움이 돼.
+
+    ```dart
+    import 'dart:convert';
+    import 'package:crypto/crypto.dart';
+    import 'dart:math';
+
+    String hashPassword(String password, String salt) {
+      List<int> passwordBytes = utf8.encode(password);
+      List<int> saltBytes = utf8.encode(salt);
+      // 솔트와 비밀번호를 합쳐서 해싱
+      List<int> combinedBytes = [...passwordBytes, ...saltBytes];
+      Digest digest = sha256.convert(combinedBytes);
+      return digest.toString();
+    }
+
+    // 솔트 생성 예시 (실제로는 더 안전한 방법 사용 권장)
+    String generateSalt() {
+      var random = Random.secure();
+      var bytes = List<int>.generate(16, (i) => random.nextInt(256));
+      return base64.encode(bytes);
+    }
+
+    void main() {
+      String password = "mySuperSecretPassword";
+      String salt = generateSalt(); // 매번 다른 솔트 생성
+      String hashedPassword = hashPassword(password, salt);
+
+      print("Salt: $salt");
+      print("Hashed Password: $hashedPassword");
+    }
+    ```
+
+2.  파일 무결성 검증에 활용해봐. 대용량 파일을 다운로드하거나 전송했을 때, 원본 파일과 동일한지 확인하기 위해 파일의 해시 값을 미리 계산해두고, 받은 파일의 해시 값과 비교하는 데 사용할 수 있어.
+
+    ```dart
+    import 'dart:io';
+    import 'dart:convert';
+    import 'package:crypto/crypto.dart';
+
+    Future<Digest> calculateFileHash(String filePath) async {
+      final file = File(filePath);
+      final bytes = await file.readAsBytes();
+      return sha256.convert(bytes);
+    }
+
+    Future<void> main() async {
+      String filename = 'my_document.txt'; // 해싱할 파일 경로
+      // 실제 파일이 있어야 테스트 가능!
+      // 예시로 임시 파일 생성
+      await File(filename).writeAsString("이것은 테스트 파일 내용입니다.");
+
+      try {
+        Digest fileHash = await calculateFileHash(filename);
+        print("파일 '$filename'의 SHA256 해시: $fileHash");
+      } catch (e) {
+        print("파일을 읽는 중 오류 발생: $e");
+      } finally {
+        // 임시 파일 삭제
+        await File(filename).delete();
+      }
+    }
+    ```
+
+3.  API 통신 시 HMAC을 사용해서 요청의 위변조를 방지할 수 있어. 서버와 클라이언트가 공유하는 비밀키를 이용해서 요청 데이터에 대한 MAC 값을 계산하고, 요청 헤더에 포함시켜 보내는 방식이지. 서버에서는 받은 MAC 값과 자체적으로 계산한 MAC 값을 비교해서 요청이 유효한지 판단할 수 있단다.
+
+    ```dart
+    import 'dart:convert';
+    import 'package:crypto/crypto.dart';
+
+    // 서버와 클라이언트가 공유하는 비밀키
+    const String _secretKey = "mySuperSecretKey123!";
+
+    String generateHmacSignature(String message) {
+      final key = utf8.encode(_secretKey);
+      final msg = utf8.encode(message);
+
+      final hmac = Hmac(sha256, key);
+      final signature = hmac.convert(msg);
+
+      return signature.toString();
+    }
+
+    void main() {
+      String requestData = '{"userId": 123, "action": "getData"}';
+      String signature = generateHmacSignature(requestData);
+
+      print("요청 데이터: $requestData");
+      print("HMAC 서명: $signature");
+
+      // 실제로는 이 서명을 HTTP 헤더 등에 포함시켜 전송
+    }
+    ```
+
+이 팁들을 활용하면 crypto 패키지를 더 안전하고 효과적으로 사용할 수 있을 거야!

@@ -1,0 +1,114 @@
+Q: flutter_svg 패키지가 뭐야?
+
+A: flutter_svg 패키지는 Flutter에서 SVG(Scalable Vector Graphics) 파일을 그리고 보여줄 수 있게 해주는 아주 유용한 라이브러리야. SVG는 벡터 그래픽이라서 이미지를 확대하거나 축소해도 깨지지 않고 선명하게 유지되는 장점이 있어. 그래서 앱 디자인을 깔끔하고 유연하게 만들 때 자주 사용된단다!
+
+   난이도: 초급
+   예상 학습 시간: 5
+
+
+Q: 설치는 어떻게 해?
+
+A: flutter_svg 패키지를 설치하는 건 아주 간단해! 먼저, 프로젝트의 pubspec.yaml 파일에 dependencies 섹션 아래에 flutter_svg를 추가해주면 돼.
+
+   dependencies:
+     flutter:
+       sdk: flutter
+
+     flutter_svg: ^2.0.9  <- 이 부분을 추가해주면 돼!
+
+   그리고 터미널이나 명령 프롬프트에서 flutter pub get 명령어를 실행해주면 자동으로 패키지가 다운로드되고 설치될 거야.
+
+   난이도: 초급
+   예상 학습 시간: 2
+
+
+Q: flutter_svg 패키지를 사용하는 기본 방법은 뭐야?
+
+A: flutter_svg 패키지를 사용하는 가장 기본적인 방법은 SvgPicture 위젯을 사용하는 거야. SvgPicture 위젯에는 SVG 파일을 보여주는 여러 가지 방법이 있는데, 가장 흔하게 사용하는 건 asset으로 등록된 SVG 파일을 보여주는 거야.
+
+   예를 들어, assets 폴더에 my_icon.svg 파일이 있다면 이렇게 사용할 수 있어.
+
+   ────────────────────────────────────────────────────────────────────────
+   import 'package:flutter/material.dart';
+   import 'package:flutter_svg/flutter_svg.dart';
+
+   class MySvgWidget extends StatelessWidget {
+     @override
+     Widget build(BuildContext context) {
+       return SvgPicture.asset(
+         'assets/my_icon.svg', // asset 경로를 정확하게 지정해줘!
+         width: 50, // 원하는 너비를 지정할 수 있어.
+         height: 50, // 원하는 높이를 지정할 수 있어.
+       );
+     }
+   }
+   ────────────────────────────────────────────────────────────────────────
+
+   SVG 파일의 경로를 잘 맞춰주는 게 중요해!
+
+   난이도: 초급
+   예상 학습 시간: 5
+
+
+Q: flutter_svg 패키지의 주요 기능은 뭐가 있어?
+
+A: flutter_svg 패키지는 정말 많은 기능을 가지고 있지만, 그중에서도 꼭 알아두면 좋은 주요 기능 3-5가지를 알려줄게!
+
+   1. 다양한 SVG 소스 지원: asset 파일뿐만 아니라, 네트워크 URL에 있는 SVG 파일이나 문자열로 직접 SVG 코드를 전달해서 보여줄 수도 있어.
+
+   2. 색상 및 스타일 변경: SVG 파일의 특정 부분을 코드로 제어해서 색상이나 스타일을 동적으로 변경할 수 있어. 예를 들어, 버튼을 누를 때마다 아이콘 색상을 바꾸고 싶을 때 유용하지.
+
+   3. 상호작용 가능: SVG 파일 내의 특정 요소에 탭 이벤트를 추가하거나 애니메이션을 적용해서 더 동적인 UI를 만들 수 있어.
+
+   4. 고품질 렌더링: SVG의 장점인 벡터 그래픽의 특징을 살려서 어떤 해상도에서도 선명하고 깨끗하게 보여줘.
+
+   5. 크기 조절 유연성: width와 height 속성을 사용해서 SVG 이미지의 크기를 자유롭게 조절할 수 있고, BoxFit 속성으로 어떻게 맞춰줄지도 결정할 수 있어.
+
+   난이도: 중급
+   예상 학습 시간: 10
+
+
+Q: flutter_svg 사용하다가 자주 발생하는 에러가 있다면?
+
+A: flutter_svg를 사용하다 보면 몇 가지 자주 마주치는 에러들이 있어. 당황하지 말고, 이 내용들을 참고하면 쉽게 해결할 수 있을 거야!
+
+   1. Asset not found 에러: SvgPicture.asset()을 사용할 때, SVG 파일 경로가 잘못되었거나 pubspec.yaml 파일에 assets 폴더를 제대로 등록하지 않았을 때 발생하는 에러야.
+      - 해결 방법: pubspec.yaml 파일에 assets 폴더를 제대로 등록했는지 확인하고, SvgPicture.asset()에서 파일 경로가 정확한지 다시 한번 체크해보자.
+
+   2. SVG 파일 파싱 에러: SVG 파일 자체에 문법 오류가 있거나, flutter_svg가 지원하지 않는 SVG 기능이 사용되었을 때 발생할 수 있어.
+      - 해결 방법: SVG 파일을 텍스트 에디터로 열어서 문법 오류가 없는지 확인하고, 가능하다면 다른 툴에서 SVG 파일을 다시 생성해보는 것도 방법이야.
+
+   3. 색상/스타일 적용 안 됨: SVG 파일 내의 특정 요소에 스타일을 적용하려고 했는데 원하는 대로 되지 않을 때가 있어.
+      - 해결 방법: SVG 파일 내에서 해당 요소의 ID나 클래스 이름이 올바르게 지정되었는지 확인하고, flutter_svg에서 제공하는 colorFilter나 placeholderBuilder 등을 정확하게 사용했는지 점검해보자.
+
+   난이도: 중급
+   예상 학습 시간: 7
+
+
+Q: flutter_svg를 실무에서 더 잘 활용할 수 있는 팁이 있다면 알려줘!
+
+A: flutter_svg 패키지를 실무에서 더욱 효과적으로 사용하기 위한 몇 가지 팁을 알려줄게!
+
+   1. SVG 파일 최적화: 용량이 큰 SVG 파일은 앱 성능에 영향을 줄 수 있어. SVG 파일을 업로드하거나 생성할 때, 불필요한 주석이나 데이터를 제거해서 파일 크기를 최소화하는 것이 좋아. 온라인 SVG 최적화 도구들을 활용해보는 것도 좋은 방법이야.
+
+   2. 동적 스타일링을 위한 `colorFilter` 활용: 앱의 테마나 사용자 설정에 따라 아이콘 색상을 변경해야 할 때가 많잖아? 이때 `SvgPicture`의 `colorFilter` 속성을 활용하면 SVG 파일 자체를 수정하지 않고도 쉽게 색상을 변경할 수 있어.
+
+   ────────────────────────────────────────────────────────────────────────
+   SvgPicture.asset(
+     'assets/my_icon.svg',
+     colorFilter: ColorFilter.mode(Colors.blue, BlendMode.srcIn), // 원하는 색상으로 변경!
+   )
+   ────────────────────────────────────────────────────────────────────────
+
+   3. 로딩 중/에러 시 대체 위젯 사용: 네트워크에서 SVG를 불러오거나 복잡한 SVG를 렌더링할 때 시간이 걸릴 수 있어. 이때 `SvgPicture`의 `placeholderBuilder`나 `errorBuilder`를 사용해서 로딩 중에는 로딩 스피너를 보여주거나, 에러 발생 시에는 기본 이미지 또는 에러 메시지를 보여주는 것이 사용자 경험을 향상시키는 데 도움이 돼.
+
+   ────────────────────────────────────────────────────────────────────────
+   SvgPicture.network(
+     'https://example.com/my_icon.svg',
+     placeholderBuilder: (BuildContext context) => CircularProgressIndicator(),
+     errorBuilder: (BuildContext context, Object error, StackTrace stackTrace) => Icon(Icons.error),
+   )
+   ────────────────────────────────────────────────────────────────────────
+
+   난이도: 중급
+   예상 학습 시간: 15
