@@ -2,10 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const dataDir = path.join(__dirname, '..', 'data');
-const generatedGuidesDir = path.join(__dirname, '..', '..', 'generated-guides');
+const _filename = fileURLToPath(import.meta.url);
+const _dirname = path.dirname(_filename);
+const dataDir = path.join(_dirname, '..', 'data');
+const generatedGuidesDir = path.join(_dirname, '..', '..', 'generated-guides');
 
 
 /**

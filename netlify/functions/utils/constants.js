@@ -1,8 +1,8 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const _filename = fileURLToPath(import.meta.url)
+const _dirname = path.dirname(_filename)
 
 export const PORT = process.env.PORT || 3000
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
@@ -28,11 +28,11 @@ export const ALLOWED_TYPES = [
 
 // Netlify Functions environment detection
 const isNetlify = !!process.env.LAMBDA_TASK_ROOT
-const baseDir = isNetlify ? process.env.LAMBDA_TASK_ROOT : __dirname
+const baseDir = isNetlify ? process.env.LAMBDA_TASK_ROOT : _dirname
 
 export const DATA_DIR = isNetlify
   ? path.join(baseDir, 'src', 'netlify', 'functions', 'data') // Netlify bundles files under src or at root
-  : path.join(__dirname, '..', 'data')
+  : path.join(_dirname, '..', 'data')
 
 // If the specific netlify path doesn't work, we'll also try a flatter approach in data.js
 export const INTENTS_DIR = path.join(DATA_DIR, 'intents')

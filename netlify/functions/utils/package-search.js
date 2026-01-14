@@ -2,11 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const _filename = fileURLToPath(import.meta.url);
+const _dirname = path.dirname(_filename);
 
 // generated-guides 디렉토리 경로 (프로젝트 루트)
-const GENERATED_GUIDES_DIR = path.join(__dirname, '..', '..', '..', 'generated-guides');
+const GENERATED_GUIDES_DIR = path.join(_dirname, '..', '..', '..', 'generated-guides');
 
 /**
  * 패키지 검색 함수

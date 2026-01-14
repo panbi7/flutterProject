@@ -1,6 +1,10 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { INTENTS_DIR, PACKAGES_DIR } from './constants.js'
+import { fileURLToPath } from 'node:url'
+
+const _filename = fileURLToPath(import.meta.url)
+const _dirname = path.dirname(_filename)
 
 export async function loadJSON(filePath) {
   const data = await fs.readFile(filePath, 'utf-8')
@@ -65,7 +69,7 @@ async function loadDirectoryJSON(dirPath) {
     dirPath,
     path.join(process.cwd(), 'netlify/functions/data', path.basename(dirPath)),
     path.join(process.cwd(), '.netlify/functions-internal', path.basename(dirPath)),
-    path.join(__dirname, '..', 'data', path.basename(dirPath))
+    path.join(_dirname, '..', 'data', path.basename(dirPath))
   ]
 
   let validPath = null
