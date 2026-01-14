@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend",
     "lint": "eslint .",
-    "preview": "vite preview",
+    "preview": "npm run preview --prefix frontend",
     "generate:test": "node generate-guides.js 3",
     "generate:small": "node generate-guides.js 10",
     "generate:all": "node generate-guides.js 50"

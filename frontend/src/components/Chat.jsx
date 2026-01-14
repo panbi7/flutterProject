@@ -39,8 +39,8 @@ export default function Chat() {
         smalltalk: '안녕하세요! Flutter 관련 질문이 있다면 말씀해 주세요. 🚀',
         clarify: '어떤 Flutter 기능을 구현하고 싶은지 조금 더 자세히 설명해 주실 수 있을까요? 🤔',
         package_query: packageName
-          ? `📦 "${packageName}" 패키지에 대한 가이드를 찾았습니다! 아래 "구현 가이드" 버튼을 클릭해서 확인하세요.`
-          : '어떤 패키지에 대해 알고 싶으신가요? 패키지 이름을 말씀해 주세요.',
+          ? `📦 "${packageName}" 패키지 정보를 찾았습니다! 아래 "구현 가이드" 버튼을 누르시면 AI가 실시간 가이드를 생성해 드립니다.`
+          : '궁금하신 Flutter 패키지 이름을 말씀해 주세요. (예: "dio 사용법 알려줘")',
       }
 
       const featureMessages = {

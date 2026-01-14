@@ -11,6 +11,32 @@ function initializeGemini() {
   }
 }
 
+/**
+ * Gemini를 사용하여 특정 패키지에 대한 구현 가이드를 생성합니다.
+ */
+export async function callGeminiForGuide(prompt) {
+  try {
+    initializeGemini()
+
+    if (!model) {
+      throw new Error('Gemini API key not configured')
+    }
+
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.2, // 가이드 생성은 약간의 창의성 허용
+        maxOutputTokens: 2048,
+      },
+    })
+    const response = await result.response
+    return response.text()
+  } catch (error) {
+    console.error('[GEMINI GUIDE] Error:', error.message)
+    return null
+  }
+}
+
 export async function callGeminiClassifier(userMessage) {
   const prompt = `Classify the following user message into type and intent. You MUST return ONLY a valid JSON object.
 
@@ -36,6 +62,7 @@ CLASSIFICATION RULES:
 
 3. packageName:
    - If TYPE is "package_query", extract the package name (e.g., "flutter_bloc", "dio", "provider").
+   - Extract the EXACT name from pub.dev if possible.
    - Otherwise, this field should be omitted.
 
 EXAMPLES (copy the exact format):
@@ -45,6 +72,7 @@ Input: "지도 보여줘" → Output: {"type":"feature_request","intent":"map"}
 Input: "flutter_bloc 사용법" → Output: {"type":"package_query","intent":"auth_basic","packageName":"flutter_bloc"}
 Input: "dio 어떻게 써?" → Output: {"type":"package_query","intent":"auth_basic","packageName":"dio"}
 Input: "provider 예제" → Output: {"type":"package_query","intent":"auth_basic","packageName":"provider"}
+Input: "get_it 가이드 보여줘" → Output: {"type":"package_query","intent":"auth_basic","packageName":"get_it"}
 
 NOW CLASSIFY: "${userMessage}"
 
@@ -90,7 +118,7 @@ NO explanation, NO markdown, ONLY JSON:`
 
         const validType = ALLOWED_TYPES.includes(type) ? type : 'clarify'
         const validIntent = ALLOWED_INTENTS.includes(intent) ? intent : 'auth_basic'
-        
+
         const result = { type: validType, intent: validIntent, geminiRaw: text }
         if (validType === 'package_query' && packageName) {
           result.packageName = packageName

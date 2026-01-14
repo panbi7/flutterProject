@@ -9,10 +9,15 @@ export default function PackageCards({ packages }) {
   const handleShowGuide = async (packageId) => {
     setLoadingGuide(packageId)
     try {
-      const guide = await getGuide(packageId)
-      setSelectedGuide(guide)
+      const resp = await getGuide(packageId)
+      if (resp.success) {
+        setSelectedGuide(resp.guide)
+      } else {
+        alert(resp.error || '가이드를 불러올 수 없습니다.')
+      }
     } catch (error) {
-      alert('가이드를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.')
+      console.error('Guide loading error:', error)
+      alert('가이드를 불러오거나 생성하는 중 오류가 발생했습니다.')
     } finally {
       setLoadingGuide(null)
     }
@@ -97,7 +102,7 @@ export default function PackageCards({ packages }) {
                   }
                 }}
               >
-                {loadingGuide === p.id ? '⏳ 로딩 중...' : '📖 구현 가이드'}
+                {loadingGuide === p.id ? '⏳ AI 가이드 생성 중...' : '📖 구현 가이드'}
               </button>
             </div>
           </div>

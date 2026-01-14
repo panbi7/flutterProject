@@ -1,4 +1,5 @@
 import { loadGuide } from './utils/guideLoader.js'
+import { generateGuideFromPubDev } from './utils/guideGenerator.js'
 
 export async function handler(event, context) {
   // CORS headers
@@ -40,7 +41,14 @@ export async function handler(event, context) {
       }
     }
 
-    const guide = loadGuide(packageId)
+    // 1단계: 캐시된 가이드 확인 (JSON 또는 TXT)
+    let guide = loadGuide(packageId)
+
+    // 2단계: 없으면 실시간 생성
+    if (!guide) {
+      console.log(`[Guide API] 캐시 없음, 실시간 생성 시도: ${packageId}`)
+      guide = await generateGuideFromPubDev(packageId)
+    }
 
     if (!guide) {
       return {
@@ -48,7 +56,7 @@ export async function handler(event, context) {
         headers,
         body: JSON.stringify({
           success: false,
-          error: `'${packageId}' 가이드를 찾을 수 없습니다.`,
+          error: `'${packageId}' 가이드를 찾을 수 없으며 생성에도 실패했습니다.`,
           fallback: {
             message: 'pub.dev에서 공식 문서를 확인해주세요.',
             url: `https://pub.dev/packages/${packageId}`
