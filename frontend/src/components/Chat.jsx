@@ -33,7 +33,6 @@ export default function Chat() {
       const isFeature = type === 'feature_request'
       const isPackageQuery = type === 'package_query'
 
-      const fallbackType = type || 'clarify'
       const nonFeatureMessages = {
         followup_question: '조금 더 구체적으로 어떤 기능이 필요한지 알려주시면 도와드릴게요! 😊',
         smalltalk: '안녕하세요! Flutter 관련 질문이 있다면 말씀해 주세요. 🚀',
@@ -56,8 +55,8 @@ export default function Chat() {
       const botMsg = {
         role: 'assistant',
         text: isFeature
-          ? featureMessages[intent] || `${intent} 관련 패키지를 추천드립니다! 📦`
-          : nonFeatureMessages[fallbackType] || nonFeatureMessages.clarify,
+          ? featureMessages[intent] || `관련 패키지를 추천드립니다! 📦`
+          : nonFeatureMessages[type] || nonFeatureMessages.clarify,
       }
       setMessages((prev) => [...prev, botMsg])
 

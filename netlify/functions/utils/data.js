@@ -9,6 +9,13 @@ export async function loadJSON(filePath) {
 
 export async function getScenarios() {
   const entries = await loadDirectoryJSON(INTENTS_DIR)
+  if (entries.length === 0) {
+    // Hardcoded minimal fallback for Netlify bundle issues
+    return {
+      'auth_basic': { packages: ['firebase_auth', 'google_sign_in'] },
+      'map': { packages: ['google_maps_flutter'] }
+    }
+  }
   const scenarios = {}
   for (const { key, data } of entries) {
     scenarios[key] = data
@@ -18,6 +25,14 @@ export async function getScenarios() {
 
 export async function getPackages() {
   const entries = await loadDirectoryJSON(PACKAGES_DIR)
+  if (entries.length === 0) {
+    // Hardcoded minimal fallback
+    return [
+      { id: 'firebase_auth', name: 'Firebase Auth', description: 'Firebase Authentication for Flutter' },
+      { id: 'google_sign_in', name: 'Google Sign In', description: 'Google Sign In for Flutter' },
+      { id: 'google_maps_flutter', name: 'Google Maps Flutter', description: 'Google Maps for Flutter' }
+    ]
+  }
   const list = []
   for (const { data } of entries) {
     if (Array.isArray(data)) {
