@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 import { DATA_DIR } from './constants.js';
 
-// 데이터 파일 경로 (constants.js의 안정적인 DATA_DIR 기반으로 설정)
-const SLIM_DATA_PATH = path.join(DATA_DIR, 'top_packages_slim.json');
+// 데이터 파일 경로 (원본 top_packages.json 사용)
+const FULL_DATA_PATH = path.join(DATA_DIR, 'top_packages.json');
 
 // 전역 캐시 (Netlify Function 인스턴스 생존 기간 동안 유지)
 let cachedPackages = null;
@@ -18,10 +18,10 @@ function loadPackages() {
 
     // Netlify 환경 대응을 위한 다중 경로 탐색
     const potentialPaths = [
-        SLIM_DATA_PATH, // 기본 (constants.js의 DATA_DIR 기반)
-        path.join(process.cwd(), 'netlify/functions/data', 'top_packages_slim.json'),
-        path.join(process.cwd(), '.netlify/functions-internal', 'top_packages_slim.json'),
-        path.join(DATA_DIR, 'top_packages_slim.json')
+        FULL_DATA_PATH, // 기본 (constants.js의 DATA_DIR 기반)
+        path.join(process.cwd(), 'netlify/functions/data', 'top_packages.json'),
+        path.join(process.cwd(), '.netlify/functions-internal', 'top_packages.json'),
+        path.join(DATA_DIR, 'top_packages.json')
     ];
 
     for (const p of potentialPaths) {
@@ -48,14 +48,14 @@ function loadPackages() {
  */
 export function getLocalPackageInfo(packageName) {
     const packages = loadPackages();
-    const pkg = packages.find(p => p.n.toLowerCase() === packageName.toLowerCase());
+    const pkg = packages.find(p => p.packageName.toLowerCase() === packageName.toLowerCase());
 
     if (pkg) {
         return {
-            name: pkg.n,
-            description: pkg.d,
-            exampleCode: pkg.e,
-            tags: pkg.t
+            name: pkg.packageName,
+            description: pkg.description,
+            exampleCode: pkg.exampleCode,
+            tags: pkg.tags
         };
     }
     return null;

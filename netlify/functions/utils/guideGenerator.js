@@ -26,7 +26,12 @@ export async function generateGuideFromPubDev(packageName) {
 
     // 2. Gemini 프롬프트 구성 (구조화된 JSON 요청 + RAG 컨텍스트)
     const prompt = `
-당신은 Flutter 전문가입니다. 다음 Flutter 패키지에 대한 심층적인 구현 가이드를 반드시 JSON 형식으로 작성해주세요.
+당신은 세계 최고의 Flutter 전문가입니다. 제공된 '공식 예제 코드'를 기반으로, 해당 패키지를 실무에 바로 적용할 수 있는 **완벽한 구현 가이드**를 작성하는 것이 임무입니다.
+
+품질 기준:
+- 'firebase_auth' 패키지 가이드 수준으로 매우 상세하고 구조적이어야 합니다.
+- 단순히 코드를 보여주는 것을 넘어, 왜 이 코드가 필요한지, 어떤 설정이 선행되어야 하는지 친절하게 설명하세요.
+- 모든 텍스트(제목, 설명, 팁 등)는 **한국어**로 작성하세요.
 
 패키지 정보:
 - 이름: ${pubInfo.name}
@@ -35,44 +40,48 @@ export async function generateGuideFromPubDev(packageName) {
 ${exampleSnippet}
 
 요구사항:
-1. 반드시 다음 JSON 구조를 지켜서 응답하세요.
-2. 모든 설명과 텍스트는 한국어로 작성하세요.
-3. [중요] 마크다운 형식을 사용하지 말고, 순수 JSON 객체만 반환하세요.
-4. 예제 코드는 제공된 '공식 예제 코드'를 최우선으로 참고하여, 실제 작동 가능하고 최신 문법(Null Safety 등)이 반영된 코드로 작성하세요.
-5. 단순히 코드를 복사하는 것이 아니라, 초급자도 이해할 수 있도록 단계별로 나누어 설명하세요.
+1. 반드시 다음 JSON 구조를 지켜서 응답하세요. (구조가 틀리면 시스템이 작동하지 않습니다.)
+2. 마크다운 기호(\`\`\`) 없이 순수 JSON 객체만 반환하세요.
+3. [중요] '공식 예제 코드'를 심층 분석하여, 실제 작동 가능하고 Flutter의 최신 모범 사례(Clean Architecture, Null Safety 등)를 반영한 코드를 포함하세요.
+4. 초보자도 따라 할 수 있도록 단계를 1번부터 상세히 나누세요.
 
 JSON Schema:
 {
   "title": "${pubInfo.name} 구현 가이드",
-  "description": "패키지에 대한 짧고 명확한 설명",
+  "description": "패키지의 핵심 가치를 설명하는 짧고 명확한 요약",
   "difficulty": "초급/중급/고급 중 선택",
   "estimatedTime": "소요 예상 시간 (예: 20-30분)",
-  "prerequisites": ["사전 설치 필요 항목", "설정 필요 사항"],
+  "prerequisites": ["사전 설치 필요 항목 (예: CocoaPods, API Key)"],
   "steps": [
     {
       "stepNumber": 1,
       "title": "단계 제목",
-      "description": "해당 단계에 대한 설명",
-      "substeps": ["상세 수행 항목 1", "상세 수행 항목 2"],
+      "description": "이 단계에서 무엇을 하는지 상세 설명",
+      "substeps": ["작은 수행 단위 1", "작은 수행 단위 2"],
       "code": {
-        "language": "dart or yaml",
-        "filename": "파일명 (생략 가능)",
+        "language": "dart",
+        "filename": "lib/main.dart (예시)",
         "content": "실제 코드 내용"
       },
-      "command": "터미널 명령어가 필요한 경우",
-      "note": "추가 팁이나 주의사항"
+      "command": "터미널 명령어 (필요 시)",
+      "commands": ["명령어1", "명령어2"],
+      "note": "중요한 주의사항이나 팁",
+      "explanation": "코드에 대한 심층 해설"
     }
   ],
   "commonErrors": [
-    { "error": "에러 메시지나 상황", "solution": "해결 방법" }
+    { "error": "에러 상황", "solution": "해결 방법", "link": "참고 URL (선택)" }
   ],
-  "tips": ["전문가 팁 1", "팁 2"],
+  "tips": ["전문가용 실무 팁 1", "성능 최적화 팁 2"],
+  "nextSteps": [
+    { "title": "다음 단계 제목", "description": "다음에 무엇을 공부하면 좋은지", "packageId": "연관 패키지ID (선택)" }
+  ],
   "references": [
     { "title": "공식 문서", "url": "https://pub.dev/packages/${pubInfo.name}" }
   ]
 }
 
-이제 ${pubInfo.name}에 대한 가이드를 위 JSON 형식으로 작성해주세요.
+이제 ${pubInfo.name}에 대한 완벽한 가이드를 위 JSON 형식으로 작성해주세요.
 `;
 
     // 3. Gemini로 가이드 생성
