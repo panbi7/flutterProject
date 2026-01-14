@@ -14,6 +14,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(false)
   const [latestPackages, setLatestPackages] = useState([])
   const [systemStatus, setSystemStatus] = useState({ ai: 'checking', data: 'checking' })
+  const [lastError, setLastError] = useState(null)
   const listRef = useRef(null)
 
   useEffect(() => {
@@ -30,10 +31,15 @@ export default function Chat() {
     try {
       // 백엔드 API 호출 (Gemini 분류 + 패키지 추천)
       const resp = await postIntent(text)
-      const { type, intent, source, packages = [], packageName, geminiRaw, status } = resp || {}
+      const { type, intent, source, packages = [], packageName, geminiRaw, status, errorMessage } = resp || {}
 
       if (status) {
         setSystemStatus(status)
+      }
+      if (errorMessage) {
+        setLastError(errorMessage)
+      } else if (status?.ai === 'connected') {
+        setLastError(null)
       }
       const isFeature = type === 'feature_request'
       const isPackageQuery = type === 'package_query'
@@ -106,12 +112,18 @@ export default function Chat() {
         )}
       </div>
       <div className="footer">
-        <div className="status-bar">
+        <div
+          className="status-bar"
+          onClick={() => lastError && alert(`[상태 상세 정보]\n\n${lastError}`)}
+          style={{ cursor: lastError ? 'help' : 'default' }}
+          title={lastError ? '클릭하여 상세 정보 보기' : ''}
+        >
           <span className={`status-dot ${systemStatus.ai}`}></span>
           AI: {systemStatus.ai === 'connected' ? '연결됨' : '미연결(기본모드)'}
           <span style={{ marginLeft: '10px' }}></span>
           <span className={`status-dot ${systemStatus.data}`}></span>
           DATA: {systemStatus.data === 'ready' ? '준비됨' : '백업모드'}
+          {lastError && <span style={{ marginLeft: 'auto', color: '#ef4444', fontSize: '10px' }}>[!] 클릭하여 확인</span>}
         </div>
         <MessageInput onSend={handleSend} />
       </div>

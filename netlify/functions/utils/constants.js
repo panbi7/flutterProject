@@ -26,6 +26,14 @@ export const ALLOWED_TYPES = [
   'package_query',
 ]
 
-export const DATA_DIR = path.join(__dirname, '..', 'data')
+// Netlify Functions environment detection
+const isNetlify = !!process.env.LAMBDA_TASK_ROOT
+const baseDir = isNetlify ? process.env.LAMBDA_TASK_ROOT : __dirname
+
+export const DATA_DIR = isNetlify
+  ? path.join(baseDir, 'src', 'netlify', 'functions', 'data') // Netlify bundles files under src or at root
+  : path.join(__dirname, '..', 'data')
+
+// If the specific netlify path doesn't work, we'll also try a flatter approach in data.js
 export const INTENTS_DIR = path.join(DATA_DIR, 'intents')
 export const PACKAGES_DIR = path.join(DATA_DIR, 'packages')

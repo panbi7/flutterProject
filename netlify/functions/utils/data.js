@@ -61,20 +61,39 @@ export async function getPackagesByIntent(intent) {
 }
 
 async function loadDirectoryJSON(dirPath) {
+  const potentialPaths = [
+    dirPath,
+    path.join(process.cwd(), 'netlify/functions/data', path.basename(dirPath)),
+    path.join(process.cwd(), '.netlify/functions-internal', path.basename(dirPath)),
+    path.join(__dirname, '..', 'data', path.basename(dirPath))
+  ]
+
+  let validPath = null
+  for (const p of potentialPaths) {
+    try {
+      await fs.access(p)
+      validPath = p
+      break
+    } catch (_) { }
+  }
+
+  if (!validPath) {
+    console.warn(`[DATA] No valid path found for ${path.basename(dirPath)}`)
+    return []
+  }
+
   let files = []
   try {
-    files = await fs.readdir(dirPath)
+    files = await fs.readdir(validPath)
   } catch (err) {
-    if (err.code === 'ENOENT') {
-      return []
-    }
-    throw err
+    console.error(`[DATA] Error reading directory ${validPath}:`, err)
+    return []
   }
 
   const jsonFiles = files.filter((f) => f.endsWith('.json')).sort()
   const entries = []
   for (const file of jsonFiles) {
-    const fullPath = path.join(dirPath, file)
+    const fullPath = path.join(validPath, file)
     const key = path.basename(file, '.json')
     const data = await loadJSON(fullPath)
     entries.push({ key, data })

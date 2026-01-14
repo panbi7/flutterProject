@@ -133,12 +133,16 @@ NO explanation, NO markdown, ONLY JSON:`
     console.warn('[AI INTENT] No valid JSON found in response:', text)
     return { type: 'feature_request', intent: 'auth_basic', geminiRaw: text }
   } catch (error) {
-    console.error('[AI INTENT] Gemini API error, using robust fallback. Error:', error.message)
+    const errorMsg = !GEMINI_API_KEY
+      ? 'GEMINI_API_KEY 환경 변수가 설정되지 않았습니다 (Netlify Dashboard 확인 필요).'
+      : error.message
+    console.error('[AI INTENT] Gemini API error:', errorMsg)
     return {
       type: 'feature_request',
       intent: 'auth_basic',
       source: 'fallback_error',
-      geminiRaw: `Error: ${error.message}`
+      geminiRaw: `Error: ${errorMsg}`,
+      errorMessage: errorMsg
     }
   }
 }
