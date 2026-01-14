@@ -21,7 +21,7 @@ export default function Chat() {
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight
     }
-  }, [messages])
+  }, [messages, latestPackages])
 
   const handleSend = async (text) => {
     if (!text.trim()) return
@@ -61,6 +61,7 @@ export default function Chat() {
         auth_custom: '커스텀 백엔드 인증을 구현하시려면 아래 패키지를 추천드립니다! 🛠️',
         auth_basic: '로그인 기능을 구현하시려면 아래 패키지를 추천드립니다! 🔑',
         map: '지도 기능을 구현하시려면 아래 패키지를 추천드립니다! 🗺️',
+        media: '비디오, 오디오 등 미디어 기능을 구현하시려면 아래 패키지를 추천드립니다! 🎬',
       }
 
       const botMsg = {

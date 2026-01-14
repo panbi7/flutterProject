@@ -26,6 +26,7 @@ export const ALLOWED_INTENTS = [
   'network_http',
   'routing',
   'local_db',
+  'media',
 ]
 
 export const ALLOWED_TYPES = [

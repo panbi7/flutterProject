@@ -77,9 +77,8 @@ Input: "안녕" → Output: {"type":"smalltalk","intent":"auth_basic"}
 Input: "카카오 로그인" → Output: {"type":"feature_request","intent":"auth_korea"}
 Input: "google sign in" → Output: {"type":"feature_request","intent":"auth_social"}
 Input: "소셜 로그인" → Output: {"type":"feature_request","intent":"auth_social"}
-Input: "지도 보여줘" → Output: {"type":"feature_request","intent":"map"}
-Input: "flutter_bloc 사용법" → Output: {"type":"package_query","intent":"auth_basic","packageName":"flutter_bloc"}
-Input: "dio 어떻게 써?" → Output: {"type":"package_query","intent":"auth_basic","packageName":"dio"}
+Input: "비디오 재생하고 싶어" → Output: {"type":"feature_request","intent":"media"}
+Input: "camera 사용법" → Output: {"type":"package_query","intent":"media","packageName":"camera"}
 Input: "provider 예제" → Output: {"type":"package_query","intent":"auth_basic","packageName":"provider"}
 Input: "get_it 가이드 보여줘" → Output: {"type":"package_query","intent":"auth_basic","packageName":"get_it"}
 

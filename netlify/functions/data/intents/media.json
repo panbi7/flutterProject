@@ -1,0 +1,10 @@
+{
+    "packages": [
+        "video_player",
+        "chewie",
+        "camera",
+        "audioplayers",
+        "image_picker",
+        "flutter_svg"
+    ]
+}

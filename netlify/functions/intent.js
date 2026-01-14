@@ -57,6 +57,8 @@ export async function handler(event, context) {
       intent = 'auth_social'
     } else if (lowerMsg.includes('map') || lowerMsg.includes('지도')) {
       intent = 'map'
+    } else if (lowerMsg.includes('video') || lowerMsg.includes('비디오') || lowerMsg.includes('동영상') || lowerMsg.includes('camera') || lowerMsg.includes('카메라')) {
+      intent = 'media'
     }
 
     const normalized = normalizeClassification({ type, intent, packageName })
