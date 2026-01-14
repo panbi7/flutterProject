@@ -1,6 +1,7 @@
 import { ALLOWED_INTENTS, ALLOWED_TYPES } from './utils/constants.js'
 import { callGeminiClassifier } from './utils/gemini.js'
 import { getPackagesByIntent } from './utils/data.js'
+import { searchPackages } from './utils/pubdevApi.js'
 
 export async function handler(event, context) {
   // CORS headers
@@ -62,18 +63,42 @@ export async function handler(event, context) {
     intent = normalized.intent
     packageName = normalized.packageName
 
-    // feature_request 타입 처리 시 패키지 정렬 로직 추가
+    // feature_request 타입 처리 (로컬 DB + 실시간 검색 결합)
     if (type === 'feature_request') {
-      let packages = await getPackagesByIntent(intent)
+      let curatedPackages = []
+      try {
+        curatedPackages = await getPackagesByIntent(intent)
+      } catch (e) {
+        console.warn(`[Local DB] 인텐트 데이터 로드 실패 (${intent}):`, e.message)
+      }
 
-      // 입력 메시지에 포함된 단어와 가장 일치하는 패키지를 최상단으로 정렬
-      packages = packages.sort((a, b) => {
-        const aMatch = lowerMsg.includes(a.id.toLowerCase()) || lowerMsg.includes(a.name.toLowerCase())
-        const bMatch = lowerMsg.includes(b.id.toLowerCase()) || lowerMsg.includes(b.name.toLowerCase())
+      // 실시간 검색 시도 (로컬에 데이터가 적거나, 범용적인 질문인 경우)
+      let searchedPackages = []
+      const shouldSearchOnline = curatedPackages.length < 3 || intent === 'auth_basic' || lowerMsg.length > 5
+
+      if (shouldSearchOnline) {
+        console.log(`[pub.dev Search] 실시간 검색 수행: ${message}`)
+        searchedPackages = await searchPackages(message)
+      }
+
+      // 두 결과 통합 및 중복 제거 (ID 기준)
+      const combined = [...curatedPackages]
+      const curatedIds = new Set(curatedPackages.map(p => p.id))
+
+      for (const p of searchedPackages) {
+        if (!curatedIds.has(p.id)) {
+          combined.push(p)
+        }
+      }
+
+      // 입력 메시지 키워드 매칭도에 따른 정렬
+      const finalPackages = combined.sort((a, b) => {
+        const aMatch = lowerMsg.includes(a.id.toLowerCase()) || (a.name && lowerMsg.includes(a.name.toLowerCase()))
+        const bMatch = lowerMsg.includes(b.id.toLowerCase()) || (b.name && lowerMsg.includes(b.name.toLowerCase()))
         if (aMatch && !bMatch) return -1
         if (!aMatch && bMatch) return 1
         return 0
-      })
+      }).slice(0, 10) // 최대 10개만 반환
 
       return {
         statusCode: 200,
@@ -81,13 +106,14 @@ export async function handler(event, context) {
         body: JSON.stringify({
           type,
           intent,
-          source,
-          packages,
+          source: searchedPackages.length > 0 ? 'hybrid' : 'ai',
+          packages: finalPackages,
           geminiRaw,
           status: { ai: 'connected', data: 'ready' }
         })
       }
     }
+
 
     // package_query 타입 처리 (이 부분은 early return 하지 않고 계속 진행하게 두거나, 필요한 경우에만 return)
     if (type === 'package_query' && packageName) {

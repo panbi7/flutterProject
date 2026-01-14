@@ -61,3 +61,34 @@ export async function getPackageScore(packageName) {
     return null;
   }
 }
+/**
+ * pub.dev에서 키워드로 패키지를 검색합니다.
+ * @param {string} query 
+ * @returns {Promise<Array>} - 검색 결과 패키지 리스트
+ */
+export async function searchPackages(query) {
+  try {
+    const url = `https://pub.dev/api/search?q=${encodeURIComponent(query)}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Search API 실패');
+
+    const data = await response.json();
+    // 검색 결과에서 상위 5개 정도만 상세 정보 가져오기
+    const packageNames = data.packages.slice(0, 5).map(p => p.package);
+
+    const results = await Promise.all(
+      packageNames.map(name => getPackageInfo(name))
+    );
+
+    return results.filter(p => p !== null).map(p => ({
+      id: p.name,
+      name: p.name,
+      description: p.description,
+      pub_url: `https://pub.dev/packages/${p.name}`,
+      category: 'search_result'
+    }));
+  } catch (error) {
+    console.error('[pub.dev API] searchPackages 에러:', error.message);
+    return [];
+  }
+}
