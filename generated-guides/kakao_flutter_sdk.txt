@@ -1,0 +1,262 @@
+Q: kakao_flutter_sdk 패키지가 뭐야?
+
+A: 카카오톡 계정으로 간편하게 로그인할 수 있는 카카오의 공식 Flutter SDK야. 한국에서 가장 많이 사용되는 소셜 로그인 중 하나로, 사용자가 카카오톡 앱이 설치되어 있으면 앱 전환을 통해 몇 번의 탭만으로 로그인할 수 있어.
+
+   난이도: 중급
+   예상 학습 시간: 30-40분
+
+
+Q: 왜 kakao_flutter_sdk를 써야 해?
+
+A: 한국 사용자를 타겟으로 하는 앱이라면 거의 필수야. 카카오톡은 국내 메신저 점유율 1위이고, 대부분의 사용자가 이미 계정을 가지고 있어서 별도의 회원가입 없이 빠르게 로그인할 수 있거든. 특히 젊은 세대(10대~30대)에게 가장 친숙한 로그인 방법이야.
+
+   장점:
+   - 한국 사용자 점유율 1위
+   - 카카오톡 설치 시 앱 전환 로그인 (매우 빠름)
+   - 공식 SDK로 안정적
+   - 카카오 친구, 메시지 등 다른 카카오 서비스와 연동 가능
+
+   단점:
+   - 한국 외 지역에서는 거의 사용 불가
+   - Kakao Developers 초기 설정이 다소 복잡
+   - SDK 업데이트가 잦은 편
+
+
+Q: 설치는 어떻게 해?
+
+A: pubspec.yaml에 다음을 추가해:
+
+   ────────────────────────────────────────────────────────────────────────
+   dependencies:
+     kakao_flutter_sdk: ^1.9.0  # 최신 버전 확인: pub.dev
+   ────────────────────────────────────────────────────────────────────────
+
+   그리고 터미널에서:
+
+   ────────────────────────────────────────────────────────────────────────
+   flutter pub get
+   ────────────────────────────────────────────────────────────────────────
+
+
+Q: Kakao Developers 설정은 어떻게 해?
+
+A: 먼저 Kakao Developers에서 앱을 등록해야 해:
+
+   1. https://developers.kakao.com 접속 후 로그인
+   2. "내 애플리케이션" > "애플리케이션 추가하기"
+   3. 앱 이름 입력하고 생성
+   4. "플랫폼" 탭에서 Android/iOS 플랫폼 추가
+
+   Android 설정:
+   - 패키지명 입력 (예: com.example.myapp)
+   - 키 해시 등록 (디버그용, 릴리즈용 각각)
+
+   iOS 설정:
+   - Bundle ID 입력 (예: com.example.myapp)
+
+   5. "요약 정보"에서 네이티브 앱 키 복사 (중요!)
+
+
+Q: 기본 초기화 코드는?
+
+A: main.dart에서 카카오 SDK를 초기화해야 해:
+
+   ────────────────────────────────────────────────────────────────────────
+   import 'package:flutter/material.dart';
+   import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+
+   void main() {
+     // 카카오 SDK 초기화
+     KakaoSdk.init(
+       nativeAppKey: 'YOUR_NATIVE_APP_KEY', // Kakao Developers에서 복사한 키
+     );
+
+     runApp(const MyApp());
+   }
+   ────────────────────────────────────────────────────────────────────────
+
+
+Q: 카카오톡 로그인 구현 방법은?
+
+A: 카카오톡이 설치되어 있으면 앱 전환, 없으면 웹 브라우저로 로그인하는 방식을 추천해:
+
+   ────────────────────────────────────────────────────────────────────────
+   import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+
+   Future<void> signInWithKakao() async {
+     try {
+       // 카카오톡 설치 여부 확인
+       if (await isKakaoTalkInstalled()) {
+         // 카카오톡으로 로그인
+         await UserApi.instance.loginWithKakaoTalk();
+       } else {
+         // 카카오 계정으로 로그인 (웹 브라우저)
+         await UserApi.instance.loginWithKakaoAccount();
+       }
+
+       print('카카오 로그인 성공');
+
+     } catch (error) {
+       print('카카오 로그인 실패: $error');
+     }
+   }
+   ────────────────────────────────────────────────────────────────────────
+
+
+Q: 로그인 후 사용자 정보 가져오기는?
+
+A: 로그인 성공 후 User API로 사용자 정보를 조회할 수 있어:
+
+   ────────────────────────────────────────────────────────────────────────
+   import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+
+   Future<void> getUserInfo() async {
+     try {
+       User user = await UserApi.instance.me();
+
+       print('사용자 ID: ${user.id}');
+       print('닉네임: ${user.kakaoAccount?.profile?.nickname}');
+       print('프로필 이미지: ${user.kakaoAccount?.profile?.profileImageUrl}');
+       print('이메일: ${user.kakaoAccount?.email}');
+
+     } catch (error) {
+       print('사용자 정보 요청 실패: $error');
+     }
+   }
+   ────────────────────────────────────────────────────────────────────────
+
+
+Q: 로그아웃은 어떻게 해?
+
+A: 두 가지 방법이 있어:
+
+   ────────────────────────────────────────────────────────────────────────
+   // 1. 로그아웃 (토큰 만료, 다시 로그인 가능)
+   await UserApi.instance.logout();
+
+   // 2. 연결 끊기 (앱과 카카오 계정 연결 해제, 재동의 필요)
+   await UserApi.instance.unlink();
+   ────────────────────────────────────────────────────────────────────────
+
+   일반적으로는 logout()을 사용하고, 회원 탈퇴 시에만 unlink()를 사용해.
+
+
+Q: Android 설정에서 해야 할 것들은?
+
+A: AndroidManifest.xml에 카카오 관련 설정을 추가해야 해:
+
+   ────────────────────────────────────────────────────────────────────────
+   <!-- android/app/src/main/AndroidManifest.xml -->
+
+   <manifest>
+     <application>
+
+       <!-- 카카오 로그인 리다이렉트 스키마 -->
+       <activity
+         android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity"
+         android:exported="true">
+         <intent-filter android:label="flutter_web_auth">
+           <action android:name="android.intent.action.VIEW" />
+           <category android:name="android.intent.category.DEFAULT" />
+           <category android:name="android.intent.category.BROWSABLE" />
+
+           <!-- "kakao{NATIVE_APP_KEY}://oauth" 형식 -->
+           <data android:scheme="kakao1234567890abcdef" />
+         </intent-filter>
+       </activity>
+
+     </application>
+   </manifest>
+   ────────────────────────────────────────────────────────────────────────
+
+   주의: android:scheme의 숫자는 네이티브 앱 키로 교체해야 해!
+
+
+Q: iOS 설정에서 해야 할 것들은?
+
+A: Info.plist에 카카오 URL 스키마와 앱 키를 추가해:
+
+   ────────────────────────────────────────────────────────────────────────
+   <!-- ios/Runner/Info.plist -->
+
+   <key>CFBundleURLTypes</key>
+   <array>
+     <dict>
+       <key>CFBundleTypeRole</key>
+       <string>Editor</string>
+       <key>CFBundleURLSchemes</key>
+       <array>
+         <!-- kakao{NATIVE_APP_KEY} 형식 -->
+         <string>kakao1234567890abcdef</string>
+       </array>
+     </dict>
+   </array>
+
+   <!-- 카카오톡 앱 실행을 위한 쿼리 -->
+   <key>LSApplicationQueriesSchemes</key>
+   <array>
+     <string>kakaokompassauth</string>
+     <string>kakaolink</string>
+   </array>
+
+   <!-- 카카오 앱 키 -->
+   <key>KAKAO_APP_KEY</key>
+   <string>YOUR_NATIVE_APP_KEY</string>
+   ────────────────────────────────────────────────────────────────────────
+
+
+Q: 자주 발생하는 에러는?
+
+A: 1. "KakaoSDK Error: 301" - 잘못된 네이티브 앱 키
+   해결: Kakao Developers에서 네이티브 앱 키를 다시 확인하고 정확히 입력
+
+   2. "KakaoSDK Error: 400" - 앱 등록 정보 불일치
+   해결: Kakao Developers에서 패키지명(Android) 또는 Bundle ID(iOS) 확인
+
+   3. 카카오톡 로그인 후 앱으로 돌아오지 않음
+   해결: AndroidManifest.xml과 Info.plist의 URL 스키마 설정 확인
+
+   4. Android 키 해시 오류
+   해결: 디버그/릴리즈 키 해시를 모두 등록했는지 확인
+
+
+Q: 실무 팁은?
+
+A: 1. 카카오톡 미설치 사용자를 위해 항상 loginWithKakaoAccount() 대체 로직을 구현해
+
+   2. 사용자 정보는 첫 로그인 시에만 전체 정보를 받을 수 있어. 반드시 로컬이나 서버에 저장해둬.
+
+   3. 이메일 정보는 사용자가 동의해야만 받을 수 있어. Kakao Developers에서 "동의 항목" 설정 확인.
+
+   4. 토큰 갱신은 SDK가 자동으로 처리하지만, 네트워크 오류 등으로 실패할 수 있으니 에러 핸들링 필수.
+
+   5. 프로덕션 배포 전에 반드시 릴리즈 키 해시를 Kakao Developers에 등록해야 해.
+
+
+Q: 카카오 친구 목록 가져오기는?
+
+A: Talk API를 사용하면 친구 목록도 조회할 수 있어:
+
+   ────────────────────────────────────────────────────────────────────────
+   import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+
+   Future<void> getFriends() async {
+     try {
+       Friends friends = await TalkApi.instance.friends();
+
+       for (var friend in friends.elements ?? []) {
+         print('친구: ${friend.profileNickname}');
+       }
+
+     } catch (error) {
+       print('친구 목록 조회 실패: $error');
+     }
+   }
+   ────────────────────────────────────────────────────────────────────────
+
+   단, Kakao Developers에서 "친구 목록 가져오기" 권한을 신청해야 해.
+
+
+더 자세한 정보는 공식 문서를 참고하세요:
+https://pub.dev/packages/kakao_flutter_sdk
+https://developers.kakao.com/docs/latest/ko/flutter/getting-started

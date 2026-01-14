@@ -1,341 +1,113 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { ALLOWED_INTENTS, ALLOWED_TYPES } from './utils/constants.js'
+import { callGeminiClassifier } from './utils/gemini.js'
+import { getPackagesByIntent } from './utils/data.js'
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
-// 무조건 Gemini 2.5 Flash Lite 사용
-const GEMINI_MODEL = 'gemini-2.5-flash-lite'
-
-const ALLOWED_INTENTS = [
-  'auth_basic',
-  'auth_social',
-  'auth_quick_start',
-  'auth_korea',
-  'auth_secure',
-  'auth_custom',
-  'map',
-]
-
-const ALLOWED_TYPES = [
-  'feature_request',
-  'followup_question',
-  'smalltalk',
-  'clarify',
-  'package_query', // 패키지 직접 질문
-]
-
-let genAI = null
-let model = null
-
-function initializeGemini() {
-  if (!genAI && GEMINI_API_KEY) {
-    genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
-    model = genAI.getGenerativeModel({ model: GEMINI_MODEL })
-  }
-}
-
-async function callGeminiClassifier(userMessage) {
-  // 모든 메시지를 Gemini가 판단
-  const prompt =
-  `Classify the following user message into type and intent. You MUST return ONLY a valid JSON object.
-
-User message: "${userMessage}"
-
-CLASSIFICATION RULES:
-
-1. TYPE (choose exactly one):
-   - "smalltalk" = Greetings, thanks, casual chat (안녕, 고마워, hi, hello, 잘가, 반가워)
-   - "package_query" = Asking about specific package (http 패키지, provider 사용법, dio 알려줘, flutter_map 어떻게)
-   - "feature_request" = Wants to implement Flutter feature (로그인 만들고 싶어, 지도 보여줘, 결제 붙이고 싶어)
-   - "followup_question" = Follow-up question about previous answer
-   - "clarify" = Unclear or ambiguous message
-
-2. INTENT (choose exactly one):
-   - "auth_korea" = Korean login (카카오, 네이버)
-   - "auth_social" = Social login (소셜, 구글, 애플, Google, Apple, Facebook, social)
-   - "auth_quick_start" = Quick implementation (빠르게, 간단)
-   - "auth_secure" = Security focus (보안, 안전)
-   - "auth_custom" = Custom backend (JWT, 토큰, 서버)
-   - "map" = Map/location feature (지도, 맵, 위치)
-   - "auth_basic" = Default/general auth
-
-EXAMPLES (copy the exact format):
-Input: "안녕" → Output: {"type":"smalltalk","intent":"auth_basic"}
-Input: "안녕하세요" → Output: {"type":"smalltalk","intent":"auth_basic"}
-Input: "hi" → Output: {"type":"smalltalk","intent":"auth_basic"}
-Input: "고마워" → Output: {"type":"smalltalk","intent":"auth_basic"}
-Input: "http 패키지 알려줘" → Output: {"type":"package_query","intent":"auth_basic","packageName":"http"}
-Input: "provider 사용법" → Output: {"type":"package_query","intent":"auth_basic","packageName":"provider"}
-Input: "dio는 어떻게 써?" → Output: {"type":"package_query","intent":"auth_basic","packageName":"dio"}
-Input: "카카오 로그인" → Output: {"type":"feature_request","intent":"auth_korea"}
-Input: "소셜 로그인" → Output: {"type":"feature_request","intent":"auth_social"}
-Input: "구글 로그인" → Output: {"type":"feature_request","intent":"auth_social"}
-Input: "지도 보여줘" → Output: {"type":"feature_request","intent":"map"}
-
-NOW CLASSIFY: "${userMessage}"
-
-Return format: {"type":"...","intent":"...","packageName":"..."} (packageName only if type is package_query)
-NO explanation, NO markdown, ONLY JSON:`
-
-  try {
-    initializeGemini()
-
-    if (!model) {
-      const errorMsg = !GEMINI_API_KEY
-        ? 'GEMINI_API_KEY 환경 변수가 설정되지 않았습니다. Netlify 환경 변수를 확인하세요.'
-        : 'Gemini 모델 초기화 실패'
-      console.warn('[AI INTENT] Gemini API key not configured, using fallback')
-      return {
-        type: 'feature_request',
-        intent: 'auth_basic',
-        geminiRaw: `ERROR: ${errorMsg}`
-      }
-    }
-
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0,
-        maxOutputTokens: 1000, // Gemini 2.5 Flash의 thinking + 응답을 위해 충분한 토큰
-      },
-    })
-    const response = await result.response
-    const text = response.text()
-
-    console.log('[AI INTENT] Gemini raw response:', text)
-
-    const match = text.match(/\{[^}]*\}/)
-    if (match) {
-      console.log('[AI INTENT] Matched JSON:', match[0])
-      try {
-        const parsed = JSON.parse(match[0])
-        console.log('[AI INTENT] Parsed:', parsed)
-        const type = parsed.type && String(parsed.type).trim()
-        const intent = parsed.intent && String(parsed.intent).trim()
-        const packageName = parsed.packageName ? String(parsed.packageName).trim() : null
-        console.log('[AI INTENT] Type:', type, 'Intent:', intent, 'PackageName:', packageName)
-        const validType = ALLOWED_TYPES.includes(type) ? type : 'clarify'
-        const validIntent = ALLOWED_INTENTS.includes(intent) ? intent : 'auth_basic'
-        console.log('[AI INTENT] Valid Type:', validType, 'Valid Intent:', validIntent)
-        return { type: validType, intent: validIntent, packageName, geminiRaw: text }
-      } catch (parseError) {
-        console.warn('[AI INTENT] JSON parse error:', parseError)
-      }
-    }
-
-    console.warn('[AI INTENT] No valid JSON found in response:', text)
-    return { type: 'feature_request', intent: 'auth_basic', geminiRaw: text }
-  } catch (error) {
-    console.warn('[AI INTENT] Gemini API error, using fallback. Error:', error.message)
-    return { type: 'feature_request', intent: 'auth_basic', geminiRaw: 'Error: ' + error.message }
-  }
-}
-
-// Intent별 패키지 매핑 (간소화 버전)
-const INTENT_PACKAGES = {
-  auth_basic: [
-    {
-      id: 'firebase_auth',
-      name: 'firebase_auth',
-      category: 'auth',
-      pub_url: 'https://pub.dev/packages/firebase_auth',
-      description_ko: 'Firebase에서 제공하는 강력한 인증 솔루션',
-      difficulty: '쉬움',
-      setup_time: '15-30분',
-      pros: ['설정이 간단하고 빠름', '이메일, 전화번호, 소셜 로그인 모두 지원', '무료로 시작 가능'],
-      cons: ['Firebase에 종속됨', '커스터마이징 제한적'],
-      best_for: ['빠르게 프로토타입 만들기', '백엔드 개발 없이 시작하기'],
-      example_code: 'final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);',
-    },
-    {
-      id: 'flutter_secure_storage',
-      name: 'flutter_secure_storage',
-      category: 'auth',
-      pub_url: 'https://pub.dev/packages/flutter_secure_storage',
-      description_ko: '토큰, 비밀번호 등 민감한 데이터를 안전하게 저장',
-      difficulty: '쉬움',
-      setup_time: '5-10분',
-      pros: ['iOS Keychain, Android Keystore 사용', '암호화된 저장소', '사용법이 매우 간단'],
-      cons: ['인증 기능 자체는 없음 (저장소만)'],
-      best_for: ['JWT 토큰 저장', '사용자 인증 정보 보관'],
-      example_code: 'final storage = FlutterSecureStorage(); await storage.write(key: "token", value: myToken);',
-    },
-  ],
-  auth_social: [
-    {
-      id: 'google_sign_in',
-      name: 'google_sign_in',
-      category: 'auth',
-      pub_url: 'https://pub.dev/packages/google_sign_in',
-      description_ko: 'Google 계정으로 간편하게 로그인',
-      difficulty: '쉬움',
-      setup_time: '20-30분',
-      pros: ['전 세계적으로 많이 사용', 'Firebase Auth와 연동 가능'],
-      best_for: ['글로벌 앱 개발', '빠른 회원가입'],
-    },
-    {
-      id: 'sign_in_with_apple',
-      name: 'sign_in_with_apple',
-      category: 'auth',
-      pub_url: 'https://pub.dev/packages/sign_in_with_apple',
-      description_ko: 'Apple ID로 안전하게 로그인 (iOS 필수)',
-      difficulty: '보통',
-      setup_time: '30-45분',
-      pros: ['iOS 앱스토어 필수 요구사항', '프라이버시 보호 강력'],
-      best_for: ['iOS 앱 출시 시 필수', 'Apple 생태계 사용자 타겟'],
-    },
-    {
-      id: 'flutter_naver_login',
-      name: 'flutter_naver_login',
-      category: 'auth',
-      pub_url: 'https://pub.dev/packages/flutter_naver_login',
-      description_ko: '네이버 계정으로 한국 사용자 로그인',
-      difficulty: '보통',
-      setup_time: '25-35분',
-      pros: ['한국 사용자에게 친숙', '40대 이상 사용자'],
-      best_for: ['한국 타겟 앱', '네이버 서비스 연동'],
-    },
-    {
-      id: 'kakao_flutter_sdk',
-      name: 'kakao_flutter_sdk',
-      category: 'auth',
-      pub_url: 'https://pub.dev/packages/kakao_flutter_sdk',
-      description_ko: '카카오톡 계정으로 간편 로그인 (한국 1위)',
-      difficulty: '보통',
-      setup_time: '25-35분',
-      pros: ['한국 사용률 1위', '카카오톡 앱 전환 로그인'],
-      best_for: ['한국 타겟 앱 (필수)', '젊은 사용자층'],
-    },
-  ],
-  auth_quick_start: [
-    {
-      id: 'firebase_auth',
-      name: 'firebase_auth',
-      category: 'auth',
-      pub_url: 'https://pub.dev/packages/firebase_auth',
-      description_ko: 'Firebase에서 제공하는 강력한 인증 솔루션',
-      difficulty: '쉬움',
-      setup_time: '15-30분',
-      best_for: ['빠르게 프로토타입 만들기', 'MVP 개발'],
-    },
-  ],
-  auth_korea: [
-    {
-      id: 'kakao_flutter_sdk',
-      name: 'kakao_flutter_sdk',
-      description_ko: '카카오톡 계정으로 간편 로그인 (한국 1위)',
-      pub_url: 'https://pub.dev/packages/kakao_flutter_sdk',
-      best_for: ['한국 타겟 앱'],
-    },
-    {
-      id: 'flutter_naver_login',
-      name: 'flutter_naver_login',
-      description_ko: '네이버 계정으로 한국 사용자 로그인',
-      pub_url: 'https://pub.dev/packages/flutter_naver_login',
-      best_for: ['한국 타겟 앱'],
-    },
-  ],
-  auth_secure: [
-    {
-      id: 'firebase_auth',
-      name: 'firebase_auth',
-      description_ko: 'Firebase 인증',
-      pub_url: 'https://pub.dev/packages/firebase_auth',
-    },
-    {
-      id: 'flutter_secure_storage',
-      name: 'flutter_secure_storage',
-      description_ko: '안전한 토큰 저장',
-      pub_url: 'https://pub.dev/packages/flutter_secure_storage',
-    },
-  ],
-  auth_custom: [
-    {
-      id: 'flutter_secure_storage',
-      name: 'flutter_secure_storage',
-      description_ko: 'JWT 토큰 안전 저장',
-      pub_url: 'https://pub.dev/packages/flutter_secure_storage',
-    },
-  ],
-  map: [
-    {
-      id: 'flutter_map',
-      name: 'flutter_map',
-      description_ko: 'Flutter용 오픈소스 지도 라이브러리',
-      pub_url: 'https://pub.dev/packages/flutter_map',
-    },
-  ],
-}
-
-export async function handler(event) {
-  // CORS 헤더
+export async function handler(event, context) {
+  // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Content-Type': 'application/json',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS'
   }
 
-  // OPTIONS 요청 처리 (CORS preflight)
+  // Handle OPTIONS request for CORS
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
       headers,
-      body: '',
+      body: ''
     }
   }
 
-  // POST 요청만 허용
+  // Only allow POST
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
       headers,
-      body: JSON.stringify({ error: 'Method Not Allowed' }),
+      body: JSON.stringify({ error: 'Method not allowed' })
     }
   }
 
   try {
     const { message } = JSON.parse(event.body || '{}')
+    let classification = null
+    let source = 'fallback'
 
-    if (!message) {
+    try {
+      classification = await callGeminiClassifier(message)
+      source = 'ai'
+      console.log('[AI INTENT]', { message, ...classification })
+
+      const { geminiRaw } = classification
+      classification = normalizeClassification(classification, { source })
+      const { type, intent } = classification
+
+      if (type !== 'feature_request') {
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            type: type || 'clarify',
+            intent: intent || 'auth_basic',
+            source,
+            packages: [],
+            geminiRaw
+          })
+        }
+      }
+
+      const packages = await getPackagesByIntent(intent)
       return {
-        statusCode: 400,
+        statusCode: 200,
         headers,
-        body: JSON.stringify({ error: 'Message is required' }),
+        body: JSON.stringify({ type, intent, source, packages, geminiRaw })
+      }
+    } catch (err) {
+      console.error('Error handling intent:', err)
+      try {
+        const fallbackIntent = 'auth_basic'
+        const packages = await getPackagesByIntent(fallbackIntent)
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            type: 'feature_request',
+            intent: fallbackIntent,
+            source: 'fallback',
+            packages
+          })
+        }
+      } catch (innerErr) {
+        console.error('Error during fallback:', innerErr)
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            type: 'feature_request',
+            intent: 'auth_basic',
+            source: 'fallback',
+            packages: []
+          })
+        }
       }
     }
-
-    // Gemini로 분류
-    const classification = await callGeminiClassifier(message)
-    const { type, intent, packageName, geminiRaw } = classification
-
-    console.log('[AI INTENT]', { message, type, intent, packageName })
-
-    // 패키지 가져오기
-    const packages = INTENT_PACKAGES[intent] || []
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        type,
-        intent,
-        packageName: packageName || null, // 패키지 직접 질문일 때만 값이 있음
-        source: 'ai',
-        packages,
-        geminiRaw, // Gemini 원본 응답 추가
-      }),
-    }
   } catch (error) {
-    console.error('Error:', error)
-
+    console.error('Error in intent function:', error)
     return {
-      statusCode: 200,
+      statusCode: 500,
       headers,
-      body: JSON.stringify({
-        type: 'feature_request',
-        intent: 'auth_basic',
-        source: 'fallback',
-        packages: INTENT_PACKAGES.auth_basic || [],
-      }),
+      body: JSON.stringify({ error: 'Internal server error' })
     }
   }
+}
+
+function normalizeClassification(raw, { source } = {}) {
+  const defaultType = source === 'rule' ? 'feature_request' : 'clarify'
+  const typeCandidate = typeof raw?.type === 'string' ? raw.type.trim() : ''
+  const intentCandidate = typeof raw?.intent === 'string' ? raw.intent.trim() : ''
+
+  const type = ALLOWED_TYPES.includes(typeCandidate) ? typeCandidate : defaultType
+  const intent = ALLOWED_INTENTS.includes(intentCandidate) ? intentCandidate : 'auth_basic'
+
+  return { type, intent }
 }
