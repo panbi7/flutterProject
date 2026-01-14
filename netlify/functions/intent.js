@@ -39,13 +39,57 @@ export async function handler(event, context) {
     }
 
     const classification = await callGeminiClassifier(message)
-    const source = 'ai'
-    console.log('[AI INTENT]', { message, ...classification })
-
+    let { type, intent, packageName } = classification
     const { geminiRaw } = classification
-    const { type, intent, packageName } = normalizeClassification(classification)
+    const source = 'ai'
 
-    // package_query 타입 처리
+    // Keywords to force specific intents
+    const lowerMsg = message.toLowerCase()
+    if (lowerMsg.includes('google') || lowerMsg.includes('구글')) {
+      intent = 'auth_social'
+    } else if (lowerMsg.includes('kakao') || lowerMsg.includes('카카오')) {
+      intent = 'auth_korea'
+    } else if (lowerMsg.includes('naver') || lowerMsg.includes('네이버')) {
+      intent = 'auth_social'
+    } else if (lowerMsg.includes('apple') || lowerMsg.includes('애플')) {
+      intent = 'auth_social'
+    } else if (lowerMsg.includes('map') || lowerMsg.includes('지도')) {
+      intent = 'map'
+    }
+
+    const normalized = normalizeClassification({ type, intent, packageName })
+    type = normalized.type
+    intent = normalized.intent
+    packageName = normalized.packageName
+
+    // feature_request 타입 처리 시 패키지 정렬 로직 추가
+    if (type === 'feature_request') {
+      let packages = await getPackagesByIntent(intent)
+
+      // 입력 메시지에 포함된 단어와 가장 일치하는 패키지를 최상단으로 정렬
+      packages = packages.sort((a, b) => {
+        const aMatch = lowerMsg.includes(a.id.toLowerCase()) || lowerMsg.includes(a.name.toLowerCase())
+        const bMatch = lowerMsg.includes(b.id.toLowerCase()) || lowerMsg.includes(b.name.toLowerCase())
+        if (aMatch && !bMatch) return -1
+        if (!aMatch && bMatch) return 1
+        return 0
+      })
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          type,
+          intent,
+          source,
+          packages,
+          geminiRaw,
+          status: { ai: 'connected', data: 'ready' }
+        })
+      }
+    }
+
+    // package_query 타입 처리 (이 부분은 early return 하지 않고 계속 진행하게 두거나, 필요한 경우에만 return)
     if (type === 'package_query' && packageName) {
       return {
         statusCode: 200,
@@ -57,30 +101,7 @@ export async function handler(event, context) {
           source,
           packages: [{ id: packageName, name: packageName, description: `가이드 보기: ${packageName}` }],
           geminiRaw,
-          status: {
-            ai: 'connected',
-            data: 'ready'
-          }
-        })
-      }
-    }
-
-    // feature_request 타입 처리
-    if (type === 'feature_request') {
-      const packages = await getPackagesByIntent(intent)
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-          type,
-          intent,
-          source,
-          packages,
-          geminiRaw,
-          status: {
-            ai: 'connected',
-            data: 'ready'
-          }
+          status: { ai: 'connected', data: 'ready' }
         })
       }
     }

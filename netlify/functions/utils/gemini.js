@@ -71,6 +71,8 @@ CLASSIFICATION RULES:
 EXAMPLES (copy the exact format):
 Input: "안녕" → Output: {"type":"smalltalk","intent":"auth_basic"}
 Input: "카카오 로그인" → Output: {"type":"feature_request","intent":"auth_korea"}
+Input: "google sign in" → Output: {"type":"feature_request","intent":"auth_social"}
+Input: "소셜 로그인" → Output: {"type":"feature_request","intent":"auth_social"}
 Input: "지도 보여줘" → Output: {"type":"feature_request","intent":"map"}
 Input: "flutter_bloc 사용법" → Output: {"type":"package_query","intent":"auth_basic","packageName":"flutter_bloc"}
 Input: "dio 어떻게 써?" → Output: {"type":"package_query","intent":"auth_basic","packageName":"dio"}
