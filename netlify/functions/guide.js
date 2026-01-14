@@ -47,7 +47,22 @@ export async function handler(event, context) {
     // 2단계: 없으면 실시간 생성
     if (!guide) {
       console.log(`[Guide API] 캐시 없음, 실시간 생성 시도: ${packageId}`)
-      guide = await generateGuideFromPubDev(packageId)
+      try {
+        guide = await generateGuideFromPubDev(packageId)
+      } catch (e) {
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({
+            success: false,
+            error: `가이드 생성 실패: ${e.message}`,
+            fallback: {
+              message: 'pub.dev에서 공식 문서를 확인해주세요.',
+              url: `https://pub.dev/packages/${packageId}`
+            }
+          })
+        }
+      }
     }
 
     if (!guide) {
@@ -78,7 +93,10 @@ export async function handler(event, context) {
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Internal server error' })
+      body: JSON.stringify({
+        success: false,
+        error: `서버 내부 오류: ${error.message}`
+      })
     }
   }
 }

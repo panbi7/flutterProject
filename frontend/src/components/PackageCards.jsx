@@ -16,8 +16,8 @@ export default function PackageCards({ packages }) {
         alert(resp.error || '가이드를 불러올 수 없습니다.')
       }
     } catch (error) {
-      console.error('Guide loading error:', error)
-      alert('가이드를 불러오거나 생성하는 중 오류가 발생했습니다.')
+      console.error('Guide loading process error:', error)
+      alert(`가이드 로드 중 예기치 못한 오류가 발생했습니다: ${error.message}`)
     } finally {
       setLoadingGuide(null)
     }

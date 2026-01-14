@@ -59,6 +59,6 @@ export async function generateGuideFromPubDev(packageName) {
         };
     } catch (error) {
         console.error(`[Guide Generator] 에러 (${packageName}):`, error.message);
-        return null;
+        throw error;
     }
 }

@@ -32,8 +32,11 @@ export async function callGeminiForGuide(prompt) {
     const response = await result.response
     return response.text()
   } catch (error) {
-    console.error('[GEMINI GUIDE] Error:', error.message)
-    return null
+    const errorMsg = !GEMINI_API_KEY
+      ? '가이드 생성용 GEMINI_API_KEY가 설정되지 않았습니다 (Netlify 설정 확인).'
+      : error.message
+    console.error('[GEMINI GUIDE] Error:', errorMsg)
+    throw new Error(errorMsg)
   }
 }
 
