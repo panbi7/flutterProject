@@ -30,84 +30,98 @@ export async function handler(event, context) {
 
   try {
     const { message } = JSON.parse(event.body || '{}')
-    let classification = null
-    let source = 'fallback'
-
-    try {
-      classification = await callGeminiClassifier(message)
-      source = 'ai'
-      console.log('[AI INTENT]', { message, ...classification })
-
-      const { geminiRaw } = classification
-      classification = normalizeClassification(classification, { source })
-      const { type, intent } = classification
-
-      if (type !== 'feature_request') {
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({
-            type: type || 'clarify',
-            intent: intent || 'auth_basic',
-            source,
-            packages: [],
-            geminiRaw
-          })
-        }
+    if (!message) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Message is required' })
       }
+    }
 
+    const classification = await callGeminiClassifier(message)
+    const source = 'ai'
+    console.log('[AI INTENT]', { message, ...classification })
+
+    const { geminiRaw } = classification
+    const { type, intent, packageName } = normalizeClassification(classification)
+
+    // package_query 타입 처리
+    if (type === 'package_query' && packageName) {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          type,
+          intent,
+          packageName,
+          source,
+          packages: [{ id: packageName, name: packageName, description: `가이드 보기: ${packageName}` }],
+          geminiRaw
+        })
+      }
+    }
+
+    // feature_request 타입 처리
+    if (type === 'feature_request') {
       const packages = await getPackagesByIntent(intent)
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({ type, intent, source, packages, geminiRaw })
       }
-    } catch (err) {
-      console.error('Error handling intent:', err)
-      try {
-        const fallbackIntent = 'auth_basic'
-        const packages = await getPackagesByIntent(fallbackIntent)
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({
-            type: 'feature_request',
-            intent: fallbackIntent,
-            source: 'fallback',
-            packages
-          })
-        }
-      } catch (innerErr) {
-        console.error('Error during fallback:', innerErr)
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({
-            type: 'feature_request',
-            intent: 'auth_basic',
-            source: 'fallback',
-            packages: []
-          })
-        }
-      }
+    }
+
+    // 그 외 타입 처리 (smalltalk, clarify 등)
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        type: type || 'clarify',
+        intent: intent || 'auth_basic',
+        source,
+        packages: [],
+        geminiRaw
+      })
     }
   } catch (error) {
     console.error('Error in intent function:', error)
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: 'Internal server error' })
+    // Fallback 로직
+    try {
+      const fallbackIntent = 'auth_basic'
+      const packages = await getPackagesByIntent(fallbackIntent)
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          type: 'feature_request',
+          intent: fallbackIntent,
+          source: 'fallback',
+          packages
+        })
+      }
+    } catch (fallbackError) {
+      console.error('Error during fallback:', fallbackError)
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'Internal server error during fallback' })
+      }
     }
   }
 }
 
-function normalizeClassification(raw, { source } = {}) {
-  const defaultType = source === 'rule' ? 'feature_request' : 'clarify'
+function normalizeClassification(raw) {
   const typeCandidate = typeof raw?.type === 'string' ? raw.type.trim() : ''
   const intentCandidate = typeof raw?.intent === 'string' ? raw.intent.trim() : ''
+  const packageNameCandidate = typeof raw?.packageName === 'string' ? raw.packageName.trim() : ''
 
-  const type = ALLOWED_TYPES.includes(typeCandidate) ? typeCandidate : defaultType
+  const type = ALLOWED_TYPES.includes(typeCandidate) ? typeCandidate : 'clarify'
   const intent = ALLOWED_INTENTS.includes(intentCandidate) ? intentCandidate : 'auth_basic'
 
-  return { type, intent }
+  const result = { type, intent }
+  if (type === 'package_query' && packageNameCandidate) {
+    result.packageName = packageNameCandidate
+  }
+
+  return result
 }
