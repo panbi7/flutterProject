@@ -20,8 +20,9 @@ CLASSIFICATION RULES:
 
 1. TYPE (choose exactly one):
    - "smalltalk" = Greetings, thanks, casual chat (안녕, 고마워, hi, hello, 잘가, 반가워)
-   - "feature_request" = Wants to implement Flutter feature (로그인 만들고 싶어, 지도 보여줘, 결제 붙이고 싶어)
-   - "followup_question" = Follow-up question about previous answer
+   - "feature_request" = Wants to implement a Flutter feature (로그인 만들고 싶어, 지도 보여줘, 결제 붙이고 싶어)
+   - "package_query" = Asks for usage, examples, or guides for a specific package (flutter_bloc 어떻게 써?, dio 사용법, provider 예제 보여줘)
+   - "followup_question" = Follow-up question about a previous answer
    - "clarify" = Unclear or ambiguous message
 
 2. INTENT (choose exactly one):
@@ -31,21 +32,24 @@ CLASSIFICATION RULES:
    - "auth_secure" = Security focus (보안, 안전)
    - "auth_custom" = Custom backend (JWT, 토큰, 서버)
    - "map" = Map/location feature (지도, 맵, 위치)
-   - "auth_basic" = Default/general auth
+   - "auth_basic" = Default/general auth or when intent is unclear
+
+3. packageName:
+   - If TYPE is "package_query", extract the package name (e.g., "flutter_bloc", "dio", "provider").
+   - Otherwise, this field should be omitted.
 
 EXAMPLES (copy the exact format):
 Input: "안녕" → Output: {"type":"smalltalk","intent":"auth_basic"}
-Input: "안녕하세요" → Output: {"type":"smalltalk","intent":"auth_basic"}
-Input: "hi" → Output: {"type":"smalltalk","intent":"auth_basic"}
-Input: "고마워" → Output: {"type":"smalltalk","intent":"auth_basic"}
 Input: "카카오 로그인" → Output: {"type":"feature_request","intent":"auth_korea"}
-Input: "소셜 로그인" → Output: {"type":"feature_request","intent":"auth_social"}
-Input: "구글 로그인" → Output: {"type":"feature_request","intent":"auth_social"}
 Input: "지도 보여줘" → Output: {"type":"feature_request","intent":"map"}
+Input: "flutter_bloc 사용법" → Output: {"type":"package_query","intent":"auth_basic","packageName":"flutter_bloc"}
+Input: "dio 어떻게 써?" → Output: {"type":"package_query","intent":"auth_basic","packageName":"dio"}
+Input: "provider 예제" → Output: {"type":"package_query","intent":"auth_basic","packageName":"provider"}
 
 NOW CLASSIFY: "${userMessage}"
 
-Return format: {"type":"...","intent":"..."}
+Return format: {"type":"...","intent":"...","packageName":"..."}
+(The "packageName" key is ONLY included when the type is "package_query")
 NO explanation, NO markdown, ONLY JSON:`
 
   try {
@@ -76,15 +80,22 @@ NO explanation, NO markdown, ONLY JSON:`
     console.log('[AI INTENT] Gemini raw response:', text)
 
     // JSON 추출
-    const match = text.match(/\{[^}]*\}/)
+    const match = text.match(/\{.*\}/s) // Use 's' flag to match across newlines
     if (match) {
       try {
         const parsed = JSON.parse(match[0])
         const type = parsed.type && String(parsed.type).trim()
         const intent = parsed.intent && String(parsed.intent).trim()
+        const packageName = parsed.packageName && String(parsed.packageName).trim()
+
         const validType = ALLOWED_TYPES.includes(type) ? type : 'clarify'
         const validIntent = ALLOWED_INTENTS.includes(intent) ? intent : 'auth_basic'
-        return { type: validType, intent: validIntent, geminiRaw: text }
+        
+        const result = { type: validType, intent: validIntent, geminiRaw: text }
+        if (validType === 'package_query' && packageName) {
+          result.packageName = packageName
+        }
+        return result
       } catch (parseError) {
         console.warn('[AI INTENT] JSON parse error:', parseError)
         return { type: 'clarify', intent: 'auth_basic', geminiRaw: text }

@@ -4,27 +4,37 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const dataDir = path.join(__dirname, '..', 'data');
+const generatedGuidesDir = path.join(__dirname, '..', '..', 'generated-guides');
+
 
 /**
- * 패키지 ID로 가이드 JSON 파일 로드
- * @param {string} packageId - 패키지 ID (예: 'firebase_auth')
- * @returns {Object|null} - 가이드 데이터 또는 null
+ * 패키지 ID로 가이드 파일 로드 (JSON 또는 TXT)
+ * @param {string} packageId - 패키지 ID (예: 'firebase_auth', 'dio')
+ * @returns {Object|null} - 가이드 데이터 (JSON 객체 또는 { plainText: "..." }) 또는 null
  */
 export function loadGuide(packageId) {
   try {
-    const guidePath = path.join(__dirname, '../data/examples', `${packageId}.json`);
+    // 1. /data/examples/{packageId}.json 먼저 확인
+    const jsonGuidePath = path.join(dataDir, 'examples', `${packageId}.json`);
 
-    // 파일 존재 여부 확인
-    if (!fs.existsSync(guidePath)) {
-      console.log(`가이드 파일 없음: ${packageId}.json`);
-      return null;
+    if (fs.existsSync(jsonGuidePath)) {
+      const rawData = fs.readFileSync(jsonGuidePath, 'utf8');
+      return JSON.parse(rawData);
     }
 
-    // JSON 파일 읽기
-    const rawData = fs.readFileSync(guidePath, 'utf8');
-    const guide = JSON.parse(rawData);
+    // 2. 없으면 /generated-guides/{packageId}.txt 확인
+    const txtGuidePath = path.join(generatedGuidesDir, `${packageId}.txt`);
 
-    return guide;
+    if (fs.existsSync(txtGuidePath)) {
+      const rawData = fs.readFileSync(txtGuidePath, 'utf8');
+      // 3. txt 파일이면 { plainText: 내용 } 형태로 반환
+      return { plainText: rawData };
+    }
+
+    console.log(`가이드 파일 없음: ${packageId}.json 또는 ${packageId}.txt`);
+    return null;
+
   } catch (error) {
     console.error(`가이드 로드 실패 (${packageId}):`, error.message);
     return null;
@@ -32,23 +42,30 @@ export function loadGuide(packageId) {
 }
 
 /**
- * 사용 가능한 모든 가이드 목록 조회
+ * 사용 가능한 모든 가이드 목록 조회 (JSON + TXT)
  * @returns {Array} - 가이드 ID 배열
  */
 export function getAvailableGuides() {
+  const guides = new Set();
   try {
-    const examplesDir = path.join(__dirname, '../data/examples');
-
-    if (!fs.existsSync(examplesDir)) {
-      return [];
+    // JSON 가이드 목록
+    const examplesDir = path.join(dataDir, 'examples');
+    if (fs.existsSync(examplesDir)) {
+      fs.readdirSync(examplesDir)
+        .filter(file => file.endsWith('.json'))
+        .map(file => file.replace('.json', ''))
+        .forEach(guide => guides.add(guide));
     }
 
-    const files = fs.readdirSync(examplesDir);
-    const guides = files
-      .filter(file => file.endsWith('.json'))
-      .map(file => file.replace('.json', ''));
+    // TXT 가이드 목록
+    if (fs.existsSync(generatedGuidesDir)) {
+      fs.readdirSync(generatedGuidesDir)
+        .filter(file => file.endsWith('.txt'))
+        .map(file => file.replace('.txt', ''))
+        .forEach(guide => guides.add(guide));
+    }
 
-    return guides;
+    return Array.from(guides);
   } catch (error) {
     console.error('가이드 목록 조회 실패:', error.message);
     return [];

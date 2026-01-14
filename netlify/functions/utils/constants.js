@@ -27,6 +27,7 @@ export const ALLOWED_TYPES = [
   'followup_question',
   'smalltalk',
   'clarify',
+  'package_query',
 ]
 
 export const DATA_DIR = path.join(__dirname, '..', 'data')
