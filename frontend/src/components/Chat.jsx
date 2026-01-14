@@ -13,6 +13,7 @@ export default function Chat() {
   ])
   const [loading, setLoading] = useState(false)
   const [latestPackages, setLatestPackages] = useState([])
+  const [systemStatus, setSystemStatus] = useState({ ai: 'checking', data: 'checking' })
   const listRef = useRef(null)
 
   useEffect(() => {
@@ -29,7 +30,11 @@ export default function Chat() {
     try {
       // 백엔드 API 호출 (Gemini 분류 + 패키지 추천)
       const resp = await postIntent(text)
-      const { type, intent, source, packages = [], packageName, geminiRaw } = resp || {}
+      const { type, intent, source, packages = [], packageName, geminiRaw, status } = resp || {}
+
+      if (status) {
+        setSystemStatus(status)
+      }
       const isFeature = type === 'feature_request'
       const isPackageQuery = type === 'package_query'
 
@@ -55,8 +60,8 @@ export default function Chat() {
       const botMsg = {
         role: 'assistant',
         text: isFeature
-          ? featureMessages[intent] || `관련 패키지를 추천드립니다! 📦`
-          : nonFeatureMessages[type] || nonFeatureMessages.clarify,
+          ? featureMessages[intent] || `관력 패키지 리스트를 찾아보았습니다! 📦`
+          : nonFeatureMessages[type] || '원하시는 Flutter 기능을 찾지 못했지만, 가장 많이 찾는 로그인/지도 기능을 먼저 살펴보세요! 😊',
       }
       setMessages((prev) => [...prev, botMsg])
 
@@ -101,6 +106,13 @@ export default function Chat() {
         )}
       </div>
       <div className="footer">
+        <div className="status-bar">
+          <span className={`status-dot ${systemStatus.ai}`}></span>
+          AI: {systemStatus.ai === 'connected' ? '연결됨' : '미연결(기본모드)'}
+          <span style={{ marginLeft: '10px' }}></span>
+          <span className={`status-dot ${systemStatus.data}`}></span>
+          DATA: {systemStatus.data === 'ready' ? '준비됨' : '백업모드'}
+        </div>
         <MessageInput onSend={handleSend} />
       </div>
     </>

@@ -9,7 +9,7 @@ export async function postIntent(message) {
   })
   if (!res.ok) {
     // For demo consistency, still parse if possible
-    try { return await res.json() } catch (_) { return { type: 'feature_request', intent: 'auth_basic', source: 'fallback_error', packages: [] } }
+    try { return await res.json() } catch (_) { return { type: 'feature_request', intent: 'auth_basic', source: 'fallback_error', packages: [], status: { ai: 'error', data: 'fallback' } } }
   }
   return res.json()
 }

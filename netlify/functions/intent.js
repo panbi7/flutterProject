@@ -56,7 +56,11 @@ export async function handler(event, context) {
           packageName,
           source,
           packages: [{ id: packageName, name: packageName, description: `가이드 보기: ${packageName}` }],
-          geminiRaw
+          geminiRaw,
+          status: {
+            ai: 'connected',
+            data: 'ready'
+          }
         })
       }
     }
@@ -67,7 +71,17 @@ export async function handler(event, context) {
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({ type, intent, source, packages, geminiRaw })
+        body: JSON.stringify({
+          type,
+          intent,
+          source,
+          packages,
+          geminiRaw,
+          status: {
+            ai: 'connected',
+            data: 'ready'
+          }
+        })
       }
     }
 
@@ -80,7 +94,11 @@ export async function handler(event, context) {
         intent: intent || 'auth_basic',
         source,
         packages: [],
-        geminiRaw
+        geminiRaw,
+        status: {
+          ai: classification.source === 'fallback_error' ? 'error' : 'connected',
+          data: 'ready'
+        }
       })
     }
   } catch (error) {
@@ -96,7 +114,11 @@ export async function handler(event, context) {
           type: 'feature_request',
           intent: fallbackIntent,
           source: 'fallback_error',
-          packages
+          packages,
+          status: {
+            ai: 'error',
+            data: 'fallback'
+          }
         })
       }
     } catch (fallbackError) {
