@@ -56,7 +56,7 @@ export default function Chat() {
       const botMsg = {
         role: 'assistant',
         text: isFeature
-          ? featureMessages[intent] || `${intent} 관련 패키지를 추천드립니다!`
+          ? featureMessages[intent] || `${intent} 관련 패키지를 추천드립니다! 📦`
           : nonFeatureMessages[fallbackType] || nonFeatureMessages.clarify,
       }
       setMessages((prev) => [...prev, botMsg])

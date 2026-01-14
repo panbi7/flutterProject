@@ -95,7 +95,7 @@ export async function handler(event, context) {
         body: JSON.stringify({
           type: 'feature_request',
           intent: fallbackIntent,
-          source: 'fallback',
+          source: 'fallback_error',
           packages
         })
       }

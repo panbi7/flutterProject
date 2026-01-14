@@ -133,7 +133,12 @@ NO explanation, NO markdown, ONLY JSON:`
     console.warn('[AI INTENT] No valid JSON found in response:', text)
     return { type: 'feature_request', intent: 'auth_basic', geminiRaw: text }
   } catch (error) {
-    console.warn('[AI INTENT] Gemini API error, using fallback. Error:', error.message)
-    return { type: 'feature_request', intent: 'auth_basic', geminiRaw: `Error: ${error.message}` }
+    console.error('[AI INTENT] Gemini API error, using robust fallback. Error:', error.message)
+    return {
+      type: 'feature_request',
+      intent: 'auth_basic',
+      source: 'fallback_error',
+      geminiRaw: `Error: ${error.message}`
+    }
   }
 }
