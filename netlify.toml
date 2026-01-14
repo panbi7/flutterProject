@@ -14,6 +14,7 @@
 [functions]
   # Netlify Functions 디렉토리
   directory = "netlify/functions"
+  included_files = ["netlify/functions/data/**"]
 
 [[redirects]]
   # API 요청을 Netlify Functions로 리다이렉트
