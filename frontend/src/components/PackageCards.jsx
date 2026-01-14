@@ -13,7 +13,8 @@ export default function PackageCards({ packages }) {
       if (resp.success) {
         setSelectedGuide(resp.guide)
       } else {
-        alert(resp.error || '가이드를 불러올 수 없습니다.')
+        console.error('[Guide API Error]', resp)
+        alert(`가이드를 불러올 수 없습니다: ${resp.error || '알 수 없는 오류'}`)
       }
     } catch (error) {
       console.error('Guide loading process error:', error)
