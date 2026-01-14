@@ -27,6 +27,14 @@ export const ALLOWED_INTENTS = [
   'routing',
   'local_db',
   'media',
+  'firebase',
+  'storage',
+  'ui_design',
+  'forms',
+  'device',
+  'native',
+  'utils',
+  'rendering',
 ]
 
 export const ALLOWED_TYPES = [

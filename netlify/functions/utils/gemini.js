@@ -55,17 +55,19 @@ CLASSIFICATION RULES:
    - "clarify" = Unclear or ambiguous message
 
 2. INTENT (choose exactly one):
-   - "auth_korea" = Korean login (카카오, 네이버)
-   - "auth_social" = Social login (소셜, 구글, 애플, Google, Apple, Facebook, social)
-   - "auth_quick_start" = Quick implementation (빠르게, 간단)
-   - "auth_secure" = Security focus (보안, 안전)
-   - "auth_custom" = Custom backend (JWT, 토큰, 서버)
-   - "map" = Map/location feature (지도, 맵, 위치)
-   - "state_management" = State management (상태 관리, 데이터 공유, provider, bloc, riverpod, getx)
-   - "network_http" = Network/API (네트워크, http, api, 통신, dio)
-   - "routing" = Navigation/Routing (라우팅, 네비게이션, 화면 전환, go_router)
-   - "local_db" = Local database/storage (데이터 저장, db, 로컬 저장소, shared_preferences, hive, sqflite)
-   - "auth_basic" = Default/general auth or when intent is unclear
+   - "firebase" = Firebase services (파이어베이스, auth, firestore, analytics, messaging, crashlytics, remote config)
+   - "state_management" = State management (상태 관리, 공유, provider, bloc, riverpod, getx, signals)
+   - "network_http" = Network/API (네트워크, http, api, 통신, dio, shelf, connectivity)
+   - "storage" = Database/Storage (데이터 저장, db, 로컬 저장소, sqlite, sqflite, hive, drift, shared_preferences, secure storage)
+   - "media" = Media/Video/Audio/Camera (비디오, 동영상, 오디오, 음악, 카메라, 사진, video, audio, camera, player)
+   - "routing" = Navigation/Routing (라우팅, 네비게이션, 화면 전환, go_router, auto_route)
+   - "ui_design" = UI/Animation (디자인, 애니메이션, lottie, shimmer, icon, font awesome, badge, carousel)
+   - "forms" = Forms/Input (폼, 입력, 유효성 검사, pinput, form builder)
+   - "device" = Device Features/Hardware (권한, 센서, 위치, 지참, 지리, permission, geolocator, sensor, vibration)
+   - "native" = Native/FFI/Desktop (네이티브 연동, ffi, win32, window manager, package info)
+   - "utils" = Utilities/Helpers (유틸리티, uuid, crypto, path, logger, retry, intl, date, time)
+   - "rendering" = Content Rendering (svg, html, xml, yaml, markdown, image rendering)
+   - "auth_basic" = Default/fallback or general question
 
 3. packageName:
    - If TYPE is "package_query", extract the package name (e.g., "flutter_bloc", "dio", "provider").
@@ -73,14 +75,15 @@ CLASSIFICATION RULES:
    - Otherwise, this field should be omitted.
 
 EXAMPLES (copy the exact format):
-Input: "안녕" → Output: {"type":"smalltalk","intent":"auth_basic"}
-Input: "카카오 로그인" → Output: {"type":"feature_request","intent":"auth_korea"}
-Input: "google sign in" → Output: {"type":"feature_request","intent":"auth_social"}
-Input: "소셜 로그인" → Output: {"type":"feature_request","intent":"auth_social"}
-Input: "비디오 재생하고 싶어" → Output: {"type":"feature_request","intent":"media"}
-Input: "camera 사용법" → Output: {"type":"package_query","intent":"media","packageName":"camera"}
-Input: "provider 예제" → Output: {"type":"package_query","intent":"auth_basic","packageName":"provider"}
-Input: "get_it 가이드 보여줘" → Output: {"type":"package_query","intent":"auth_basic","packageName":"get_it"}
+Input: "파이어베이스 로그인" → Output: {"type":"feature_request","intent":"firebase"}
+Input: "상태 관리 패키지 추천" → Output: {"type":"feature_request","intent":"state_management"}
+Input: "dio 사용법" → Output: {"type":"package_query","intent":"network_http","packageName":"dio"}
+Input: "로컬 DB 쓰고 싶어" → Output: {"type":"feature_request","intent":"storage"}
+Input: "비디오 재생 가이드" → Output: {"type":"feature_request","intent":"media"}
+Input: "애니메이션 넣고 싶어" → Output: {"type":"feature_request","intent":"ui_design"}
+Input: "gps 위치 정보" → Output: {"type":"feature_request","intent":"device"}
+Input: "svg 이미지 보여주기" → Output: {"type":"feature_request","intent":"rendering"}
+Input: "uuid 생성" → Output: {"type":"feature_request","intent":"utils"}
 
 NOW CLASSIFY: "${userMessage}"
 

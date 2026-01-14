@@ -1,0 +1,18 @@
+{
+    "packages": [
+        "uuid",
+        "path",
+        "crypto",
+        "intl",
+        "logger",
+        "logging",
+        "mime",
+        "retry",
+        "stack_trace",
+        "synchronized",
+        "yaml",
+        "xml",
+        "characters",
+        "petitparser"
+    ]
+}

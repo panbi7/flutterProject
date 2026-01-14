@@ -1,0 +1,12 @@
+{
+    "packages": [
+        "flutter_svg",
+        "flutter_html",
+        "flutter_widget_from_html",
+        "cached_network_image",
+        "xml",
+        "yaml",
+        "html",
+        "markdown"
+    ]
+}

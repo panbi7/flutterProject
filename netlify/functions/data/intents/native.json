@@ -1,0 +1,12 @@
+{
+    "packages": [
+        "win32",
+        "window_manager",
+        "ffi",
+        "package_info_plus",
+        "device_info_plus",
+        "url_launcher",
+        "external_path",
+        "android_intent_plus"
+    ]
+}

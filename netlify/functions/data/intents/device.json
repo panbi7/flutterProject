@@ -1,0 +1,14 @@
+{
+    "packages": [
+        "permission_handler",
+        "geolocator",
+        "geocoding",
+        "sensors_plus",
+        "vibration",
+        "wakelock_plus",
+        "local_auth",
+        "battery_plus",
+        "connectivity_plus",
+        "package_info_plus"
+    ]
+}

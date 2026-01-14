@@ -1,0 +1,12 @@
+{
+    "packages": [
+        "sqflite",
+        "hive",
+        "drift",
+        "shared_preferences",
+        "flutter_secure_storage",
+        "path_provider",
+        "objectbox",
+        "realm"
+    ]
+}

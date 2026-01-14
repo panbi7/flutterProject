@@ -47,18 +47,18 @@ export async function handler(event, context) {
 
     // Keywords to force specific intents
     const lowerMsg = message.toLowerCase()
-    if (lowerMsg.includes('google') || lowerMsg.includes('구글')) {
-      intent = 'auth_social'
-    } else if (lowerMsg.includes('kakao') || lowerMsg.includes('카카오')) {
-      intent = 'auth_korea'
-    } else if (lowerMsg.includes('naver') || lowerMsg.includes('네이버')) {
-      intent = 'auth_social'
-    } else if (lowerMsg.includes('apple') || lowerMsg.includes('애플')) {
-      intent = 'auth_social'
+    if (lowerMsg.includes('google') || lowerMsg.includes('구글') || lowerMsg.includes('firebase') || lowerMsg.includes('파이어베이스')) {
+      intent = 'firebase'
+    } else if (lowerMsg.includes('kakao') || lowerMsg.includes('카카오') || lowerMsg.includes('naver') || lowerMsg.includes('네이버') || lowerMsg.includes('apple') || lowerMsg.includes('애플')) {
+      intent = 'firebase'
     } else if (lowerMsg.includes('map') || lowerMsg.includes('지도')) {
-      intent = 'map'
-    } else if (lowerMsg.includes('video') || lowerMsg.includes('비디오') || lowerMsg.includes('동영상') || lowerMsg.includes('camera') || lowerMsg.includes('카메라')) {
+      intent = 'device'
+    } else if (lowerMsg.includes('video') || lowerMsg.includes('비디오') || lowerMsg.includes('동영상') || lowerMsg.includes('camera') || lowerMsg.includes('카메라') || lowerMsg.includes('audio') || lowerMsg.includes('오디오')) {
       intent = 'media'
+    } else if (lowerMsg.includes('db') || lowerMsg.includes('저장') || lowerMsg.includes('database') || lowerMsg.includes('sql') || lowerMsg.includes('hive')) {
+      intent = 'storage'
+    } else if (lowerMsg.includes('디자인') || lowerMsg.includes('design') || lowerMsg.includes('애니메이션') || lowerMsg.includes('animation') || lowerMsg.includes('이모지')) {
+      intent = 'ui_design'
     }
 
     const normalized = normalizeClassification({ type, intent, packageName })

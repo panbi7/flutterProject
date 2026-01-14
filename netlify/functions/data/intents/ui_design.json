@@ -1,0 +1,16 @@
+{
+    "packages": [
+        "animations",
+        "lottie",
+        "shimmer",
+        "font_awesome_flutter",
+        "carousel_slider",
+        "table_calendar",
+        "smooth_page_indicator",
+        "gap",
+        "badges",
+        "dotted_border",
+        "confetti",
+        "animated_text_kit"
+    ]
+}
