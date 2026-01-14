@@ -1,12 +1,16 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * 패키지 ID로 가이드 JSON 파일 로드
  * @param {string} packageId - 패키지 ID (예: 'firebase_auth')
  * @returns {Object|null} - 가이드 데이터 또는 null
  */
-function loadGuide(packageId) {
+export function loadGuide(packageId) {
   try {
     const guidePath = path.join(__dirname, '../data/examples', `${packageId}.json`);
 
@@ -31,7 +35,7 @@ function loadGuide(packageId) {
  * 사용 가능한 모든 가이드 목록 조회
  * @returns {Array} - 가이드 ID 배열
  */
-function getAvailableGuides() {
+export function getAvailableGuides() {
   try {
     const examplesDir = path.join(__dirname, '../data/examples');
 
@@ -50,8 +54,3 @@ function getAvailableGuides() {
     return [];
   }
 }
-
-module.exports = {
-  loadGuide,
-  getAvailableGuides
-};

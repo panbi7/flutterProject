@@ -4,7 +4,7 @@
  * 패키지 가이드를 반환합니다
  */
 
-import { searchPackage } from '../../backend/services/package-search.js';
+import { searchPackage } from './utils/package-search.js';
 
 export async function handler(event) {
   // CORS 헤더
