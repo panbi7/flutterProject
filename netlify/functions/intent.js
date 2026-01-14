@@ -2,6 +2,7 @@ import { ALLOWED_INTENTS, ALLOWED_TYPES } from './utils/constants.js'
 import { callGeminiClassifier } from './utils/gemini.js'
 import { getPackagesByIntent } from './utils/data.js'
 import { searchPackages } from './utils/pubdevApi.js'
+import { getLocalPackageInfo } from './utils/localPackageInfo.js'
 
 export async function handler(event, context) {
   // CORS headers
@@ -100,6 +101,23 @@ export async function handler(event, context) {
         return 0
       }).slice(0, 10) // 최대 10개만 반환
 
+      // 데이터 보강 (Enrichment)
+      const enrichedPackages = await Promise.all(finalPackages.map(async (p) => {
+        const localInfo = await getLocalPackageInfo(p.id);
+        if (localInfo) {
+          return {
+            ...p,
+            score: localInfo.score,
+            githubInfo: localInfo.githubInfo,
+            apiTags: localInfo.apiTags,
+            maintenance: localInfo.maintenance,
+            description: localInfo.description || p.description,
+            tags: localInfo.tags
+          };
+        }
+        return p;
+      }));
+
       return {
         statusCode: 200,
         headers,
@@ -107,7 +125,7 @@ export async function handler(event, context) {
           type,
           intent,
           source: searchedPackages.length > 0 ? 'hybrid' : 'ai',
-          packages: finalPackages,
+          packages: enrichedPackages,
           geminiRaw,
           status: { ai: 'connected', data: 'ready' }
         })
@@ -115,8 +133,22 @@ export async function handler(event, context) {
     }
 
 
-    // package_query 타입 처리 (이 부분은 early return 하지 않고 계속 진행하게 두거나, 필요한 경우에만 return)
+    // package_query 타입 처리
     if (type === 'package_query' && packageName) {
+      const localInfo = await getLocalPackageInfo(packageName);
+      const packageData = { id: packageName, name: packageName, description: `가이드 보기: ${packageName}` };
+
+      if (localInfo) {
+        Object.assign(packageData, {
+          score: localInfo.score,
+          githubInfo: localInfo.githubInfo,
+          apiTags: localInfo.apiTags,
+          maintenance: localInfo.maintenance,
+          description: localInfo.description || packageData.description,
+          tags: localInfo.tags
+        });
+      }
+
       return {
         statusCode: 200,
         headers,
@@ -125,7 +157,7 @@ export async function handler(event, context) {
           intent,
           packageName,
           source,
-          packages: [{ id: packageName, name: packageName, description: `가이드 보기: ${packageName}` }],
+          packages: [packageData],
           geminiRaw,
           status: { ai: 'connected', data: 'ready' }
         })
