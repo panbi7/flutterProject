@@ -1,0 +1,58 @@
+[
+    {
+        "id": "dio",
+        "name": "dio",
+        "category": "network",
+        "pub_url": "https://pub.dev/packages/dio",
+        "description_ko": "Flutter 최고의 HTTP 클라이언트, 강력한 인터셉터 기능",
+        "description": "A powerful HTTP client for Dart, which supports Interceptors, Global configuration, FormData, Request Cancellation, File downloading, Timeout etc.",
+        "difficulty": "보통",
+        "setup_time": "15-20분",
+        "pros": [
+            "인터셉터(Interceptors)로 자동 토큰 갱신 가능",
+            "파일 업로드/다운로드 진행률 확인 용이",
+            "복잡한 에러 핸들링과 타임아웃 설정이 강력함"
+        ],
+        "cons": [
+            "간단한 요청에는 조금 과할 수 있음 (Boilerplate)",
+            "의존성이 조금 무거운 편"
+        ],
+        "best_for": [
+            "실무 프로젝트",
+            "복잡한 API 연동",
+            "보안(토큰) 처리가 중요한 앱"
+        ],
+        "setup_guide": "1. pubspec.yaml에 추가\n2. Dio 인스턴스 생성 및 BaseOptions 설정\n3. get/post 메서드로 요청 송신",
+        "example_code": "final dio = Dio();\nfinal response = await dio.get('https://api.example.com');",
+        "popularity": "매우 높음",
+        "cost": "무료"
+    },
+    {
+        "id": "http",
+        "name": "http",
+        "category": "network",
+        "pub_url": "https://pub.dev/packages/http",
+        "description_ko": "가장 기본적이고 가벼운 공식 HTTP 패키지",
+        "description": "A composable, multi-platform, Future-based library for making HTTP requests.",
+        "difficulty": "매우 쉬움",
+        "setup_time": "5-10분",
+        "pros": [
+            "Flutter 팀에서 직접 관리함 (공식)",
+            "매우 가벼움",
+            "사용법이 직관적임"
+        ],
+        "cons": [
+            "인터셉터 등의 고급 기능이 부족함",
+            "파일 전송 등의 처리가 Dio보다 복잡함"
+        ],
+        "best_for": [
+            "간단한 외부 API 호출",
+            "작은 규모의 프로젝트",
+            "경량화를 중시하는 앱"
+        ],
+        "setup_guide": "1. pubspec.yaml에 추가\n2. import 'package:http/http.dart' as http;\n3. http.get(Uri.parse(url)) 사용",
+        "example_code": "import 'package:http/http.dart' as http;\nvar response = await http.get(Uri.parse('https://example.com'));",
+        "popularity": "매우 높음",
+        "cost": "무료"
+    }
+]

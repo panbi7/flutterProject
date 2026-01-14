@@ -1,0 +1,86 @@
+[
+    {
+        "id": "provider",
+        "name": "provider",
+        "category": "state_management",
+        "pub_url": "https://pub.dev/packages/provider",
+        "description_ko": "Flutter 공식 추천! 가장 쉽고 대중적인 상태 관리",
+        "description": "A wrapper around InheritedWidget to make them easier to use and more reusable.",
+        "difficulty": "쉬움",
+        "setup_time": "10-15분",
+        "pros": [
+            "학습 곡선이 낮음",
+            "공식 문서와 예제가 풍부함",
+            "불필요한 위젯 빌드 방지 최적화"
+        ],
+        "cons": [
+            "대규모 앱에서는 위젯 트리가 복잡해질 수 있음",
+            "런타임 에러 가능성 (ProviderNotFoundException)"
+        ],
+        "best_for": [
+            "입문자 및 중급자",
+            "소규모~중규모 프로젝트",
+            "빠른 프로토타이핑"
+        ],
+        "setup_guide": "1. pubspec.yaml에 추가\n2. ChangeNotifierProvider로 최상위 감싸기\n3. context.watch<T>() 또는 Consumer로 사용",
+        "example_code": "ChangeNotifierProvider(\n  create: (_) => Counter(),\n  child: const MyApp(),\n);",
+        "popularity": "매우 높음",
+        "cost": "무료"
+    },
+    {
+        "id": "flutter_bloc",
+        "name": "flutter_bloc",
+        "category": "state_management",
+        "pub_url": "https://pub.dev/packages/flutter_bloc",
+        "description_ko": "비즈니스 로직 분리의 정석, 대규모 프로젝트 필수",
+        "description": "Flutter Widgets that make it easy to implement the BLoC design pattern.",
+        "difficulty": "어려움",
+        "setup_time": "30-50분",
+        "pros": [
+            "상태 변화가 명확함 (Event -> State)",
+            "테스트가 매우 용이함",
+            "비즈니스 로직과 UI 완벽 분리"
+        ],
+        "cons": [
+            "보일러플레이트 코드가 많음",
+            "개념 이해에 시간이 필요함"
+        ],
+        "best_for": [
+            "대규모 팀 프로젝트",
+            "복잡한 비즈니스 로직",
+            "엄격한 구조가 필요한 앱"
+        ],
+        "setup_guide": "1. Event와 State 정의\n2. Bloc 또는 Cubit 구현\n3. BlocProvider와 BlocBuilder로 UI 연동",
+        "example_code": "BlocBuilder<CounterBloc, int>(\n  builder: (context, count) => Text('$count'),\n);",
+        "popularity": "매우 높음",
+        "cost": "무료"
+    },
+    {
+        "id": "riverpod",
+        "name": "riverpod",
+        "category": "state_management",
+        "pub_url": "https://pub.dev/packages/riverpod",
+        "description_ko": "Provider의 한계를 극복한 차세대 상태 관리",
+        "description": "A reactive caching and state-management framework of Flutter.",
+        "difficulty": "보통",
+        "setup_time": "20-30분",
+        "pros": [
+            "컴파일 타임 안전성 (런타임 에러 방지)",
+            "Flutter 위젯 트리에 의존하지 않음",
+            "전역 변수처럼 안전하게 사용 가능"
+        ],
+        "cons": [
+            "Provider와는 다른 독자적인 문법 학습 필요",
+            "버전업 시 문법 변화가 잦았음"
+        ],
+        "best_for": [
+            "현대적인 안정성을 추구하는 개발자",
+            "모든 규모의 프로젝트",
+            "Unit Test 비중이 높은 앱"
+        ],
+        "setup_guide": "1. ProviderScope로 앱 감싸기\n2. StateProvider 또는 NotifierProvider 정의\n3. ConsumerWidget에서 ref.watch()로 사용",
+        "example_code": "final counterProvider = StateProvider((ref) => 0);\n// ref.watch(counterProvider)로 사용",
+        "popularity": "높음",
+        "cost": "무료"
+    }
+]

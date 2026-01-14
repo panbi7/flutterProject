@@ -61,6 +61,10 @@ CLASSIFICATION RULES:
    - "auth_secure" = Security focus (보안, 안전)
    - "auth_custom" = Custom backend (JWT, 토큰, 서버)
    - "map" = Map/location feature (지도, 맵, 위치)
+   - "state_management" = State management (상태 관리, 데이터 공유, provider, bloc, riverpod, getx)
+   - "network_http" = Network/API (네트워크, http, api, 통신, dio)
+   - "routing" = Navigation/Routing (라우팅, 네비게이션, 화면 전환, go_router)
+   - "local_db" = Local database/storage (데이터 저장, db, 로컬 저장소, shared_preferences, hive, sqflite)
    - "auth_basic" = Default/general auth or when intent is unclear
 
 3. packageName:

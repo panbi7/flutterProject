@@ -1,0 +1,8 @@
+{
+    "title": "네비게이션 및 라우팅",
+    "description": "화면 전환 및 URL 관리 (GoRouter)",
+    "scenario": "복잡한 화면 구조를 체계적으로 관리하고 웹 URL과 연동하고 싶을 때",
+    "packages": [
+        "go_router"
+    ]
+}

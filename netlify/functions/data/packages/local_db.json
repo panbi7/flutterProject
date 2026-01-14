@@ -1,0 +1,57 @@
+[
+    {
+        "id": "shared_preferences",
+        "name": "shared_preferences",
+        "category": "local_db",
+        "pub_url": "https://pub.dev/packages/shared_preferences",
+        "description_ko": "간단한 앱 설정 및 소량의 데이터 저장",
+        "description": "Wraps platform-specific persistent storage for simple data.",
+        "difficulty": "매우 쉬움",
+        "setup_time": "5분",
+        "pros": [
+            "매우 단순하고 가벼움",
+            "플랫폼 기본 저장소(NSUserDefaults, SharedPrefs) 사용"
+        ],
+        "cons": [
+            "대량의 데이터 저장에 부적합",
+            "비동기 작업이 필수적임"
+        ],
+        "best_for": [
+            "설정 정보 (다크모드 여부 등)",
+            "로그인 토큰 저장",
+            "일회성 플래그 표시"
+        ],
+        "setup_guide": "1. pubspec.yaml에 추가\n2. SharedPreferences.getInstance() 호출\n3. setString, getInt 등으로 사용",
+        "example_code": "final prefs = await SharedPreferences.getInstance();\nawait prefs.setInt('counter', 10);",
+        "popularity": "매우 높음",
+        "cost": "무료"
+    },
+    {
+        "id": "hive",
+        "name": "hive",
+        "category": "local_db",
+        "pub_url": "https://pub.dev/packages/hive",
+        "description_ko": "빠르고 강력한 NoSQL 로컬 데이터베이스",
+        "description": "Lightweight and blazing fast key-value database written in pure Dart.",
+        "difficulty": "보통",
+        "setup_time": "15-25분",
+        "pros": [
+            "매우 빠름 (SQLite보다 빠를 때가 많음)",
+            "객체를 직접 저장 가능 (Adapter 사용 시)",
+            "강력한 암호화 기본 지원"
+        ],
+        "cons": [
+            "NoSQL이므로 복잡한 관계 쿼리가 어려움",
+            "Adapter 생성이 번거로울 수 있음"
+        ],
+        "best_for": [
+            "오프라인 캐싱",
+            "대량의 비정형 데이터 저장",
+            "성능을 중시하는 소규모~대형 앱"
+        ],
+        "setup_guide": "1. hive 패키지 추가\n2. Hive.initFlutter() 호출\n3. Box 열어서 사용",
+        "example_code": "var box = await Hive.openBox('testBox');\nbox.put('name', 'Antigravity');",
+        "popularity": "높음",
+        "cost": "무료"
+    }
+]

@@ -1,0 +1,10 @@
+{
+    "title": "로컬 데이터베이스",
+    "description": "사용자 데이터 로컬 저장 (SharedPreferences, Hive, SQFlite)",
+    "scenario": "설정값, 오프라인 데이터, 캐시 등을 기기에 저장하고 싶을 때",
+    "packages": [
+        "shared_preferences",
+        "hive",
+        "sqflite"
+    ]
+}

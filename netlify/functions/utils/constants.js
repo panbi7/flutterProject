@@ -22,6 +22,10 @@ export const ALLOWED_INTENTS = [
   'auth_secure',
   'auth_custom',
   'map',
+  'state_management',
+  'network_http',
+  'routing',
+  'local_db',
 ]
 
 export const ALLOWED_TYPES = [

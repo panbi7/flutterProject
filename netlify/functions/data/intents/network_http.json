@@ -1,0 +1,9 @@
+{
+    "title": "네트워크 및 API",
+    "description": "REST API 통신, HTTP 요청 (Dio, Http)",
+    "scenario": "서버와 데이터를 주고받거나 외부 API를 연동하고 싶을 때",
+    "packages": [
+        "dio",
+        "http"
+    ]
+}

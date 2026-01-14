@@ -1,0 +1,30 @@
+[
+    {
+        "id": "go_router",
+        "name": "go_router",
+        "category": "routing",
+        "pub_url": "https://pub.dev/packages/go_router",
+        "description_ko": "Flutter 공식 라우팅의 표준! 선언적 내비게이션",
+        "description": "A declarative routing package for Flutter that uses the Router API to provide a convenient, user-friendly API for navigating.",
+        "difficulty": "보통",
+        "setup_time": "20-30분",
+        "pros": [
+            "Flutter Router API(Router 2.0)를 쉽게 사용함",
+            "웹 URL 지원 및 딥링크 연동 최적화",
+            "리다이렉션(로그인 여부 체크 등) 로직 구성이 쉬움"
+        ],
+        "cons": [
+            "설정이 기존 Navigator 1.0보다 복잡할 수 있음",
+            "버전 변경에 따른 문법 변화 가능성"
+        ],
+        "best_for": [
+            "웹과 앱을 동시에 지원하는 프로젝트",
+            "복잡한 화면 흐름과 인증 연동",
+            "대형 프로젝트"
+        ],
+        "setup_guide": "1. pubspec.yaml에 추가\n2. GoRouter 설정 객체 생성 (routes 정의)\n3. MaterialApp.router 생성자에 주입",
+        "example_code": "final _router = GoRouter(routes: [GoRoute(path: '/', builder: (_, __) => HomePage())]);",
+        "popularity": "매우 높음",
+        "cost": "무료"
+    }
+]
