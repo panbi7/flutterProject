@@ -30,3 +30,5 @@ backend/.env
 
 # Claude Code
 .claude
+# Local Netlify folder
+.netlify
