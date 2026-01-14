@@ -2,8 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const _filename = fileURLToPath(import.meta.url);
-const _dirname = path.dirname(_filename);
+const _dirname = (() => {
+  try { return path.dirname(fileURLToPath(import.meta.url)) }
+  catch (e) { return typeof __dirname !== 'undefined' ? __dirname : process.cwd() }
+})()
 const dataDir = path.join(_dirname, '..', 'data');
 const generatedGuidesDir = path.join(_dirname, '..', '..', 'generated-guides');
 

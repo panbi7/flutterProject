@@ -1,8 +1,14 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const _filename = fileURLToPath(import.meta.url)
-const _dirname = path.dirname(_filename)
+// Failsafe path resolution for CJS/ESM and Netlify
+let _dirname = ''
+try {
+  _dirname = path.dirname(fileURLToPath(import.meta.url))
+} catch (e) {
+  _dirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd()
+}
+if (!_dirname) _dirname = process.cwd()
 
 export const PORT = process.env.PORT || 3000
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''

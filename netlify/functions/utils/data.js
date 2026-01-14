@@ -3,8 +3,10 @@ import path from 'node:path'
 import { INTENTS_DIR, PACKAGES_DIR } from './constants.js'
 import { fileURLToPath } from 'node:url'
 
-const _filename = fileURLToPath(import.meta.url)
-const _dirname = path.dirname(_filename)
+const _dirname = (() => {
+  try { return path.dirname(fileURLToPath(import.meta.url)) }
+  catch (e) { return typeof __dirname !== 'undefined' ? __dirname : process.cwd() }
+})()
 
 export async function loadJSON(filePath) {
   const data = await fs.readFile(filePath, 'utf-8')
@@ -65,11 +67,16 @@ export async function getPackagesByIntent(intent) {
 }
 
 async function loadDirectoryJSON(dirPath) {
+  if (!dirPath) {
+    console.warn('[DATA] loadDirectoryJSON received undefined dirPath')
+    return []
+  }
+  const name = path.basename(dirPath)
   const potentialPaths = [
     dirPath,
-    path.join(process.cwd(), 'netlify/functions/data', path.basename(dirPath)),
-    path.join(process.cwd(), '.netlify/functions-internal', path.basename(dirPath)),
-    path.join(_dirname, '..', 'data', path.basename(dirPath))
+    path.join(process.cwd(), 'netlify/functions/data', name),
+    path.join(process.cwd(), '.netlify/functions-internal', name),
+    path.join(_dirname, '..', 'data', name)
   ]
 
   let validPath = null
