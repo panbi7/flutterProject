@@ -1,0 +1,117 @@
+{
+  "title": "characters 구현 가이드: 유니코드 문자열 완벽 처리",
+  "description": "characters 패키지는 Dart의 기본 String 처리 방식이 놓치기 쉬운 유니코드 그래핌 클러스터(Grapheme Cluster)를 정확하게 인식하고 조작할 수 있게 해주는 필수 유틸리티입니다. 이 가이드를 통해 이모지, 복합 문자 등을 안전하게 처리하는 방법을 배웁니다.",
+  "difficulty": "중급",
+  "estimatedTime": "15-20분",
+  "prerequisites": [
+    "Flutter SDK 설치 및 환경 설정",
+    "Dart 2.12+ (Null Safety 환경)"
+  ],
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "패키지 설치 및 환경 설정",
+      "description": "Flutter 프로젝트에 `characters` 패키지를 추가하고 필요한 파일을 임포트합니다.",
+      "substeps": [
+        "pubspec.yaml 파일에 의존성 추가",
+        "패키지 다운로드 및 프로젝트에 적용",
+        "Dart 파일에 `package:characters/characters.dart` 임포트"
+      ],
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  characters: ^1.4.1 # 최신 버전으로 유지"
+      },
+      "command": "flutter pub add characters",
+      "commands": [
+        "flutter pub get"
+      ],
+      "note": "패키지 버전은 항상 최신 버전을 확인하여 사용하십시오."
+    },
+    {
+      "stepNumber": 2,
+      "title": "핵심 개념 이해: String.length vs. Characters.length",
+      "description": "Dart의 기본 String 길이와 `characters` 패키지가 계산하는 그래핌 클러스터 길이를 비교하여 패키지의 필요성을 명확히 이해합니다. 특히 이모지나 국기 기호(Flag Emoji)는 여러 개의 코드 유닛으로 구성되므로 기본 `length`는 부정확합니다.",
+      "substeps": [
+        "복합 문자를 포함하는 문자열 정의",
+        "기본 `length`와 `.characters.length` 비교 출력"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/grapheme_analyzer.dart",
+        "content": "import 'package:characters/characters.dart';\n\nvoid analyzeString(String input) {\n  print('--- 문자열 분석 시작 ---\\n');\n  print('원본 문자열: \"$input\"');\n\n  // 1. Dart 기본 String 길이 (Code Units 기준)\n  final dartLength = input.length;\n  print('Dart String.length (코드 유닛): $dartLength');\n\n  // 2. Characters 길이 (Grapheme Clusters 기준)\n  final graphemeLength = input.characters.length;\n  print('Characters.length (시각적 문자): $graphemeLength');\n\n  // 예시: 'Hi 🇩🇰' (🇩🇰는 4개의 코드 유닛)\n  // Dart Length: 7 (H, i, ' ', 4 units for 🇩🇰)\n  // Grapheme Length: 4 (H, i, ' ', 🇩🇰)\n  \n  if (dartLength != graphemeLength) {\n    print('\\n[중요] 길이가 다릅니다. 이는 복합 문자가 포함되었음을 의미합니다.');\n  }\n  print('\\n--- 분석 종료 ---');\n}\n\nvoid main() {\n  analyzeString('Hello World'); // 일반 문자열 (길이 동일)\n  analyzeString('Hi 🇩🇰'); // 국기 이모지 포함 (길이 다름)\n  analyzeString('👨‍👩‍👧‍👦'); // 가족 이모지 (Zero Width Joiner 포함)\n}"
+      },
+      "explanation": "국기 이모지(🇩🇰)는 내부적으로 여러 개의 유니코드 스칼라 값(Scalar Value)으로 구성되며, Dart의 `length`는 이를 모두 세어 7을 반환합니다. 하지만 사용자의 눈에는 4개의 시각적 문자(H, i, 공백, 🇩🇰)로 보이므로, `.characters.length`는 정확히 4를 반환합니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "그래핌 단위 문자열 조작 및 대체",
+      "description": "공식 예제에서 제시된 것처럼, 문자열의 마지막 문자를 안전하게 접근하거나, 특정 그래핌 클러스터를 다른 클러스터로 대체하는 방법을 실무 코드에 적용합니다.",
+      "substeps": [
+        "마지막 그래핌 클러스터 접근",
+        "마지막 N개의 그래핌 클러스터 건너뛰기",
+        "그래핌 클러스터 단위로 문자열 대체"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/string_manipulator.dart",
+        "content": "import 'package:characters/characters.dart';\n\nclass GraphemeManipulator {\n  final String originalString;\n\n  GraphemeManipulator(this.originalString);\n\n  // 1. 마지막 그래핌 클러스터 가져오기\n  String getLastCharacter() {\n    // String.substring(length - 1)은 복합 문자를 깨뜨릴 수 있습니다.\n    return originalString.characters.last;\n  }\n\n  // 2. 마지막 N개의 그래핌 클러스터 건너뛰기 (자르기)\n  String skipLastCharacters(int count) {\n    // skipLast()는 시각적 문자 단위로 정확하게 자릅니다.\n    return originalString.characters.skipLast(count).toString();\n  }\n\n  // 3. 그래핌 클러스터 단위로 대체\n  String replaceGrapheme(String target, String replacement) {\n    // 대체할 문자열도 .characters로 변환해야 안전합니다.\n    return originalString.characters\n        .replaceAll(target.characters, replacement.characters)\n        .toString();\n  }\n}\n\nvoid main() {\n  final manipulator = GraphemeManipulator('Hello 🇰🇷');\n\n  // 테스트 1: 마지막 문자 접근\n  print('마지막 문자: ${manipulator.getLastCharacter()}'); // 🇰🇷 (깨지지 않음)\n\n  // 테스트 2: 마지막 1개 건너뛰기\n  print('마지막 1개 제거: \"${manipulator.skipLastCharacters(1)}\"'); // \"Hello \"\n\n  // 테스트 3: 대체\n  final replaced = manipulator.replaceGrapheme('🇰🇷', '🇺🇸');\n  print('국기 대체 결과: \"$replaced\"'); // \"Hello 🇺🇸\"\n}"
+      },
+      "explanation": "`.characters`를 호출하면 `Characters` 객체가 반환되며, 이 객체는 `Iterable<String>`을 구현하여 각 요소가 하나의 그래핌 클러스터(시각적 문자)를 나타냅니다. 모든 조작은 이 `Characters` 객체 위에서 이루어져야 유니코드 안전성이 보장됩니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "Flutter UI 실무 적용: 텍스트 길이 제한 (Truncation)",
+      "description": "게시판이나 댓글 목록에서 텍스트를 일정 길이로 자를 때, 이모지가 중간에 잘려 깨지는 현상을 방지하기 위해 `characters`를 사용하여 안전하게 텍스트를 자르는 기능을 구현합니다.",
+      "substeps": [
+        "안전한 텍스트 자르기 유틸리티 함수 작성",
+        "Flutter 위젯에서 해당 함수를 사용하여 텍스트 표시"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/utils/text_truncator.dart",
+        "content": "import 'package:characters/characters.dart';\n\n/// 시각적 문자(Grapheme Cluster) 단위로 안전하게 문자열을 자르는 함수\nString safeTruncate(String text, int maxLength) {\n  if (text.characters.length <= maxLength) {\n    return text;\n  }\n  \n  // take(maxLength)를 사용하여 정확히 maxLength개의 그래핌만 가져옵니다.\n  final truncated = text.characters.take(maxLength).toString();\n  \n  // 잘린 문자열 뒤에 '...' 추가\n  return '$truncated...';\n}\n\n// Flutter Widget 사용 예시 (보일러플레이트 생략)\n/*\nclass MyTextWidget extends StatelessWidget {\n  final String longText = '안녕하세요! 🚀🚀🚀 이모지 테스트입니다. 🇰🇷🇺🇸';\n  \n  @override\n  Widget build(BuildContext context) {\n    return Text(\n      safeTruncate(longText, 10), // 10개의 시각적 문자만 표시\n      style: TextStyle(fontSize: 16),\n    );\n  }\n}\n*/\n\nvoid main() {\n  const complexText = 'Flutter 💙❤️💛💚💜';\n  // 기본 String.substring(0, 10)은 'Flutter 💙' 까지만 자르려다 💙가 깨질 수 있음.\n  \n  print('원본: $complexText');\n  print('안전하게 10자 자르기: ${safeTruncate(complexText, 10)}');\n  // 결과: 'Flutter 💙❤️...' (정확히 10개의 시각적 문자 + ...)\n}"
+      },
+      "explanation": "UI에서 텍스트를 자를 때 `String.substring`을 사용하면 이모지나 복합 문자가 중간에 잘려 깨진 문자()로 표시될 수 있습니다. `safeTruncate` 함수는 `.characters.take(maxLength)`를 사용하여 시각적 문자 단위로 정확하게 자르므로 이러한 문제를 완벽하게 해결합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "메서드를 호출하기 전에 `.characters`를 누락하는 경우",
+      "solution": "`.length`, `.substring`, `.last` 등의 메서드를 그래핌 단위로 사용하려면 반드시 `myString.characters.method()` 형태로 호출해야 합니다. `myString.method()`는 Dart의 기본 코드 유닛 기반 메서드입니다.",
+      "link": null
+    },
+    {
+      "error": "Characters 객체를 String으로 다시 변환하지 않는 경우",
+      "solution": "`.characters`를 호출하면 `Characters` 타입이 반환됩니다. 이를 Flutter 위젯이나 다른 String 메서드에 사용하려면 반드시 `.toString()`을 호출하여 다시 Dart `String` 타입으로 변환해야 합니다.",
+      "link": null
+    }
+  ],
+  "tips": [
+    "**성능 고려:** `String`을 `Characters` 객체로 변환하는 과정에는 약간의 오버헤드가 발생합니다. 문자열 조작이 빈번하지 않다면 기본 `String` 메서드를 사용하고, 복합 문자 처리(이모지, 국제화 텍스트)가 필요한 경우에만 `characters`를 사용하십시오.",
+    "**입력 유효성 검사:** 사용자 입력 필드(TextField)에서 글자 수 제한을 설정할 때, `maxLength` 속성 대신 `characters.length`를 사용하여 실제 시각적 문자 수를 기준으로 유효성 검사를 수행해야 합니다.",
+    "**반복문 사용:** 문자열을 그래핌 단위로 순회하려면 `for (var char in myString.characters)` 구문을 사용하십시오. 이는 `myString.runes`를 사용하는 것보다 훨씬 안전하고 정확합니다."
+  ],
+  "nextSteps": [
+    {
+      "title": "국제화(i18n) 및 현지화(l10n) 심화 학습",
+      "description": "유니코드 처리는 국제화의 기본입니다. Flutter의 공식 `flutter_localizations` 패키지와 함께 사용하여 다양한 언어 환경에서 텍스트 처리를 완벽하게 구현하는 방법을 학습하십시오.",
+      "packageId": "flutter_localizations"
+    },
+    {
+      "title": "유니코드 정규화(Normalization) 이해",
+      "description": "문자열 비교 시, 동일한 문자가 다른 유니코드 형태로 표현될 수 있습니다. `characters` 패키지와 함께 유니코드 정규화(NFC, NFD 등) 개념을 학습하여 정확한 문자열 비교 로직을 구현하십시오."
+    }
+  ],
+  "references": [
+    {
+      "title": "characters 공식 문서",
+      "url": "https://pub.dev/packages/characters"
+    },
+    {
+      "title": "Dart Grapheme Cluster 설명",
+      "url": "https://dart.dev/guides/language/strings#grapheme-clusters"
+    }
+  ],
+  "source": "generated"
+}

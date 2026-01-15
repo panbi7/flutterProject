@@ -1,0 +1,121 @@
+{
+  "title": "Flutter animations 패키지 완벽 구현 가이드",
+  "description": "Material Design 3 기반의 아름다운 전환 효과(Container Transform, Shared Axis, Fade Through 등)를 손쉽게 적용하여 사용자 경험을 극대화하는 실무 가이드입니다.",
+  "difficulty": "중급",
+  "estimatedTime": "30-45분",
+  "prerequisites": [
+    "Flutter SDK 설치 및 환경 설정",
+    "Dart 언어 및 StatefulWidget 기본 지식"
+  ],
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "패키지 설치 및 프로젝트 구조 설정",
+      "description": "Flutter 프로젝트에 'animations' 패키지를 추가하고, 실습을 위한 기본 파일 구조를 설정합니다.",
+      "substeps": [
+        "pubspec.yaml 파일에 패키지 종속성 추가",
+        "데모 코드를 분리할 파일 생성 (Container Transform, Fade Through)"
+      ],
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  animations: ^2.1.1 # 최신 버전 확인 후 적용"
+      },
+      "command": "flutter pub add animations",
+      "commands": [],
+      "note": "이 패키지는 Material Design의 모션 시스템을 구현하며, 특히 OpenContainer는 Material 3의 핵심 전환 효과입니다.",
+      "explanation": "패키지 설치 후, `flutter pub get`을 실행하여 종속성을 다운로드합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "핵심 전환: OpenContainer Transform 구현 (Detail View)",
+      "description": "작은 위젯(예: 리스트 타일)이 부드럽게 전체 화면으로 확장되는 'Container Transform' 효과를 구현합니다. 이는 상세 화면 진입 시 가장 유용합니다.",
+      "substeps": [
+        "OpenContainer 위젯을 사용하여 닫힌 상태(closedBuilder)와 열린 상태(openBuilder) 정의",
+        "전환 효과를 위한 상세 화면(DetailScreen) 생성"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/container_demo.dart",
+        "content": "import 'package:animations/animations.dart';\nimport 'package:flutter/material.dart';\n\nclass OpenContainerTransformDemo extends StatelessWidget {\n  const OpenContainerTransformDemo({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Container Transform Demo')),\n      body: ListView.builder(\n        itemCount: 5,\n        itemBuilder: (context, index) {\n          return OpenContainer<bool>(\n            transitionType: ContainerTransitionType.fadeThrough, // 전환 타입 설정\n            closedElevation: 0.0,\n            closedBuilder: (BuildContext context, VoidCallback action) {\n              // 닫힌 상태 (리스트 타일)\n              return ListTile(\n                onTap: action, // action을 호출하면 openBuilder로 전환 시작\n                leading: const Icon(Icons.article),\n                title: Text('게시물 제목 ${index + 1}'),\n                subtitle: const Text('탭하여 상세 정보 보기'),\n              );\n            },\n            openBuilder: (BuildContext context, VoidCallback action) {\n              // 열린 상태 (상세 화면)\n              return _DetailScreen(index: index + 1);\n            },\n          );\n        },\n      ),\n    );\n  }\n}\n\nclass _DetailScreen extends StatelessWidget {\n  final int index;\n  const _DetailScreen({required this.index});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: Text('상세 화면 $index'),\n      ),\n      body: Center(\n        child: Padding(\n          padding: const EdgeInsets.all(16.0),\n          child: Text(\n            '이것은 게시물 $index의 상세 내용입니다. 리스트 타일에서 부드럽게 확장되었습니다.',\n            style: Theme.of(context).textTheme.headlineSmall,\n            textAlign: TextAlign.center,\n          ),\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "command": null,
+      "note": "OpenContainer는 제네릭 타입 `<T>`를 가지며, 이는 닫힌 화면에서 열린 화면으로 전달되는 값의 타입입니다. 여기서는 단순히 `bool`을 사용했습니다.",
+      "explanation": "`closedBuilder`의 `action` 콜백을 호출하는 것이 전환을 시작하는 트리거입니다. `transitionType`을 `fadeThrough`로 설정하면 Material 3 권장 전환 효과를 얻을 수 있습니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "화면 전환: FadeThroughTransition 적용 (탭 전환)",
+      "description": "탭이나 하단 네비게이션 바를 전환할 때, 이전 콘텐츠가 사라지고 새 콘텐츠가 나타나는 'Fade Through' 효과를 구현합니다. 이는 콘텐츠 간의 관계가 대등할 때 사용됩니다.",
+      "substeps": [
+        "PageTransitionSwitcher 위젯을 사용하여 전환할 위젯을 감싸기",
+        "선택된 인덱스(key)가 변경될 때마다 전환 발생시키기"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/fade_through_demo.dart",
+        "content": "import 'package:animations/animations.dart';\nimport 'package:flutter/material.dart';\n\nclass FadeThroughTransitionDemo extends StatefulWidget {\n  const FadeThroughTransitionDemo({super.key});\n\n  @override\n  State<FadeThroughTransitionDemo> createState() => _FadeThroughTransitionDemoState();\n}\n\nclass _FadeThroughTransitionDemoState extends State<FadeThroughTransitionDemo> {\n  int _selectedIndex = 0;\n\n  final List<Widget> _pages = const [\n    _PageContent(icon: Icons.home, label: '홈 화면'),\n    _PageContent(icon: Icons.settings, label: '설정'),\n    _PageContent(icon: Icons.person, label: '프로필'),\n  ];\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Fade Through Demo')),\n      body: PageTransitionSwitcher(\n        duration: const Duration(milliseconds: 500),\n        transitionBuilder: (child, animation, secondaryAnimation) {\n          return FadeThroughTransition(\n            animation: animation,\n            secondaryAnimation: secondaryAnimation,\n            child: child,\n          );\n        },\n        // key가 변경될 때마다 전환이 발생합니다.\n        child: _pages[_selectedIndex],\n      ),\n      bottomNavigationBar: BottomNavigationBar(\n        currentIndex: _selectedIndex,\n        onTap: (index) {\n          setState(() {\n            _selectedIndex = index;\n          });\n        },\n        items: const [\n          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),\n          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),\n          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),\n        ],\n      ),\n    );\n  }\n}\n\nclass _PageContent extends StatelessWidget {\n  final IconData icon;\n  final String label;\n  const _PageContent({required this.icon, required this.label});\n\n  @override\n  Widget build(BuildContext context) {\n    return Center(\n      key: ValueKey(label), // PageTransitionSwitcher가 위젯을 구분하는 핵심 키\n      child: Column(\n        mainAxisAlignment: MainAxisAlignment.center,\n        children: [\n          Icon(icon, size: 80, color: Theme.of(context).primaryColor),\n          const SizedBox(height: 20),\n          Text(label, style: Theme.of(context).textTheme.headlineMedium),\n        ],\n      ),\n    );\n  }\n}"
+      },
+      "command": null,
+      "note": "PageTransitionSwitcher는 `child` 위젯의 `key`가 변경될 때 전환을 트리거합니다. 따라서 전환 대상 위젯에는 반드시 고유한 `key`를 지정해야 합니다.",
+      "explanation": "`FadeThroughTransition`은 이전 위젯이 페이드 아웃되면서 크기가 작아지고, 새 위젯이 페이드 인되면서 크기가 커지는 효과를 제공합니다. 이는 탭 전환에 최적화되어 있습니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "메인 애플리케이션 통합 및 실행",
+      "description": "앞서 구현한 데모들을 메인 화면에 연결하고, 공식 예제에서 제공하는 '느린 애니메이션' 기능을 추가하여 디버깅 환경을 개선합니다.",
+      "substeps": [
+        "main.dart 파일에 모든 데모 위젯 임포트",
+        "timeDilation을 사용하여 애니메이션 속도 제어 기능 구현"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter/scheduler.dart';\nimport 'container_demo.dart'; // Step 2에서 생성\nimport 'fade_through_demo.dart'; // Step 3에서 생성\n\nvoid main() {\n  runApp(const MyApp());\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      title: 'Animations Demo',\n      theme: ThemeData(\n        useMaterial3: true,\n        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),\n      ),\n      home: const TransitionsHomePage(),\n    );\n  }\n}\n\nclass TransitionsHomePage extends StatefulWidget {\n  const TransitionsHomePage({super.key});\n\n  @override\n  State<TransitionsHomePage> createState() => _TransitionsHomePageState();\n}\n\nclass _TransitionsHomePageState extends State<TransitionsHomePage> {\n  bool _slowAnimations = false;\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Material Transitions Demo')),\n      body: Column(\n        children: <Widget>[\n          Expanded(\n            child: ListView(\n              children: <Widget>[\n                _TransitionListTile(\n                  title: 'Container Transform',\n                  subtitle: 'OpenContainer (Detail View)',\n                  onTap: () {\n                    Navigator.of(context).push(MaterialPageRoute<void>(\n                      builder: (BuildContext context) => const OpenContainerTransformDemo(),\n                    ));\n                  },\n                ),\n                _TransitionListTile(\n                  title: 'Fade Through',\n                  subtitle: 'FadeThroughTransition (Tab Switch)',\n                  onTap: () {\n                    Navigator.of(context).push(MaterialPageRoute<void>(\n                      builder: (BuildContext context) => const FadeThroughTransitionDemo(),\n                    ));\n                  },\n                ),\n                // SharedAxisTransition, FadeScaleTransition 등 다른 데모 추가 가능\n              ],\n            ),\n          ),\n          const Divider(height: 0.0),\n          SafeArea(\n            child: SwitchListTile(\n              value: _slowAnimations,\n              onChanged: (bool value) async {\n                setState(() { _slowAnimations = value; });\n                // timeDilation을 사용하여 애니메이션 속도 제어\n                timeDilation = _slowAnimations ? 20.0 : 1.0;\n              },\n              title: const Text('Slow animations (디버깅용)'),\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}\n\n// Step 4: _TransitionListTile 위젯 (보일러플레이트 생략)\nclass _TransitionListTile extends StatelessWidget { /* ... */ }"
+      },
+      "command": "flutter run",
+      "note": "`timeDilation`은 `flutter/scheduler.dart`에 정의되어 있으며, 앱 전체의 애니메이션 속도를 조절하는 강력한 디버깅 도구입니다. 실무에서는 디버그 모드에서만 활성화하는 것이 좋습니다.",
+      "explanation": "메인 화면은 리스트 형태로 각 전환 효과 데모로 이동하는 버튼을 제공합니다. 특히 `timeDilation`을 20.0으로 설정하면 모든 애니메이션이 20배 느려져 전환 효과의 디테일을 쉽게 관찰할 수 있습니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "OpenContainer를 사용했지만 전환 효과가 보이지 않고 일반적인 라우팅처럼 작동합니다.",
+      "solution": "`closedBuilder`의 `action` 콜백을 호출해야 합니다. `onTap: action` 형태로 반드시 연결했는지 확인하세요. 일반적인 `Navigator.push`를 사용하면 전환이 발생하지 않습니다."
+    },
+    {
+      "error": "PageTransitionSwitcher를 사용했는데 전환이 발생하지 않습니다.",
+      "solution": "전환 대상 위젯(child)에 반드시 고유한 `key` (예: `ValueKey`, `ObjectKey`)를 지정해야 합니다. 키가 변경되지 않으면 Switcher는 위젯이 변경되지 않았다고 판단합니다."
+    },
+    {
+      "error": "SharedAxisTransition 또는 FadeThroughTransition이 너무 빠르게 지나가서 확인하기 어렵습니다.",
+      "solution": "메인 화면의 'Slow animations' 스위치를 켜거나, 해당 Transition 위젯의 `duration` 속성을 늘려 애니메이션 시간을 조정하세요."
+    }
+  ],
+  "tips": [
+    "**성능 최적화:** `OpenContainer`의 `closedElevation`을 0.0으로 설정하면 불필요한 그림자 계산을 줄여 성능을 향상시킬 수 있습니다.",
+    "**컨텍스트 활용:** `OpenContainer`의 `openBuilder` 내부에서 `action` 콜백을 사용하여 상세 화면에서 닫기 버튼을 구현할 수 있습니다. (예: `onPressed: () => action()`)",
+    "**SharedAxisTransition 활용:** 목록(List)과 상세(Detail)처럼 계층적 관계일 때는 `SharedAxisTransition` (Y축)을, 탭 전환처럼 대등한 관계일 때는 `FadeThroughTransition`을 사용하는 것이 Material Design 모션 가이드라인에 부합합니다."
+  ],
+  "nextSteps": [
+    {
+      "title": "커스텀 애니메이션 컨트롤러 학습",
+      "description": "animations 패키지가 제공하는 고수준 위젯 외에, `AnimationController`와 `Tween`을 직접 사용하여 더욱 정교하고 복잡한 커스텀 전환 효과를 구현해 보세요."
+    },
+    {
+      "title": "Hero 애니메이션과의 결합",
+      "description": "Container Transform이 전체 컨테이너를 전환하는 반면, 특정 이미지나 텍스트만 전환하고 싶다면 `Hero` 위젯을 함께 사용하여 시각적 연속성을 높일 수 있습니다."
+    }
+  ],
+  "references": [
+    {
+      "title": "공식 문서",
+      "url": "https://pub.dev/packages/animations"
+    },
+    {
+      "title": "Material Design Motion System 가이드",
+      "url": "https://m3.material.io/styles/motion/overview"
+    }
+  ],
+  "source": "generated"
+}

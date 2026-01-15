@@ -1,6 +1,7 @@
 import { getPackageInfo } from './pubdevApi.js';
 import { callGeminiForGuide } from './gemini.js';
 import { getLocalPackageInfo } from './localPackageInfo.js';
+import { getExampleCode } from './pubdevScraper.js';
 
 /**
  * pub.dev 정보를 바탕으로 Gemini를 사용하여 실시간 구현 가이드를 생성합니다.
@@ -9,10 +10,11 @@ import { getLocalPackageInfo } from './localPackageInfo.js';
  */
 export async function generateGuideFromPubDev(packageName) {
   try {
-    // 1. pub.dev 및 로컬 지식 베이스에서 패키지 정보 가져오기
-    const [pubInfo, localInfo] = await Promise.all([
+    // 1. pub.dev, local info, and scraped example code
+    const [pubInfo, localInfo, scrapedCode] = await Promise.all([
       getPackageInfo(packageName),
-      getLocalPackageInfo(packageName)
+      getLocalPackageInfo(packageName),
+      getExampleCode(packageName)
     ]);
 
     if (!pubInfo) {
@@ -22,7 +24,17 @@ export async function generateGuideFromPubDev(packageName) {
 
     // 지식 베이스 정보 결합 (로컬 데이터 우선 순위)
     const finalDescription = localInfo?.description || pubInfo.description;
-    const exampleSnippet = localInfo?.exampleCode ? `공식 예제 코드:\n${localInfo.exampleCode}` : '';
+
+    // Use scraped code if available, otherwise fall back to local info
+    let codeSource = 'pub.dev Example';
+    let exampleCodeContent = scrapedCode;
+
+    if (!exampleCodeContent && localInfo?.exampleCode) {
+      exampleCodeContent = localInfo.exampleCode;
+      codeSource = 'Local Knowledge Base';
+    }
+
+    const exampleSnippet = exampleCodeContent ? `공식 예제 코드 (${codeSource}):\n${exampleCodeContent}` : '';
 
     // 2. Gemini 프롬프트 구성 (구조화된 JSON 요청 + RAG 컨텍스트)
     const prompt = `

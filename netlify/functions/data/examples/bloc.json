@@ -1,0 +1,132 @@
+{
+  "title": "bloc (9.2.0) 실무 적용을 위한 완벽 가이드: BLoC 패턴 마스터하기",
+  "description": "bloc은 예측 가능한 상태 관리를 위한 라이브러리로, 비즈니스 로직(BL)과 UI(C)를 분리하여 대규모 애플리케이션의 유지보수성과 테스트 용이성을 극대화합니다. Cubit과 Bloc 두 가지 형태로 상태 관리를 제공합니다.",
+  "difficulty": "중급",
+  "estimatedTime": "30-45분",
+  "prerequisites": [
+    "Flutter SDK 설치 및 환경 설정",
+    "Dart 언어의 비동기 프로그래밍(Future, Stream) 기본 이해"
+  ],
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "패키지 설치 및 프로젝트 구조 설정",
+      "description": "BLoC 패턴을 Flutter에 적용하기 위해서는 핵심 라이브러리인 'bloc'과 Flutter 위젯과의 통합을 담당하는 'flutter_bloc' 두 가지를 설치해야 합니다.",
+      "substeps": [
+        "pubspec.yaml 파일에 의존성 추가",
+        "Counter 예제를 위한 기본 폴더 구조 생성 (lib/counter)"
+      ],
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  bloc: ^9.2.0\n  flutter_bloc: ^8.1.5"
+      },
+      "command": "flutter pub get",
+      "commands": [
+        "flutter pub get"
+      ],
+      "note": "실제 Flutter 프로젝트에서는 'flutter_bloc'이 필수적입니다. 이는 BlocProvider, BlocBuilder, BlocListener 등 UI 통합 위젯을 제공합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "State 및 Event 정의 (계약 설정)",
+      "description": "BLoC의 핵심은 명확한 계약(Contract)입니다. 상태(State)는 UI가 렌더링할 데이터이며, 이벤트(Event)는 UI 또는 외부 요인에 의해 발생하는 사용자 액션입니다.",
+      "substeps": [
+        "CounterEvent 추상 클래스 및 구체적인 이벤트 정의",
+        "CounterState 추상 클래스 및 구체적인 상태 정의 (초기, 로드됨)"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/counter/counter_bloc.dart (상단)",
+        "content": "// --- 1. Events ---\nabstract class CounterEvent {}\n\nclass CounterIncrementPressed extends CounterEvent {}\n\n// --- 2. States ---\nabstract class CounterState {\n  final int count;\n  const CounterState(this.count);\n}\n\nclass CounterInitial extends CounterState {\n  const CounterInitial() : super(0);\n}\n\nclass CounterLoaded extends CounterState {\n  const CounterLoaded(super.count);\n\n  @override\n  bool operator ==(Object other) =>\n      identical(this, other) ||\n      other is CounterLoaded && runtimeType == other.runtimeType && count == other.count;\n\n  @override\n  int get hashCode => count.hashCode;\n}"
+      },
+      "explanation": "상태 클래스에 `Equatable` 패키지를 사용하는 것이 일반적이지만, 여기서는 기본 Dart 구현을 위해 `==` 및 `hashCode`를 오버라이드했습니다. 이는 BLoC이 불필요하게 상태를 다시 방출(emit)하는 것을 방지합니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "BLoC 로직 구현 및 이벤트 핸들링",
+      "description": "정의된 Event를 State로 변환하는 비즈니스 로직을 `CounterBloc` 클래스 내부에 구현합니다. BLoC은 생성자에서 `on<Event>` 핸들러를 사용하여 이벤트를 등록합니다.",
+      "substeps": [
+        "Bloc<Event, State>를 상속받아 CounterBloc 생성",
+        "`on<CounterIncrementPressed>` 핸들러를 등록하여 상태 변환 로직 작성"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/counter/counter_bloc.dart (하단)",
+        "content": "import 'package:bloc/bloc.dart';\n// (Step 2의 State 및 Event 정의 코드 생략)\n\nclass CounterBloc extends Bloc<CounterEvent, CounterState> {\n  // 초기 상태는 CounterInitial(0)로 설정\n  CounterBloc() : super(const CounterInitial()) {\n    // CounterIncrementPressed 이벤트가 들어오면 _onIncrement 호출\n    on<CounterIncrementPressed>(_onIncrement);\n  }\n\n  void _onIncrement(\n    CounterIncrementPressed event,\n    Emitter<CounterState> emit,\n  ) {\n    // 현재 상태의 count 값을 가져와 1 증가\n    final newCount = state.count + 1;\n    \n    // 새로운 상태(CounterLoaded)를 방출(emit)\n    emit(CounterLoaded(newCount));\n  }\n}"
+      },
+      "note": "BLoC의 핵심은 '이벤트가 들어오면, 새로운 상태를 방출한다'는 단방향 흐름입니다. `Emitter`는 비동기적으로 상태를 방출하는 데 사용됩니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "전역 BLoC 관찰자 (BlocObserver) 설정",
+      "description": "공식 예제에서 제공된 `BlocObserver`는 모든 BLoC/Cubit의 생성, 이벤트, 상태 변화, 오류 등을 전역적으로 로깅하는 데 사용됩니다. 이는 디버깅에 매우 유용합니다.",
+      "substeps": [
+        "`SimpleBlocObserver` 클래스 구현 (공식 예제 활용)",
+        "`main()` 함수에서 `Bloc.observer`에 등록"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart (Observer 및 main 함수)",
+        "content": "import 'package:bloc/bloc.dart';\nimport 'package:flutter/material.dart';\nimport 'package:flutter_bloc_guide/counter/counter_bloc.dart';\nimport 'package:flutter_bloc_guide/counter/counter_page.dart';\n\n// 공식 예제 기반의 Observer 구현\nclass SimpleBlocObserver extends BlocObserver {\n  const SimpleBlocObserver();\n\n  @override\n  void onChange(BlocBase<dynamic> bloc, Change<dynamic> change) {\n    super.onChange(bloc, change);\n    // 실무에서는 Logger 패키지를 사용하여 깔끔하게 출력합니다.\n    debugPrint('onChange -- bloc: ${bloc.runtimeType}, change: $change');\n  }\n\n  @override\n  void onError(BlocBase<dynamic> bloc, Object error, StackTrace stackTrace) {\n    debugPrint('onError -- bloc: ${bloc.runtimeType}, error: $error');\n    super.onError(bloc, error, stackTrace);\n  }\n  // onCreate, onEvent, onClose 등 다른 메서드 생략...\n}\n\nvoid main() {\n  // BLoC 관찰자 등록\n  Bloc.observer = const SimpleBlocObserver();\n  runApp(const MyApp());\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return const MaterialApp(\n      home: CounterPage(),\n    );\n  }\n}"
+      },
+      "explanation": "`Bloc.observer`는 애플리케이션 시작 시 단 한 번만 설정되어야 합니다. 이는 모든 BLoC 인스턴스의 라이프사이클을 추적할 수 있게 합니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "Flutter UI 통합 (BlocProvider & BlocBuilder)",
+      "description": "이제 BLoC 인스턴스를 위젯 트리에 제공하고, 상태 변화에 따라 UI를 반응적으로 업데이트합니다. `flutter_bloc` 패키지의 핵심 위젯을 사용합니다.",
+      "substeps": [
+        "`BlocProvider`를 사용하여 BLoC 인스턴스를 위젯 트리에 주입",
+        "`BlocBuilder`를 사용하여 특정 상태(State)가 변경될 때만 위젯을 리빌드",
+        "`context.read()`를 사용하여 BLoC에 이벤트(Event) 전달"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/counter/counter_page.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter_bloc/flutter_bloc.dart';\nimport 'package:flutter_bloc_guide/counter/counter_bloc.dart';\n\nclass CounterPage extends StatelessWidget {\n  const CounterPage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // 1. BlocProvider: BLoC 인스턴스를 생성하고 위젯 트리에 제공\n    return BlocProvider(\n      create: (context) => CounterBloc(),\n      child: const CounterView(),\n    );\n  }\n}\n\nclass CounterView extends StatelessWidget {\n  const CounterView({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('BLoC Counter')), \n      body: Center(\n        // 2. BlocBuilder: CounterBloc의 상태 변화를 감지하여 UI 업데이트\n        child: BlocBuilder<CounterBloc, CounterState>(\n          builder: (context, state) {\n            // 상태에 따라 다른 UI를 보여줄 수 있음 (예: 로딩 중)\n            return Text(\n              'Count: ${state.count}',\n              style: Theme.of(context).textTheme.headlineLarge,\n            );\n          },\n        ),\n      ),\n      floatingActionButton: FloatingActionButton(\n        onPressed: () {\n          // 3. Event Dispatch: BLoC 인스턴스를 읽어 이벤트 추가\n          context.read<CounterBloc>().add(CounterIncrementPressed());\n        },\n        tooltip: 'Increment',\n        child: const Icon(Icons.add),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "`BlocProvider.value` 대신 `BlocProvider.create`를 사용하면 BLoC이 위젯이 dispose될 때 자동으로 `close()`되어 메모리 누수를 방지합니다. `BlocBuilder`는 상태가 변경될 때만 해당 위젯을 효율적으로 리빌드합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "BlocProvider.of() called with a context that does not contain a Bloc of type...",
+      "solution": "BLoC 인스턴스를 사용하려는 위젯이 `BlocProvider`의 하위 트리에 있는지 확인해야 합니다. 일반적으로 `BlocProvider`는 MaterialApp 바로 아래나 해당 페이지의 최상단에 위치해야 합니다.",
+      "link": "https://bloclibrary.dev/#/flutterbloccoreconcepts?id=blocprovider"
+    },
+    {
+      "error": "State is not being updated (UI doesn't refresh).",
+      "solution": "1. BLoC 내부에서 `emit()`을 호출했는지 확인합니다. 2. 새로운 상태 객체가 이전 상태 객체와 동일한지 확인합니다. (Dart의 동일성 비교). 상태 클래스에 `Equatable`을 사용하거나, Step 2처럼 `==`를 오버라이드하여 불변성(Immutability)을 보장해야 합니다.",
+      "link": null
+    }
+  ],
+  "tips": [
+    "**Cubit vs. Bloc:** 단순한 상태 변화(예: 토글, 카운터)에는 `Cubit`을 사용하고, 복잡한 비즈니스 로직이나 여러 이벤트의 조합이 필요할 때만 `Bloc`을 사용하세요. Cubit은 이벤트 정의 없이 함수 호출로 상태를 변경합니다.",
+    "**Repository Pattern:** BLoC은 비즈니스 로직만 담당해야 합니다. 데이터 페칭, 캐싱, API 호출 등의 작업은 BLoC이 의존하는 별도의 `Repository` 클래스에서 처리해야 합니다 (Clean Architecture 준수).",
+    "**BlocListener:** UI를 리빌드하지 않고, 일회성 액션(예: 스낵바 표시, 페이지 이동, 다이얼로그 띄우기)을 처리할 때는 `BlocBuilder` 대신 `BlocListener`를 사용하세요.",
+    "**BlocSelector:** 성능 최적화를 위해 BLoC 상태의 일부분만 필요할 경우, `BlocSelector`를 사용하여 불필요한 리빌드를 최소화하세요."
+  ],
+  "nextSteps": [
+    {
+      "title": "Cubit을 사용한 상태 관리 학습",
+      "description": "Bloc보다 간단한 Cubit을 사용하여 상태 관리의 기본 원리를 빠르게 익히고, 간단한 기능에 적용해 보세요."
+    },
+    {
+      "title": "flutter_bloc의 고급 위젯 활용",
+      "description": "BlocListener, BlocConsumer, MultiBlocProvider 등 다양한 위젯을 사용하여 복잡한 UI 요구사항을 처리하는 방법을 학습합니다.",
+      "packageId": "flutter_bloc"
+    }
+  ],
+  "references": [
+    {
+      "title": "공식 문서",
+      "url": "https://pub.dev/packages/bloc"
+    },
+    {
+      "title": "BLoC 라이브러리 공식 웹사이트",
+      "url": "https://bloclibrary.dev/"
+    }
+  ],
+  "source": "generated"
+}

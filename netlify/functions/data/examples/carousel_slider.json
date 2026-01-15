@@ -1,0 +1,134 @@
+{
+  "title": "carousel_slider 구현 가이드: 실무용 캐러셀 슬라이더 마스터하기",
+  "description": "Flutter에서 무한 스크롤, 자동 재생, 사용자 정의 위젯을 지원하는 고성능 캐러셀 슬라이더(Carousel Slider)를 구현하고, 인디케이터 및 수동 제어 기능을 완벽하게 통합하는 실무 가이드입니다.",
+  "difficulty": "중급",
+  "estimatedTime": "30-45분",
+  "prerequisites": [
+    "Flutter SDK 설치 및 환경 설정",
+    "Dart 언어 및 StatefulWidget/StatelessWidget 기본 이해"
+  ],
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "패키지 설치 및 초기 설정",
+      "description": "프로젝트에 'carousel_slider' 패키지를 추가하고, 실습에 필요한 기본 데이터 구조를 정의합니다.",
+      "substeps": [
+        "pubspec.yaml 파일에 패키지 종속성 추가",
+        "네트워크 이미지 URL 리스트 정의"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/data/image_data.dart",
+        "content": "final List<String> imgList = [\n  'https://images.unsplash.com/photo-1520342868574-5fa3804e551c?w=1951&q=80',\n  'https://images.unsplash.com/photo-1522205408450-add114ad53fe?w=1950&q=80',\n  'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=1950&q=80',\n  'https://images.unsplash.com/photo-1523205771623-e0faa4d2813d?w=1953&q=80',\n  'https://images.unsplash.com/photo-1508704019882-f9cf40e475b4?w=1352&q=80',\n  'https://images.unsplash.com/photo-1519985176271-adb1088fa94c?w=1355&q=80'\n];\n\n// 캐러셀에 들어갈 위젯 리스트를 미리 정의합니다.\nfinal List<Widget> imageSliders = imgList\n    .map((item) => Container(\n          margin: const EdgeInsets.all(5.0),\n          child: ClipRRect(\n              borderRadius: const BorderRadius.all(Radius.circular(8.0)),\n              child: Stack(\n                children: <Widget>[\n                  Image.network(item, fit: BoxFit.cover, width: 1000.0),\n                  Positioned(\n                    bottom: 0.0,\n                    left: 0.0,\n                    right: 0.0,\n                    child: Container(\n                      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),\n                      child: Text(\n                        'No. ${imgList.indexOf(item) + 1} Slide',\n                        style: const TextStyle(\n                          color: Colors.white,\n                          fontSize: 20.0,\n                          fontWeight: FontWeight.bold,\n                        ),\n                      ),\n                    ),\n                  ),\n                ],\n              )),\n        ))\n    .toList();"
+      },
+      "command": "flutter pub add carousel_slider",
+      "note": "실제 프로젝트에서는 이미지 URL을 별도의 데이터 모델이나 API 응답에서 가져와야 합니다. 여기서는 공식 예제와 동일하게 정적 리스트를 사용합니다.",
+      "explanation": "공식 예제에서 사용된 `imageSliders`는 단순한 이미지를 넘어, `ClipRRect`와 `Stack`을 사용하여 모서리를 둥글게 처리하고 하단에 텍스트 오버레이를 추가하는 복잡한 구조를 보여줍니다. 이는 실무에서 요구되는 디자인을 구현하는 핵심 패턴입니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "기본 캐러셀 위젯 구현 및 핵심 옵션 설정",
+      "description": "가장 기본적인 형태의 캐러셀 슬라이더를 화면에 표시하고, 필수적인 `CarouselOptions`를 설정합니다.",
+      "substeps": [
+        "CarouselSlider 위젯 사용",
+        "`CarouselOptions`를 통해 자동 재생 및 중앙 확대 설정"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:carousel_slider/carousel_slider.dart';\nimport 'data/image_data.dart'; // Step 1에서 정의한 데이터 파일\n\nvoid main() => runApp(const MyApp());\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n  @override\n  Widget build(BuildContext context) {\n    return const MaterialApp(\n      title: 'Carousel Slider Demo',\n      home: CarouselHomePage(),\n    );\n  }\n}\n\nclass CarouselHomePage extends StatelessWidget {\n  const CarouselHomePage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('실무형 캐러셀 슬라이더')), \n      body: Center(\n        child: CarouselSlider(\n          items: imageSliders, // Step 1에서 정의한 위젯 리스트\n          options: CarouselOptions(\n            autoPlay: true, // 1. 자동 재생 활성화\n            autoPlayInterval: const Duration(seconds: 3), // 2. 재생 간격\n            aspectRatio: 2.0, // 3. 가로/세로 비율 (2.0 = 가로가 세로의 2배)\n            enlargeCenterPage: true, // 4. 중앙 페이지 확대 효과\n            viewportFraction: 0.9, // 5. 화면에서 슬라이드가 차지하는 비율 (0.9는 양 옆이 살짝 보임)\n            scrollDirection: Axis.horizontal, // 6. 스크롤 방향 (기본값)\n          ),\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "`CarouselSlider`는 `items`와 `options` 두 가지 필수 인자를 받습니다. 특히 `CarouselOptions`는 슬라이더의 모든 동작과 시각적 속성을 제어하는 핵심 객체입니다. `viewportFraction`을 1.0 미만으로 설정하면 현재 슬라이드 양 옆에 다음/이전 슬라이드의 일부가 미리 보입니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "인디케이터(Indicator)를 이용한 동적 제어 구현",
+      "description": "현재 페이지를 시각적으로 표시하고, 인디케이터를 탭하여 페이지를 이동할 수 있도록 동적 상태 관리 및 컨트롤러를 통합합니다.",
+      "substeps": [
+        "`StatefulWidget`으로 변환하여 현재 인덱스(`_current`) 관리",
+        "`CarouselSliderController`를 사용하여 수동 페이지 이동 기능 구현",
+        "`onPageChanged` 콜백을 사용하여 인디케이터 상태 업데이트"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/widgets/carousel_with_indicator.dart",
+        "content": "class CarouselWithIndicator extends StatefulWidget {\n  const CarouselWithIndicator({super.key});\n\n  @override\n  State<CarouselWithIndicator> createState() => _CarouselWithIndicatorState();\n}\n\nclass _CarouselWithIndicatorState extends State<CarouselWithIndicator> {\n  int _current = 0;\n  final CarouselSliderController _controller = CarouselSliderController();\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      children: [\n        CarouselSlider(\n          items: imageSliders,\n          carouselController: _controller, // 컨트롤러 연결\n          options: CarouselOptions(\n            autoPlay: true,\n            enlargeCenterPage: true,\n            aspectRatio: 2.0,\n            onPageChanged: (index, reason) { // 페이지 변경 시 상태 업데이트\n              setState(() {\n                _current = index;\n              });\n            },\n          ),\n        ),\n        // 인디케이터 영역\n        Row(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: imgList.asMap().entries.map((entry) {\n            return GestureDetector(\n              onTap: () => _controller.animateToPage(entry.key), // 탭 시 해당 페이지로 이동\n              child: Container(\n                width: 12.0,\n                height: 12.0,\n                margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),\n                decoration: BoxDecoration(\n                  shape: BoxShape.circle,\n                  color: (Theme.of(context).brightness == Brightness.dark\n                          ? Colors.white\n                          : Colors.black)\n                      .withOpacity(_current == entry.key ? 0.9 : 0.4), // 현재 페이지 강조\n                ),\n              ),\n            );\n          }).toList(),\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "이 단계는 실무에서 가장 많이 사용되는 패턴입니다. `CarouselSliderController`는 슬라이더를 외부에서 제어할 수 있게 해주며, `onPageChanged` 콜백은 슬라이더의 내부 상태 변화(사용자 스와이프 또는 자동 재생)를 감지하여 외부 위젯(인디케이터)의 상태를 업데이트하는 데 사용됩니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "빌더 패턴 및 무한 스크롤 비활성화",
+      "description": "항목 수가 매우 많거나 동적으로 생성될 때 유용한 `CarouselSlider.builder`를 사용하고, 캐러셀의 무한 루프 기능을 제어하는 방법을 알아봅니다.",
+      "substeps": [
+        "`CarouselSlider.builder`를 사용하여 대량의 항목 효율적으로 처리",
+        "`enableInfiniteScroll: false` 옵션 적용"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/widgets/builder_and_noloop_demo.dart",
+        "content": "// 1. 빌더 패턴 (On-Demand Carousel)\nWidget buildOnDemandCarousel() {\n  return CarouselSlider.builder(\n    itemCount: 100, // 총 100개의 항목을 가정\n    options: CarouselOptions(\n      aspectRatio: 2.0,\n      enlargeCenterPage: true,\n      autoPlay: true,\n    ),\n    itemBuilder: (ctx, index, realIdx) {\n      // index는 0부터 itemCount-1까지의 인덱스입니다.\n      return Container(\n        color: Colors.blueGrey,\n        child: Center(child: Text('Item $index', style: const TextStyle(fontSize: 24, color: Colors.white))), \n      );\n    },\n  );\n}\n\n// 2. 무한 스크롤 비활성화 (Noon-Looping Demo)\nWidget buildNoLoopingCarousel() {\n  return CarouselSlider(\n    options: CarouselOptions(\n      aspectRatio: 2.0,\n      enlargeCenterPage: true,\n      enableInfiniteScroll: false, // 무한 스크롤 비활성화\n      initialPage: 2, // 시작 페이지 설정\n      autoPlay: true,\n    ),\n    items: imageSliders,\n  );\n}"
+      },
+      "explanation": "`CarouselSlider.builder`는 Flutter의 `ListView.builder`와 유사하게, 화면에 보이는 항목만 빌드하여 메모리 사용량을 최적화합니다. `enableInfiniteScroll: false`를 설정하면 캐러셀이 첫 페이지에서 이전으로, 마지막 페이지에서 다음으로 넘어가지 않게 됩니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "고급 시각 효과: Zoom 및 수직 슬라이드",
+      "description": "캐러셀의 시각적 효과를 극대화하는 `enlargeStrategy: zoom` 옵션과 수직 슬라이드 구현 방법을 적용합니다.",
+      "substeps": [
+        "`CenterPageEnlargeStrategy.zoom`을 사용하여 중앙 항목 확대 및 축소 효과 적용",
+        "`scrollDirection: Axis.vertical` 설정으로 수직 캐러셀 구현"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/widgets/advanced_effects.dart",
+        "content": "// 1. Zoom 확대 전략\nWidget buildZoomEnlargeCarousel() {\n  return CarouselSlider(\n    options: CarouselOptions(\n      aspectRatio: 2.0,\n      enlargeCenterPage: true,\n      enlargeStrategy: CenterPageEnlargeStrategy.zoom, // Zoom 효과 적용\n      enlargeFactor: 0.4, // 확대 비율 (기본값 0.3)\n    ),\n    items: imageSliders,\n  );\n}\n\n// 2. 수직 슬라이더\nWidget buildVerticalCarousel() {\n  return CarouselSlider(\n    options: CarouselOptions(\n      height: 400.0, // 수직 모드에서는 높이 지정이 중요\n      aspectRatio: 1.0, // 가로/세로 비율을 1:1로 설정\n      enlargeCenterPage: true,\n      scrollDirection: Axis.vertical, // 스크롤 방향을 수직으로 변경\n      autoPlay: true,\n    ),\n    items: imageSliders,\n  );\n}"
+      },
+      "explanation": "`CenterPageEnlargeStrategy.zoom`은 중앙에 위치한 슬라이드를 확대하고, 주변 슬라이드를 축소하여 깊이감 있는 시각 효과를 제공합니다. 수직 슬라이더를 사용할 때는 캐러셀의 높이(`height`)를 명시적으로 지정해야 레이아웃 오류를 방지할 수 있습니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "캐러셀이 화면에 나타나지 않거나 크기가 0으로 표시됨.",
+      "solution": "`CarouselOptions` 내에서 `height` 또는 `aspectRatio`를 명시적으로 설정해야 합니다. 특히 수직 슬라이더의 경우 `height` 설정이 필수적입니다.",
+      "link": "https://pub.dev/packages/carousel_slider#carouseloptions"
+    },
+    {
+      "error": "인디케이터를 탭해도 페이지가 이동하지 않음.",
+      "solution": "`CarouselSlider` 위젯에 `carouselController` 인스턴스가 제대로 연결되었는지 확인하고, `onTap` 콜백 내에서 `_controller.animateToPage(index)`를 호출했는지 확인하세요.",
+      "link": null
+    },
+    {
+      "error": "네트워크 이미지가 처음 로드될 때 깜빡이거나 느리게 나타남.",
+      "solution": "Step 6 (팁 섹션)에서 설명된 대로, `initState`에서 `precacheImage(NetworkImage(url), context)`를 사용하여 이미지를 미리 로드(Prefetch)해야 합니다."
+    }
+  ],
+  "tips": [
+    "**성능 최적화 (Prefetching):** 네트워크 이미지를 사용하는 경우, `initState` 단계에서 `precacheImage`를 사용하여 이미지를 미리 캐시하면 사용자 스와이프 시 로딩 지연 없이 부드러운 전환이 가능합니다.",
+    "**다중 항목 표시:** `viewportFraction`을 1.0으로 설정하고, `CarouselSlider.builder` 내에서 `Row` 위젯을 사용하여 한 슬라이드에 여러 개의 항목을 배치할 수 있습니다. (공식 예제의 `MultipleItemDemo` 참고)",
+    "**페이지 위치 유지:** `ListView`와 같은 스크롤 가능한 위젯 내부에 캐러셀이 있을 경우, 화면을 벗어났다가 돌아와도 마지막 페이지 위치를 유지하려면 `CarouselOptions`에 `pageViewKey: PageStorageKey<String>('unique_key')`를 설정해야 합니다."
+  ],
+  "nextSteps": [
+    {
+      "title": "애니메이션 커스터마이징",
+      "description": "`CarouselOptions`의 `scrollPhysics`나 `scrollBehavior`를 조정하여 스크롤 애니메이션의 속도와 느낌을 완전히 사용자 정의하는 방법을 학습합니다.",
+      "packageId": null
+    },
+    {
+      "title": "데이터 모델과 통합",
+      "description": "API에서 받아온 동적 데이터 모델(예: List<Product>)을 `CarouselSlider.builder`와 통합하여 실제 비즈니스 로직에 적용하는 연습을 합니다.",
+      "packageId": null
+    }
+  ],
+  "references": [
+    {
+      "title": "carousel_slider 공식 문서",
+      "url": "https://pub.dev/packages/carousel_slider"
+    },
+    {
+      "title": "Flutter PageStorageKey 문서",
+      "url": "https://api.flutter.dev/flutter/widgets/PageStorageKey-class.html"
+    }
+  ],
+  "source": "generated"
+}

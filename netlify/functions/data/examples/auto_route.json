@@ -1,0 +1,144 @@
+{
+  "title": "auto_route 구현 가이드: 타입 안전한 선언적 라우팅",
+  "description": "AutoRoute는 Flutter의 복잡한 네비게이션 로직을 컴파일 타임에 자동 생성하여, 런타임 오류를 최소화하고 개발 생산성을 극대화하는 최신 라우팅 솔루션입니다. 이 가이드는 실무에서 바로 사용할 수 있는 타입 안전한 라우팅 및 경로 가드(Route Guard) 구현 방법을 제시합니다.",
+  "difficulty": "중급",
+  "estimatedTime": "30-45분",
+  "prerequisites": [
+    "Flutter SDK (3.0 이상)",
+    "Dart SDK (2.17 이상)",
+    "IDE (VS Code 또는 Android Studio)"
+  ],
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "패키지 설치 및 개발 환경 설정",
+      "description": "AutoRoute를 사용하기 위해서는 핵심 패키지 외에도 코드 생성을 위한 개발 의존성 패키지(Dev Dependencies)를 추가해야 합니다.",
+      "substeps": [
+        "핵심 패키지(auto_route)를 dependencies에 추가합니다.",
+        "코드 생성기(auto_route_generator)와 빌드 러너(build_runner)를 dev_dependencies에 추가합니다."
+      ],
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  auto_route: ^8.0.0 # 최신 안정 버전 사용\n\ndev_dependencies:\n  flutter_test:\n    sdk: flutter\n  build_runner: ^2.4.6 # 코드 생성을 위한 필수 도구\n  auto_route_generator: ^8.0.0 # 라우팅 코드를 생성하는 도구"
+      },
+      "commands": [
+        "flutter pub add auto_route",
+        "flutter pub add -d build_runner auto_route_generator"
+      ],
+      "note": "버전 충돌을 피하기 위해 `auto_route`와 `auto_route_generator`의 주 버전(Major Version)을 일치시키는 것이 좋습니다.",
+      "explanation": "Build Runner는 Dart 코드 생성 도구이며, AutoRoute Generator는 Build Runner가 실행될 때 라우팅 관련 코드를 자동으로 생성하는 역할을 합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "라우터 클래스 정의 및 기본 페이지 생성",
+      "description": "모든 라우팅 정보를 담을 메인 라우터 클래스를 정의하고, 네비게이션에 사용할 기본 페이지들을 생성합니다.",
+      "substeps": [
+        "라우팅 정보를 담을 `AppRouter` 클래스를 정의합니다.",
+        "라우터 클래스에 `@AutoRouter()` 어노테이션을 적용하고, `AutoRoute` 리스트를 정의합니다.",
+        "라우팅될 페이지 위젯들을 생성합니다."
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/router/app_router.dart",
+        "content": "// app_router.dart\nimport 'package:auto_route/auto_route.dart';\nimport 'package:flutter/material.dart';\n\n// 1. 페이지 위젯 정의 (실제 파일은 lib/screens/ 에 위치한다고 가정)\nclass HomeScreen extends StatelessWidget {\n  const HomeScreen({super.key});\n  @override\n  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('홈 화면')));\n}\n\nclass DetailScreen extends StatelessWidget {\n  final int itemId;\n  const DetailScreen({@pathParam required this.itemId, super.key});\n  @override\n  Widget build(BuildContext context) => Scaffold(\n      appBar: AppBar(title: const Text('상세 화면')),\n      body: Center(child: Text('아이템 ID: $itemId'))\n  );\n}\n\n// 2. 라우터 클래스 정의\n@AutoRouter(\n  replaceInRouteName: 'Screen,Route',\n)\nclass AppRouter extends _$AppRouter {\n  AppRouter({super.navigatorKey});\n\n  @override\n  List<AutoRoute> get routes => [\n    // 초기 경로 설정 (path: '/')\n    AutoRoute(page: HomeRoute.page, path: '/', initial: true),\n    // 동적 경로 설정 (path: '/detail/:itemId')\n    AutoRoute(page: DetailRoute.page, path: '/detail/:itemId'),\n  ];\n}"
+      },
+      "explanation": "라우터 클래스는 반드시 `_$` 접두사가 붙은 클래스를 상속받아야 합니다. `@AutoRouter()` 어노테이션은 이 클래스를 기반으로 라우팅 코드를 생성하라는 지시입니다. `replaceInRouteName`은 생성된 라우트 이름에서 'Screen'을 'Route'로 대체하도록 설정하여, `HomeScreen` -> `HomeRoute`로 명명 규칙을 통일합니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "코드 생성 및 Flutter 앱에 연결",
+      "description": "정의된 라우터 클래스를 기반으로 코드를 생성하고, 생성된 라우터를 `MaterialApp.router`에 연결하여 앱의 진입점을 설정합니다.",
+      "substeps": [
+        "터미널에서 빌드 러너 명령어를 실행하여 라우팅 코드를 생성합니다.",
+        "생성된 `app_router.gr.dart` 파일을 임포트합니다.",
+        "`MaterialApp.router`를 사용하여 앱을 초기화하고 라우터를 주입합니다."
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "// main.dart\nimport 'package:flutter/material.dart';\nimport 'router/app_router.dart'; // 2단계에서 정의한 파일\nimport 'router/app_router.gr.dart'; // 빌드 러너가 생성할 파일\n\nvoid main() {\n  runApp(MyApp());\n}\n\nclass MyApp extends StatelessWidget {\n  // 라우터 인스턴스 생성\n  final _appRouter = AppRouter();\n\n  MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp.router(\n      title: 'AutoRoute Demo',\n      // 라우터 설정\n      routerDelegate: _appRouter.delegate(),\n      routeInformationParser: _appRouter.defaultRouteParser(),\n      // 디버그 배너 제거 등 기타 설정\n      debugShowCheckedModeBanner: false,\n    );\n  }\n}"
+      },
+      "command": "flutter packages pub run build_runner watch --delete-conflicting-outputs",
+      "note": "`watch` 명령어는 코드가 변경될 때마다 자동으로 코드를 재생성해주므로 개발 중에는 이 명령어를 사용하는 것이 효율적입니다. 최초 실행 시에는 `app_router.gr.dart` 파일이 없으므로 IDE에서 오류가 발생하지만, 명령어를 실행하면 파일이 생성되고 오류가 사라집니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "타입 안전한 네비게이션 구현",
+      "description": "생성된 라우트 클래스를 사용하여 페이지 간 이동을 구현합니다. 인자 전달 시에도 타입 안전성이 보장됩니다.",
+      "substeps": [
+        "라우팅 컨텍스트를 가져옵니다 (`context.router`).",
+        "생성된 라우트 클래스(예: `DetailRoute`)를 사용하여 네비게이션을 수행합니다.",
+        "인자를 생성자처럼 전달하여 타입 불일치 오류를 방지합니다."
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/router/app_router.dart (HomeScreen 업데이트)",
+        "content": "// HomeScreen 위젯 업데이트\nimport 'package:auto_route/auto_route.dart';\nimport 'package:flutter/material.dart';\nimport 'app_router.gr.dart'; // 생성된 라우트 파일 임포트\n\nclass HomeScreen extends StatelessWidget {\n  const HomeScreen({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('홈 화면')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            const Text('홈 화면'),\n            const SizedBox(height: 20),\n            ElevatedButton(\n              onPressed: () {\n                // 타입 안전한 네비게이션: DetailRoute 클래스 사용\n                context.router.push(\n                  DetailRoute(itemId: 123) // itemId는 필수 인자\n                );\n              },\n              child: const Text('상세 페이지로 이동 (ID: 123)'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "AutoRoute는 `context.router` 확장 메서드를 제공하여 현재 라우터 인스턴스에 쉽게 접근할 수 있게 합니다. `push()` 메서드에 직접 생성된 라우트 클래스(`DetailRoute`)를 전달함으로써, 필요한 인자(`itemId`)를 명시적으로 전달해야 하므로 런타임 오류가 발생할 가능성이 원천적으로 차단됩니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "경로 가드(Route Guard)를 이용한 접근 제어",
+      "description": "특정 페이지에 접근하기 전에 인증 상태 등을 확인해야 할 경우, `AutoRouteGuard`를 구현하여 접근을 제어할 수 있습니다.",
+      "substeps": [
+        "사용자 인증 로직을 담을 `AuthGuard` 클래스를 정의합니다.",
+        "`onNavigation()` 메서드에서 조건에 따라 접근을 허용하거나(resolver.next(true)), 다른 경로로 리다이렉트(redirect)합니다.",
+        "라우터 정의 시 해당 경로에 `guards` 속성을 추가합니다."
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/router/auth_guard.dart & app_router.dart",
+        "content": "// auth_guard.dart\nimport 'package:auto_route/auto_route.dart';\nimport 'app_router.gr.dart'; // HomeRoute 접근을 위해 필요\n\nclass AuthGuard extends AutoRouteGuard {\n  final bool isAuthenticated; // 실제로는 Provider나 Bloc에서 가져옴\n\n  AuthGuard({this.isAuthenticated = false});\n\n  @override\n  void onNavigation(NavigationResolver resolver, StackRouter router) {\n    if (isAuthenticated) {\n      // 인증됨: 요청된 경로로 이동을 허용\n      resolver.next(true);\n    } else {\n      // 인증되지 않음: 홈 화면으로 리다이렉트\n      // resolver.redirect(LoginRoute()); // 실제로는 로그인 페이지로 리다이렉트\n      router.push(const HomeRoute()); // 예시를 위해 홈으로 리다이렉트\n      resolver.next(false); // 요청된 경로로의 이동은 취소\n    }\n  }\n}\n\n// app_router.dart (업데이트)\n// ... 기존 코드 ...\n\n// AuthGuard 인스턴스 생성 (isAuthenticated: false로 설정)\nfinal authGuard = AuthGuard(isAuthenticated: false);\n\n@AutoRouter(\n  replaceInRouteName: 'Screen,Route',\n)\nclass AppRouter extends _$AppRouter {\n  AppRouter({super.navigatorKey});\n\n  @override\n  List<AutoRoute> get routes => [\n    AutoRoute(page: HomeRoute.page, path: '/', initial: true),\n    // DetailRoute에 AuthGuard 적용\n    AutoRoute(\n      page: DetailRoute.page,\n      path: '/detail/:itemId',\n      guards: [authGuard], // 가드 추가\n    ),\n  ];\n}"
+      },
+      "explanation": "경로 가드는 미들웨어 역할을 수행합니다. 사용자가 `DetailRoute`로 이동을 시도하면 `AuthGuard`의 `onNavigation`이 호출됩니다. 현재 예시에서는 `isAuthenticated`가 `false`이므로, 사용자는 `DetailRoute`로 이동하지 못하고 `HomeRoute`로 리다이렉트됩니다. 이는 실무에서 로그인/권한 체크에 필수적인 기능입니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "라우트 파일(.gr.dart)이 생성되지 않거나 IDE에서 찾을 수 없다는 오류 발생",
+      "solution": "빌드 러너가 실행 중인지 확인하세요. `flutter packages pub run build_runner watch --delete-conflicting-outputs` 명령어를 실행하고, IDE를 재시작하거나 Flutter 프로젝트를 클린 빌드(Clean Build)하세요.",
+      "link": null
+    },
+    {
+      "error": "라우터 클래스 정의 시 `_$AppRouter`를 찾을 수 없다는 오류 발생",
+      "solution": "이는 빌드 러너가 아직 코드를 생성하지 않았거나, `app_router.dart` 파일에 `@AutoRouter()` 어노테이션이 누락되었을 때 발생합니다. 3단계의 빌드 러너 명령어를 실행하세요.",
+      "link": null
+    },
+    {
+      "error": "네비게이션 시 'Could not find the router' 오류 발생",
+      "solution": "`MaterialApp` 대신 반드시 `MaterialApp.router`를 사용했는지 확인하고, `routerDelegate`와 `routeInformationParser`에 `_appRouter` 인스턴스를 올바르게 연결했는지 확인하세요.",
+      "link": null
+    }
+  ],
+  "tips": [
+    "**중첩 라우팅 (Nested Routing):** 탭 바(TabBar)나 복잡한 레이아웃을 구현할 때는 `AutoRoute(page: ParentRoute.page, children: [...])` 형태로 중첩 라우팅을 사용하여 각 탭의 상태를 독립적으로 관리할 수 있습니다.",
+    "**웹 지원 (Deep Linking):** AutoRoute는 기본적으로 웹 및 딥 링크를 지원합니다. 라우터 정의 시 설정한 `path` 속성이 URL 경로로 사용됩니다. 동적 경로(`:itemId`)는 URL 파라미터로 자동 매핑됩니다.",
+    "**라우트 이름 변경:** `replaceInRouteName` 속성을 사용하여 생성되는 라우트 이름의 접미사를 일괄적으로 관리하면 코드의 일관성을 유지할 수 있습니다.",
+    "**라우터 확장:** `context.router.pushAndPopUntil()` 또는 `context.router.replaceAll()` 같은 강력한 메서드를 활용하여 복잡한 네비게이션 스택 조작을 쉽게 처리할 수 있습니다."
+  ],
+  "nextSteps": [
+    {
+      "title": "중첩 라우팅 및 탭 바 구현",
+      "description": "AutoRoute의 `AutoTabsRouter`를 사용하여 하단 탭 바(BottomNavigationBar)를 구현하고 각 탭의 네비게이션 스택을 독립적으로 관리하는 방법을 학습합니다.",
+      "packageId": "auto_route"
+    },
+    {
+      "title": "의존성 주입(DI) 연동",
+      "description": "GetIt 또는 Riverpod과 같은 DI 도구를 사용하여 라우터 인스턴스를 전역적으로 관리하고, 경로 가드 내에서 서비스에 접근하는 방법을 학습합니다.",
+      "packageId": "get_it"
+    }
+  ],
+  "references": [
+    {
+      "title": "AutoRoute 공식 문서",
+      "url": "https://pub.dev/packages/auto_route"
+    },
+    {
+      "title": "AutoRoute GitHub 예제",
+      "url": "https://github.com/Milad-Akarie/auto_route_library"
+    }
+  ],
+  "source": "generated"
+}

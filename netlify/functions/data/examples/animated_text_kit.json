@@ -1,0 +1,139 @@
+{
+  "title": "animated_text_kit: 실무 적용을 위한 완벽 구현 가이드",
+  "description": "다양하고 아름다운 텍스트 애니메이션을 Flutter 앱에 손쉽게 통합할 수 있도록 돕는 패키지입니다. 마케팅 문구, 로딩 화면, 헤드라인 등에 생동감을 불어넣을 수 있습니다.",
+  "difficulty": "초급",
+  "estimatedTime": "15-25분",
+  "prerequisites": [
+    "Flutter SDK 설치 및 환경 설정 완료",
+    "기본적인 StatefulWidget 및 State 이해"
+  ],
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "패키지 설치 및 환경 설정",
+      "description": "'animated_text_kit' 패키지를 프로젝트에 추가하고, 공식 예제에서 사용된 커스텀 폰트를 임시로 설정합니다. (폰트 파일이 없는 경우 시스템 기본 폰트로 대체됩니다.)",
+      "substeps": [
+        "pubspec.yaml 파일에 패키지 의존성 추가",
+        "터미널에서 패키지 다운로드 실행",
+        "공식 예제에서 사용된 폰트(예: Horizon, Bobbers)를 사용하기 위한 임시 설정 (실제 폰트 파일은 포함하지 않음)"
+      ],
+      "command": "flutter pub add animated_text_kit",
+      "commands": [],
+      "note": "실제 상용 앱에서는 폰트 파일을 `assets/fonts` 폴더에 넣고 `pubspec.yaml`에 등록해야 합니다. 이 가이드에서는 애니메이션 로직에 집중합니다.",
+      "explanation": ""
+    },
+    {
+      "stepNumber": 2,
+      "title": "핵심 위젯: AnimatedTextKit 기본 구현 (Rotate, Fade)",
+      "description": "가장 흔하게 사용되는 'Rotate'와 'Fade' 애니메이션을 사용하여, 여러 텍스트가 순차적으로 나타나도록 구현합니다. `AnimatedTextKit`은 여러 개의 `AnimatedText` 위젯을 리스트로 받아 처리합니다.",
+      "substeps": [
+        "새로운 StatefulWidget 생성",
+        "`AnimatedTextKit` 위젯을 사용하여 텍스트 애니메이션 정의",
+        "`DefaultTextStyle`을 사용하여 애니메이션 텍스트의 기본 스타일 지정"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "import 'package:animated_text_kit/animated_text_kit.dart';\nimport 'package:flutter/material.dart';\n\nvoid main() => runApp(const MyApp());\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      title: 'Animated Text Demo',\n      theme: ThemeData.light(),\n      home: const AnimationDemoScreen(),\n    );\n  }\n}\n\nclass AnimationDemoScreen extends StatelessWidget {\n  const AnimationDemoScreen({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Animated Text Kit Demo')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: <Widget>[\n            // 1. Rotate Animated Text\n            Row(\n              mainAxisAlignment: MainAxisAlignment.center,\n              children: [\n                const Text(\n                  'Be ',\n                  style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),\n                ),\n                DefaultTextStyle(\n                  style: const TextStyle(\n                    fontSize: 30.0,\n                    color: Colors.blue,\n                    fontFamily: 'Horizon', // 폰트가 없을 경우 기본 폰트 사용\n                  ),\n                  child: AnimatedTextKit(\n                    animatedTexts: [\n                      RotateAnimatedText('AWESOME'),\n                      RotateAnimatedText('OPTIMISTIC'),\n                      RotateAnimatedText('DIFFERENT'),\n                    ],\n                    isRepeatingAnimation: true, // 무한 반복 설정\n                    totalRepeatCount: 5, // 총 5회 반복 후 정지\n                    pause: const Duration(milliseconds: 1000), // 애니메이션 간 일시 정지 시간\n                    displayFullTextOnTap: true,\n                    onTap: () {\n                      print(\"Rotate Text Tapped\");\n                    },\n                  ),\n                ),\n              ],\n            ),\n            const SizedBox(height: 50),\n\n            // 2. Fade Animated Text\n            SizedBox(\n              width: 250.0,\n              child: DefaultTextStyle(\n                style: const TextStyle(\n                  fontSize: 28.0,\n                  fontWeight: FontWeight.w900,\n                  color: Colors.deepPurple,\n                ),\n                child: AnimatedTextKit(\n                  animatedTexts: [\n                    FadeAnimatedText('Flutter is Fast'),\n                    FadeAnimatedText('Flutter is Beautiful'),\n                    FadeAnimatedText('Flutter is Productive'),\n                  ],\n                  isRepeatingAnimation: false, // 한 번만 실행\n                ),\n              ),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "note": "`AnimatedTextKit`은 기본적으로 애니메이션이 끝난 후 마지막 텍스트를 유지합니다. `isRepeatingAnimation: true`로 설정하면 반복됩니다.",
+      "explanation": "`DefaultTextStyle`은 내부의 모든 `AnimatedText`에 공통 스타일을 적용합니다. 각 `AnimatedText` 객체(예: `RotateAnimatedText`)는 필요에 따라 개별적인 `textStyle`을 가질 수 있습니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "타이핑 및 특수 효과 구현 (Typer, Colorize)",
+      "description": "실무에서 자주 사용되는 타이핑 효과와 색상 변화 효과를 구현합니다. 특히 `TyperAnimatedText`와 `TypewriterAnimatedText`는 속도 제어(speed)가 중요합니다.",
+      "substeps": [
+        "TyperAnimatedText를 사용하여 부드러운 타이핑 효과 구현",
+        "ColorizeAnimatedText를 사용하여 텍스트 색상 변화 효과 구현",
+        "Typer 효과의 속도(speed) 및 커서(cursor) 커스터마이징"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/typer_colorize_example.dart",
+        "content": "import 'package:animated_text_kit/animated_text_kit.dart';\nimport 'package:flutter/material.dart';\n\nclass TyperColorizeExample extends StatelessWidget {\n  const TyperColorizeExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      mainAxisAlignment: MainAxisAlignment.center,\n      children: [\n        // 1. Typer Animated Text (타이핑 효과)\n        SizedBox(\n          width: 300.0,\n          child: DefaultTextStyle(\n            style: const TextStyle(\n              fontSize: 24.0,\n              color: Colors.black87,\n              fontFamily: 'Agne',\n            ),\n            child: AnimatedTextKit(\n              animatedTexts: [\n                TypewriterAnimatedText(\n                  'Design first, then code',\n                  speed: const Duration(milliseconds: 80), // 타이핑 속도 조절\n                  cursor: '█', // 커서 모양 지정\n                ),\n                TypewriterAnimatedText(\n                  'Do not test bugs out, design them out',\n                  speed: const Duration(milliseconds: 60),\n                ),\n              ],\n              isRepeatingAnimation: true,\n              repeatForever: true,\n            ),\n          ),\n        ),\n        const SizedBox(height: 50),\n\n        // 2. Colorize Animated Text (색상 변화 효과)\n        AnimatedTextKit(\n          animatedTexts: [\n            ColorizeAnimatedText(\n              'Google',\n              textStyle: const TextStyle(fontSize: 50.0, fontFamily: 'Horizon'),\n              colors: [Colors.blue, Colors.red, Colors.yellow, Colors.green],\n            ),\n            ColorizeAnimatedText(\n              'Apple',\n              textStyle: const TextStyle(fontSize: 50.0, fontFamily: 'Horizon'),\n              colors: [Colors.grey, Colors.black, Colors.white, Colors.black],\n            ),\n          ],\n          isRepeatingAnimation: true,\n          repeatForever: true,\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "note": "`TypewriterAnimatedText`는 글자 단위로 멈췄다가 쓰는 효과를 주며, `TyperAnimatedText`는 좀 더 부드럽게 타이핑되는 차이가 있습니다.",
+      "explanation": "`ColorizeAnimatedText`는 반드시 `colors` 리스트를 제공해야 하며, 이 색상들이 순차적으로 텍스트에 적용되면서 애니메이션이 발생합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "고급 제어: AnimatedTextController를 이용한 수동 제어",
+      "description": "공식 예제에서처럼, 애니메이션의 시작, 일시 정지, 재시작을 외부 버튼이나 로직에 의해 수동으로 제어해야 할 때 `AnimatedTextController`를 사용합니다. 이는 `AnimationController`와 유사하게 작동합니다.",
+      "substeps": [
+        "`AnimatedTextController` 인스턴스 생성 및 초기화",
+        "`AnimatedTextKit`에 컨트롤러 연결",
+        "FloatingActionButton을 사용하여 `play()`, `pause()`, `reset()` 메서드 호출"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/controller_example.dart",
+        "content": "import 'package:animated_text_kit/animated_text_kit.dart';\nimport 'package:flutter/material.dart';\n\nclass ControllerExample extends StatefulWidget {\n  const ControllerExample({super.key});\n\n  @override\n  State<ControllerExample> createState() => _ControllerExampleState();\n}\n\nclass _ControllerExampleState extends State<ControllerExample> {\n  // 1. 컨트롤러 선언\n  late AnimatedTextController _controller;\n  bool _isPaused = false;\n\n  @override\n  void initState() {\n    super.initState();\n    // 2. 컨트롤러 초기화\n    _controller = AnimatedTextController();\n  }\n\n  @override\n  void dispose() {\n    // 메모리 누수 방지를 위해 반드시 dispose\n    _controller.dispose();\n    super.dispose();\n  }\n\n  void _togglePlayPause() {\n    setState(() {\n      if (_isPaused) {\n        _controller.play();\n      } else {\n        _controller.pause();\n      }\n      _isPaused = !_isPaused;\n    });\n  }\n\n  void _resetAnimation() {\n    _controller.reset();\n    setState(() {\n      _isPaused = false;\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Controller Demo')),\n      body: Center(\n        child: DefaultTextStyle(\n          style: const TextStyle(fontSize: 40.0, color: Colors.redAccent),\n          child: AnimatedTextKit(\n            // 3. 컨트롤러 연결\n            controller: _controller,\n            animatedTexts: [\n              ScaleAnimatedText('START'),\n              ScaleAnimatedText('PAUSE'),\n              ScaleAnimatedText('RESET'),\n            ],\n            isRepeatingAnimation: false, // 수동 제어 시 반복은 false로 설정하는 경우가 많음\n          ),\n        ),\n      ),\n      floatingActionButton: Row(\n        mainAxisAlignment: MainAxisAlignment.end,\n        children: [\n          FloatingActionButton(\n            onPressed: _resetAnimation,\n            heroTag: 'reset',\n            child: const Icon(Icons.replay),\n          ),\n          const SizedBox(width: 10),\n          FloatingActionButton(\n            onPressed: _togglePlayPause,\n            heroTag: 'playpause',\n            child: Icon(_isPaused ? Icons.play_arrow : Icons.pause),\n          ),\n        ],\n      ),\n    );\n  }\n}"
+      },
+      "note": "`AnimatedTextController`를 사용할 경우, `AnimatedTextKit`의 `isRepeatingAnimation` 속성을 `false`로 설정하고, 수동으로 `reset()`을 호출하여 애니메이션을 재시작하는 것이 일반적입니다.",
+      "explanation": "`AnimatedTextController`는 `StatefulWidget`의 `State` 내부에 선언되어야 하며, `initState`에서 초기화하고 `dispose`에서 해제해야 합니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "독립형 특수 위젯: TextLiquidFill 활용",
+      "description": "이 패키지에는 `AnimatedTextKit`에 포함되지 않고 독립적으로 사용되는 특수 애니메이션 위젯인 `TextLiquidFill`이 있습니다. 이는 물결이 차오르는 듯한 독특한 효과를 제공합니다.",
+      "substeps": [
+        "`TextLiquidFill` 위젯을 단독으로 사용",
+        "`waveColor`와 `boxBackgroundColor` 설정",
+        "텍스트 스타일 및 크기 지정"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/liquid_fill_example.dart",
+        "content": "import 'package:animated_text_kit/animated_text_kit.dart';\nimport 'package:flutter/material.dart';\n\nclass LiquidFillExample extends StatelessWidget {\n  const LiquidFillExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Center(\n      child: Container(\n        width: 300,\n        height: 300,\n        color: Colors.black,\n        child: const TextLiquidFill(\n          text: 'FLUTTER',\n          waveColor: Colors.cyanAccent,\n          boxBackgroundColor: Colors.black,\n          textStyle: TextStyle(\n            fontSize: 60.0,\n            fontWeight: FontWeight.bold,\n          ),\n          boxHeight: 300,\n          boxWidth: 300,\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "note": "`TextLiquidFill`은 텍스트를 감싸는 상자(`box`)의 배경색과 물결(`wave`)의 색상을 명확히 구분하여 설정해야 시각적 효과가 극대화됩니다.",
+      "explanation": "`TextLiquidFill`은 텍스트를 마스크로 사용하여 물결 애니메이션을 보여줍니다. 이는 다른 `AnimatedText`와 달리 `AnimatedTextKit`의 리스트에 포함될 수 없습니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "애니메이션이 한 번만 실행되고 멈춥니다.",
+      "solution": "`AnimatedTextKit` 위젯에 `isRepeatingAnimation: true` 속성을 추가하거나, `totalRepeatCount`를 1보다 큰 값으로 설정해야 합니다.",
+      "link": ""
+    },
+    {
+      "error": "`AnimatedTextController`를 사용했는데 애니메이션이 자동으로 시작되지 않습니다.",
+      "solution": "컨트롤러를 사용할 경우, `AnimatedTextKit`의 `autoStart` 속성이 기본적으로 `true`이지만, 수동으로 제어하려면 `initState`에서 `_controller.play()`를 명시적으로 호출하거나, 버튼을 통해 시작해야 합니다.",
+      "link": ""
+    },
+    {
+      "error": "커스텀 폰트(예: Horizon)를 사용했는데 적용되지 않습니다.",
+      "solution": "폰트 파일을 프로젝트의 `assets/fonts`에 추가하고, `pubspec.yaml`에 폰트 패밀리를 정확히 등록했는지 확인해야 합니다. 등록하지 않으면 시스템 기본 폰트로 대체됩니다.",
+      "link": "https://flutter.dev/docs/cookbook/design/fonts"
+    }
+  ],
+  "tips": [
+    "**성능 최적화:** 복잡한 애니메이션(예: `TextLiquidFill`)을 여러 개 동시에 사용하면 성능 저하가 발생할 수 있습니다. 반드시 필요한 곳에만 사용하고, 화면에서 벗어날 때 `AnimatedTextController.dispose()`를 호출하여 리소스를 해제하세요.",
+    "**조합 활용:** `AnimatedTextKit`은 다양한 `AnimatedText`를 섞어서 사용할 수 있습니다. (예: `WavyAnimatedText` 다음에 `ScaleAnimatedText`를 배치) 이를 통해 복합적인 스토리텔링이 가능합니다.",
+    "**텍스트 오버플로우 방지:** 타이핑 효과(`Typer`, `Typewriter`)는 텍스트가 길어질 경우 오버플로우가 발생하기 쉽습니다. 반드시 `SizedBox`나 `Container`로 너비를 제한하거나, `ListView` 안에 넣어 수평 스크롤이 가능하도록 처리해야 합니다."
+  ],
+  "nextSteps": [
+    {
+      "title": "Flutter의 기본 애니메이션 시스템 학습",
+      "description": "`animated_text_kit`이 내부적으로 사용하는 `AnimationController`와 `Tween`의 원리를 이해하면, 애니메이션의 커스터마이징 능력이 향상됩니다.",
+      "packageId": "flutter_animation"
+    },
+    {
+      "title": "다른 고급 애니메이션 패키지 탐색",
+      "description": "Lottie 애니메이션(`lottie`)이나 Rive 애니메이션(`rive`)과 같은 벡터 기반 애니메이션을 학습하여 UI/UX 수준을 높일 수 있습니다.",
+      "packageId": "lottie"
+    }
+  ],
+  "references": [
+    {
+      "title": "animated_text_kit 공식 문서",
+      "url": "https://pub.dev/packages/animated_text_kit"
+    },
+    {
+      "title": "Flutter 폰트 사용 가이드",
+      "url": "https://flutter.dev/docs/cookbook/design/fonts"
+    }
+  ],
+  "source": "generated"
+}

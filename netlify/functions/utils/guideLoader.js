@@ -18,12 +18,14 @@ const generatedGuidesDir = path.join(_dirname, '..', '..', 'generated-guides');
 export function loadGuide(packageId) {
   try {
     // 1. /data/examples/{packageId}.json 먼저 확인
-    const jsonGuidePath = path.join(dataDir, 'examples', `${packageId}.json`);
+    // const jsonGuidePath = path.join(dataDir, 'examples', `${packageId}.json`);
 
-    if (fs.existsSync(jsonGuidePath)) {
-      const rawData = fs.readFileSync(jsonGuidePath, 'utf8');
-      return JSON.parse(rawData);
-    }
+    // if (fs.existsSync(jsonGuidePath)) {
+    //   const rawData = fs.readFileSync(jsonGuidePath, 'utf8');
+    //   return JSON.parse(rawData);
+    // }
+    // [Changed] 사용자가 실시간 스크래핑을 원하므로, 정적 JSON 파일 로드 로직을 비활성화합니다.
+    // 필요 시 다시 주석을 해제하거나 이 부분을 로직의 뒷순위(fallback)로 옮길 수 있습니다.
 
     // 2. 없으면 /generated-guides/{packageId}.txt 확인
     const txtGuidePath = path.join(generatedGuidesDir, `${packageId}.txt`);

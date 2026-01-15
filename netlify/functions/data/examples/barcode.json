@@ -1,0 +1,122 @@
+{
+  "title": "barcode 구현 가이드: Flutter에서 바코드 및 QR 코드 생성 및 표시",
+  "description": "Dart 기반의 강력한 바코드 생성 라이브러리인 `barcode` 패키지를 사용하여, 다양한 형식(Code 128, QR, EAN 등)의 바코드를 생성하고 Flutter 앱 화면에 SVG 형태로 렌더링하는 실무 가이드입니다. 이 패키지는 백엔드에 독립적인 드로잉 명령을 생성하며, Flutter에서는 이를 SVG 문자열로 변환하여 화면에 표시합니다.",
+  "difficulty": "중급",
+  "estimatedTime": "30-45분",
+  "prerequisites": [
+    "Flutter SDK 설치 및 환경 설정",
+    "SVG 렌더링을 위한 추가 패키지 (`flutter_svg`) 필요"
+  ],
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "프로젝트 설정 및 의존성 추가",
+      "description": "`barcode` 패키지는 바코드 데이터를 생성하는 역할을 하며, Flutter 화면에 이를 표시하기 위해서는 생성된 SVG 문자열을 렌더링할 수 있는 `flutter_svg` 패키지가 필수적으로 필요합니다.",
+      "substeps": [
+        "`barcode`와 `flutter_svg` 패키지를 `pubspec.yaml`에 추가합니다.",
+        "패키지 설치 명령어를 실행합니다."
+      ],
+      "command": "flutter pub add barcode flutter_svg",
+      "commands": [
+        "flutter pub get"
+      ],
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  barcode: ^2.2.9\n  flutter_svg: ^2.0.10+1 # SVG 렌더링을 위한 필수 패키지"
+      },
+      "note": "공식 예제 코드는 `dart:io`를 사용하여 파일을 저장하지만, Flutter UI 환경에서는 SVG 문자열을 생성하여 위젯으로 렌더링하는 방식이 표준입니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "바코드 생성 서비스 로직 구현",
+      "description": "바코드 생성 로직을 UI와 분리하여 서비스 레이어에 정의합니다. 이 함수는 바코드 유형과 데이터를 받아 SVG 문자열을 반환합니다.",
+      "substeps": [
+        "`BarcodeService` 클래스를 생성합니다.",
+        "공식 예제의 핵심 로직인 `bc.toSvg()`를 활용하여 SVG 문자열을 반환하는 정적 메서드를 구현합니다."
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/services/barcode_service.dart",
+        "content": "import 'package:barcode/barcode.dart';\n\nclass BarcodeService {\n  /// 주어진 바코드 유형과 데이터를 기반으로 SVG 문자열을 생성합니다.\n  static String generateSvg({\n    required Barcode barcodeType,\n    required String data,\n    double width = 300,\n    double height = 100,\n    double? fontHeight,\n  }) {\n    // toSvg() 메서드를 사용하여 SVG 문자열을 생성합니다.\n    final svgString = barcodeType.toSvg(\n      data,\n      width: width,\n      height: height,\n      fontHeight: fontHeight,\n    );\n    return svgString;\n  }\n}"
+      },
+      "explanation": "이 서비스는 `dart:io` 의존성이 없으므로, 웹, 모바일, 데스크톱 등 모든 Flutter 플랫폼에서 동일하게 작동합니다. `Barcode` 객체는 생성 시점에 이미 바코드 유형(예: `Barcode.code128()`)을 정의하고 있습니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "Flutter 위젯에서 SVG 바코드 렌더링",
+      "description": "생성된 SVG 문자열을 화면에 표시하기 위한 전용 위젯을 만듭니다. `flutter_svg` 패키지의 `SvgPicture.string()` 생성자를 사용합니다.",
+      "substeps": [
+        "바코드 데이터를 표시할 `BarcodeDisplayWidget`을 정의합니다.",
+        "위젯 내부에서 `BarcodeService`를 호출하여 SVG 문자열을 가져옵니다.",
+        "`SvgPicture.string()`에 해당 문자열을 전달하여 화면에 렌더링합니다."
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/widgets/barcode_display_widget.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter_svg/flutter_svg.dart';\nimport 'package:barcode/barcode.dart';\nimport '../services/barcode_service.dart';\n\nclass BarcodeDisplayWidget extends StatelessWidget {\n  final Barcode barcodeType;\n  final String data;\n  final String title;\n  final double width;\n  final double height;\n\n  const BarcodeDisplayWidget({\n    super.key,\n    required this.barcodeType,\n    required this.data,\n    required this.title,\n    this.width = 300,\n    this.height = 100,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    // 1. 서비스 호출: SVG 문자열 생성\n    final svgContent = BarcodeService.generateSvg(\n      barcodeType: barcodeType,\n      data: data,\n      width: width,\n      height: height,\n    );\n\n    return Card(\n      margin: const EdgeInsets.symmetric(vertical: 10),\n      child: Padding(\n        padding: const EdgeInsets.all(16.0),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            Text(title, style: Theme.of(context).textTheme.titleMedium),\n            const SizedBox(height: 10),\n            // 2. SvgPicture.string을 사용하여 SVG 문자열 렌더링\n            Center(\n              child: SvgPicture.string(\n                svgContent,\n                width: width,\n                height: height,\n                fit: BoxFit.contain,\n              ),\n            ),\n            const SizedBox(height: 10),\n            Text('데이터: $data', style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "SVG는 벡터 기반이므로 확대/축소 시에도 품질 저하가 없습니다. `SvgPicture.string()`은 메모리 효율적으로 문자열을 파싱하여 화면에 그립니다. `width`와 `height`를 명시적으로 지정하여 레이아웃 오버플로우를 방지하는 것이 좋습니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "다양한 바코드 유형 통합 및 테스트",
+      "description": "메인 화면에서 공식 예제에 제시된 다양한 바코드 유형(Code 128, QR Code, EAN13 등)을 인스턴스화하고 위젯에 전달하여 테스트합니다.",
+      "substeps": [
+        "`main.dart` 파일을 정리하고 `BarcodeDisplayWidget`을 사용합니다.",
+        "Code 128의 A, B, C 모드와 QR 코드 등 복잡한 유형을 테스트합니다."
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:barcode/barcode.dart';\nimport 'widgets/barcode_display_widget.dart';\n\nvoid main() => runApp(const BarcodeApp());\n\nclass BarcodeApp extends StatelessWidget {\n  const BarcodeApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      title: 'Barcode Demo',\n      theme: ThemeData(useMaterial3: true),\n      home: Scaffold(\n        appBar: AppBar(title: const Text('Barcode Generation Demo')),\n        body: SingleChildScrollView(\n          padding: const EdgeInsets.all(16),\n          child: Column(\n            children: [\n              // 1. QR Code 예제\n              BarcodeDisplayWidget(\n                title: 'QR Code',\n                barcodeType: Barcode.qrCode(),\n                data: 'https://pub.dev/packages/barcode',\n                height: 200,\n              ),\n\n              // 2. Code 128 (공식 예제 반영)\n              BarcodeDisplayWidget(\n                title: 'Code 128 (Auto)',\n                barcodeType: Barcode.code128(),\n                data: 'BARCODE 128 TEST',\n              ),\n\n              // 3. EAN-13 (소매 제품 표준)\n              BarcodeDisplayWidget(\n                title: 'EAN-13 (12자리 입력, 13번째는 체크섬)',\n                barcodeType: Barcode.ean13(drawEndChar: true),\n                data: '590123412345',\n              ),\n\n              // 4. Data Matrix\n              BarcodeDisplayWidget(\n                title: 'Data Matrix',\n                barcodeType: Barcode.dataMatrix(),\n                data: 'DM-DATA-12345',\n                height: 150,\n              ),\n\n              // 5. ITF (Interleaved 2 of 5)\n              BarcodeDisplayWidget(\n                title: 'ITF (짝수 길이 숫자만 가능)',\n                barcodeType: Barcode.itf(),\n                data: '987234',\n              ),\n            ],\n          ),\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "각 바코드 유형은 `Barcode.` 정적 생성자를 통해 인스턴스화됩니다. 예를 들어, `Barcode.code128()`은 Code 128 바코드를 생성하며, 내부적으로 데이터에 따라 최적의 인코딩 모드(A, B, C)를 자동으로 선택합니다. 특정 모드를 강제하려면 공식 예제처럼 옵션을 전달할 수 있습니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "바코드가 화면에 표시되지 않고 오류가 발생함 (RenderBox overflow)",
+      "solution": "바코드가 생성하는 SVG는 기본적으로 크기가 고정되어 있지 않습니다. `BarcodeService.generateSvg` 호출 시 `width`와 `height` 매개변수를 명시적으로 지정하거나, `SvgPicture.string` 위젯에 크기 제약 조건을 명확히 설정해야 합니다.",
+      "link": null
+    },
+    {
+      "error": "특정 바코드 유형(예: EAN, UPC)에서 데이터 길이가 맞지 않다는 오류 발생",
+      "solution": "EAN-13은 12자리 데이터(13번째는 자동 생성), EAN-8은 7자리 데이터가 필요합니다. 바코드 표준에 맞지 않는 데이터를 입력하면 `BarcodeException`이 발생합니다. 입력 데이터의 길이를 표준에 맞게 조정해야 합니다.",
+      "link": null
+    },
+    {
+      "error": "바코드는 생성되지만, 텍스트가 깨지거나 폰트가 이상하게 보임",
+      "solution": "SVG 렌더링 시 폰트 문제가 발생할 수 있습니다. 이는 주로 `flutter_svg`가 시스템 폰트를 찾는 방식과 관련이 있습니다. 바코드 자체의 텍스트는 단순한 폰트를 사용하므로, 대부분의 경우 문제가 없으나, 복잡한 폰트가 필요하다면 `flutter_svg`의 폰트 설정을 확인해야 합니다.",
+      "link": "https://pub.dev/packages/flutter_svg#fonts"
+    }
+  ],
+  "tips": [
+    "**성능 최적화 (캐싱):** 바코드 데이터가 자주 바뀌지 않는다면, `BarcodeService.generateSvg`의 결과를 메모리에 캐싱하여 불필요한 SVG 문자열 재생성을 방지할 수 있습니다.",
+    "**바이트 배열 출력:** 만약 SVG 대신 PNG나 JPEG 같은 비트맵 이미지가 필요하다면, 생성된 SVG 문자열을 `flutter_svg`의 `svg.toPicture()`와 `ui.Picture.toImage()`를 조합하여 바이트 배열(Uint8List)로 변환 후 이미지 위젯에 사용할 수 있습니다.",
+    "**Code 128 모드 활용:** Code 128은 A(ASCII), B(일반), C(숫자 압축) 세 가지 모드를 지원합니다. 대량의 숫자를 인코딩할 때는 `Barcode.code128(useCode128A: false, useCode128B: false)`를 사용하여 C 모드를 강제하면 바코드 길이가 짧아져 공간을 절약할 수 있습니다."
+  ],
+  "nextSteps": [
+    {
+      "title": "바코드 스캔 기능 통합",
+      "description": "생성된 바코드를 실제로 스캔할 수 있도록, 카메라를 사용하여 바코드를 인식하는 기능을 추가합니다.",
+      "packageId": "mobile_scanner"
+    },
+    {
+      "title": "바코드 커스터마이징",
+      "description": "`barcode` 패키지는 `toSvg` 외에도 `toPath` 메서드를 제공합니다. 이를 사용하여 Flutter의 `CustomPainter`와 결합하면 바코드의 색상, 선 굵기 등을 더욱 세밀하게 제어할 수 있습니다.",
+      "packageId": null
+    }
+  ],
+  "references": [
+    {
+      "title": "공식 문서",
+      "url": "https://pub.dev/packages/barcode"
+    },
+    {
+      "title": "flutter_svg 공식 문서",
+      "url": "https://pub.dev/packages/flutter_svg"
+    }
+  ],
+  "source": "generated"
+}

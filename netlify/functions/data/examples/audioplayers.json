@@ -1,0 +1,142 @@
+{
+  "title": "audioplayers 구현 가이드: 다중 오디오 동시 재생 및 정밀 제어",
+  "description": "audioplayers는 Flutter에서 로컬 파일, 네트워크 스트림, 애셋 등 다양한 소스의 오디오를 동시에 재생하고 정밀하게 제어하는 기능을 제공하는 강력한 플러그인입니다. 이 가이드는 공식 예제를 기반으로 실무에 바로 적용 가능한 오디오 재생 시스템 구축 방법을 제시합니다.",
+  "difficulty": "중급",
+  "estimatedTime": "30-45분",
+  "prerequisites": [
+    "Flutter SDK 설치 및 환경 설정",
+    "Android/iOS 개발 환경 준비"
+  ],
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "패키지 설치 및 플랫폼 설정",
+      "description": "audioplayers 패키지를 프로젝트에 추가하고, 오디오 재생에 필요한 플랫폼별 설정을 완료합니다.",
+      "substeps": [
+        "pubspec.yaml에 패키지 의존성 추가",
+        "Android 권한 설정 (선택적)",
+        "iOS 설정 (필수 아님, 기본적으로 작동)"
+      ],
+      "command": "flutter pub add audioplayers",
+      "commands": [],
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  audioplayers: ^6.5.1"
+      },
+      "note": "네트워크 오디오를 재생할 경우, AndroidManifest.xml에 INTERNET 권한이 자동으로 추가되지만, Android 9 (API 28) 이상에서 HTTP를 사용할 경우 `usesCleartextTraffic` 설정을 고려해야 합니다.",
+      "explanation": "audioplayers는 별도의 복잡한 네이티브 설정 없이 대부분의 기능을 제공합니다. 다만, 애셋(Asset)을 사용할 경우, 해당 오디오 파일을 `pubspec.yaml`의 `assets:` 섹션에 등록해야 합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "AudioPlayer 인스턴스 초기화 및 ReleaseMode 설정",
+      "description": "오디오 재생을 담당할 AudioPlayer 인스턴스를 생성하고, 리소스 해제 모드(ReleaseMode)를 설정하여 메모리 관리를 최적화합니다. 공식 예제는 여러 플레이어를 관리하는 방식을 보여줍니다.",
+      "substeps": [
+        "AudioPlayer 객체 생성",
+        "ReleaseMode 설정 (stop, loop, release)",
+        "리소스 관리를 위한 StreamSubscription 리스트 준비"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/audio_manager.dart (핵심 초기화)",
+        "content": "import 'package:audioplayers/audioplayers.dart';\nimport 'dart:async';\n\nclass AudioManager {\n  // 단일 플레이어 예시 (공식 예제는 여러 플레이어를 사용)\n  final AudioPlayer player = AudioPlayer();\n  final List<StreamSubscription> _subscriptions = [];\n\n  AudioManager() {\n    // 1. ReleaseMode 설정: 재생이 완료되면 플레이어 상태를 'Stop'으로 유지합니다.\n    // 이는 다음 재생 시 소스를 다시 설정할 필요 없이 바로 play()를 호출할 수 있게 합니다.\n    player.setReleaseMode(ReleaseMode.stop);\n\n    // 2. 상태 변경 스트림 구독 (공식 예제 분석)\n    _subscriptions.add(\n      player.onPlayerStateChanged.listen((state) {\n        print('Player State Changed: $state');\n        if (state == PlayerState.completed) {\n          // 재생 완료 시 특정 로직 수행\n          print('Audio playback completed.');\n        }\n      }),\n    );\n\n    // 3. 위치 변경 스트림 구독 (재생 바 업데이트 등에 사용)\n    _subscriptions.add(\n      player.onPositionChanged.listen((position) {\n        // print('Current Position: $position');\n      }),\n    );\n  }\n\n  // 리소스 해제 메서드 (필수)\n  void dispose() {\n    for (var sub in _subscriptions) {\n      sub.cancel();\n    }\n    player.dispose(); // 플레이어 인스턴스 자체를 해제\n  }\n}"
+      },
+      "explanation": "공식 예제에서처럼, `AudioPlayer()`를 생성하고 `setReleaseMode(ReleaseMode.stop)`을 설정하는 것이 일반적입니다. `ReleaseMode.release`를 사용하면 재생 완료 후 리소스를 즉시 해제하여 메모리를 절약하지만, 다시 재생하려면 소스를 재설정해야 하는 번거로움이 있습니다. 스트림 구독은 `initState`에서 이루어지며, 반드시 `dispose`에서 해제해야 메모리 누수를 방지합니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "오디오 소스 설정 및 재생 제어",
+      "description": "다양한 오디오 소스(Asset, URL, Local File)를 설정하고, 기본적인 재생, 일시정지, 정지, 탐색(Seek) 기능을 구현합니다.",
+      "substeps": [
+        "AssetSource를 사용하여 로컬 애셋 재생",
+        "UrlSource를 사용하여 네트워크 스트림 재생",
+        "play(), pause(), stop(), seek() 메서드 사용"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/audio_manager.dart (재생 로직 추가)",
+        "content": "  // ... AudioManager 클래스 내부 ...\n\n  Future<void> playAsset(String assetPath) async {\n    // 1. 소스 설정 (AssetSource 사용)\n    await player.setSource(AssetSource(assetPath));\n    // 2. 재생 시작\n    await player.resume(); // setSource 후에는 resume()을 사용하거나 play()를 사용합니다.\n  }\n\n  Future<void> playUrl(String url) async {\n    // 1. 소스 설정 (UrlSource 사용)\n    await player.setSource(UrlSource(url));\n    // 2. 재생 시작\n    await player.resume();\n  }\n\n  Future<void> pause() async {\n    await player.pause();\n  }\n\n  Future<void> stop() async {\n    await player.stop();\n  }\n\n  Future<void> seekTo(Duration position) async {\n    // 공식 예제에서 onSeekComplete 스트림을 구독했듯이, seek는 비동기적으로 완료됩니다.\n    await player.seek(position);\n  }\n\n  Future<void> setVolume(double volume) async {\n    // 0.0 (음소거) ~ 1.0 (최대)\n    await player.setVolume(volume);\n  }\n\n  Future<void> setSpeed(double speed) async {\n    // 1.0 (정상 속도)\n    await player.setRate(speed);\n  }"
+      },
+      "note": "애셋 파일을 사용하려면, 프로젝트 루트에 `assets/audio/` 폴더를 만들고 오디오 파일을 넣은 후, `pubspec.yaml`에 `assets: - assets/audio/`를 등록해야 합니다.",
+      "explanation": "`setSource`는 오디오 파일의 위치를 플레이어에게 알려주는 역할을 합니다. `play()`는 소스를 설정하고 재생을 시작하며, `resume()`은 일시정지된 오디오를 다시 시작합니다. `audioplayers`는 소스 유형에 따라 `AssetSource`, `UrlSource`, `DeviceFileSource` 등을 제공합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "UI 통합 및 상태 표시 (Position/Duration)",
+      "description": "위젯에서 AudioManager를 사용하여 오디오를 제어하고, 현재 재생 위치와 전체 길이를 사용자에게 표시합니다. 이는 공식 예제의 'StreamsTab'에서 다루는 핵심 기능입니다.",
+      "substeps": [
+        "ChangeNotifier를 사용하여 상태 관리",
+        "onDurationChanged 및 onPositionChanged 스트림 활용",
+        "UI에서 재생/일시정지 버튼 토글 구현"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/audio_player_widget.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:audioplayers/audioplayers.dart';\nimport 'dart:async';\n\n// Step 2와 3의 로직을 통합한 간단한 상태 관리 클래스\nclass AudioPlayerService extends ChangeNotifier {\n  final AudioPlayer player = AudioPlayer();\n  PlayerState _playerState = PlayerState.stopped;\n  Duration _duration = Duration.zero;\n  Duration _position = Duration.zero;\n  StreamSubscription? _stateSubscription;\n  StreamSubscription? _durationSubscription;\n  StreamSubscription? _positionSubscription;\n\n  PlayerState get playerState => _playerState;\n  Duration get duration => _duration;\n  Duration get position => _position;\n\n  AudioPlayerService() {\n    player.setReleaseMode(ReleaseMode.stop);\n    _stateSubscription = player.onPlayerStateChanged.listen((state) {\n      _playerState = state;\n      notifyListeners();\n    });\n    _durationSubscription = player.onDurationChanged.listen((d) {\n      _duration = d;\n      notifyListeners();\n    });\n    _positionSubscription = player.onPositionChanged.listen((p) {\n      _position = p;\n      notifyListeners();\n    });\n  }\n\n  Future<void> loadAndPlay() async {\n    // 예시 애셋 경로 (실제 파일 경로로 변경 필요)\n    await player.setSource(AssetSource('audio/test_audio.mp3'));\n    await player.resume();\n  }\n\n  Future<void> togglePlayPause() async {\n    if (_playerState == PlayerState.playing) {\n      await player.pause();\n    } else if (_playerState == PlayerState.paused || _playerState == PlayerState.stopped) {\n      // 소스가 설정되지 않았다면 로드 후 재생\n      if (_duration == Duration.zero) {\n        await loadAndPlay();\n      } else {\n        await player.resume();\n      }\n    }\n  }\n\n  Future<void> seek(double value) async {\n    final newPosition = Duration(milliseconds: (duration.inMilliseconds * value).round());\n    await player.seek(newPosition);\n  }\n\n  @override\n  void dispose() {\n    _stateSubscription?.cancel();\n    _durationSubscription?.cancel();\n    _positionSubscription?.cancel();\n    player.dispose();\n    super.dispose();\n  }\n}\n\n// UI 위젯 (Provider 또는 Riverpod 사용 권장)\nclass AudioPlayerWidget extends StatelessWidget {\n  final AudioPlayerService service;\n\n  const AudioPlayerWidget({super.key, required this.service});\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      mainAxisAlignment: MainAxisAlignment.center,\n      children: [\n        Text('Duration: ${service.duration.inSeconds}s'),\n        Slider(\n          min: 0,\n          max: service.duration.inMilliseconds.toDouble(),\n          value: service.position.inMilliseconds.toDouble(),\n          onChanged: (value) {},\n          onChangeEnd: (value) => service.seek(value / service.duration.inMilliseconds),\n        ),\n        IconButton(\n          iconSize: 64.0,\n          icon: Icon(\n            service.playerState == PlayerState.playing\n                ? Icons.pause_circle\n                : Icons.play_circle,\n          ),\n          onPressed: service.togglePlayPause,\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "오디오 상태는 비동기적으로 변경되므로, `onPlayerStateChanged`, `onDurationChanged`, `onPositionChanged` 스트림을 구독하여 UI를 업데이트해야 합니다. `ChangeNotifier`를 사용하면 이 상태 변화를 효율적으로 관리할 수 있습니다. 슬라이더를 구현할 때는 `onChangeEnd`를 사용하여 사용자가 슬라이딩을 멈췄을 때만 `seek()`를 호출하는 것이 성능상 유리합니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "다중 플레이어 관리 및 리소스 해제 (공식 예제 심화)",
+      "description": "공식 예제의 핵심인 다중 오디오 플레이어 관리 로직을 이해하고, 모든 리소스가 안전하게 해제되도록 구현합니다.",
+      "substeps": [
+        "여러 AudioPlayer 인스턴스를 리스트로 관리",
+        "선택된 플레이어에 대한 제어 로직 구현",
+        "위젯 `dispose()` 시 모든 플레이어와 스트림 해제"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart (핵심 dispose 로직)",
+        "content": "// 공식 예제에서 발췌 및 정리\nclass _ExampleAppState extends State<ExampleApp> {\n  // 4개의 플레이어를 초기화하고 ReleaseMode.stop 설정\n  List<AudioPlayer> audioPlayers = List.generate(\n    4,\n    (_) => AudioPlayer()..setReleaseMode(ReleaseMode.stop),\n  );\n  List<StreamSubscription> streams = [];\n\n  @override\n  void initState() {\n    super.initState();\n    // 모든 플레이어에 대해 상태 변화 스트림 구독\n    audioPlayers.asMap().forEach((index, player) {\n      streams.add(\n        player.onPlayerStateChanged.listen((state) {\n          // ... 상태 처리 로직 ...\n        }),\n      );\n      // ... 다른 스트림 구독 (onSeekComplete, onDurationChanged 등) ...\n    });\n  }\n\n  @override\n  void dispose() {\n    // 1. 모든 스트림 구독 해제 (공식 예제)\n    for (var sub in streams) {\n      sub.cancel();\n    }\n    // 2. 모든 AudioPlayer 인스턴스 해제 (필수)\n    for (var player in audioPlayers) {\n      player.dispose();\n    }\n    super.dispose();\n  }\n\n  // ... build 메서드 (UI 로직) ...\n}"
+      },
+      "note": "다중 플레이어를 사용할 때, 각 플레이어는 독립적인 오디오 세션을 가집니다. 동시에 여러 소리를 재생할 수 있으며, 이는 게임이나 복잡한 미디어 앱에서 유용합니다. 반드시 모든 플레이어를 `dispose()`해야 합니다.",
+      "explanation": "공식 예제는 `List<AudioPlayer>`를 사용하여 여러 플레이어를 관리합니다. 가장 중요한 실무 원칙은 '생성된 모든 `AudioPlayer` 인스턴스는 위젯이 파괴될 때 `dispose()`되어야 한다'는 것입니다. 또한, 각 플레이어에 연결된 모든 `StreamSubscription`도 `cancel()`되어야 합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "오디오 재생 후 앱을 종료해도 소리가 계속 납니다.",
+      "solution": "위젯의 `dispose()` 메서드에서 `player.dispose()`를 호출하지 않았거나, `ReleaseMode.release`를 설정하지 않았을 경우 발생합니다. 모든 `AudioPlayer` 인스턴스를 명시적으로 해제해야 합니다.",
+      "link": null
+    },
+    {
+      "error": "AssetSource를 사용했는데 파일을 찾을 수 없다는 에러가 발생합니다.",
+      "solution": "`pubspec.yaml` 파일의 `assets:` 섹션에 해당 오디오 파일 경로가 정확히 등록되었는지 확인하고, `flutter clean` 후 다시 실행해보세요. 경로가 대소문자를 구분하는지 확인해야 합니다.",
+      "link": null
+    },
+    {
+      "error": "네트워크 URL 재생 시 Android에서 에러가 발생합니다.",
+      "solution": "Android 9 (API 28) 이상에서 HTTP (암호화되지 않은) URL을 사용할 경우, `AndroidManifest.xml`의 `<application>` 태그에 `android:usesCleartextTraffic=\"true\"`를 추가해야 합니다. (HTTPS 사용 권장)",
+      "link": null
+    }
+  ],
+  "tips": [
+    "**오디오 컨텍스트 (AudioContext):** `audioplayers`는 `AudioContext`를 통해 iOS의 카테고리(예: Playback, Ambient)나 Android의 오디오 속성(예: Usage, ContentType)을 설정할 수 있습니다. 이는 백그라운드 재생이나 다른 앱과의 오디오 간섭을 제어할 때 필수적입니다.",
+    "**성능 최적화:** 짧은 효과음(SFX)을 반복 재생할 경우, `setReleaseMode(ReleaseMode.release)`를 사용하여 재생 완료 후 즉시 리소스를 해제하는 것이 좋습니다.",
+    "**동시성 관리:** 여러 플레이어를 사용할 때, 각 플레이어의 볼륨이나 상태를 독립적으로 관리할 수 있습니다. 공식 예제처럼 리스트를 활용하여 각 플레이어에 고유한 ID를 부여하고 상태를 추적하세요."
+  ],
+  "nextSteps": [
+    {
+      "title": "백그라운드 오디오 재생 구현",
+      "description": "앱이 백그라운드에 있을 때도 오디오를 계속 재생하고, 잠금 화면 컨트롤을 추가하는 방법을 학습합니다. `just_audio` 또는 `audio_service` 패키지와 연동하여 전문적인 미디어 세션을 구축할 수 있습니다.",
+      "packageId": "audio_service"
+    },
+    {
+      "title": "오디오 이펙트 및 필터 적용",
+      "description": "오디오 재생 외에 이퀄라이저나 기타 DSP(Digital Signal Processing) 기능을 추가하여 사운드를 변형하는 방법을 탐구합니다.",
+      "packageId": null
+    }
+  ],
+  "references": [
+    {
+      "title": "공식 문서",
+      "url": "https://pub.dev/packages/audioplayers"
+    },
+    {
+      "title": "audioplayers GitHub 예제",
+      "url": "https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example"
+    }
+  ],
+  "source": "generated"
+}

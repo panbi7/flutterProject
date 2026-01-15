@@ -1,0 +1,154 @@
+{
+  "title": "cached_network_image 구현 가이드: 실무 적용 완벽 매뉴얼",
+  "description": "네트워크 이미지를 효율적으로 로드, 캐싱하며 플레이스홀더 및 에러 처리를 완벽하게 구현하는 Flutter 라이브러리 가이드입니다. 메모리 및 디스크 캐싱을 통해 앱 성능을 극대화합니다.",
+  "difficulty": "중급",
+  "estimatedTime": "15-25분",
+  "prerequisites": [
+    "Flutter SDK 설치 및 환경 설정",
+    "기본적인 Dart 및 Flutter 위젯 이해 (StatelessWidget, ListView.builder)"
+  ],
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "패키지 설치 및 초기 설정",
+      "description": "프로젝트에 `cached_network_image` 패키지를 추가하고, 필요하다면 디버깅을 위한 로그 레벨을 설정합니다.",
+      "substeps": [
+        "pubspec.yaml 파일에 의존성 추가",
+        "패키지 설치 명령어 실행",
+        "선택적으로 캐시 관리 로그 레벨 설정"
+      ],
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  cached_network_image: ^3.4.1\n\n# (선택 사항: 공식 예제에서 사용된 BlurHash를 사용하려면)\n# flutter_blurhash: ^0.7.0"
+      },
+      "command": null,
+      "commands": [
+        "flutter pub get"
+      ],
+      "note": "이 패키지는 별도의 네이티브 설정(Android Manifest, Info.plist 수정)이 필요 없습니다. Flutter의 기본 HTTP 클라이언트를 사용합니다.",
+      "explanation": "버전 충돌을 방지하기 위해 최신 안정화 버전을 사용합니다. 로그 레벨 설정은 개발 단계에서 캐시가 제대로 작동하는지 확인하는 데 유용합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "기본 위젯 사용법: Placeholder 및 Error 처리",
+      "description": "가장 기본적인 `CachedNetworkImage` 위젯을 사용하여 이미지를 로드하고, 로딩 중(Placeholder) 및 에러 발생 시(ErrorWidget)의 UI를 정의합니다.",
+      "substeps": [
+        "StatelessWidget 내부에 CachedNetworkImage 위젯 배치",
+        "`imageUrl` 속성 설정",
+        "`placeholder` 속성을 통해 로딩 인디케이터 제공",
+        "`errorWidget` 속성을 통해 실패 시 아이콘 제공"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/image_display_screen.dart",
+        "content": "import 'package:cached_network_image/cached_network_image.dart';\nimport 'package:flutter/material.dart';\n\nclass BasicImageExample extends StatelessWidget {\n  const BasicImageExample({super.key});\n\n  final String validImageUrl = 'https://picsum.photos/300/200';\n  final String invalidImageUrl = 'https://notAvalid.uri';\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Cached Image 기본 예제')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: <Widget>[\n            // 1. 기본 사용법 (로딩 및 에러 처리 포함)\n            CachedNetworkImage(\n              width: 300,\n              height: 200,\n              fit: BoxFit.cover,\n              imageUrl: validImageUrl,\n              placeholder: (context, url) => const Center(\n                child: CircularProgressIndicator(),\n              ), // 로딩 중 표시\n              errorWidget: (context, url, error) => const Icon(\n                Icons.broken_image,\n                size: 50,\n                color: Colors.red,\n              ), // 에러 발생 시 표시\n            ),\n            const SizedBox(height: 20),\n            // 2. 에러 테스트\n            CachedNetworkImage(\n              width: 300,\n              height: 200,\n              imageUrl: invalidImageUrl,\n              placeholder: (context, url) => const Text('에러 테스트 중...'),\n              errorWidget: (context, url, error) => const Text('이미지 로드 실패!'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "command": null,
+      "commands": [],
+      "note": "`placeholder`와 `errorWidget`은 필수적인 실무 요소입니다. 사용자에게 로딩 상태와 실패 상태를 명확히 알려주어 UX를 개선합니다.",
+      "explanation": "`CachedNetworkImage`는 내부적으로 `FutureBuilder`와 유사하게 작동하며, 이미지 로드 상태에 따라 `placeholder`, 실제 이미지, 또는 `errorWidget`을 자동으로 전환하여 보여줍니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "고급 커스터마이징: ImageBuilder 및 Progress Indicator",
+      "description": "이미지가 성공적으로 로드된 후, 이미지를 커스텀 위젯으로 감싸거나(예: 원형 아바타, BoxDecoration) 로딩 진행률을 표시하는 방법을 배웁니다.",
+      "substeps": [
+        "`imageBuilder`를 사용하여 로드된 이미지에 커스텀 스타일 적용",
+        "`progressIndicatorBuilder`를 사용하여 로딩 진행률(%) 표시",
+        "이미지 로드 시 페이드인 효과 (`fadeInDuration`) 적용"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/advanced_image_example.dart",
+        "content": "import 'package:cached_network_image/cached_network_image.dart';\nimport 'package:flutter/material.dart';\n\nclass AdvancedImageExample extends StatelessWidget {\n  const AdvancedImageExample({super.key});\n\n  final String profileUrl = 'https://picsum.photos/id/237/200/200';\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      children: [\n        // 1. 원형 아바타 구현 (imageBuilder 사용)\n        CachedNetworkImage(\n          imageUrl: profileUrl,\n          placeholder: (context, url) => const CircleAvatar(\n            backgroundColor: Colors.grey,\n            radius: 50,\n          ),\n          imageBuilder: (context, imageProvider) => CircleAvatar(\n            backgroundImage: imageProvider, // ImageProvider를 직접 사용\n            radius: 50,\n          ),\n        ),\n        const SizedBox(height: 20),\n        // 2. 진행률 표시 및 커스텀 BoxDecoration\n        SizedBox(\n          width: 300,\n          height: 150,\n          child: CachedNetworkImage(\n            imageUrl: 'https://picsum.photos/300/150',\n            progressIndicatorBuilder: (context, url, downloadProgress) => Center(\n              child: CircularProgressIndicator(\n                value: downloadProgress.progress, // 0.0 ~ 1.0 사이의 값\n              ),\n            ),\n            imageBuilder: (context, imageProvider) => Container(\n              decoration: BoxDecoration(\n                borderRadius: BorderRadius.circular(10),\n                image: DecorationImage(\n                  image: imageProvider,\n                  fit: BoxFit.cover,\n                  // 예: 이미지에 색상 필터 적용\n                  colorFilter: const ColorFilter.mode(\n                    Colors.blueGrey,\n                    BlendMode.colorBurn,\n                  ),\n                ),\n              ),\n            ),\n            fadeInDuration: const Duration(milliseconds: 500), // 페이드인 효과\n          ),\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "command": null,
+      "commands": [],
+      "note": "`imageBuilder`는 이미지를 로드한 후, 해당 `ImageProvider`를 사용하여 `Container`의 `DecorationImage`나 `CircleAvatar`의 `backgroundImage` 등 복잡한 위젯 구조에 이미지를 삽입할 때 매우 유용합니다.",
+      "explanation": "`progressIndicatorBuilder`는 `downloadProgress` 객체를 제공하여, 이미지 다운로드 진행 상태를 시각적으로 사용자에게 보여줄 수 있게 합니다. 이는 대용량 이미지를 로드할 때 특히 중요합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "ListView/GridView 최적화 및 캐시 관리",
+      "description": "스크롤 가능한 리스트에서 `CachedNetworkImage`를 사용할 때의 성능 이점과, 캐시 크기 및 동작을 제어하는 방법을 설명합니다.",
+      "substeps": [
+        "`ListView.builder` 내에서 캐시된 이미지 사용",
+        "캐시된 이미지 제공자 (`CachedNetworkImageProvider`) 사용 시점 설명",
+        "캐시 크기 제한 옵션 (`maxHeightDiskCache`, `maxWidthDiskCache`) 적용"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/list_optimization.dart",
+        "content": "import 'package:cached_network_image/cached_network_image.dart';\nimport 'package:flutter/material.dart';\n\nclass OptimizedListView extends StatelessWidget {\n  const OptimizedListView({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return ListView.builder(\n      itemCount: 50,\n      itemBuilder: (context, index) {\n        // 1. 리스트뷰 내에서 사용: 스크롤 시 이미지가 빠르게 로드됨 (캐싱 덕분)\n        return Card(\n          child: ListTile(\n            leading: SizedBox(\n              width: 50,\n              height: 50,\n              child: CachedNetworkImage(\n                // lock=$index를 사용하여 고유한 이미지를 요청 (loremflickr)\n                imageUrl: 'https://loremflickr.com/100/100/abstract?lock=$index',\n                placeholder: (context, url) => const Icon(Icons.photo),\n                errorWidget: (context, url, error) => const Icon(Icons.error),\n                // 2. 캐시 크기 제한 (선택 사항)\n                maxHeightDiskCache: 100, // 디스크에 저장될 최대 높이 (픽셀)\n                maxWidthDiskCache: 100, // 디스크에 저장될 최대 너비 (픽셀)\n              ),\n            ),\n            title: Text('Item $index'),\n            subtitle: const Text('Cached image loaded'),\n          ),\n        );\n      },\n    );\n  }\n}\n\n// 3. CachedNetworkImageProvider 사용 예시\n// Image 위젯이나 DecorationImage에 직접 ImageProvider가 필요할 때 사용합니다.\nWidget _imageProviderExample() {\n  return const Image(\n    image: CachedNetworkImageProvider(\n      'https://via.placeholder.com/350x150',\n      // 옵션: 캐시 만료 기간 설정 등\n      // cacheKey: 'my_unique_key',\n    ),\n  );\n}"
+      },
+      "command": null,
+      "commands": [],
+      "note": "리스트뷰에서 이미지를 로드할 때, 이미 캐시된 이미지는 네트워크 요청 없이 즉시 로드되므로 스크롤 성능이 비약적으로 향상됩니다. `maxHeightDiskCache`는 디스크 공간을 절약하는 데 도움이 됩니다.",
+      "explanation": "`CachedNetworkImageProvider`는 `CachedNetworkImage` 위젯이 아닌, Flutter의 기본 `Image` 위젯이나 다른 위젯의 `ImageProvider` 속성에 캐싱 기능을 주입하고 싶을 때 사용됩니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "전문가용: 상세 에러 리스너 및 캐시 매니저 제어",
+      "description": "네트워크 연결 실패와 같은 특정 에러 상황을 감지하고, 전역 캐시 설정을 통해 캐시 동작을 세밀하게 제어합니다.",
+      "substeps": [
+        "`errorListener`를 사용하여 특정 예외(예: SocketException) 처리",
+        "전역 캐시 매니저를 통한 캐시 삭제 및 초기화"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart (초기화 및 에러 처리)",
+        "content": "import 'dart:io';\nimport 'package:cached_network_image/cached_network_image.dart';\nimport 'package:flutter/material.dart';\n\nvoid main() {\n  // [1] 전역 캐시 로그 레벨 설정 (디버깅용)\n  CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;\n  runApp(const MyApp());\n}\n\n// ... (중략: 위젯 구현)\n\nWidget _errorHandlingImage() {\n  return CachedNetworkImage(\n    imageUrl: 'http://nonexistent.domain/image.jpg',\n    placeholder: (context, url) => const CircularProgressIndicator(),\n    errorWidget: (context, url, error) => const Icon(Icons.wifi_off),\n    // [2] 상세 에러 리스너 구현\n    errorListener: (e) {\n      if (e is SocketException) {\n        // 네트워크 연결 문제 처리\n        print('네트워크 연결 오류: ${e.message}');\n      } else {\n        // 기타 이미지 로드 예외 처리\n        print('이미지 로드 중 알 수 없는 예외 발생: ${e.runtimeType}');\n      }\n    },\n  );\n}\n\n// [3] 캐시 수동 제어 함수 예시\nFuture<void> clearAllCache() async {\n  await DefaultCacheManager().emptyCache();\n  print('모든 캐시가 삭제되었습니다.');\n}"
+      },
+      "command": null,
+      "commands": [],
+      "note": "`DefaultCacheManager().emptyCache()`는 사용자가 '설정' 화면 등에서 캐시를 수동으로 지울 수 있는 기능을 구현할 때 사용됩니다. 이는 디스크 공간 관리에 필수적입니다.",
+      "explanation": "`errorListener`는 `errorWidget`보다 더 세밀한 제어를 제공합니다. 특히 네트워크 상태나 서버 응답 문제 등 특정 예외 유형에 따라 다른 로직을 실행해야 할 때 유용합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "이미지가 로드되지 않고 계속 Placeholder만 표시됨.",
+      "solution": "URL이 유효한지 확인하고, Android 9 (API 28) 이상에서 HTTP URL을 사용하는 경우 `android:usesCleartextTraffic=\"true\"`를 AndroidManifest.xml에 추가해야 합니다. (HTTPS 사용 권장)",
+      "link": null
+    },
+    {
+      "error": "리스트뷰에서 이미지가 깜빡이거나 로드 순서가 섞임.",
+      "solution": "이는 Flutter의 위젯 재사용(Recycling) 문제일 수 있습니다. `CachedNetworkImage` 자체는 캐싱을 하지만, 리스트 아이템에 고유한 `key`를 지정하거나, `imageUrl`이 정확히 고유한지 확인하세요.",
+      "link": null
+    },
+    {
+      "error": "이미지가 업데이트되었는데도 이전 이미지가 계속 보임.",
+      "solution": "캐시를 무효화해야 합니다. `CachedNetworkImage` 위젯에 `cacheKey`를 지정하거나, `DefaultCacheManager().removeFile(url)`을 사용하여 해당 URL의 캐시 파일만 수동으로 삭제해야 합니다.",
+      "link": null
+    }
+  ],
+  "tips": [
+    "**Pre-caching (사전 캐싱):** 사용자가 특정 화면에 진입하기 전에 중요한 이미지를 미리 캐싱하여 로딩 시간을 0에 가깝게 만드세요. `precacheImage(CachedNetworkImageProvider(url), context)` 함수를 사용합니다.",
+    "**BlurHash 통합:** 로딩 중 Placeholder 대신 `flutter_blurhash` 패키지를 함께 사용하여 저용량의 블러 처리된 이미지를 먼저 보여주면 UX 만족도가 크게 향상됩니다. (공식 예제 코드 참고)",
+    "**Custom Cache Manager:** 앱의 특성에 맞게 캐시 만료 기간, 최대 파일 수 등을 세밀하게 제어하려면 `DefaultCacheManager` 대신 `CustomCacheManager`를 상속받아 구현하세요."
+  ],
+  "nextSteps": [
+    {
+      "title": "이미지 트랜지션 및 애니메이션",
+      "description": "이미지 로드 시 페이드인 외에 Hero 애니메이션이나 다른 복잡한 트랜지션을 적용하는 방법을 학습합니다.",
+      "packageId": "flutter_staggered_grid_view"
+    },
+    {
+      "title": "캐시 정책 심화 학습",
+      "description": "캐시 만료 정책(TTL)을 설정하고, 캐시된 파일의 크기를 모니터링하는 방법을 학습합니다.",
+      "packageId": null
+    }
+  ],
+  "references": [
+    {
+      "title": "공식 문서 및 API 레퍼런스",
+      "url": "https://pub.dev/packages/cached_network_image"
+    },
+    {
+      "title": "flutter_blurhash 패키지",
+      "url": "https://pub.dev/packages/flutter_blurhash"
+    }
+  ],
+  "source": "generated"
+}

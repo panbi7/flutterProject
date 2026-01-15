@@ -1,0 +1,140 @@
+{
+  "title": "app_links 구현 가이드: 완벽한 Deep Linking 통합",
+  "description": "Flutter 앱에서 Android App Links, iOS Universal Links 및 Custom URL Scheme을 통합 관리하여 외부 링크를 통해 특정 화면으로 이동시키는 기능을 구현하는 실무 가이드입니다.",
+  "difficulty": "중급",
+  "estimatedTime": "40-60분",
+  "prerequisites": [
+    "Flutter SDK (3.0 이상 권장)",
+    "Android Studio 및 Xcode 설치",
+    "iOS Universal Link 테스트를 위한 Apple Developer Account (선택 사항)"
+  ],
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "패키지 설치 및 기본 구조 설정",
+      "description": "프로젝트에 `app_links` 패키지를 추가하고, Deep Link 처리를 위한 기본 위젯 구조를 설정합니다. Deep Link 처리는 앱의 생명주기(Lifecycle)와 밀접하게 관련되므로, `StatefulWidget`에서 관리하는 것이 일반적입니다.",
+      "substeps": [
+        "패키지 설치 명령어 실행",
+        "Deep Link 처리를 위한 `AppLinks` 인스턴스 준비",
+        "라우팅을 위한 `GlobalKey<NavigatorState>` 정의"
+      ],
+      "command": "flutter pub add app_links",
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart (기본 구조)",
+        "content": "import 'dart:async';\nimport 'package:app_links/app_links.dart';\nimport 'package:flutter/material.dart';\n\nvoid main() {\n  runApp(const MyApp());\n}\n\nclass MyApp extends StatefulWidget {\n  const MyApp({Key? key}) : super(key: key);\n\n  @override\n  State<MyApp> createState() => _MyAppState();\n}\n\nclass _MyAppState extends State<MyApp> {\n  // 1. 라우팅을 위한 Navigator Key 정의\n  final _navigatorKey = GlobalKey<NavigatorState>();\n  // 2. 스트림 구독 관리를 위한 변수\n  StreamSubscription<Uri>? _linkSubscription;\n\n  @override\n  void initState() {\n    super.initState();\n    initDeepLinks();\n  }\n\n  @override\n  void dispose() {\n    _linkSubscription?.cancel();\n    super.dispose();\n  }\n\n  // Deep Link 초기화 및 스트림 리스너 설정 로직 (Step 3에서 구현)\n  Future<void> initDeepLinks() async {\n    // 구현 예정\n  }\n\n  // 링크를 받아 라우팅하는 로직 (Step 4에서 구현)\n  void openAppLink(Uri uri) {\n    // 구현 예정\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      title: 'App Links Demo',\n      navigatorKey: _navigatorKey,\n      initialRoute: \"/\",\n      // onGenerateRoute는 Step 4에서 상세 구현\n      onGenerateRoute: (settings) {\n        return MaterialPageRoute(\n          builder: (context) => const Scaffold(body: Center(child: Text('Home Screen'))),\n          settings: settings,\n        );\n      },\n    );\n  }\n}"
+      },
+      "note": "`_navigatorKey`를 사용하는 이유는 Deep Link가 발생했을 때 `BuildContext`에 접근하지 않고도 네비게이션을 수행하기 위함입니다. 이는 앱이 백그라운드에 있거나 완전히 종료된 상태에서도 작동해야 하기 때문에 필수적입니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "플랫폼별 네이티브 설정 (필수 선행 작업)",
+      "description": "Deep Link가 운영체제 수준에서 앱을 인식하고 실행시키기 위해서는 플랫폼별 설정 파일 수정이 필수적입니다. 공식 예제에서 제시된 핵심 설정들을 적용합니다.",
+      "substeps": [
+        "Android Manifest에 Intent Filter 추가",
+        "iOS Info.plist에 Custom URL Scheme 등록",
+        "iOS Universal Link를 위한 Entitlements 파일 설정"
+      ],
+      "explanation": "아래 설정들은 예제 코드에서 사용된 'sample://' 스키마와 'https://example.com' 도메인을 기반으로 합니다. 실무에서는 이를 실제 도메인과 스키마로 변경해야 합니다.",
+      "code": {
+        "language": "xml",
+        "filename": "android/app/src/main/AndroidManifest.xml (핵심 추가 내용)",
+        "content": "<!-- activity 태그 내부, <intent-filter> 블록에 추가 -->\n<intent-filter android:autoVerify=\"true\">\n    <action android:name=\"android.intent.action.VIEW\" />\n    <category android:name=\"android.intent.category.DEFAULT\" />\n    <category android:name=\"android.intent.category.BROWSABLE\" />\n    <!-- Custom Scheme (예: sample://) -->\n    <data android:scheme=\"sample\" />\n    <!-- App Links (예: https://example.com) -->\n    <data android:scheme=\"https\" android:host=\"example.com\" />\n</intent-filter>"
+      },
+      "commands": [
+        "iOS 설정: Xcode에서 Runner 프로젝트를 열고, Info 탭에서 URL Types에 'sample' 스키마를 추가합니다.",
+        "iOS Universal Link: Xcode의 Signing & Capabilities 탭에서 '+ Capability'를 선택하고 'Associated Domains'를 추가한 후, `applinks:example.com`을 등록합니다."
+      ],
+      "note": "Android App Links를 완벽하게 구현하려면, 도메인 루트에 `assetlinks.json` 파일을 호스팅하여 Google의 도메인 인증(Verification)을 받아야 합니다. `android:autoVerify=\"true\"`는 이 인증을 활성화합니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "Deep Link 핸들링 로직 구현",
+      "description": "앱이 완전히 종료된 상태(Cold Start)에서 링크를 통해 실행되었는지, 또는 이미 실행 중인 상태(Hot Start)에서 링크를 클릭했는지 구분하여 처리하는 로직을 구현합니다.",
+      "substeps": [
+        "앱 초기 실행 시 링크 확인 (`getInitialLink`)",
+        "앱 실행 중 링크 스트림 구독 (`uriLinkStream`)",
+        "두 경우 모두 `openAppLink` 함수로 라우팅 위임"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart (_MyAppState 내부)",
+        "content": "  // ... (생략)\n\n  Future<void> initDeepLinks() async {\n    final appLinks = AppLinks();\n\n    // 1. Cold Start (앱이 완전히 종료된 상태에서 링크를 통해 실행)\n    final initialUri = await appLinks.getInitialLink();\n    if (initialUri != null) {\n      debugPrint('Initial Link: $initialUri');\n      openAppLink(initialUri);\n    }\n\n    // 2. Hot Start (앱이 실행 중이거나 백그라운드에 있을 때 링크 클릭)\n    _linkSubscription = appLinks.uriLinkStream.listen((uri) {\n      debugPrint('Stream Link: $uri');\n      openAppLink(uri);\n    });\n  }\n\n  void openAppLink(Uri uri) {\n    // 예제는 URL Fragment (#/book/1)를 라우팅 경로로 사용합니다.\n    final routePath = uri.fragment;\n    if (routePath.isNotEmpty) {\n      // Navigator Key를 사용하여 라우팅 수행\n      _navigatorKey.currentState?.pushNamed(routePath);\n    } else {\n      // Fragment가 없는 경우 기본 경로로 이동\n      _navigatorKey.currentState?.pushNamed('/');\n    }\n  }\n\n  // ... (생략)"
+      },
+      "explanation": "`getInitialLink()`는 한 번만 호출되어야 하며, 앱이 실행된 후에는 `uriLinkStream`을 통해 지속적으로 링크 이벤트를 수신합니다. 이 구조는 Deep Linking 처리의 표준 패턴입니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "라우팅 및 화면 구성",
+      "description": "Deep Link를 통해 전달받은 경로(`uri.fragment`)를 기반으로 적절한 화면으로 이동하고, 전달된 파라미터를 화면에 표시하는 라우팅 로직을 완성합니다. 예제에서는 웹 라우팅 방식인 Fragment 기반 라우팅을 사용합니다.",
+      "substeps": [
+        "`MaterialApp`의 `onGenerateRoute` 구현",
+        "링크 파라미터(예: Book ID) 추출 및 화면에 전달",
+        "기본 화면 및 커스텀 화면 위젯 정의"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart (라우팅 로직)",
+        "content": "  // ... (_MyAppState build 메서드 내부)\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      navigatorKey: _navigatorKey,\n      initialRoute: \"/\",\n      onGenerateRoute: (RouteSettings settings) {\n        Widget routeWidget = defaultScreen();\n\n        final routeName = settings.name;\n        if (routeName != null) {\n          if (routeName.startsWith('/book/')) {\n            // 예: /book/hello-world\n            final bookId = routeName.substring(routeName.indexOf('/book/') + 6);\n            routeWidget = customScreen(bookId);\n          } else if (routeName == '/book') {\n            // 예: /book (파라미터 없음)\n            routeWidget = customScreen(\"None\");\n          }\n        }\n\n        return MaterialPageRoute(\n          builder: (context) => routeWidget,\n          settings: settings,\n        );\n      },\n    );\n  }\n\n  Widget defaultScreen() {\n    return Scaffold(\n      appBar: AppBar(title: const Text('기본 화면')), \n      body: const Center(\n        child: SelectableText('앱이 실행되었습니다. 외부 링크를 클릭하세요.'),\n      ),\n    );\n  }\n\n  Widget customScreen(String bookId) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('상세 화면')), \n      body: Center(child: Text('Deep Link로 열린 Book ID: $bookId')),\n    );\n  }"
+      },
+      "note": "예제에서 사용된 `uri.fragment` 방식은 URL의 해시(#) 뒤의 경로를 사용하는 방식입니다. 만약 표준 Deep Link (예: `sample://open.my.app/book/1`)를 사용한다면, `uri.path`나 `uri.queryParameters`를 분석해야 합니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "테스트 명령어 실행",
+      "description": "설정된 Deep Link가 실제로 앱을 실행하고 원하는 화면으로 이동시키는지 확인합니다. 플랫폼별로 테스트 방식이 다릅니다.",
+      "substeps": [
+        "Android ADB 명령어로 테스트",
+        "iOS Simulator 명령어로 테스트",
+        "데스크톱 환경 테스트 (Windows/macOS)"
+      ],
+      "commands": [
+        "Android (Custom Scheme): adb shell am start -a android.intent.action.VIEW -d \"sample://open.my.app/#/book/android-test\"",
+        "iOS (Custom Scheme): /usr/bin/xcrun simctl openurl booted \"sample://www.example.com/#/book/ios-test\"",
+        "Windows/macOS (Browser Test): 브라우저 주소창에 `sample://foo/#/book/desktop-test` 입력 (Windows의 경우, 별도의 프로토콜 등록이 필요할 수 있습니다.)"
+      ],
+      "note": "iOS Universal Link 테스트 시에는 실제 도메인(예: `https://example.com/book/1`)을 사용해야 하며, 시뮬레이터가 아닌 실제 기기에서 테스트하는 것이 더 정확합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "Android에서 링크 클릭 시 앱이 실행되지 않고 웹 브라우저가 열림.",
+      "solution": "Android Manifest에 `android:autoVerify=\"true\"`가 설정되어 있는지 확인하고, 도메인 루트에 `assetlinks.json` 파일이 올바르게 호스팅되어 Google의 도메인 인증이 완료되었는지 확인해야 합니다."
+    },
+    {
+      "error": "iOS Universal Link가 작동하지 않음.",
+      "solution": "Xcode의 Associated Domains에 `applinks:yourdomain.com`이 정확히 등록되었는지 확인하고, Apple Developer 계정에서 Associated Domains 서비스가 활성화되었는지 확인해야 합니다. 또한, 도메인 루트에 `apple-app-site-association` 파일이 올바르게 호스팅되어야 합니다."
+    },
+    {
+      "error": "앱 실행 중에는 링크가 작동하지만, 앱이 종료된 상태(Cold Start)에서는 작동하지 않음.",
+      "solution": "`initDeepLinks` 함수 내에서 `AppLinks().getInitialLink()` 호출이 누락되었거나, 비동기 처리가 완료되기 전에 라우팅 로직이 실행되었는지 확인해야 합니다."
+    }
+  ],
+  "tips": [
+    "**라우팅 관리:** 복잡한 Deep Link 구조를 가진 대규모 앱의 경우, `onGenerateRoute` 대신 `go_router`나 `auto_route`와 같은 선언적 라우팅 패키지를 사용하여 Deep Link 파싱 및 네비게이션을 통합 관리하는 것이 훨씬 효율적입니다.",
+    "**보안:** Custom URL Scheme은 보안에 취약할 수 있습니다 (다른 앱이 동일한 스키마를 가로챌 수 있음). 실무에서는 Universal Links (iOS) 또는 App Links (Android)와 같이 도메인 인증이 필요한 방식을 우선적으로 사용해야 합니다.",
+    "**디버깅:** `debugPrint`를 사용하여 `uriLinkStream`에서 어떤 URI가 수신되는지 정확히 확인하고, 네이티브 로그(Logcat, Xcode Console)를 통해 OS 수준에서 링크가 앱으로 전달되었는지 확인하는 것이 중요합니다."
+  ],
+  "nextSteps": [
+    {
+      "title": "GoRouter를 이용한 Deep Link 통합",
+      "description": "Deep Link 파싱 로직을 GoRouter의 `initialLocation` 및 리스너와 결합하여 더 깔끔하고 유지보수가 쉬운 라우팅 구조를 구축합니다.",
+      "packageId": "go_router"
+    },
+    {
+      "title": "Firebase Dynamic Links 마이그레이션",
+      "description": "Firebase Dynamic Links (FDL)는 현재 지원이 중단되었으나, FDL을 대체하는 Firebase App Distribution 또는 기타 지연된 Deep Link 솔루션과의 통합 방법을 연구합니다."
+    }
+  ],
+  "references": [
+    {
+      "title": "app_links 공식 문서",
+      "url": "https://pub.dev/packages/app_links"
+    },
+    {
+      "title": "Android App Links 공식 가이드",
+      "url": "https://developer.android.com/training/app-links"
+    }
+  ],
+  "source": "generated"
+}
