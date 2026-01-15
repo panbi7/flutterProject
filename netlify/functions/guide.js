@@ -41,27 +41,45 @@ export async function handler(event, context) {
       }
     }
 
-    // 1단계: 캐시된 가이드 확인 (JSON 또는 TXT)
-    let guide = loadGuide(packageId)
+    // 1단계: 실시간 생성 (Real-time Scraping & Generation)
+    let guide = null;
+    let errorFromGeneration = null;
 
-    // 2단계: 없으면 실시간 생성
+    try {
+      console.log(`[Guide API] 실시간 가이드 생성 시도: ${packageId}`);
+      guide = await generateGuideFromPubDev(packageId);
+    } catch (e) {
+      console.warn(`[Guide API] 실시간 생성 실패 (토큰 한도 초과 등): ${e.message}`);
+      errorFromGeneration = e.message;
+    }
+
+    // 2단계: 실패 시 캐시된 가이드 확인 (Fallback)
     if (!guide) {
-      console.log(`[Guide API] 캐시 없음, 실시간 생성 시도: ${packageId}`)
-      try {
-        guide = await generateGuideFromPubDev(packageId)
-      } catch (e) {
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({
-            success: false,
-            error: `가이드 생성 실패: ${e.message}`,
-            fallback: {
-              message: 'pub.dev에서 공식 문서를 확인해주세요.',
-              url: `https://pub.dev/packages/${packageId}`
-            }
-          })
-        }
+      console.log(`[Guide API] 실시간 생성 실패, 캐시 확인: ${packageId}`);
+      const cachedGuide = loadGuide(packageId);
+
+      if (cachedGuide) {
+        guide = {
+          ...cachedGuide,
+          source: 'cache_fallback', // 캐시에서 왔음을 표시
+          generationError: errorFromGeneration // 에러 원인 포함 (디버깅용)
+        };
+      }
+    }
+
+    // 3단계: 여전히 없으면 에러 반환
+    if (!guide) {
+      return {
+        statusCode: 500, // or 429 if we want to propagate, but usually valid fallback is better
+        headers,
+        body: JSON.stringify({
+          success: false,
+          error: `가이드 생성 실패: ${errorFromGeneration || '알 수 없는 오류'}`,
+          fallback: {
+            message: 'pub.dev에서 공식 문서를 확인해주세요.',
+            url: `https://pub.dev/packages/${packageId}`
+          }
+        })
       }
     }
 

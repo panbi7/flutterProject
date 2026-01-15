@@ -1,9 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './GuideModal.css';
+import SimpleMarkdown from './SimpleMarkdown';
 
 function GuideModal({ guide, onClose }) {
-  const [expandedSteps, setExpandedSteps] = useState([0]); // 첫 번째 스텝만 펼침
+  // Default to expanding ALL steps
+  const [expandedSteps, setExpandedSteps] = useState([]);
   const [copiedCode, setCopiedCode] = useState(null);
+
+  useEffect(() => {
+    if (guide && guide.steps) {
+      setExpandedSteps(guide.steps.map((_, i) => i));
+    }
+  }, [guide]);
 
   if (!guide) return null;
 
@@ -13,6 +21,14 @@ function GuideModal({ guide, onClose }) {
         ? prev.filter(i => i !== stepIndex)
         : [...prev, stepIndex]
     );
+  };
+
+  const toggleAll = () => {
+    if (expandedSteps.length === guide.steps.length) {
+      setExpandedSteps([]);
+    } else {
+      setExpandedSteps(guide.steps.map((_, i) => i));
+    }
   };
 
   const copyToClipboard = async (text, id) => {
@@ -45,25 +61,14 @@ function GuideModal({ guide, onClose }) {
         <div className="guide-modal-content">
           {/* Q&A 텍스트 가이드 (동적 생성된 가이드) */}
           {guide.plainText ? (
-            <section className="guide-section">
-              <div style={{
-                background: '#f8f9fa',
-                padding: '20px',
-                borderRadius: '8px',
-                whiteSpace: 'pre-wrap',
-                fontFamily: 'monospace',
-                fontSize: '14px',
-                lineHeight: '1.6',
-                maxHeight: '70vh',
-                overflow: 'auto'
-              }}>
-                {guide.plainText}
-              </div>
+            <section className="guide-section markdown-section">
+              <SimpleMarkdown text={guide.plainText} />
+
               {guide.source && (
                 <div style={{
                   marginTop: '12px',
                   padding: '8px 12px',
-                  background: guide.source === 'pregenerated' ? '#e7f5ff' : '#fff4e6',
+                  background: guide.source === 'generated' ? '#e7f5ff' : '#fff4e6',
                   borderRadius: '6px',
                   fontSize: '13px',
                   color: '#495057'
@@ -92,7 +97,15 @@ function GuideModal({ guide, onClose }) {
               {/* 단계별 가이드 */}
               {guide.steps && guide.steps.length > 0 && (
                 <section className="guide-section">
-                  <h3>📚 단계별 가이드</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <h3>📚 단계별 가이드</h3>
+                    <button onClick={toggleAll} style={{
+                      background: 'none', border: '1px solid #ddd', borderRadius: '4px', padding: '4px 8px', cursor: 'pointer', fontSize: '12px'
+                    }}>
+                      {expandedSteps.length === guide.steps.length ? '모두 접기' : '모두 펼치기'}
+                    </button>
+                  </div>
+
                   <div className="steps-container">
                     {guide.steps.map((step, idx) => (
                       <div key={idx} className="step-item">
