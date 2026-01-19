@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@netlify/blobs": "^8.1.0",
     "cheerio": "^1.1.2",
     "dotenv": "^16.4.7",
     "react": "^19.1.1",
