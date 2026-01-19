@@ -1,4 +1,4 @@
-import { guideService } from '../../src/services/guide.service.js';
+import { generateGuideFromPubDev } from './utils/guideGenerator.js';
 
 export async function handler(event) {
   const { packageId } = event.queryStringParameters || {};
@@ -7,7 +7,14 @@ export async function handler(event) {
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
   };
+
+  // OPTIONS 요청 처리
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
 
   if (!packageId) {
     return {
@@ -21,7 +28,24 @@ export async function handler(event) {
   }
 
   try {
-    const guide = await guideService.generateGuide(packageId);
+    console.log(`[Guide API] 가이드 생성 시작: ${packageId}`);
+    const guide = await generateGuideFromPubDev(packageId);
+
+    if (!guide) {
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({
+          success: false,
+          error: `'${packageId}' 패키지를 찾을 수 없습니다.`,
+          fallback: {
+            message: 'pub.dev에서 공식 문서를 확인해주세요.',
+            url: `https://pub.dev/packages/${packageId}`
+          }
+        }),
+      };
+    }
+
     return {
       statusCode: 200,
       headers,
@@ -32,20 +56,12 @@ export async function handler(event) {
     };
   } catch (error) {
     console.error(`[Guide API] 가이드 생성 실패 - ${packageId}:`, error.message);
-    console.error('Full error object:', error); // Log the full error object
 
-    // 구체적인 에러 메시지 생성
     let errorMessage = error.message;
-    if (error.message.includes('not found in local top_packages.json')) {
-      errorMessage = `'${packageId}' 패키지를 찾을 수 없습니다. 지원되는 패키지인지 확인해주세요.`;
-    } else if (error.message.includes('AI content generation failed')) {
-      errorMessage = `AI 가이드 생성에 실패했습니다. API 키 설정 또는 AI 서비스 상태를 확인해주세요.`;
-    } else if (error.message.includes('AI did not return valid JSON')) {
-      errorMessage = `AI 응답 형식이 올바르지 않습니다. AI 모델이 JSON을 반환하지 않았습니다.`;
-    } else if (error.message.includes('Failed to parse AI response as JSON')) {
-      errorMessage = `AI 응답을 처리하는 중 오류가 발생했습니다. AI가 유효한 JSON을 반환했지만 파싱에 실패했습니다.`;
-    } else if (error.message.includes('API')) { // General API error
-      errorMessage = `AI 서비스 오류: ${error.message}`;
+    if (error.message.includes('GEMINI_API_KEY')) {
+      errorMessage = 'AI 서비스 API 키가 설정되지 않았습니다. 관리자에게 문의하세요.';
+    } else if (error.message.includes('Gemini')) {
+      errorMessage = `AI 가이드 생성에 실패했습니다: ${error.message}`;
     }
 
     return {
