@@ -1,0 +1,300 @@
+import React, { useState, useEffect } from 'react'
+import { getHomeData } from '../services/homeApi'
+import { getGuide } from '../services/guideApi'
+import GuideModal from './GuideModal'
+import './HomePage.css'
+
+export default function HomePage({ onCategoryClick, onPackageSearch }) {
+  const [homeData, setHomeData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [activeTab, setActiveTab] = useState('likes') // 'likes' | 'stars'
+  const [selectedPlatform, setSelectedPlatform] = useState('all')
+  const [selectedGuide, setSelectedGuide] = useState(null)
+  const [loadingGuide, setLoadingGuide] = useState(null)
+
+  useEffect(() => {
+    loadHomeData()
+  }, [])
+
+  const loadHomeData = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await getHomeData()
+      if (data) {
+        setHomeData(data)
+      } else {
+        setError('데이터를 불러올 수 없습니다')
+      }
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleShowGuide = async (packageId) => {
+    setLoadingGuide(packageId)
+    try {
+      const resp = await getGuide(packageId)
+      if (resp.success) {
+        setSelectedGuide(resp.guide)
+      } else {
+        alert(`가이드를 불러올 수 없습니다: ${resp.error || '알 수 없는 오류'}`)
+      }
+    } catch (error) {
+      alert(`가이드 로드 중 오류: ${error.message}`)
+    } finally {
+      setLoadingGuide(null)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="home-loading">
+        <div className="loading-spinner"></div>
+        <p>데이터 불러오는 중...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="home-error">
+        <p>{error}</p>
+        <button onClick={loadHomeData}>다시 시도</button>
+      </div>
+    )
+  }
+
+  if (!homeData) return null
+
+  const { monthlyWidgets, topByLikes, topByStars, recentlyUpdated, stats, tagCloud, quickCategories } = homeData
+
+  // 플랫폼 필터링
+  const filterByPlatform = (packages) => {
+    if (selectedPlatform === 'all') return packages
+    return packages.filter(p => p.platforms?.includes(selectedPlatform))
+  }
+
+  const topPackages = activeTab === 'likes' ? topByLikes : topByStars
+
+  return (
+    <div className="home-page">
+      {/* 통계 대시보드 */}
+      <section className="stats-dashboard">
+        <div className="stat-card">
+          <div className="stat-value">{stats.totalPackages}</div>
+          <div className="stat-label">총 패키지</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{(stats.totalLikes / 1000).toFixed(1)}K</div>
+          <div className="stat-label">총 Likes</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{(stats.totalStars / 1000).toFixed(1)}K</div>
+          <div className="stat-label">GitHub Stars</div>
+        </div>
+        <div className="stat-card highlight">
+          <div className="stat-value">{stats.flutterFavorites}</div>
+          <div className="stat-label">Flutter Favorites</div>
+        </div>
+      </section>
+
+      {/* 빠른 기능 찾기 */}
+      <section className="quick-categories">
+        <h2 className="section-title">빠른 기능 찾기</h2>
+        <div className="category-grid">
+          {quickCategories.map(cat => (
+            <button
+              key={cat.id}
+              className="category-btn"
+              style={{ '--cat-color': cat.color }}
+              onClick={() => onCategoryClick?.(cat.id, cat.label)}
+            >
+              <span className="cat-icon">{cat.icon}</span>
+              <span className="cat-label">{cat.label}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* 이달의 위젯 */}
+      <section className="monthly-widgets">
+        <h2 className="section-title">
+          <span className="title-icon">🌟</span>
+          이달의 추천 패키지
+        </h2>
+        <div className="widget-cards">
+          {monthlyWidgets.map(widget => (
+            <div key={widget.id} className="widget-card">
+              {widget.isFlutterFavorite && (
+                <span className="flutter-favorite-badge">Flutter Favorite</span>
+              )}
+              <h3 className="widget-name">{widget.name}</h3>
+              <p className="widget-desc">{widget.description}</p>
+              <div className="widget-stats">
+                <span className="widget-stat">👍 {widget.likes.toLocaleString()}</span>
+                <span className="widget-stat">⭐ {widget.stars.toLocaleString()}</span>
+              </div>
+              <div className="widget-platforms">
+                {widget.platforms?.slice(0, 4).map(p => (
+                  <span key={p} className="platform-chip">{p}</span>
+                ))}
+              </div>
+              <div className="widget-actions">
+                <a href={widget.pub_url} target="_blank" rel="noreferrer" className="btn-link">
+                  pub.dev
+                </a>
+                <button
+                  onClick={() => handleShowGuide(widget.id)}
+                  disabled={loadingGuide === widget.id}
+                  className="btn-guide"
+                >
+                  {loadingGuide === widget.id ? '생성중...' : '구현 가이드'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 플랫폼 필터 */}
+      <section className="platform-filter">
+        <h2 className="section-title">플랫폼별 보기</h2>
+        <div className="platform-tabs">
+          {[
+            { id: 'all', label: '전체', icon: '📦' },
+            { id: 'Android', label: 'Android', icon: '🤖' },
+            { id: 'iOS', label: 'iOS', icon: '🍎' },
+            { id: 'Web', label: 'Web', icon: '🌐' },
+            { id: 'macOS', label: 'macOS', icon: '💻' },
+            { id: 'Windows', label: 'Windows', icon: '🪟' },
+            { id: 'Linux', label: 'Linux', icon: '🐧' },
+          ].map(plat => (
+            <button
+              key={plat.id}
+              className={`platform-tab ${selectedPlatform === plat.id ? 'active' : ''}`}
+              onClick={() => setSelectedPlatform(plat.id)}
+            >
+              <span>{plat.icon}</span>
+              <span>{plat.label}</span>
+              {plat.id !== 'all' && stats.platforms && (
+                <span className="platform-count">
+                  {stats.platforms[plat.id.toLowerCase()] || 0}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* 인기 패키지 TOP 10 */}
+      <section className="top-packages">
+        <div className="section-header">
+          <h2 className="section-title">
+            <span className="title-icon">🔥</span>
+            인기 패키지 TOP 10
+          </h2>
+          <div className="tab-buttons">
+            <button
+              className={`tab-btn ${activeTab === 'likes' ? 'active' : ''}`}
+              onClick={() => setActiveTab('likes')}
+            >
+              👍 Likes
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'stars' ? 'active' : ''}`}
+              onClick={() => setActiveTab('stars')}
+            >
+              ⭐ Stars
+            </button>
+          </div>
+        </div>
+        <div className="package-list">
+          {filterByPlatform(topPackages).map((pkg, idx) => (
+            <div key={pkg.id} className="package-item">
+              <div className="package-rank">#{idx + 1}</div>
+              <div className="package-info">
+                <div className="package-name-row">
+                  <span className="package-name">{pkg.name}</span>
+                  {pkg.isFlutterFavorite && <span className="ff-badge">FF</span>}
+                </div>
+                <p className="package-desc">{pkg.description}</p>
+                <div className="package-meta">
+                  <span>👍 {pkg.likes.toLocaleString()}</span>
+                  <span>⭐ {pkg.stars.toLocaleString()}</span>
+                  <span className="pub-points">{pkg.pubPoints} pts</span>
+                </div>
+              </div>
+              <div className="package-actions">
+                <button
+                  onClick={() => handleShowGuide(pkg.id)}
+                  disabled={loadingGuide === pkg.id}
+                  className="btn-sm"
+                >
+                  {loadingGuide === pkg.id ? '...' : '가이드'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 최근 업데이트 */}
+      <section className="recent-updates">
+        <h2 className="section-title">
+          <span className="title-icon">🆕</span>
+          최근 업데이트
+        </h2>
+        <div className="update-grid">
+          {recentlyUpdated.map(pkg => (
+            <div key={pkg.id} className="update-card">
+              <div className="update-date">{pkg.lastUpdate}</div>
+              <h4 className="update-name">{pkg.name}</h4>
+              <p className="update-desc">{pkg.description}</p>
+              <div className="update-stats">
+                <span>👍 {pkg.likes.toLocaleString()}</span>
+                <span>⭐ {pkg.stars.toLocaleString()}</span>
+              </div>
+              <button
+                onClick={() => handleShowGuide(pkg.id)}
+                disabled={loadingGuide === pkg.id}
+                className="btn-update-guide"
+              >
+                {loadingGuide === pkg.id ? '생성중...' : '가이드 보기'}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 태그 클라우드 */}
+      <section className="tag-cloud">
+        <h2 className="section-title">
+          <span className="title-icon">🏷️</span>
+          인기 태그
+        </h2>
+        <div className="tags-container">
+          {tagCloud.map(({ tag, count }) => (
+            <button
+              key={tag}
+              className="tag-chip"
+              style={{ '--tag-size': Math.min(1 + count / 20, 1.5) }}
+              onClick={() => onPackageSearch?.(tag)}
+            >
+              {tag}
+              <span className="tag-count">{count}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* 가이드 모달 */}
+      {selectedGuide && (
+        <GuideModal guide={selectedGuide} onClose={() => setSelectedGuide(null)} />
+      )}
+    </div>
+  )
+}

@@ -4,7 +4,7 @@ import MessageInput from './MessageInput.jsx'
 import PackageCards from './PackageCards.jsx'
 import { postIntent } from '../services/api.js'
 
-export default function Chat() {
+export default function Chat({ initialMessage }) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -16,6 +16,22 @@ export default function Chat() {
   const [systemStatus, setSystemStatus] = useState({ ai: 'checking', data: 'checking' })
   const [lastError, setLastError] = useState(null)
   const listRef = useRef(null)
+  const initialMessageProcessed = useRef(false)
+
+  // 초기 메시지 처리 (카테고리/태그 클릭 시)
+  useEffect(() => {
+    if (initialMessage && !initialMessageProcessed.current) {
+      initialMessageProcessed.current = true
+      handleSend(initialMessage)
+    }
+  }, [initialMessage])
+
+  // initialMessage가 변경되면 다시 처리할 수 있도록
+  useEffect(() => {
+    if (initialMessage) {
+      initialMessageProcessed.current = false
+    }
+  }, [initialMessage])
 
   useEffect(() => {
     if (listRef.current) {

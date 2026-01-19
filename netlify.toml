@@ -29,6 +29,12 @@
   status = 200
 
 [[redirects]]
+  # 홈페이지 데이터 API
+  from = "/api/home-data"
+  to = "/.netlify/functions/home-data"
+  status = 200
+
+[[redirects]]
   # SPA를 위한 리다이렉트 (모든 요청을 index.html로)
   from = "/*"
   to = "/index.html"

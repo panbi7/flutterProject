@@ -1,79 +1,141 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Chat from './components/Chat.jsx'
-
-// 하드코딩된 이달의 위젯 데이터 (auth_basic.json의 상위 3개)
-const MONTHLY_WIDGETS = [
-  {
-    id: "firebase_auth",
-    name: "firebase_auth",
-    pub_url: "https://pub.dev/packages/firebase_auth",
-    description_ko: "Firebase에서 제공하는 강력한 인증 솔루션",
-    difficulty: "쉬움",
-    setup_time: "15-30분",
-    popularity: "매우 높음"
-  },
-  {
-    id: "flutter_secure_storage",
-    name: "flutter_secure_storage",
-    pub_url: "https://pub.dev/packages/flutter_secure_storage",
-    description_ko: "토큰, 비밀번호 등 민감한 데이터를 안전하게 저장",
-    difficulty: "쉬움",
-    setup_time: "5-10분",
-    popularity: "높음"
-  },
-  {
-    id: "supabase_auth",
-    name: "supabase_flutter",
-    pub_url: "https://pub.dev/packages/supabase_flutter",
-    description_ko: "오픈소스 Firebase 대안, 강력한 인증과 DB 제공",
-    difficulty: "보통",
-    setup_time: "20-40분",
-    popularity: "증가 중"
-  }
-]
+import HomePage from './components/HomePage.jsx'
+import { getHomeData } from './services/homeApi.js'
 
 export default function App() {
+  const [view, setView] = useState('home') // 'home' | 'chat'
+  const [monthlyWidgets, setMonthlyWidgets] = useState([])
   const [isWidgetDropdownOpen, setIsWidgetDropdownOpen] = useState(false)
+  const [initialMessage, setInitialMessage] = useState(null)
+
+  // 이달의 위젯 동적 로드
+  useEffect(() => {
+    loadMonthlyWidgets()
+  }, [])
+
+  const loadMonthlyWidgets = async () => {
+    try {
+      const data = await getHomeData()
+      if (data?.monthlyWidgets) {
+        setMonthlyWidgets(data.monthlyWidgets)
+      }
+    } catch (e) {
+      console.error('이달의 위젯 로드 실패:', e)
+    }
+  }
+
+  // 카테고리 클릭 시 채팅으로 이동
+  const handleCategoryClick = (categoryId, categoryLabel) => {
+    const messages = {
+      'auth_basic': '로그인 기능 구현하고 싶어',
+      'auth_social': '소셜 로그인 붙이고 싶어',
+      'map': '지도 기능 쓰고 싶어',
+      'firebase': 'Firebase 연동하고 싶어',
+      'storage': '데이터 저장하고 싶어',
+      'ui_design': 'UI 디자인 꾸미고 싶어',
+      'media': '미디어 재생 기능 넣고 싶어',
+      'network_http': 'HTTP 통신하고 싶어',
+      'device': '디바이스 기능 사용하고 싶어',
+      'forms': '폼 입력 만들고 싶어',
+      'state_management': '상태관리 하고 싶어',
+      'utils': '유틸리티 기능 필요해',
+    }
+    setInitialMessage(messages[categoryId] || `${categoryLabel} 관련 패키지 찾아줘`)
+    setView('chat')
+  }
+
+  // 태그/검색 클릭 시 채팅으로 이동
+  const handlePackageSearch = (query) => {
+    setInitialMessage(`${query} 관련 패키지 알려줘`)
+    setView('chat')
+  }
 
   return (
     <div className="container">
       <div className="header">
-        <div className="title">Flutter 오픈소스 스타터킷 Web</div>
-        <div style={{ position: 'relative' }}>
-          <button
-            className="widget-dropdown-btn"
-            onClick={() => setIsWidgetDropdownOpen(!isWidgetDropdownOpen)}
-          >
-            이달의 위젯 ▼
-          </button>
-          {isWidgetDropdownOpen && (
-            <div className="widget-dropdown-content">
-              {MONTHLY_WIDGETS.map((widget) => (
-                <a
-                  key={widget.id}
-                  href={widget.pub_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="widget-card-item"
-                  style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
-                >
-                  <h3 className="widget-name">{widget.name}</h3>
-                  <p className="widget-description">{widget.description_ko}</p>
-                  <div className="widget-info">
-                    <span className="badge">난이도: {widget.difficulty}</span>
-                    <span className="badge">설정: {widget.setup_time}</span>
-                    <span className="badge">인기도: {widget.popularity}</span>
-                  </div>
-                </a>
-              ))}
-            </div>
-          )}
+        <div className="title" onClick={() => setView('home')} style={{ cursor: 'pointer' }}>
+          Flutter 오픈소스 스타터킷 Web
+        </div>
+        <div className="header-actions">
+          {/* 뷰 전환 버튼 */}
+          <div className="view-toggle">
+            <button
+              className={`view-btn ${view === 'home' ? 'active' : ''}`}
+              onClick={() => setView('home')}
+            >
+              홈
+            </button>
+            <button
+              className={`view-btn ${view === 'chat' ? 'active' : ''}`}
+              onClick={() => {
+                setInitialMessage(null)
+                setView('chat')
+              }}
+            >
+              채팅
+            </button>
+          </div>
+
+          {/* 이달의 위젯 드롭다운 */}
+          <div style={{ position: 'relative' }}>
+            <button
+              className="widget-dropdown-btn"
+              onClick={() => setIsWidgetDropdownOpen(!isWidgetDropdownOpen)}
+            >
+              이달의 위젯 ▼
+            </button>
+            {isWidgetDropdownOpen && (
+              <div className="widget-dropdown-content">
+                {monthlyWidgets.length > 0 ? (
+                  monthlyWidgets.map((widget) => (
+                    <a
+                      key={widget.id}
+                      href={widget.pub_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="widget-card-item"
+                      style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                    >
+                      <div className="widget-header-row">
+                        <h3 className="widget-name">{widget.name}</h3>
+                        {widget.isFlutterFavorite && (
+                          <span className="ff-tag">Flutter Favorite</span>
+                        )}
+                      </div>
+                      <p className="widget-description">{widget.description}</p>
+                      <div className="widget-info">
+                        <span className="badge">👍 {widget.likes?.toLocaleString()}</span>
+                        <span className="badge">⭐ {widget.stars?.toLocaleString()}</span>
+                        {widget.platforms?.slice(0, 3).map(p => (
+                          <span key={p} className="badge platform">{p}</span>
+                        ))}
+                      </div>
+                    </a>
+                  ))
+                ) : (
+                  <div className="widget-loading">로딩 중...</div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      <div className="chat-wrapper">
-        <Chat />
+
+      <div className="main-content">
+        {view === 'home' ? (
+          <div className="home-wrapper">
+            <HomePage
+              onCategoryClick={handleCategoryClick}
+              onPackageSearch={handlePackageSearch}
+            />
+          </div>
+        ) : (
+          <div className="chat-wrapper">
+            <Chat initialMessage={initialMessage} />
+          </div>
+        )}
       </div>
     </div>
   )
 }
-

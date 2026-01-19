@@ -45,6 +45,29 @@
       .widget-description { margin: 6px 0; color: var(--muted); font-size: 13px; line-height: 1.4; }
       .widget-info { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
       .badge { background: #1f2937; color: #e5e7eb; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+      .badge.platform { background: rgba(34, 211, 238, 0.15); color: var(--accent); }
+
+      /* 헤더 액션 영역 */
+      .header-actions { display: flex; align-items: center; gap: 12px; }
+
+      /* 뷰 전환 토글 */
+      .view-toggle { display: flex; background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+      .view-btn { padding: 8px 16px; background: transparent; border: none; color: var(--muted); font-size: 13px; cursor: pointer; transition: all 0.2s; }
+      .view-btn:hover { color: var(--text); }
+      .view-btn.active { background: var(--accent); color: #04202b; font-weight: 600; }
+
+      /* 위젯 드롭다운 개선 */
+      .widget-header-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+      .ff-tag { font-size: 9px; background: linear-gradient(135deg, #22d3ee, #06b6d4); color: #04202b; padding: 2px 6px; border-radius: 3px; font-weight: 700; }
+      .widget-loading { padding: 20px; text-align: center; color: var(--muted); }
+
+      /* 메인 컨텐츠 영역 */
+      .main-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+      .home-wrapper { flex: 1; overflow-y: auto; padding: 0 4px; }
+      .chat-wrapper { display: flex; flex-direction: column; height: 100%; }
+
+      /* 컨테이너 높이 조정 */
+      .container { display: flex; flex-direction: column; height: 100vh; }
     </style>
   </head>
   <body>
