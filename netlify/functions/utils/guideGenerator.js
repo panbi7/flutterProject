@@ -5,21 +5,43 @@ import { getExampleCode } from './pubdevScraper.js';
 
 /**
  * pub.dev 정보를 바탕으로 Gemini를 사용하여 실시간 구현 가이드를 생성합니다.
- * @param {string} packageName 
+ * @param {string} packageName
  * @returns {Promise<Object|null>}
  */
 export async function generateGuideFromPubDev(packageName) {
+  console.log(`[Guide Generator] 시작: ${packageName}`);
+
   try {
-    // 1. pub.dev, local info, and scraped example code
-    const [pubInfo, localInfo, scrapedCode] = await Promise.all([
-      getPackageInfo(packageName),
-      getLocalPackageInfo(packageName),
-      getExampleCode(packageName)
-    ]);
+    // 1. pub.dev API에서 기본 정보 가져오기 (필수)
+    let pubInfo = null;
+    try {
+      pubInfo = await getPackageInfo(packageName);
+      console.log(`[Guide Generator] pub.dev 정보:`, pubInfo ? 'OK' : 'Not found');
+    } catch (e) {
+      console.error(`[Guide Generator] pub.dev API 오류:`, e.message);
+    }
 
     if (!pubInfo) {
-      console.warn(`[Guide Generator] 패키지를 찾을 수 없어 가이드 생성을 중단합니다: ${packageName}`);
+      console.warn(`[Guide Generator] 패키지를 찾을 수 없음: ${packageName}`);
       return null;
+    }
+
+    // 2. 로컬 정보 가져오기 (선택적 - 실패해도 계속)
+    let localInfo = null;
+    try {
+      localInfo = getLocalPackageInfo(packageName);
+      console.log(`[Guide Generator] 로컬 정보:`, localInfo ? 'OK' : 'Not found');
+    } catch (e) {
+      console.warn(`[Guide Generator] 로컬 정보 조회 실패:`, e.message);
+    }
+
+    // 3. 예제 코드 스크래핑 (선택적 - 실패해도 계속)
+    let scrapedCode = null;
+    try {
+      scrapedCode = await getExampleCode(packageName);
+      console.log(`[Guide Generator] 스크래핑 코드:`, scrapedCode ? 'OK' : 'Not found');
+    } catch (e) {
+      console.warn(`[Guide Generator] 예제 코드 스크래핑 실패:`, e.message);
     }
 
     // 지식 베이스 정보 결합 (로컬 데이터 우선 순위)
@@ -36,7 +58,7 @@ export async function generateGuideFromPubDev(packageName) {
 
     const exampleSnippet = exampleCodeContent ? `공식 예제 코드 (${codeSource}):\n${exampleCodeContent}` : '';
 
-    // 2. Gemini 프롬프트 구성 (구조화된 JSON 요청 + RAG 컨텍스트)
+    // 4. Gemini 프롬프트 구성 (구조화된 JSON 요청 + RAG 컨텍스트)
     const prompt = `
 당신은 세계 최고의 Flutter 전문가입니다. 제공된 '공식 예제 코드'를 기반으로, 해당 패키지를 실무에 바로 적용할 수 있는 **완벽한 구현 가이드**를 작성하는 것이 임무입니다.
 
@@ -97,18 +119,22 @@ JSON Schema:
 이제 ${pubInfo.name}에 대한 완벽한 가이드를 위 JSON 형식으로 작성해주세요.
 `;
 
-    // 3. Gemini로 가이드 생성
+    // 5. Gemini로 가이드 생성
+    console.log(`[Guide Generator] Gemini API 호출 중...`);
     const responseText = await callGeminiForGuide(prompt);
 
     if (!responseText) {
-      throw new Error('Gemini 가이드 생성 실패');
+      throw new Error('Gemini 가이드 생성 실패: 빈 응답');
     }
+
+    console.log(`[Guide Generator] Gemini 응답 수신 (${responseText.length} chars)`);
 
     try {
       // JSON 응답에서 불필요한 마크다운 기호(```json ... ```) 제거 후 파싱
       const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
       const structuredGuide = JSON.parse(cleanJson);
 
+      console.log(`[Guide Generator] JSON 파싱 성공`);
       return {
         ...structuredGuide,
         source: 'generated'
