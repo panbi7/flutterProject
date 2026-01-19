@@ -26,7 +26,15 @@ export async function getHomeData() {
 
     const data = await res.json()
     console.log('[HomeAPI] 응답 데이터:', data)
-    return data.success ? data.data : null
+
+    // API 응답이 { success: true, data: {...} } 형식이면 data.data 반환
+    // 그렇지 않으면 data 자체를 반환
+    if (data.success !== undefined) {
+      return data.success ? data.data : null
+    }
+
+    // 직접 데이터 객체를 반환하는 경우
+    return data
   } catch (error) {
     console.error('[HomeAPI] 네트워크 오류:', {
       message: error.message,
