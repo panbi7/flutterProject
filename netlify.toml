@@ -1,47 +1,12 @@
+[build]
+  functions = "netlify/functions"
+
 [dev]
   command = "npm run dev"
   port = 8888
-  targetPort = 5173
-  publish = "frontend/dist"
-
-[build]
-  # 프론트엔드 빌드 명령
-  # 루트 dependencies 설치 (Functions용) + 프론트엔드 빌드
-  command = "npm install && cd frontend && npm install && npm run build"
-  # 빌드 결과물 디렉토리
-  publish = "frontend/dist"
-
-[functions]
-  # Netlify Functions 디렉토리
-  directory = "netlify/functions"
-  included_files = ["netlify/functions/data/**"]
+  targetPort = 3000 # Vite 개발 서버 포트와 충돌 방지
 
 [[redirects]]
-  # API 요청을 Netlify Functions로 리다이렉트
-  from = "/api/intent"
-  to = "/.netlify/functions/intent"
-  status = 200
-
-[[redirects]]
-  # 가이드 API 요청을 Netlify Functions로 리다이렉트
-  from = "/api/guide"
-  to = "/.netlify/functions/guide"
-  status = 200
-
-[[redirects]]
-  # 홈페이지 데이터 API
-  from = "/api/home-data"
-  to = "/.netlify/functions/home-data"
-  status = 200
-
-[[redirects]]
-  # 데이터 갱신 API (수동 트리거용)
-  from = "/api/refresh-data"
-  to = "/.netlify/functions/refresh-data"
-  status = 200
-
-[[redirects]]
-  # SPA를 위한 리다이렉트 (모든 요청을 index.html로)~
-  from = "/*"
-  to = "/index.html"
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
   status = 200
