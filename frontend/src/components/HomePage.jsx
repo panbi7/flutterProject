@@ -8,7 +8,7 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
   const [homeData, setHomeData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [activeTab, setActiveTab] = useState('likes') // 'likes' | 'stars'
+  const [activeTab, setActiveTab] = useState('likes') // 'likes' | 'popularity'
   const [selectedPlatform, setSelectedPlatform] = useState('all')
   const [selectedGuide, setSelectedGuide] = useState(null)
   const [loadingGuide, setLoadingGuide] = useState(null)
@@ -54,7 +54,7 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
     return (
       <div className="home-loading">
         <div className="loading-spinner"></div>
-        <p>데이터 불러오는 중...</p>
+        <p>pub.dev에서 데이터 불러오는 중...</p>
       </div>
     )
   }
@@ -70,7 +70,7 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
 
   if (!homeData) return null
 
-  const { monthlyWidgets, topByLikes, topByStars, recentlyUpdated, stats, tagCloud, quickCategories } = homeData
+  const { monthlyWidgets, topByLikes, topByPopularity, recentlyUpdated, stats, tagCloud, quickCategories } = homeData
 
   // 플랫폼 필터링
   const filterByPlatform = (packages) => {
@@ -78,7 +78,7 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
     return packages.filter(p => p.platforms?.includes(selectedPlatform))
   }
 
-  const topPackages = activeTab === 'likes' ? topByLikes : topByStars
+  const topPackages = activeTab === 'likes' ? topByLikes : topByPopularity
 
   return (
     <div className="home-page">
@@ -93,12 +93,8 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
           <div className="stat-label">총 Likes</div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">{(stats.totalStars / 1000).toFixed(1)}K</div>
-          <div className="stat-label">GitHub Stars</div>
-        </div>
-        <div className="stat-card highlight">
-          <div className="stat-value">{stats.flutterFavorites}</div>
-          <div className="stat-label">Flutter Favorites</div>
+          <div className="stat-value">{stats.avgPubPoints}</div>
+          <div className="stat-label">평균 Pub Points</div>
         </div>
       </section>
 
@@ -129,14 +125,11 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
         <div className="widget-cards">
           {monthlyWidgets.map(widget => (
             <div key={widget.id} className="widget-card">
-              {widget.isFlutterFavorite && (
-                <span className="flutter-favorite-badge">Flutter Favorite</span>
-              )}
               <h3 className="widget-name">{widget.name}</h3>
               <p className="widget-desc">{widget.description}</p>
               <div className="widget-stats">
                 <span className="widget-stat">👍 {widget.likes.toLocaleString()}</span>
-                <span className="widget-stat">⭐ {widget.stars.toLocaleString()}</span>
+                <span className="widget-stat">📊 {widget.popularity}%</span>
               </div>
               <div className="widget-platforms">
                 {widget.platforms?.slice(0, 4).map(p => (
@@ -205,26 +198,25 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
               👍 Likes
             </button>
             <button
-              className={`tab-btn ${activeTab === 'stars' ? 'active' : ''}`}
-              onClick={() => setActiveTab('stars')}
+              className={`tab-btn ${activeTab === 'popularity' ? 'active' : ''}`}
+              onClick={() => setActiveTab('popularity')}
             >
-              ⭐ Stars
+              📊 Popularity
             </button>
           </div>
         </div>
         <div className="package-list">
-          {filterByPlatform(topPackages).map((pkg, idx) => (
+          {filterByPlatform(topPackages || []).map((pkg, idx) => (
             <div key={pkg.id} className="package-item">
               <div className="package-rank">#{idx + 1}</div>
               <div className="package-info">
                 <div className="package-name-row">
                   <span className="package-name">{pkg.name}</span>
-                  {pkg.isFlutterFavorite && <span className="ff-badge">FF</span>}
                 </div>
                 <p className="package-desc">{pkg.description}</p>
                 <div className="package-meta">
                   <span>👍 {pkg.likes.toLocaleString()}</span>
-                  <span>⭐ {pkg.stars.toLocaleString()}</span>
+                  <span>📊 {pkg.popularity}%</span>
                   <span className="pub-points">{pkg.pubPoints} pts</span>
                 </div>
               </div>
@@ -256,7 +248,7 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
               <p className="update-desc">{pkg.description}</p>
               <div className="update-stats">
                 <span>👍 {pkg.likes.toLocaleString()}</span>
-                <span>⭐ {pkg.stars.toLocaleString()}</span>
+                <span>📊 {pkg.popularity}%</span>
               </div>
               <button
                 onClick={() => handleShowGuide(pkg.id)}

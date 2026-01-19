@@ -1,0 +1,558 @@
+[
+  {
+    "packageName": "http",
+    "description": "A composable, multi-platform, Future-based API for HTTP requests.",
+    "url": "https://pub.dev/packages/http",
+    "githubRepoUrl": "https://github.com/dart-lang/http/tree/master/pkgs/http",
+    "score": {
+      "likes": 8380,
+      "popularityScore": 0,
+      "pubPoints": 160,
+      "maxPoints": 160
+    },
+    "tags": [
+      "http",
+      "network",
+      "protocols"
+    ],
+    "apiTags": [
+      "publisher:dart.dev",
+      "has:topic",
+      "sdk:dart",
+      "sdk:flutter",
+      "platform:android",
+      "platform:ios",
+      "platform:windows",
+      "platform:linux",
+      "platform:macos",
+      "platform:web",
+      "runtime:native-aot",
+      "runtime:native-jit",
+      "runtime:web",
+      "is:null-safe",
+      "is:wasm-ready",
+      "is:dart3-compatible",
+      "license:bsd-3-clause",
+      "license:fsf-libre",
+      "license:osi-approved",
+      "topic:http",
+      "topic:network",
+      "topic:protocols"
+    ],
+    "dependencies": [
+      "async",
+      "http_parser",
+      "meta",
+      "web"
+    ],
+    "maintenance": {
+      "lastUpdated_pub": "2025-11-10",
+      "publisher": "게시자 정보 없음"
+    },
+    "license": "라이선스 미표기",
+    "githubInfo": {
+      "stars": 1089,
+      "openIssues": 371,
+      "lastCommit": "2025-12-01"
+    }
+  },
+  {
+    "packageName": "uuid",
+    "description": "RFC4122 (v1, v4, v5, v6, v7, v8) UUID Generator and Parser for Dart\n",
+    "url": "https://pub.dev/packages/uuid",
+    "githubRepoUrl": "https://github.com/Daegalus/dart-uuid",
+    "score": {
+      "likes": 2652,
+      "popularityScore": 0,
+      "pubPoints": 160,
+      "maxPoints": 160
+    },
+    "tags": [
+      "uuid",
+      "identifier",
+      "id"
+    ],
+    "apiTags": [
+      "publisher:yuli.dev",
+      "has:funding-link",
+      "has:topic",
+      "sdk:dart",
+      "sdk:flutter",
+      "platform:android",
+      "platform:ios",
+      "platform:windows",
+      "platform:linux",
+      "platform:macos",
+      "platform:web",
+      "runtime:native-aot",
+      "runtime:native-jit",
+      "runtime:web",
+      "is:null-safe",
+      "is:wasm-ready",
+      "is:dart3-compatible",
+      "license:mit",
+      "license:fsf-libre",
+      "license:osi-approved",
+      "topic:uuid",
+      "topic:identifier",
+      "topic:id"
+    ],
+    "dependencies": [
+      "crypto",
+      "meta",
+      "fixnum"
+    ],
+    "maintenance": {
+      "lastUpdated_pub": "2025-11-03",
+      "publisher": "게시자 정보 없음"
+    },
+    "license": "라이선스 미표기",
+    "githubInfo": {
+      "stars": 432,
+      "openIssues": 0,
+      "lastCommit": "2025-11-29"
+    }
+  },
+  {
+    "packageName": "crypto",
+    "description": "Implementations of SHA, MD5, and HMAC cryptographic functions.",
+    "url": "https://pub.dev/packages/crypto",
+    "githubRepoUrl": "https://github.com/dart-lang/core/tree/main/pkgs/crypto",
+    "score": {
+      "likes": 1828,
+      "popularityScore": 0,
+      "pubPoints": 160,
+      "maxPoints": 160
+    },
+    "tags": [
+      "crypto",
+      "cryptography"
+    ],
+    "apiTags": [
+      "publisher:dart.dev",
+      "has:topic",
+      "sdk:dart",
+      "sdk:flutter",
+      "platform:android",
+      "platform:ios",
+      "platform:windows",
+      "platform:linux",
+      "platform:macos",
+      "platform:web",
+      "runtime:native-aot",
+      "runtime:native-jit",
+      "runtime:web",
+      "is:null-safe",
+      "is:wasm-ready",
+      "is:dart3-compatible",
+      "license:bsd-3-clause",
+      "license:fsf-libre",
+      "license:osi-approved",
+      "topic:crypto",
+      "topic:cryptography"
+    ],
+    "dependencies": [
+      "typed_data"
+    ],
+    "maintenance": {
+      "lastUpdated_pub": "2025-11-04",
+      "publisher": "게시자 정보 없음"
+    },
+    "license": "라이선스 미표기",
+    "githubInfo": {
+      "stars": 57,
+      "openIssues": 243,
+      "lastCommit": "2025-12-01"
+    }
+  },
+  {
+    "packageName": "path_provider",
+    "description": "Flutter plugin for getting commonly used locations on host platform file systems, such as the temp and app data directories.",
+    "url": "https://pub.dev/packages/path_provider",
+    "githubRepoUrl": "https://github.com/flutter/packages/tree/main/packages/path_provider/path_provider",
+    "score": {
+      "likes": 5454,
+      "popularityScore": 0,
+      "pubPoints": 160,
+      "maxPoints": 160
+    },
+    "tags": [
+      "files",
+      "path-provider",
+      "paths"
+    ],
+    "apiTags": [
+      "is:flutter-favorite",
+      "publisher:flutter.dev",
+      "has:topic",
+      "sdk:flutter",
+      "platform:android",
+      "platform:ios",
+      "platform:windows",
+      "platform:linux",
+      "platform:macos",
+      "is:plugin",
+      "is:null-safe",
+      "is:dart3-compatible",
+      "license:bsd-3-clause",
+      "license:fsf-libre",
+      "license:osi-approved",
+      "topic:files",
+      "topic:path-provider",
+      "topic:paths"
+    ],
+    "dependencies": [
+      "flutter",
+      "path_provider_android",
+      "path_provider_foundation",
+      "path_provider_linux",
+      "path_provider_platform_interface",
+      "path_provider_windows"
+    ],
+    "maintenance": {
+      "lastUpdated_pub": "2024-10-29",
+      "publisher": "게시자 정보 없음"
+    },
+    "license": "라이선스 미표기",
+    "githubInfo": {
+      "stars": 5052,
+      "openIssues": 65,
+      "lastCommit": "2025-12-05"
+    }
+  },
+  {
+    "packageName": "flutter_svg",
+    "description": "An SVG rendering and widget library for Flutter, which allows painting and displaying Scalable Vector Graphics 1.1 files.",
+    "url": "https://pub.dev/packages/flutter_svg",
+    "githubRepoUrl": "https://github.com/flutter/packages/tree/main/third_party/packages/flutter_svg",
+    "score": {
+      "likes": 5788,
+      "popularityScore": 0,
+      "pubPoints": 160,
+      "maxPoints": 160
+    },
+    "tags": [
+      "svg",
+      "vector-graphics"
+    ],
+    "apiTags": [
+      "is:flutter-favorite",
+      "publisher:flutter.dev",
+      "has:topic",
+      "sdk:flutter",
+      "platform:android",
+      "platform:ios",
+      "platform:windows",
+      "platform:linux",
+      "platform:macos",
+      "platform:web",
+      "is:null-safe",
+      "is:wasm-ready",
+      "is:dart3-compatible",
+      "license:mit",
+      "license:fsf-libre",
+      "license:osi-approved",
+      "topic:svg",
+      "topic:vector-graphics"
+    ],
+    "dependencies": [
+      "flutter",
+      "http",
+      "vector_graphics",
+      "vector_graphics_codec",
+      "vector_graphics_compiler"
+    ],
+    "maintenance": {
+      "lastUpdated_pub": "2025-11-21",
+      "publisher": "게시자 정보 없음"
+    },
+    "license": "라이선스 미표기",
+    "githubInfo": {
+      "stars": 5052,
+      "openIssues": 65,
+      "lastCommit": "2025-12-05"
+    }
+  },
+  {
+    "packageName": "path",
+    "description": "A string-based path manipulation library. All of the path operations you know and love, with solid support for Windows, POSIX (Linux and Mac OS X), and the web.",
+    "url": "https://pub.dev/packages/path",
+    "githubRepoUrl": "https://github.com/dart-lang/core/tree/main/pkgs/path",
+    "score": {
+      "likes": 1692,
+      "popularityScore": 0,
+      "pubPoints": 160,
+      "maxPoints": 160
+    },
+    "tags": [
+      "file-system"
+    ],
+    "apiTags": [
+      "publisher:dart.dev",
+      "has:topic",
+      "sdk:dart",
+      "sdk:flutter",
+      "platform:android",
+      "platform:ios",
+      "platform:windows",
+      "platform:linux",
+      "platform:macos",
+      "platform:web",
+      "runtime:native-aot",
+      "runtime:native-jit",
+      "runtime:web",
+      "is:null-safe",
+      "is:wasm-ready",
+      "is:dart3-compatible",
+      "license:bsd-3-clause",
+      "license:fsf-libre",
+      "license:osi-approved",
+      "topic:file-system"
+    ],
+    "dependencies": [],
+    "maintenance": {
+      "lastUpdated_pub": "2024-10-17",
+      "publisher": "게시자 정보 없음"
+    },
+    "license": "라이선스 미표기",
+    "githubInfo": {
+      "stars": 57,
+      "openIssues": 243,
+      "lastCommit": "2025-12-01"
+    }
+  },
+  {
+    "packageName": "equatable",
+    "description": "A Dart package that helps to implement value based equality without needing to explicitly override == and hashCode.",
+    "url": "https://pub.dev/packages/equatable",
+    "githubRepoUrl": "https://github.com/felangel/equatable",
+    "score": {
+      "likes": 3558,
+      "popularityScore": 0,
+      "pubPoints": 160,
+      "maxPoints": 160
+    },
+    "tags": [
+      "equality",
+      "equals"
+    ],
+    "apiTags": [
+      "publisher:fluttercommunity.dev",
+      "has:funding-link",
+      "has:topic",
+      "sdk:dart",
+      "sdk:flutter",
+      "platform:android",
+      "platform:ios",
+      "platform:windows",
+      "platform:linux",
+      "platform:macos",
+      "platform:web",
+      "runtime:native-aot",
+      "runtime:native-jit",
+      "runtime:web",
+      "is:null-safe",
+      "is:wasm-ready",
+      "is:dart3-compatible",
+      "license:mit",
+      "license:fsf-libre",
+      "license:osi-approved",
+      "has:screenshot",
+      "topic:equality",
+      "topic:equals"
+    ],
+    "dependencies": [
+      "collection",
+      "meta"
+    ],
+    "maintenance": {
+      "lastUpdated_pub": "2024-11-21",
+      "publisher": "게시자 정보 없음"
+    },
+    "license": "라이선스 미표기",
+    "githubInfo": {
+      "stars": 1054,
+      "openIssues": 10,
+      "lastCommit": "2024-11-21"
+    }
+  },
+  {
+    "packageName": "image_picker",
+    "description": "Flutter plugin for selecting images from the Android and iOS image library, and taking new pictures with the camera.",
+    "url": "https://pub.dev/packages/image_picker",
+    "githubRepoUrl": "https://github.com/flutter/packages/tree/main/packages/image_picker/image_picker",
+    "score": {
+      "likes": 7646,
+      "popularityScore": 0,
+      "pubPoints": 160,
+      "maxPoints": 160
+    },
+    "tags": [
+      "camera",
+      "image-picker",
+      "files",
+      "file-selection"
+    ],
+    "apiTags": [
+      "publisher:flutter.dev",
+      "has:topic",
+      "sdk:flutter",
+      "platform:android",
+      "platform:ios",
+      "platform:windows",
+      "platform:linux",
+      "platform:macos",
+      "platform:web",
+      "is:plugin",
+      "is:null-safe",
+      "is:wasm-ready",
+      "is:dart3-compatible",
+      "license:apache-2.0",
+      "license:bsd-3-clause",
+      "license:fsf-libre",
+      "license:osi-approved",
+      "topic:camera",
+      "topic:image-picker",
+      "topic:files",
+      "topic:file-selection",
+      "has:multiple-licenses"
+    ],
+    "dependencies": [
+      "flutter",
+      "image_picker_android",
+      "image_picker_for_web",
+      "image_picker_ios",
+      "image_picker_linux",
+      "image_picker_macos",
+      "image_picker_platform_interface",
+      "image_picker_windows"
+    ],
+    "maintenance": {
+      "lastUpdated_pub": "2025-11-12",
+      "publisher": "게시자 정보 없음"
+    },
+    "license": "라이선스 미표기",
+    "githubInfo": {
+      "stars": 5052,
+      "openIssues": 65,
+      "lastCommit": "2025-12-05"
+    }
+  },
+  {
+    "packageName": "cached_network_image",
+    "description": "Flutter library to load and cache network images. Can also be used with placeholder and error widgets.",
+    "url": "https://pub.dev/packages/cached_network_image",
+    "githubRepoUrl": "https://github.com/Baseflow/flutter_cached_network_image",
+    "score": {
+      "likes": 6846,
+      "popularityScore": 0,
+      "pubPoints": 160,
+      "maxPoints": 160
+    },
+    "tags": [
+      "cache",
+      "image",
+      "network-image"
+    ],
+    "apiTags": [
+      "publisher:baseflow.com",
+      "has:topic",
+      "sdk:flutter",
+      "platform:android",
+      "platform:ios",
+      "platform:windows",
+      "platform:linux",
+      "platform:macos",
+      "platform:web",
+      "is:null-safe",
+      "is:dart3-compatible",
+      "license:mit",
+      "license:fsf-libre",
+      "license:osi-approved",
+      "topic:cache",
+      "topic:image",
+      "topic:network-image"
+    ],
+    "dependencies": [
+      "cached_network_image_platform_interface",
+      "cached_network_image_web",
+      "flutter",
+      "flutter_cache_manager",
+      "octo_image"
+    ],
+    "maintenance": {
+      "lastUpdated_pub": "2024-08-13",
+      "publisher": "게시자 정보 없음"
+    },
+    "license": "라이선스 미표기",
+    "githubInfo": {
+      "stars": 2561,
+      "openIssues": 330,
+      "lastCommit": "2024-09-26"
+    }
+  },
+  {
+    "packageName": "dio",
+    "description": "A powerful HTTP networking package,\nsupports Interceptors,\nAborting and canceling a request,\nCustom adapters, Transformers, etc.\n",
+    "url": "https://pub.dev/packages/dio",
+    "githubRepoUrl": "https://github.com/cfug/dio/blob/main/dio",
+    "score": {
+      "likes": 8187,
+      "popularityScore": 0,
+      "pubPoints": 160,
+      "maxPoints": 160
+    },
+    "tags": [
+      "dio",
+      "http",
+      "network",
+      "interceptor",
+      "middleware"
+    ],
+    "apiTags": [
+      "publisher:flutter.cn",
+      "has:topic",
+      "sdk:dart",
+      "sdk:flutter",
+      "platform:android",
+      "platform:ios",
+      "platform:windows",
+      "platform:linux",
+      "platform:macos",
+      "platform:web",
+      "runtime:native-aot",
+      "runtime:native-jit",
+      "runtime:web",
+      "is:null-safe",
+      "is:wasm-ready",
+      "is:dart3-compatible",
+      "license:mit",
+      "license:fsf-libre",
+      "license:osi-approved",
+      "topic:dio",
+      "topic:http",
+      "topic:network",
+      "topic:interceptor",
+      "topic:middleware"
+    ],
+    "dependencies": [
+      "async",
+      "collection",
+      "http_parser",
+      "meta",
+      "mime",
+      "path",
+      "dio_web_adapter"
+    ],
+    "maintenance": {
+      "lastUpdated_pub": "2025-08-07",
+      "publisher": "게시자 정보 없음"
+    },
+    "license": "라이선스 미표기",
+    "githubInfo": {
+      "stars": 12769,
+      "openIssues": 33,
+      "lastCommit": "2025-11-25"
+    }
+  }
+]

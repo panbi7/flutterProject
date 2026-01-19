@@ -1,100 +1,78 @@
 /**
- * 홈페이지 데이터 API
- * - 이달의 위젯 (동적)
- * - 인기 패키지 TOP 10
- * - 최근 업데이트 패키지
- * - 통계 정보
- * - 태그/카테고리 정보
+ * 홈페이지 데이터 API (pub.dev 실시간 연동)
  *
- * 데이터: 정적 JSON 파일 (top_packages.json)
- * 크롤링된 데이터를 사용하며, 주기적으로 갱신 가능
+ * pub.dev API에서 제공하는 정보만 사용:
+ * - likeCount (likes)
+ * - grantedPoints (pubPoints)
+ * - popularityScore
+ * - description, version, published 등
  */
 
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-const _dirname = (() => {
-  try { return path.dirname(fileURLToPath(import.meta.url)) }
-  catch (e) { return typeof __dirname !== 'undefined' ? __dirname : process.cwd() }
-})()
-
-// top_packages.json 로드
-async function loadTopPackages() {
-  const possiblePaths = [
-    path.join(_dirname, 'data', 'top_packages.json'),
-    path.join(process.cwd(), 'netlify/functions/data/top_packages.json'),
-    path.join(process.env.LAMBDA_TASK_ROOT || '', 'netlify/functions/data/top_packages.json'),
-  ]
-
-  for (const p of possiblePaths) {
-    try {
-      const data = await fs.readFile(p, 'utf-8')
-      const packages = JSON.parse(data)
-      console.log(`[HOME-DATA] 패키지 로드: ${packages.length}개`)
-      return packages
-    } catch (e) {
-      continue
-    }
+// pub.dev API에서 인기 패키지 검색
+async function searchPopularPackages(sort = 'like', page = 1) {
+  try {
+    const url = `https://pub.dev/api/search?q=flutter&sort=${sort}&page=${page}`
+    const response = await fetch(url)
+    if (!response.ok) throw new Error(`pub.dev search API error: ${response.status}`)
+    const data = await response.json()
+    return data.packages || []
+  } catch (error) {
+    console.error('[HOME-DATA] searchPopularPackages error:', error.message)
+    return []
   }
-
-  console.warn('[HOME-DATA] top_packages.json을 찾을 수 없습니다')
-  return []
 }
 
-// 이달의 위젯 선택 (likes + 최근 업데이트 기준)
-function getMonthlyWidgets(packages, count = 3) {
-  const now = new Date()
-  const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1)
+// 패키지 상세 정보 가져오기
+async function getPackageDetails(packageName) {
+  try {
+    const [infoRes, scoreRes] = await Promise.all([
+      fetch(`https://pub.dev/api/packages/${packageName}`),
+      fetch(`https://pub.dev/api/packages/${packageName}/score`)
+    ])
 
-  // 최근 업데이트 + 높은 likes 조합으로 점수 계산
-  const scored = packages.map(pkg => {
-    const likes = pkg.score?.likes || 0
-    const lastCommit = pkg.githubInfo?.lastCommit ? new Date(pkg.githubInfo.lastCommit) : new Date(0)
-    const lastPubUpdate = pkg.maintenance?.lastUpdated_pub ? new Date(pkg.maintenance.lastUpdated_pub) : new Date(0)
-    const latestUpdate = new Date(Math.max(lastCommit.getTime(), lastPubUpdate.getTime()))
+    if (!infoRes.ok) return null
 
-    // 최근 3개월 내 업데이트면 보너스
-    const recencyBonus = latestUpdate > threeMonthsAgo ? 1000 : 0
-    const score = likes + recencyBonus + (pkg.githubInfo?.stars || 0) * 0.5
+    const info = await infoRes.json()
+    const score = scoreRes.ok ? await scoreRes.json() : null
+    const latest = info.latest
 
-    return { ...pkg, _score: score, _latestUpdate: latestUpdate }
-  })
-
-  // Flutter Favorite 또는 높은 점수 우선
-  const sorted = scored.sort((a, b) => {
-    const aFav = a.apiTags?.includes('is:flutter-favorite') ? 1 : 0
-    const bFav = b.apiTags?.includes('is:flutter-favorite') ? 1 : 0
-    if (aFav !== bFav) return bFav - aFav
-    return b._score - a._score
-  })
-
-  // 다양한 카테고리에서 선택 (중복 방지)
-  const selected = []
-  const usedCategories = new Set()
-
-  for (const pkg of sorted) {
-    if (selected.length >= count) break
-
-    const category = pkg.tags?.[0] || 'general'
-    if (!usedCategories.has(category) || selected.length < 2) {
-      selected.push({
-        id: pkg.packageName,
-        name: pkg.packageName,
-        pub_url: pkg.url,
-        description: pkg.description,
-        likes: pkg.score?.likes || 0,
-        stars: pkg.githubInfo?.stars || 0,
-        lastUpdate: pkg.maintenance?.lastUpdated_pub || '',
-        tags: pkg.tags || [],
-        platforms: extractPlatforms(pkg.apiTags),
-        isFlutterFavorite: pkg.apiTags?.includes('is:flutter-favorite') || false
-      })
-      usedCategories.add(category)
+    return {
+      packageName: info.name,
+      description: latest?.pubspec?.description || '',
+      url: `https://pub.dev/packages/${info.name}`,
+      version: latest?.version,
+      score: {
+        likes: score?.likeCount || 0,
+        pubPoints: score?.grantedPoints || 0,
+        popularity: Math.round((score?.popularityScore || 0) * 100)
+      },
+      tags: latest?.pubspec?.topics || [],
+      apiTags: extractApiTags(info),
+      maintenance: {
+        lastUpdated_pub: latest?.published?.split('T')[0] || ''
+      }
     }
+  } catch (error) {
+    console.error(`[HOME-DATA] getPackageDetails error (${packageName}):`, error.message)
+    return null
   }
+}
 
-  return selected
+// API 태그 추출 (플랫폼 정보)
+function extractApiTags(info) {
+  const tags = []
+  const platforms = info.latest?.pubspec?.platforms
+  if (platforms) {
+    Object.keys(platforms).forEach(p => tags.push(`platform:${p}`))
+  }
+  return tags
+}
+
+// 여러 패키지 상세 정보 병렬 로드
+async function loadPackagesDetails(packageNames, limit = 15) {
+  const names = packageNames.slice(0, limit)
+  const results = await Promise.all(names.map(name => getPackageDetails(name)))
+  return results.filter(p => p !== null)
 }
 
 // 인기 패키지 TOP N (likes 기준)
@@ -109,19 +87,19 @@ function getTopPackagesByLikes(packages, count = 10) {
       pub_url: pkg.url,
       description: pkg.description,
       likes: pkg.score?.likes || 0,
-      stars: pkg.githubInfo?.stars || 0,
       pubPoints: pkg.score?.pubPoints || 0,
+      popularity: pkg.score?.popularity || 0,
       platforms: extractPlatforms(pkg.apiTags),
       tags: pkg.tags || [],
-      isFlutterFavorite: pkg.apiTags?.includes('is:flutter-favorite') || false
+      lastUpdate: pkg.maintenance?.lastUpdated_pub || ''
     }))
 }
 
-// GitHub Stars 기준 TOP N
-function getTopPackagesByStars(packages, count = 10) {
+// 인기 패키지 TOP N (popularity 기준)
+function getTopPackagesByPopularity(packages, count = 10) {
   return packages
-    .filter(p => p.githubInfo?.stars)
-    .sort((a, b) => (b.githubInfo?.stars || 0) - (a.githubInfo?.stars || 0))
+    .filter(p => p.score?.popularity)
+    .sort((a, b) => (b.score?.popularity || 0) - (a.score?.popularity || 0))
     .slice(0, count)
     .map(pkg => ({
       id: pkg.packageName,
@@ -129,25 +107,23 @@ function getTopPackagesByStars(packages, count = 10) {
       pub_url: pkg.url,
       description: pkg.description,
       likes: pkg.score?.likes || 0,
-      stars: pkg.githubInfo?.stars || 0,
       pubPoints: pkg.score?.pubPoints || 0,
+      popularity: pkg.score?.popularity || 0,
       platforms: extractPlatforms(pkg.apiTags),
       tags: pkg.tags || [],
-      isFlutterFavorite: pkg.apiTags?.includes('is:flutter-favorite') || false
+      lastUpdate: pkg.maintenance?.lastUpdated_pub || ''
     }))
 }
 
-// 최근 업데이트된 패키지
+// 최근 업데이트 패키지
 function getRecentlyUpdated(packages, count = 6) {
   return packages
-    .filter(p => p.maintenance?.lastUpdated_pub || p.githubInfo?.lastCommit)
-    .map(pkg => {
-      const pubDate = pkg.maintenance?.lastUpdated_pub ? new Date(pkg.maintenance.lastUpdated_pub) : new Date(0)
-      const commitDate = pkg.githubInfo?.lastCommit ? new Date(pkg.githubInfo.lastCommit) : new Date(0)
-      const latestDate = new Date(Math.max(pubDate.getTime(), commitDate.getTime()))
-      return { ...pkg, _latestDate: latestDate }
+    .filter(p => p.maintenance?.lastUpdated_pub)
+    .sort((a, b) => {
+      const dateA = new Date(a.maintenance?.lastUpdated_pub || 0)
+      const dateB = new Date(b.maintenance?.lastUpdated_pub || 0)
+      return dateB - dateA
     })
-    .sort((a, b) => b._latestDate - a._latestDate)
     .slice(0, count)
     .map(pkg => ({
       id: pkg.packageName,
@@ -155,8 +131,8 @@ function getRecentlyUpdated(packages, count = 6) {
       pub_url: pkg.url,
       description: pkg.description,
       likes: pkg.score?.likes || 0,
-      stars: pkg.githubInfo?.stars || 0,
-      lastUpdate: pkg._latestDate.toISOString().split('T')[0],
+      popularity: pkg.score?.popularity || 0,
+      lastUpdate: pkg.maintenance?.lastUpdated_pub || '',
       platforms: extractPlatforms(pkg.apiTags),
       tags: pkg.tags || []
     }))
@@ -175,40 +151,14 @@ function extractPlatforms(apiTags) {
   return platforms
 }
 
-// 플랫폼별 패키지 수 집계
-function getPlatformStats(packages) {
-  const stats = {
-    android: 0,
-    ios: 0,
-    web: 0,
-    macos: 0,
-    windows: 0,
-    linux: 0
-  }
-
-  for (const pkg of packages) {
-    const tags = pkg.apiTags || []
-    if (tags.includes('platform:android')) stats.android++
-    if (tags.includes('platform:ios')) stats.ios++
-    if (tags.includes('platform:web')) stats.web++
-    if (tags.includes('platform:macos')) stats.macos++
-    if (tags.includes('platform:windows')) stats.windows++
-    if (tags.includes('platform:linux')) stats.linux++
-  }
-
-  return stats
-}
-
 // 태그 클라우드 생성
 function getTagCloud(packages, limit = 20) {
   const tagCount = {}
-
   for (const pkg of packages) {
     for (const tag of pkg.tags || []) {
       tagCount[tag] = (tagCount[tag] || 0) + 1
     }
   }
-
   return Object.entries(tagCount)
     .sort((a, b) => b[1] - a[1])
     .slice(0, limit)
@@ -218,20 +168,60 @@ function getTagCloud(packages, limit = 20) {
 // 통계 정보 계산
 function getStats(packages) {
   const totalLikes = packages.reduce((sum, p) => sum + (p.score?.likes || 0), 0)
-  const totalStars = packages.reduce((sum, p) => sum + (p.githubInfo?.stars || 0), 0)
-  const flutterFavorites = packages.filter(p => p.apiTags?.includes('is:flutter-favorite')).length
-  const avgPubPoints = Math.round(
-    packages.reduce((sum, p) => sum + (p.score?.pubPoints || 0), 0) / packages.length
-  )
+  const avgPubPoints = packages.length > 0
+    ? Math.round(packages.reduce((sum, p) => sum + (p.score?.pubPoints || 0), 0) / packages.length)
+    : 0
 
   return {
     totalPackages: packages.length,
     totalLikes,
-    totalStars,
-    flutterFavorites,
     avgPubPoints,
     platforms: getPlatformStats(packages)
   }
+}
+
+// 플랫폼별 패키지 수 집계
+function getPlatformStats(packages) {
+  const stats = { android: 0, ios: 0, web: 0, macos: 0, windows: 0, linux: 0 }
+  for (const pkg of packages) {
+    const tags = pkg.apiTags || []
+    if (tags.includes('platform:android')) stats.android++
+    if (tags.includes('platform:ios')) stats.ios++
+    if (tags.includes('platform:web')) stats.web++
+    if (tags.includes('platform:macos')) stats.macos++
+    if (tags.includes('platform:windows')) stats.windows++
+    if (tags.includes('platform:linux')) stats.linux++
+  }
+  return stats
+}
+
+// 이달의 위젯 (인기 + 최근 업데이트 조합)
+function getMonthlyWidgets(packages, count = 3) {
+  const now = new Date()
+  const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1)
+
+  const scored = packages.map(pkg => {
+    const likes = pkg.score?.likes || 0
+    const lastUpdate = pkg.maintenance?.lastUpdated_pub ? new Date(pkg.maintenance.lastUpdated_pub) : new Date(0)
+    const recencyBonus = lastUpdate > threeMonthsAgo ? 500 : 0
+    const score = likes + recencyBonus
+    return { ...pkg, _score: score }
+  })
+
+  return scored
+    .sort((a, b) => b._score - a._score)
+    .slice(0, count)
+    .map(pkg => ({
+      id: pkg.packageName,
+      name: pkg.packageName,
+      pub_url: pkg.url,
+      description: pkg.description,
+      likes: pkg.score?.likes || 0,
+      popularity: pkg.score?.popularity || 0,
+      lastUpdate: pkg.maintenance?.lastUpdated_pub || '',
+      tags: pkg.tags || [],
+      platforms: extractPlatforms(pkg.apiTags)
+    }))
 }
 
 // 빠른 카테고리 (intent 기반)
@@ -273,25 +263,35 @@ export async function handler(event) {
   }
 
   try {
-    console.log('[HOME-DATA] 홈페이지 데이터 요청')
+    console.log('[HOME-DATA] pub.dev 실시간 데이터 요청 시작')
 
-    const packages = await loadTopPackages()
+    // pub.dev에서 인기 패키지 검색 (likes 순)
+    const popularResults = await searchPopularPackages('like', 1)
+    const packageNames = popularResults.map(p => p.package)
+
+    console.log(`[HOME-DATA] 검색된 패키지: ${packageNames.length}개`)
+
+    // 상세 정보 로드 (상위 20개)
+    const packages = await loadPackagesDetails(packageNames, 20)
+
+    console.log(`[HOME-DATA] 상세 정보 로드 완료: ${packages.length}개`)
 
     if (packages.length === 0) {
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: '패키지 데이터를 로드할 수 없습니다' }),
+        body: JSON.stringify({ error: 'pub.dev에서 패키지 데이터를 가져올 수 없습니다' }),
       }
     }
 
     const response = {
       success: true,
       timestamp: new Date().toISOString(),
+      source: 'pub.dev-realtime',
       data: {
         monthlyWidgets: getMonthlyWidgets(packages, 3),
         topByLikes: getTopPackagesByLikes(packages, 10),
-        topByStars: getTopPackagesByStars(packages, 10),
+        topByPopularity: getTopPackagesByPopularity(packages, 10),
         recentlyUpdated: getRecentlyUpdated(packages, 6),
         stats: getStats(packages),
         tagCloud: getTagCloud(packages, 20),
@@ -299,7 +299,7 @@ export async function handler(event) {
       }
     }
 
-    console.log('[HOME-DATA] 데이터 전송 완료')
+    console.log('[HOME-DATA] 실시간 데이터 전송 완료')
 
     return {
       statusCode: 200,
@@ -314,13 +314,4 @@ export async function handler(event) {
       body: JSON.stringify({ error: error.message }),
     }
   }
-}
-
-
-// 로컬 테스트용
-if (import.meta.url === `file://${process.argv[1]}`) {
-  (async () => {
-    const result = await handler({ httpMethod: 'GET' })
-    console.log(JSON.parse(result.body))
-  })()
 }
