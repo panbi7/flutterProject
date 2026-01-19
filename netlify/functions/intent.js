@@ -94,13 +94,24 @@ export async function handler(event, context) {
         }
       }
 
-      // 입력 메시지 키워드 매칭도에 따른 정렬
+      // 관련성 + 품질 점수 기반 정렬
       const finalPackages = combined.sort((a, b) => {
+        // 1. 키워드 매칭 (최우선)
         const aMatch = lowerMsg.includes(a.id.toLowerCase()) || (a.name && lowerMsg.includes(a.name.toLowerCase()))
         const bMatch = lowerMsg.includes(b.id.toLowerCase()) || (b.name && lowerMsg.includes(b.name.toLowerCase()))
         if (aMatch && !bMatch) return -1
         if (!aMatch && bMatch) return 1
-        return 0
+
+        // 2. 로컬 큐레이션 데이터 우선 (검색 결과보다 먼저)
+        const aIsCurated = curatedIds.has(a.id)
+        const bIsCurated = curatedIds.has(b.id)
+        if (aIsCurated && !bIsCurated) return -1
+        if (!aIsCurated && bIsCurated) return 1
+
+        // 3. 품질 점수 (likes + stars * 0.5 + pubPoints * 0.1)
+        const aScore = (a.score?.likes || 0) + (a.githubInfo?.stars || 0) * 0.5 + (a.score?.pubPoints || 0) * 0.1
+        const bScore = (b.score?.likes || 0) + (b.githubInfo?.stars || 0) * 0.5 + (b.score?.pubPoints || 0) * 0.1
+        return bScore - aScore
       }).slice(0, 10) // 최대 10개만 반환
 
       // 데이터 보강 (Enrichment)
