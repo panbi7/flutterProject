@@ -1,10 +1,12 @@
 [build]
+  command = "npm install --prefix frontend && npm run build"
   functions = "netlify/functions"
+  publish = "frontend/dist"
 
 [dev]
   command = "npm run dev"
   port = 8888
-  targetPort = 3000 # Vite 개발 서버 포트와 충돌 방지
+  targetPort = 3000
 
 [[redirects]]
   from = "/api/*"
