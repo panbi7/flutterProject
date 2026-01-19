@@ -12,7 +12,7 @@ if (!_dirname) _dirname = process.cwd()
 
 export const PORT = process.env.PORT || 3000
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
-export const GEMINI_MODEL = 'gemini-pro'
+export const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
 
 export const ALLOWED_INTENTS = [
   'auth_basic',
