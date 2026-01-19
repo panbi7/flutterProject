@@ -1,57 +1,35 @@
 /**
- * 데이터 갱신 Scheduled Function
- * Netlify에서 1시간마다 자동 실행되어 pub.dev 데이터를 갱신
+ * 데이터 상태 확인 API
+ * top_packages.json의 현재 상태를 반환합니다.
  *
- * 사용법: netlify.toml에 스케줄 설정 추가
+ * 데이터 갱신은 크롤링 스크립트를 수동으로 실행하거나
+ * GitHub Actions로 자동화할 수 있습니다.
  */
 
-import { getPackageInfo, getPackageScore } from './utils/pubdevApi.js'
-import { getStore } from '@netlify/blobs'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-// 갱신할 인기 패키지 목록 (핵심 패키지만)
-const CORE_PACKAGES = [
-  'http', 'dio', 'provider', 'riverpod', 'bloc', 'get',
-  'firebase_core', 'firebase_auth', 'cloud_firestore',
-  'google_maps_flutter', 'flutter_map', 'geolocator',
-  'shared_preferences', 'hive', 'sqflite', 'drift',
-  'image_picker', 'camera', 'video_player', 'audioplayers',
-  'flutter_local_notifications', 'permission_handler',
-  'url_launcher', 'share_plus', 'path_provider',
-  'cached_network_image', 'flutter_svg', 'lottie',
-  'go_router', 'auto_route', 'animations',
-  'intl', 'freezed', 'json_serializable',
-  'google_sign_in', 'sign_in_with_apple', 'flutter_facebook_auth',
-  'supabase_flutter', 'appwrite'
-]
+const _dirname = (() => {
+  try { return path.dirname(fileURLToPath(import.meta.url)) }
+  catch (e) { return typeof __dirname !== 'undefined' ? __dirname : process.cwd() }
+})()
 
-async function fetchPackageData(packageName) {
-  try {
-    const [info, score] = await Promise.all([
-      getPackageInfo(packageName),
-      getPackageScore(packageName)
-    ])
+async function loadTopPackages() {
+  const possiblePaths = [
+    path.join(_dirname, 'data', 'top_packages.json'),
+    path.join(process.cwd(), 'netlify/functions/data/top_packages.json'),
+  ]
 
-    if (!info) return null
-
-    return {
-      packageName: packageName,
-      description: info.description,
-      url: `https://pub.dev/packages/${packageName}`,
-      version: info.version,
-      score: {
-        likes: score?.likeCount || 0,
-        pubPoints: score?.grantedPoints || 0,
-        maxPoints: score?.maxPoints || 0,
-        popularityScore: score?.popularityScore || 0
-      },
-      homepage: info.homepage,
-      repository: info.repository,
-      lastFetched: new Date().toISOString()
+  for (const p of possiblePaths) {
+    try {
+      const data = await fs.readFile(p, 'utf-8')
+      return JSON.parse(data)
+    } catch (e) {
+      continue
     }
-  } catch (error) {
-    console.error(`[REFRESH] ${packageName} 데이터 가져오기 실패:`, error.message)
-    return null
   }
+  return []
 }
 
 export async function handler(event) {
@@ -60,65 +38,41 @@ export async function handler(event) {
     'Content-Type': 'application/json',
   }
 
-  // 수동 트리거 또는 스케줄 트리거 모두 처리
-  console.log('[REFRESH] 데이터 갱신 시작...')
-
   try {
-    // Netlify Blobs 스토어 가져오기
-    const store = getStore('package-cache')
+    const packages = await loadTopPackages()
 
-    // 병렬로 패키지 데이터 가져오기 (5개씩 배치)
-    const results = []
-    const batchSize = 5
+    // 간단한 통계
+    const totalLikes = packages.reduce((sum, p) => sum + (p.score?.likes || 0), 0)
+    const totalStars = packages.reduce((sum, p) => sum + (p.githubInfo?.stars || 0), 0)
 
-    for (let i = 0; i < CORE_PACKAGES.length; i += batchSize) {
-      const batch = CORE_PACKAGES.slice(i, i + batchSize)
-      const batchResults = await Promise.all(
-        batch.map(pkg => fetchPackageData(pkg))
-      )
-      results.push(...batchResults.filter(r => r !== null))
-
-      // Rate limiting: 배치 사이에 잠시 대기
-      if (i + batchSize < CORE_PACKAGES.length) {
-        await new Promise(resolve => setTimeout(resolve, 500))
-      }
-    }
-
-    // 결과를 Blobs에 저장
-    const cacheData = {
-      packages: results,
-      lastUpdated: new Date().toISOString(),
-      count: results.length
-    }
-
-    await store.setJSON('live-packages', cacheData)
-
-    console.log(`[REFRESH] ${results.length}개 패키지 데이터 갱신 완료`)
+    // 가장 최근 업데이트된 패키지 찾기
+    const dates = packages
+      .map(p => p.maintenance?.lastUpdated_pub || p.githubInfo?.lastCommit)
+      .filter(Boolean)
+      .sort()
+      .reverse()
 
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
         success: true,
-        message: `${results.length}개 패키지 데이터 갱신 완료`,
-        lastUpdated: cacheData.lastUpdated
+        status: 'static-data',
+        stats: {
+          totalPackages: packages.length,
+          totalLikes,
+          totalStars,
+          latestUpdate: dates[0] || 'unknown'
+        },
+        message: '데이터는 크롤링 스크립트로 갱신됩니다. (test-scrape.js)',
+        tip: '자동 갱신을 원하면 GitHub Actions 설정을 추가하세요.'
       })
     }
   } catch (error) {
-    console.error('[REFRESH] 오류:', error)
-
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({
-        success: false,
-        error: error.message
-      })
+      body: JSON.stringify({ success: false, error: error.message })
     }
   }
-}
-
-// Netlify Scheduled Function 설정
-export const config = {
-  schedule: '@hourly' // 매시간 실행
 }

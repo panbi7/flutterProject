@@ -1,48 +1,26 @@
 /**
- * 홈페이지 데이터 API (하이브리드 방식)
+ * 홈페이지 데이터 API
  * - 이달의 위젯 (동적)
  * - 인기 패키지 TOP 10
  * - 최근 업데이트 패키지
  * - 통계 정보
  * - 태그/카테고리 정보
  *
- * 데이터 소스:
- * 1. Netlify Blobs (실시간 캐시) - 1시간마다 갱신
- * 2. 정적 JSON 파일 (폴백)
+ * 데이터: 정적 JSON 파일 (top_packages.json)
+ * 크롤링된 데이터를 사용하며, 주기적으로 갱신 가능
  */
 
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { getStore } from '@netlify/blobs'
 
 const _dirname = (() => {
   try { return path.dirname(fileURLToPath(import.meta.url)) }
   catch (e) { return typeof __dirname !== 'undefined' ? __dirname : process.cwd() }
 })()
 
-// Netlify Blobs에서 실시간 캐시 데이터 로드
-async function loadLiveCache() {
-  try {
-    const store = getStore('package-cache')
-    const cached = await store.get('live-packages', { type: 'json' })
-
-    if (cached && cached.packages && cached.packages.length > 0) {
-      console.log(`[HOME-DATA] 실시간 캐시 사용 (${cached.count}개, 갱신: ${cached.lastUpdated})`)
-      return {
-        packages: cached.packages,
-        source: 'live-cache',
-        lastUpdated: cached.lastUpdated
-      }
-    }
-  } catch (error) {
-    console.warn('[HOME-DATA] Blobs 캐시 로드 실패:', error.message)
-  }
-  return null
-}
-
-// 정적 top_packages.json 로드
-async function loadStaticPackages() {
+// top_packages.json 로드
+async function loadTopPackages() {
   const possiblePaths = [
     path.join(_dirname, 'data', 'top_packages.json'),
     path.join(process.cwd(), 'netlify/functions/data/top_packages.json'),
@@ -53,59 +31,15 @@ async function loadStaticPackages() {
     try {
       const data = await fs.readFile(p, 'utf-8')
       const packages = JSON.parse(data)
-      console.log(`[HOME-DATA] 정적 파일 로드: ${packages.length}개`)
-      return {
-        packages,
-        source: 'static-file',
-        lastUpdated: null
-      }
+      console.log(`[HOME-DATA] 패키지 로드: ${packages.length}개`)
+      return packages
     } catch (e) {
       continue
     }
   }
 
   console.warn('[HOME-DATA] top_packages.json을 찾을 수 없습니다')
-  return { packages: [], source: 'none', lastUpdated: null }
-}
-
-// 패키지 데이터 로드 (하이브리드)
-async function loadTopPackages() {
-  // 1차: 실시간 캐시 시도
-  const liveData = await loadLiveCache()
-  if (liveData) {
-    // 실시간 캐시 + 정적 파일 병합 (실시간은 likes/점수 최신화용)
-    const staticData = await loadStaticPackages()
-
-    if (staticData.packages.length > 0) {
-      // 실시간 데이터로 정적 데이터의 점수 업데이트
-      const liveMap = new Map(liveData.packages.map(p => [p.packageName, p]))
-
-      const merged = staticData.packages.map(pkg => {
-        const live = liveMap.get(pkg.packageName)
-        if (live) {
-          return {
-            ...pkg,
-            score: {
-              ...pkg.score,
-              likes: live.score?.likes || pkg.score?.likes,
-              pubPoints: live.score?.pubPoints || pkg.score?.pubPoints,
-              popularityScore: live.score?.popularityScore || pkg.score?.popularityScore
-            },
-            _liveUpdated: true
-          }
-        }
-        return pkg
-      })
-
-      return merged
-    }
-
-    return liveData.packages
-  }
-
-  // 2차: 정적 파일 사용
-  const staticData = await loadStaticPackages()
-  return staticData.packages
+  return []
 }
 
 // 이달의 위젯 선택 (likes + 최근 업데이트 기준)
