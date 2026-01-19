@@ -20,14 +20,23 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
   const loadHomeData = async () => {
     setLoading(true)
     setError(null)
+    console.log('[HomePage] 홈 데이터 로드 시작')
     try {
       const data = await getHomeData()
+      console.log('[HomePage] 받은 데이터:', data)
       if (data) {
         setHomeData(data)
+        console.log('[HomePage] 데이터 설정 완료')
       } else {
-        setError('데이터를 불러올 수 없습니다')
+        const errorMsg = '데이터를 불러올 수 없습니다'
+        console.error('[HomePage]', errorMsg)
+        setError(errorMsg)
       }
     } catch (e) {
+      console.error('[HomePage] 예외 발생:', {
+        message: e.message,
+        stack: e.stack
+      })
       setError(e.message)
     } finally {
       setLoading(false)
@@ -35,16 +44,26 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
   }
 
   const handleShowGuide = async (packageId) => {
+    console.log('[HomePage] 가이드 요청:', packageId)
     setLoadingGuide(packageId)
     try {
       const resp = await getGuide(packageId)
+      console.log('[HomePage] 가이드 응답:', resp)
       if (resp.success) {
         setSelectedGuide(resp.guide)
       } else {
-        alert(`가이드를 불러올 수 없습니다: ${resp.error || '알 수 없는 오류'}`)
+        const errorMsg = `가이드를 불러올 수 없습니다: ${resp.error || '알 수 없는 오류'}`
+        console.error('[HomePage]', errorMsg, resp)
+        alert(errorMsg)
       }
     } catch (error) {
-      alert(`가이드 로드 중 오류: ${error.message}`)
+      const errorMsg = `가이드 로드 중 오류: ${error.message}`
+      console.error('[HomePage]', errorMsg, {
+        packageId,
+        error: error.message,
+        stack: error.stack
+      })
+      alert(errorMsg)
     } finally {
       setLoadingGuide(null)
     }
