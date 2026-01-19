@@ -35,6 +35,12 @@
   status = 200
 
 [[redirects]]
+  # 데이터 갱신 API (수동 트리거용)
+  from = "/api/refresh-data"
+  to = "/.netlify/functions/refresh-data"
+  status = 200
+
+[[redirects]]
   # SPA를 위한 리다이렉트 (모든 요청을 index.html로)
   from = "/*"
   to = "/index.html"
