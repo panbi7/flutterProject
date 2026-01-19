@@ -7,7 +7,7 @@ let model = null
 function initializeGemini() {
   if (!genAI && GEMINI_API_KEY) {
     genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
-    model = genAI.getGenerativeModel({ model: GEMINI_MODEL }, { apiVersion: 'v1' })
+    model = genAI.getGenerativeModel({ model: GEMINI_MODEL })
   }
 }
 
