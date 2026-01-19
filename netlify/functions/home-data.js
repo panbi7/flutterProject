@@ -315,3 +315,12 @@ export async function handler(event) {
     }
   }
 }
+
+
+// 로컬 테스트용
+if (import.meta.url === `file://${process.argv[1]}`) {
+  (async () => {
+    const result = await handler({ httpMethod: 'GET' })
+    console.log(JSON.parse(result.body))
+  })()
+}
