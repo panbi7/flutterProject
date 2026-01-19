@@ -8,14 +8,28 @@
  * - description, version, published 등
  */
 
-// pub.dev API에서 인기 패키지 검색
-async function searchPopularPackages(sort = 'like', page = 1) {
+// pub.dev API에서 인기 패키지 검색 (여러 페이지)
+async function searchPopularPackages(sort = 'like', pages = 3) {
   try {
-    const url = `https://pub.dev/api/search?q=flutter&sort=${sort}&page=${page}`
-    const response = await fetch(url)
-    if (!response.ok) throw new Error(`pub.dev search API error: ${response.status}`)
-    const data = await response.json()
-    return data.packages || []
+    const allPackages = []
+
+    // 여러 페이지 병렬 요청
+    const pagePromises = []
+    for (let page = 1; page <= pages; page++) {
+      const url = `https://pub.dev/api/search?q=flutter&sort=${sort}&page=${page}`
+      pagePromises.push(fetch(url).then(res => res.ok ? res.json() : null))
+    }
+
+    const results = await Promise.all(pagePromises)
+
+    for (const data of results) {
+      if (data?.packages) {
+        allPackages.push(...data.packages)
+      }
+    }
+
+    console.log(`[HOME-DATA] 총 ${allPackages.length}개 패키지 검색됨 (${pages} 페이지)`)
+    return allPackages
   } catch (error) {
     console.error('[HOME-DATA] searchPopularPackages error:', error.message)
     return []
