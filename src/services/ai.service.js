@@ -1,11 +1,16 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import 'dotenv/config';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+if (!GEMINI_API_KEY) {
+  console.error('GEMINI_API_KEY is not set in environment variables.');
+}
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 function createPrompt(packageInfo, exampleCode) {
   const { name, version, description } = packageInfo.latest;
   const exampleSnippet = exampleCode ? `공식 예제 코드:\n\
+\
 \
 ```dart\
 ${exampleCode}\
@@ -51,19 +56,37 @@ JSON Schema:
 
 async function generate(prompt) {
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-  const result = await model.generateContent(prompt);
+  let result;
+  try {
+    result = await model.generateContent(prompt);
+  } catch (error) {
+    console.error('[aiService] Error generating content from Gemini:', error);
+    throw new Error(`AI content generation failed: ${error.message}`);
+  }
+  
   const response = await result.response;
   const text = response.text();
-  
+  console.log('[aiService] Raw AI response text:', text); // Log raw response
+
   // AI 응답에서 JSON 부분만 추출
   const jsonMatch = text.match(/```json\n([\s\S]*?)\n```|({[\s\S]*})/);
-  if (!jsonMatch) throw new Error('AI did not return valid JSON.');
+  if (!jsonMatch) {
+    console.error('[aiService] No valid JSON block found in AI response.');
+    throw new Error('AI did not return valid JSON.');
+  }
   
   const jsonString = (jsonMatch[1] || jsonMatch[2]).trim();
-  return JSON.parse(jsonString);
+  try {
+    return JSON.parse(jsonString);
+  } catch (parseError) {
+    console.error('[aiService] JSON parsing failed:', parseError);
+    console.error('[aiService] Malformed JSON string:', jsonString);
+    throw new Error(`Failed to parse AI response as JSON: ${parseError.message}`);
+  }
 }
 
 export const aiService = {
   createPrompt,
   generate,
 };
+
