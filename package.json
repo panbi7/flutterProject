@@ -8,6 +8,11 @@
     "collect-index": "node backend/scripts/collect-package-index.js",
     "warmup-cache": "node backend/scripts/warmup-cache.js",
     "update-index": "node scripts/update-package-index.js",
+    "collect": "node scripts/collect-all-packages.js",
+    "collect:resume": "node scripts/collect-all-packages.js --resume",
+    "collect:details": "node scripts/collect-all-packages.js --details-only",
+    "generate": "node scripts/generate-static-data.js",
+    "update-data": "npm run collect && npm run generate",
     "dev": "netlify dev",
     "build": "npm run build --prefix frontend"
   },

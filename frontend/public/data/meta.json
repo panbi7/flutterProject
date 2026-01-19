@@ -1,0 +1,210 @@
+{
+  "lastUpdated": "2026-01-19T13:31:27.558Z",
+  "totalPackages": 2220,
+  "stats": {
+    "totalPackages": 2220,
+    "totalLikes": 750269,
+    "avgPubPoints": 151,
+    "flutterFavorites": 51,
+    "platformCounts": {
+      "android": 2127,
+      "ios": 2073,
+      "windows": 1511,
+      "linux": 1468,
+      "macos": 1617,
+      "web": 1394
+    },
+    "tagCloud": [
+      {
+        "tag": "has:topic",
+        "count": 453
+      },
+      {
+        "tag": "has:screenshot",
+        "count": 243
+      },
+      {
+        "tag": "runtime:native-jit",
+        "count": 178
+      },
+      {
+        "tag": "runtime:native-aot",
+        "count": 176
+      },
+      {
+        "tag": "runtime:web",
+        "count": 123
+      },
+      {
+        "tag": "has:funding-link",
+        "count": 121
+      },
+      {
+        "tag": "has:executable",
+        "count": 75
+      },
+      {
+        "tag": "topic:flutter",
+        "count": 40
+      },
+      {
+        "tag": "publisher:flutter.dev",
+        "count": 35
+      },
+      {
+        "tag": "topic:widget",
+        "count": 28
+      },
+      {
+        "tag": "topic:ui",
+        "count": 26
+      },
+      {
+        "tag": "publisher:fluttercommunity.dev",
+        "count": 21
+      },
+      {
+        "tag": "topic:widgets",
+        "count": 20
+      },
+      {
+        "tag": "publisher:syncfusion.com",
+        "count": 19
+      },
+      {
+        "tag": "topic:animation",
+        "count": 17
+      },
+      {
+        "tag": "topic:firebase",
+        "count": 16
+      },
+      {
+        "tag": "topic:video",
+        "count": 16
+      },
+      {
+        "tag": "publisher:flutter-ml.dev",
+        "count": 16
+      },
+      {
+        "tag": "topic:state-management",
+        "count": 15
+      },
+      {
+        "tag": "publisher:firebase.google.com",
+        "count": 15
+      },
+      {
+        "tag": "publisher:fluttercandies.com",
+        "count": 15
+      },
+      {
+        "tag": "has:multiple-licenses",
+        "count": 13
+      },
+      {
+        "tag": "topic:image",
+        "count": 13
+      },
+      {
+        "tag": "topic:audio",
+        "count": 13
+      },
+      {
+        "tag": "has:implements-federated-plugin",
+        "count": 13
+      },
+      {
+        "tag": "topic:html",
+        "count": 12
+      },
+      {
+        "tag": "publisher:leanflutter.dev",
+        "count": 12
+      },
+      {
+        "tag": "publisher:baseflow.com",
+        "count": 11
+      },
+      {
+        "tag": "topic:layout",
+        "count": 11
+      },
+      {
+        "tag": "topic:database",
+        "count": 10
+      }
+    ]
+  },
+  "quickCategories": [
+    {
+      "id": "auth",
+      "label": "인증",
+      "icon": "🔐",
+      "color": "#4CAF50",
+      "keywords": [
+        "auth",
+        "login",
+        "firebase_auth"
+      ]
+    },
+    {
+      "id": "ui",
+      "label": "UI/UX",
+      "icon": "🎨",
+      "color": "#9C27B0",
+      "keywords": [
+        "animation",
+        "widget",
+        "design"
+      ]
+    },
+    {
+      "id": "network",
+      "label": "네트워크",
+      "icon": "🌐",
+      "color": "#2196F3",
+      "keywords": [
+        "http",
+        "dio",
+        "api",
+        "network"
+      ]
+    },
+    {
+      "id": "storage",
+      "label": "저장소",
+      "icon": "💾",
+      "color": "#FF9800",
+      "keywords": [
+        "storage",
+        "database",
+        "cache"
+      ]
+    },
+    {
+      "id": "media",
+      "label": "미디어",
+      "icon": "📷",
+      "color": "#E91E63",
+      "keywords": [
+        "camera",
+        "video",
+        "audio",
+        "image"
+      ]
+    },
+    {
+      "id": "device",
+      "label": "디바이스",
+      "icon": "📱",
+      "color": "#00BCD4",
+      "keywords": [
+        "device",
+        "sensor",
+        "platform"
+      ]
+    }
+  ]
+}

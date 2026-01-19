@@ -49,21 +49,22 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
     try {
       const resp = await getGuide(packageId)
       console.log('[HomePage] 가이드 응답:', resp)
-      if (resp.success) {
+
+      if (resp.success && resp.guide) {
         setSelectedGuide(resp.guide)
       } else {
-        const errorMsg = `가이드를 불러올 수 없습니다: ${resp.error || '알 수 없는 오류'}`
-        console.error('[HomePage]', errorMsg, resp)
-        alert(errorMsg)
+        // 구체적인 에러 메시지 표시
+        const errorMsg = resp.error || '가이드 생성에 실패했습니다.'
+        console.error('[HomePage] 가이드 실패:', { packageId, error: errorMsg, response: resp })
+        alert(`가이드 오류: ${errorMsg}`)
       }
     } catch (error) {
-      const errorMsg = `가이드 로드 중 오류: ${error.message}`
-      console.error('[HomePage]', errorMsg, {
+      console.error('[HomePage] 가이드 로드 중 예외:', {
         packageId,
         error: error.message,
         stack: error.stack
       })
-      alert(errorMsg)
+      alert(`네트워크 오류: ${error.message}`)
     } finally {
       setLoadingGuide(null)
     }
@@ -73,7 +74,7 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
     return (
       <div className="home-loading">
         <div className="loading-spinner"></div>
-        <p>pub.dev에서 데이터 불러오는 중...</p>
+        <p>패키지 데이터 로딩 중...</p>
       </div>
     )
   }
@@ -89,7 +90,7 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
 
   if (!homeData) return null
 
-  const { monthlyWidgets, topByLikes, topByPopularity, recentlyUpdated, stats, tagCloud, quickCategories } = homeData
+  const { monthlyWidgets, topByLikes, topByPopularity, recentlyUpdated, stats, tagCloud, quickCategories, lastUpdated } = homeData
 
   // 플랫폼 필터링
   const filterByPlatform = (packages) => {
@@ -104,7 +105,7 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
       {/* 통계 대시보드 */}
       <section className="stats-dashboard">
         <div className="stat-card">
-          <div className="stat-value">{stats.totalPackages}</div>
+          <div className="stat-value">{stats.totalPackages?.toLocaleString()}</div>
           <div className="stat-label">총 패키지</div>
         </div>
         <div className="stat-card">
@@ -115,7 +116,16 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
           <div className="stat-value">{stats.avgPubPoints}</div>
           <div className="stat-label">평균 Pub Points</div>
         </div>
+        <div className="stat-card">
+          <div className="stat-value">{stats.flutterFavorites || 0}</div>
+          <div className="stat-label">Flutter Favorites</div>
+        </div>
       </section>
+      {lastUpdated && (
+        <div className="data-updated">
+          데이터 업데이트: {new Date(lastUpdated).toLocaleDateString('ko-KR')}
+        </div>
+      )}
 
       {/* 빠른 기능 찾기 */}
       <section className="quick-categories">
