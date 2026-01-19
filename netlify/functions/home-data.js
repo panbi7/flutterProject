@@ -1,42 +1,106 @@
-import fs from 'fs/promises';
-import path from 'path';
+import fetch from 'node-fetch';
 
-// data/top_packages.json 파일의 전체 경로를 올바르게 설정합니다.
-const TOP_PACKAGES_PATH = path.resolve(process.cwd(), 'netlify/functions/data/top_packages.json');
+const PUB_DEV_API = 'https://pub.dev/api';
+
+/**
+ * pub.dev에서 패키지 검색 (페이지네이션 지원)
+ */
+async function searchPackages(query = '', page = 1, pageSize = 100) {
+  try {
+    const url = `${PUB_DEV_API}/search?q=${encodeURIComponent(query)}&page=${page}&size=${pageSize}`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`pub.dev API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.packages || [];
+  } catch (error) {
+    console.error('Failed to search packages:', error);
+    return [];
+  }
+}
+
+/**
+ * 패키지 상세 정보 가져오기
+ */
+async function getPackageInfo(packageName) {
+  try {
+    const url = `${PUB_DEV_API}/packages/${packageName}`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Failed to get package info for ${packageName}:`, error);
+    return null;
+  }
+}
+
+/**
+ * 패키지 점수 정보 가져오기
+ */
+async function getPackageScore(packageName) {
+  try {
+    const url = `${PUB_DEV_API}/packages/${packageName}/score`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Failed to get package score for ${packageName}:`, error);
+    return null;
+  }
+}
 
 export async function handler(event) {
   try {
-    const data = await fs.readFile(TOP_PACKAGES_PATH, 'utf-8');
-    const packages = JSON.parse(data);
+    console.log('[home-data] 홈 데이터 생성 시작');
+
+    // pub.dev에서 인기 패키지 검색 (여러 페이지)
+    const allPackages = [];
+    const pagesToFetch = 3; // 300개 패키지 (100개 * 3페이지)
+
+    for (let page = 1; page <= pagesToFetch; page++) {
+      console.log(`[home-data] 페이지 ${page} 로딩 중...`);
+      const packages = await searchPackages('', page, 100);
+      allPackages.push(...packages);
+    }
+
+    console.log(`[home-data] 총 ${allPackages.length}개 패키지 로드 완료`);
 
     // 패키지 데이터 가공
-    const processedPackages = packages.map(pkg => ({
-      id: pkg.packageName,
-      name: pkg.packageName,
-      description: pkg.description,
-      likes: pkg.score?.likes || 0,
-      popularity: pkg.score?.popularityScore || 0,
-      pubPoints: pkg.score?.pubPoints || 0,
-      pub_url: pkg.url,
-      platforms: pkg.apiTags?.filter(tag => tag.startsWith('platform:')).map(tag => tag.replace('platform:', '')) || [],
-      lastUpdate: pkg.maintenance?.lastUpdated_pub || 'N/A'
+    const processedPackages = allPackages.map(pkg => ({
+      id: pkg.package,
+      name: pkg.package,
+      description: pkg.description || 'No description',
+      likes: pkg.likeCount || 0,
+      popularity: Math.round((pkg.grantedPoints || 0) / 1.6), // pub.dev의 점수를 0-100으로 변환
+      pubPoints: pkg.grantedPoints || 0,
+      pub_url: `https://pub.dev/packages/${pkg.package}`,
+      platforms: pkg.tags?.filter(tag => tag.startsWith('platform:')).map(tag => tag.replace('platform:', '')) || [],
+      lastUpdate: 'N/A' // search API에는 업데이트 날짜가 없음
     }));
 
     // Likes 기준 TOP 10
-    const topByLikes = processedPackages
+    const topByLikes = [...processedPackages]
       .sort((a, b) => b.likes - a.likes)
       .slice(0, 10);
 
     // Popularity 기준 TOP 10
-    const topByPopularity = processedPackages
+    const topByPopularity = [...processedPackages]
       .sort((a, b) => b.popularity - a.popularity)
       .slice(0, 10);
 
-    // 최근 업데이트 TOP 10
-    const recentlyUpdated = processedPackages
-      .filter(pkg => pkg.lastUpdate !== 'N/A')
-      .sort((a, b) => new Date(b.lastUpdate) - new Date(a.lastUpdate))
-      .slice(0, 10);
+    // 최근 업데이트는 search API에서 제공하지 않으므로 인기 패키지로 대체
+    const recentlyUpdated = [...processedPackages].slice(0, 10);
 
     // 통계 계산
     const totalLikes = processedPackages.reduce((sum, pkg) => sum + pkg.likes, 0);
@@ -54,9 +118,11 @@ export async function handler(event) {
 
     // 태그 클라우드 (상위 20개)
     const tagCount = {};
-    packages.forEach(pkg => {
+    allPackages.forEach(pkg => {
       pkg.tags?.forEach(tag => {
-        tagCount[tag] = (tagCount[tag] || 0) + 1;
+        if (!tag.startsWith('platform:') && !tag.startsWith('sdk:') && !tag.startsWith('is:')) {
+          tagCount[tag] = (tagCount[tag] || 0) + 1;
+        }
       });
     });
     const tagCloud = Object.entries(tagCount)
@@ -90,16 +156,22 @@ export async function handler(event) {
       quickCategories
     };
 
+    console.log('[home-data] 응답 데이터 생성 완료');
+
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=3600' // 1시간 캐싱
+      },
       body: JSON.stringify(responseData),
     };
   } catch (error) {
-    console.error('Failed to read top_packages.json:', error);
+    console.error('[home-data] Failed to load home data:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to load home data.' }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Failed to load home data from pub.dev' }),
     };
   }
 }
