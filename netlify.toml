@@ -41,7 +41,7 @@
   status = 200
 
 [[redirects]]
-  # SPA를 위한 리다이렉트 (모든 요청을 index.html로)
+  # SPA를 위한 리다이렉트 (모든 요청을 index.html로)~
   from = "/*"
   to = "/index.html"
   status = 200
