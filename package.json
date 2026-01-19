@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "update-index": "node scripts/update-package-index.js",
-    "dev": "netlify dev"
+    "dev": "netlify dev",
+    "build": "npm run build --prefix frontend"
   },
   "dependencies": {
     "@google/generative-ai": "^0.15.0",
