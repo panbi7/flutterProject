@@ -53,19 +53,7 @@ export async function handler(event, context) {
       errorFromGeneration = e.message;
     }
 
-    // 2단계: 실패 시 캐시된 가이드 확인 (Fallback)
-    if (!guide) {
-      console.log(`[Guide API] 실시간 생성 실패, 캐시 확인: ${packageId}`);
-      const cachedGuide = loadGuide(packageId);
-
-      if (cachedGuide) {
-        guide = {
-          ...cachedGuide,
-          source: 'cache_fallback', // 캐시에서 왔음을 표시
-          generationError: errorFromGeneration // 에러 원인 포함 (디버깅용)
-        };
-      }
-    }
+    
 
     // 3단계: 여전히 없으면 에러 반환
     if (!guide) {
