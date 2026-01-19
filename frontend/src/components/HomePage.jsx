@@ -53,10 +53,19 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
       if (resp.success && resp.guide) {
         setSelectedGuide(resp.guide)
       } else {
-        // 구체적인 에러 메시지 표시
-        const errorMsg = resp.error || '가이드 생성에 실패했습니다.'
-        console.error('[HomePage] 가이드 실패:', { packageId, error: errorMsg, response: resp })
-        alert(`가이드 오류: ${errorMsg}`)
+        // 상세 오류 메시지 조합
+        let errorDetail = resp.error || '가이드 생성에 실패했습니다.'
+        if (resp.serverMessage) {
+          errorDetail += `\n\n[서버 응답]\n${resp.serverMessage}`
+        }
+        if (resp.errorType) {
+          errorDetail += `\n\n[오류 타입] ${resp.errorType}`
+        }
+        if (resp.trace) {
+          errorDetail += `\n\n[스택 트레이스]\n${resp.trace.join('\n')}`
+        }
+        console.error('[HomePage] 가이드 실패:', { packageId, error: errorDetail, response: resp })
+        alert(`가이드 오류:\n\n${errorDetail}`)
       }
     } catch (error) {
       console.error('[HomePage] 가이드 로드 중 예외:', {

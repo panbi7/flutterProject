@@ -15,7 +15,18 @@ export default function PackageCards({ packages }) {
         setSelectedGuide(resp.guide)
       } else {
         console.error('[Guide API Error]', resp)
-        alert(`가이드를 불러올 수 없습니다: ${resp.error || '알 수 없는 오류'}`)
+        // 상세 오류 메시지 조합
+        let errorDetail = resp.error || '알 수 없는 오류'
+        if (resp.serverMessage) {
+          errorDetail += `\n\n[서버 응답]\n${resp.serverMessage}`
+        }
+        if (resp.errorType) {
+          errorDetail += `\n\n[오류 타입] ${resp.errorType}`
+        }
+        if (resp.trace) {
+          errorDetail += `\n\n[스택 트레이스]\n${resp.trace.join('\n')}`
+        }
+        alert(`가이드를 불러올 수 없습니다:\n\n${errorDetail}`)
       }
     } catch (error) {
       console.error('Guide loading process error:', error)

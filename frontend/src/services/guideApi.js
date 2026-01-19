@@ -10,20 +10,38 @@ export async function getGuide(packageId) {
     const response = await fetch(apiUrl);
     console.log('[GuideAPI] 응답 상태:', response.status, response.statusText);
 
-    // If API returned a JSON, return it regardless of ok status
+    // 응답 텍스트를 먼저 읽기
+    const responseText = await response.text();
+    console.log('[GuideAPI] 응답 원문:', responseText.substring(0, 500));
+
+    // JSON 파싱 시도
+    let data;
     try {
-      const data = await response.json();
+      data = JSON.parse(responseText);
       console.log('[GuideAPI] 응답 데이터:', data);
-      return data;
-    } catch (e) {
-      console.error('[GuideAPI] JSON 파싱 실패:', e);
-      if (!response.ok) {
-        const errorMsg = `HTTP error! status: ${response.status} ${response.statusText}`;
-        console.error('[GuideAPI]', errorMsg);
-        throw new Error(errorMsg);
-      }
-      throw new Error('API 응답을 해석할 수 없습니다.');
+    } catch (parseError) {
+      console.error('[GuideAPI] JSON 파싱 실패:', parseError);
+
+      // 502 등 서버 오류일 때 원문 메시지 반환
+      const errorDetail = responseText || `HTTP ${response.status}: ${response.statusText}`;
+      return {
+        success: false,
+        error: `서버 오류 (${response.status})`,
+        serverMessage: errorDetail
+      };
     }
+
+    // Netlify Functions 오류 형식 처리
+    if (data.errorType || data.errorMessage) {
+      return {
+        success: false,
+        error: data.errorMessage || data.errorType,
+        errorType: data.errorType,
+        trace: data.trace
+      };
+    }
+
+    return data;
   } catch (error) {
     console.error('[GuideAPI] 가이드 로드 실패:', {
       packageId,
