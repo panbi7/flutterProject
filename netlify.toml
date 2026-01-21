@@ -1,5 +1,5 @@
 [build]
-  command = "npm install --prefix frontend && npm run build && cp -r data frontend/dist/"
+  command = "node scripts/bundle-examples.js && npm install --prefix frontend && npm run build && cp -r data frontend/dist/ && cp -r netlify/functions/data/examples frontend/dist/guides"
   functions = "netlify/functions"
   publish = "frontend/dist"
 
