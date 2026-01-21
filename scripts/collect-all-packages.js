@@ -13,6 +13,7 @@
  *   node scripts/collect-all-packages.js
  *   node scripts/collect-all-packages.js --resume  # 이전 진행 상황에서 재개
  *   node scripts/collect-all-packages.js --details-only  # 상세 정보만 수집 (이름 목록 있을 때)
+ *   node scripts/collect-all-packages.js --examples-only  # example 코드만 수집 (상위 500개)
  */
 
 import fs from 'fs';
@@ -29,6 +30,7 @@ const CONFIG = {
     PUBDEV_SEARCH_URL: 'https://pub.dev/api/search',
     PUBDEV_PACKAGE_URL: (name) => `https://pub.dev/api/packages/${name}`,
     PUBDEV_SCORE_URL: (name) => `https://pub.dev/api/packages/${name}/score`,
+    PUBDEV_EXAMPLE_URL: (name) => `https://pub.dev/packages/${name}/example`,
     USER_AGENT: 'FlutterStarterKit/1.0 (https://github.com/example)',
 
     // Rate Limit 설정
@@ -37,6 +39,9 @@ const CONFIG = {
     BATCH_SIZE: 50,                   // 한 배치당 패키지 수
     MAX_RETRIES: 3,                   // 최대 재시도 횟수
     RETRY_DELAY: 5000,                // 재시도 전 대기 (ms)
+
+    // Example 코드 수집 설정
+    COLLECT_EXAMPLES_FOR_TOP: 99999,  // 전체 패키지 example 수집
 
     // 파일 경로
     PROGRESS_FILE: path.join(ROOT_DIR, 'data', 'collection-progress.json'),
@@ -270,6 +275,126 @@ function extractPlatforms(tags) {
     return platformTags.map(t => t.replace('platform:', ''));
 }
 
+// Example 코드 스크래핑 (HTML 파싱)
+async function fetchExampleCode(packageName) {
+    try {
+        const url = CONFIG.PUBDEV_EXAMPLE_URL(packageName);
+        const response = await fetch(url, {
+            headers: { 'User-Agent': CONFIG.USER_AGENT }
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        const html = await response.text();
+
+        // 간단한 정규식으로 코드 블록 추출 (cheerio 없이)
+        // pub.dev의 example 페이지에서 <pre><code> 블록을 찾음
+        const codeMatch = html.match(/<pre[^>]*class="[^"]*language-dart[^"]*"[^>]*><code[^>]*>([\s\S]*?)<\/code><\/pre>/i);
+
+        if (codeMatch && codeMatch[1]) {
+            // HTML 엔티티 디코딩
+            let code = codeMatch[1]
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&amp;/g, '&')
+                .replace(/&quot;/g, '"')
+                .replace(/&#39;/g, "'")
+                .replace(/<[^>]+>/g, ''); // 남은 HTML 태그 제거
+
+            // 코드가 너무 길면 자르기 (4000자 제한)
+            if (code.length > 4000) {
+                code = code.substring(0, 4000) + '\n// ... (truncated)';
+            }
+
+            return code.trim();
+        }
+
+        // fallback: 일반 pre>code 블록
+        const fallbackMatch = html.match(/<pre[^>]*><code[^>]*>([\s\S]*?)<\/code><\/pre>/i);
+        if (fallbackMatch && fallbackMatch[1]) {
+            let code = fallbackMatch[1]
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&amp;/g, '&')
+                .replace(/&quot;/g, '"')
+                .replace(/&#39;/g, "'")
+                .replace(/<[^>]+>/g, '');
+
+            if (code.length > 4000) {
+                code = code.substring(0, 4000) + '\n// ... (truncated)';
+            }
+
+            return code.trim();
+        }
+
+        return null;
+    } catch (error) {
+        return null;
+    }
+}
+
+// Phase 3: Example 코드 수집 (상위 패키지만)
+async function collectExampleCodes(progress) {
+    log.info('Phase 3: Collecting example codes for top packages...');
+
+    const packages = progress.packages;
+    // likes 순으로 정렬된 상위 N개만 example 수집
+    const topPackages = packages
+        .sort((a, b) => b.likes - a.likes)
+        .slice(0, CONFIG.COLLECT_EXAMPLES_FOR_TOP);
+
+    const total = topPackages.length;
+    let successCount = 0;
+    let skipCount = 0;
+
+    // 패키지 이름으로 빠르게 찾기 위한 맵
+    const packageMap = new Map(packages.map(p => [p.name, p]));
+
+    for (let i = 0; i < total; i++) {
+        const pkg = topPackages[i];
+
+        // 이미 exampleCode가 있으면 건너뛰기
+        if (pkg.exampleCode) {
+            skipCount++;
+            log.progress(i + 1, total, `Skipping ${pkg.name} (already has example)`);
+            continue;
+        }
+
+        log.progress(i + 1, total, `Fetching example for ${pkg.name}...`);
+
+        const exampleCode = await fetchExampleCode(pkg.name);
+
+        if (exampleCode) {
+            // 원본 packages 배열의 해당 패키지에 exampleCode 추가
+            const originalPkg = packageMap.get(pkg.name);
+            if (originalPkg) {
+                originalPkg.exampleCode = exampleCode;
+            }
+            successCount++;
+        }
+
+        await sleep(CONFIG.DELAY_BETWEEN_REQUESTS);
+
+        // 50개마다 진행 상황 저장
+        if ((i + 1) % 50 === 0) {
+            progress.packages = packages;
+            saveProgress(progress);
+            log.info(`\nExample batch saved at ${i + 1}`);
+        }
+    }
+
+    console.log('');
+    log.info(`Phase 3 complete: ${successCount} examples collected, ${skipCount} skipped`);
+
+    progress.packages = packages;
+    progress.lastUpdated = new Date().toISOString();
+    saveProgress(progress);
+
+    return progress;
+}
+
 // 최종 데이터 저장
 function saveFinalData(progress) {
     log.info('Saving final data...');
@@ -298,6 +423,7 @@ async function main() {
     const args = process.argv.slice(2);
     const isResume = args.includes('--resume');
     const isDetailsOnly = args.includes('--details-only');
+    const isExamplesOnly = args.includes('--examples-only');
 
     console.log('\n===========================================');
     console.log('  pub.dev Package Data Collector');
@@ -305,7 +431,23 @@ async function main() {
 
     let progress;
 
-    if (isResume) {
+    if (isExamplesOnly) {
+        log.info('Examples-only mode: collecting example codes for existing packages...');
+        // 기존 패키지 데이터 로드
+        if (fs.existsSync(CONFIG.PACKAGES_FILE)) {
+            const existingData = JSON.parse(fs.readFileSync(CONFIG.PACKAGES_FILE, 'utf-8'));
+            progress = {
+                phase: 'examples',
+                packageNames: existingData.packages.map(p => p.name),
+                packages: existingData.packages,
+                lastUpdated: existingData.lastUpdated,
+            };
+            log.info(`Loaded ${progress.packages.length} packages from existing data`);
+        } else {
+            log.error('No package data found. Run full collection first.');
+            process.exit(1);
+        }
+    } else if (isResume) {
         log.info('Resuming from previous progress...');
         progress = loadProgress();
     } else if (isDetailsOnly) {
@@ -344,12 +486,19 @@ async function main() {
             progress = await collectPackageDetails(progress);
         }
 
+        // Phase 3: Example 코드 수집 (상위 패키지)
+        if (!isDetailsOnly || isExamplesOnly) {
+            progress = await collectExampleCodes(progress);
+        }
+
         // 최종 데이터 저장
         saveFinalData(progress);
 
+        const exampleCount = progress.packages.filter(p => p.exampleCode).length;
         console.log('\n===========================================');
         console.log('  Collection Complete!');
         console.log(`  Total packages: ${progress.packages.length}`);
+        console.log(`  Packages with examples: ${exampleCount}`);
         console.log(`  Data file: ${CONFIG.PACKAGES_FILE}`);
         console.log('===========================================\n');
 
