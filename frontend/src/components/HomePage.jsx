@@ -167,7 +167,6 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
               <p className="widget-desc">{widget.description}</p>
               <div className="widget-stats">
                 <span className="widget-stat">👍 {widget.likes.toLocaleString()}</span>
-                <span className="widget-stat">📊 {widget.popularity}%</span>
               </div>
               <div className="widget-platforms">
                 {widget.platforms?.slice(0, 4).map(p => (
@@ -235,12 +234,6 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
             >
               👍 Likes
             </button>
-            <button
-              className={`tab-btn ${activeTab === 'popularity' ? 'active' : ''}`}
-              onClick={() => setActiveTab('popularity')}
-            >
-              📊 Popularity
-            </button>
           </div>
         </div>
         <div className="package-list">
@@ -254,7 +247,6 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
                 <p className="package-desc">{pkg.description}</p>
                 <div className="package-meta">
                   <span>👍 {pkg.likes.toLocaleString()}</span>
-                  <span>📊 {pkg.popularity}%</span>
                   <span className="pub-points">{pkg.pubPoints} pts</span>
                 </div>
               </div>
@@ -286,7 +278,6 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
               <p className="update-desc">{pkg.description}</p>
               <div className="update-stats">
                 <span>👍 {pkg.likes.toLocaleString()}</span>
-                <span>📊 {pkg.popularity}%</span>
               </div>
               <button
                 onClick={() => handleShowGuide(pkg.id)}

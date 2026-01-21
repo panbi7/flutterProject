@@ -5,6 +5,12 @@
 
 [functions]
   node_bundler = "esbuild"
+  external_node_modules = ["@google/generative-ai"]
+  timeout = 26
+
+# guide 함수는 AI 응답 대기로 시간이 오래 걸림
+[functions."guide"]
+  timeout = 26
 
 [dev]
   command = "npm run dev"
