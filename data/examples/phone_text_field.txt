@@ -1,0 +1,147 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+import 'package:phone_text_field&#47;phone_text_field.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Phone Text Field Demo',
+      debugShowCheckedModeBanner: false,
+      locale: const Locale('en'),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('ar'), Locale('en'), Locale('fr')],
+      theme: _buildLightTheme(),
+      darkTheme: _buildDarkTheme(),
+      themeMode: ThemeMode.system,
+      home: const MyHomePage(),
+    );
+  }
+
+  static ThemeData _buildLightTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF2196F3),
+        brightness: Brightness.light,
+      ),
+      appBarTheme: const AppBarTheme(
+        centerTitle: true,
+        elevation: 0,
+      ),
+      cardTheme: const CardThemeData(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
+    );
+  }
+
+  static ThemeData _buildDarkTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF2196F3),
+        brightness: Brightness.dark,
+      ),
+      appBarTheme: const AppBarTheme(
+        centerTitle: true,
+        elevation: 0,
+      ),
+      cardTheme: const CardThemeData(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State with TickerProviderStateMixin {
+  final _formKey = GlobalKey();
+  late TabController _tabController;
+
+  &#47;&#47; Controllers for different examples
+  final _basicController = TextEditingController();
+  final _styledController = TextEditingController();
+  final _validationController = TextEditingController();
+
+  &#47;&#47; Current phone numbers
+  PhoneNumber? _basicPhoneNumber;
+  PhoneNumber? _styledPhoneNumber;
+  PhoneNumber? _validationPhoneNumber;
+  PhoneNumber? _demoPhoneNumber;
+
+  &#47;&#47; Settings
+  bool _isDarkMode = false;
+  CountryViewOptions _currentViewOption =
+      CountryViewOptions.countryCodeWithFlag;
+  String _currentCountry = 'US';
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _basicController.dispose();
+    _styledController.dispose();
+    _validationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isWeb = MediaQuery.of(context).size.width > 800;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Column(
+          children: [
+            Text('Phone Text Field Demo'),
+            Text(
+              'International Phone Input Widget',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(_isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () {
+              setState(() {
+                _isDarkMode = !_isDarkMode;
+              });
+            },
+          ),
+          if (isWeb) ...[
+            IconButton(
+              icon: const Icon(Icons.code),
+              onPressed: _showSourceCode,
+              tooltip: 'View Source Code',
+            ),
+            IconButton(
+// ... (truncated)

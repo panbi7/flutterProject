@@ -1,0 +1,130 @@
+import 'dart:math';
+import 'dart:ui' as ui;
+import 'dart:async';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:particles_flutter&#47;shapes.dart';
+import 'package:particles_flutter&#47;engine.dart';
+import 'package:particles_flutter&#47;interactions.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: Scaffold(
+        backgroundColor: Colors.black,
+        body: SplashScreen(),
+      ),
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State {
+  @override
+  void initState() {
+    super.initState();
+    initializeData();
+  }
+
+  Future initializeData() async {
+    final ui.Image particleImage = await loadImage('assets&#47;snowflake.png');
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ParticleScreen(
+                  particleImage: particleImage,
+                )));
+  }
+
+  Future loadImage(String imagePath) async {
+    ByteData data = await rootBundle.load(imagePath);
+    final Completer completer = Completer();
+    ui.decodeImageFromList(Uint8List.view(data.buffer), (ui.Image img) {
+      return completer.complete(img);
+    });
+
+    return completer.future;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+class ParticleScreen extends StatelessWidget {
+  const ParticleScreen({required this.particleImage, super.key});
+
+  final ui.Image particleImage;
+  @override
+  Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          Container(
+              color: Colors.blue.withValues(alpha: 0.4),
+              child: Particles(
+                particles: createParticles(),
+                height: screenHeight,
+                width: screenWidth,
+                connectDots: false,
+                boundType: BoundType.WrapAround,
+                particleEmitter: Emitter(
+                  startPosition: Offset(screenWidth &#47; 2, screenHeight &#47; 2),
+                  delay: const Duration(milliseconds: 5),
+                  recycles: false,
+                ),
+                interaction: ParticleInteraction(
+                  awayRadius: 150,
+                  onTapAnimation: true,
+                  awayAnimationDuration: const Duration(milliseconds: 100),
+                  awayAnimationCurve: Curves.linear,
+                  enableHover: true,
+                  hoverRadius: 90,
+                ),
+              )),
+          Center(
+            child: Container(
+              height: 220,
+              width: 180,
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 221, 218, 218)
+                    .withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    'particles flutter',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const Text(
+                    'v2.0.0',
+                    style: TextStyle(
+                
+// ... (truncated)

@@ -1,0 +1,155 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:oktoast&#47;oktoast.dart';
+
+import 'miui10_anim.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return buildApp();
+  }
+
+  &#47;&#47; 2-A: Wrap MaterialApp with OKToast.
+  Widget buildWrapperApp() {
+    return OKToast(
+      &#47;&#47; 2-A: wrap your app with OKToast
+      child: MaterialApp(
+        title: 'Demo for OKToast',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const MyHomePage(),
+      ),
+    );
+  }
+
+  &#47;&#47; 2-B: Or wrap child of the builder method.
+  Widget buildApp() {
+    return MaterialApp(
+      home: const MyHomePage(),
+      builder: (_, Widget? child) => OKToast(
+        textStyle: const TextStyle(fontSize: 19.0, color: Colors.white),
+        backgroundColor: Colors.grey,
+        animationCurve: Curves.easeIn,
+        animationBuilder: const Miui10AnimBuilder().call,
+        animationDuration: const Duration(milliseconds: 200),
+        duration: const Duration(seconds: 3),
+        child: child!,
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    _counter++;
+    setState(() {});
+  }
+
+  void _showToast() {
+    &#47;&#47; 3-A use showToast method
+    showToast(
+      '$_counter',
+      position: ToastPosition.bottom,
+      backgroundColor: Colors.black.withOpacity(0.8),
+      radius: 13.0,
+      textStyle: const TextStyle(fontSize: 18.0, color: Colors.white),
+      animationBuilder: const Miui10AnimBuilder().call,
+    );
+
+    showToast(
+      '$_counter',
+      duration: const Duration(milliseconds: 3500),
+      position: ToastPosition.top,
+      backgroundColor: Colors.black.withOpacity(0.8),
+      radius: 3.0,
+      textStyle: const TextStyle(fontSize: 30.0, color: Colors.white),
+    );
+
+    &#47;&#47; 3-B use showToastWidget method
+    final Widget widget = Center(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(30.0),
+        child: Container(
+          width: 40.0,
+          height: 40.0,
+          color: Colors.grey.withOpacity(0.3),
+          child: const Icon(
+            Icons.add,
+            size: 30.0,
+            color: Colors.green,
+          ),
+        ),
+      ),
+    );
+    final ToastFuture toastFuture = showToastWidget(
+      widget,
+      duration: const Duration(seconds: 3),
+      onDismiss: () {
+        &#47;&#47; The method will be called on toast dismiss.
+        debugPrint('Toast has been dismissed.');
+      },
+    );
+
+    &#47;&#47; can use future
+    Future.delayed(const Duration(seconds: 2), () {
+      toastFuture.dismiss(); &#47;&#47; dismiss
+    });
+  }
+
+  ToastFuture? _persistToast;
+
+  void _showPersistToast() {
+    _persistToast = showToastWidget(
+      Center(
+        child: ElevatedButton(
+          onPressed: () => _persistToast?.dismiss(),
+          child: const Text('Click this button to dismiss'),
+        ),
+      ),
+      duration: Duration.zero,
+      handleTouch: true,
+    );
+  }
+
+  void _dismissToastSynchronously() {
+    final ToastFuture toast = showToast('Synchronously dismiss');
+    toast.dismiss();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Example for OKToast')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Center(
+              child: Text('You have pushed the button this many times:'),
+            ),
+            Center(
+              child: Text(
+                '$_counter',
+                style: const TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+        
+// ... (truncated)

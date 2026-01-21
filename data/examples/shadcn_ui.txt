@@ -1,0 +1,80 @@
+import 'package:disco&#47;disco.dart';
+import 'package:example&#47;common&#47;app_bar.dart';
+import 'package:example&#47;common&#47;extensions.dart';
+import 'package:example&#47;pages&#47;accordion.dart';
+import 'package:example&#47;pages&#47;alert.dart';
+import 'package:example&#47;pages&#47;avatar.dart';
+import 'package:example&#47;pages&#47;badge.dart';
+import 'package:example&#47;pages&#47;breadcrumb.dart';
+import 'package:example&#47;pages&#47;button.dart';
+import 'package:example&#47;pages&#47;calendar.dart';
+import 'package:example&#47;pages&#47;card.dart';
+import 'package:example&#47;pages&#47;checkbox.dart';
+import 'package:example&#47;pages&#47;checkbox_form_field.dart';
+import 'package:example&#47;pages&#47;context_menu.dart';
+import 'package:example&#47;pages&#47;date_picker.dart';
+import 'package:example&#47;pages&#47;date_picker_form_field.dart';
+import 'package:example&#47;pages&#47;dialog.dart';
+import 'package:example&#47;pages&#47;keyboard_toolbar.dart';
+import 'package:example&#47;pages&#47;separator.dart';
+import 'package:example&#47;pages&#47;icon_button.dart';
+import 'package:example&#47;pages&#47;input.dart';
+import 'package:example&#47;pages&#47;input_form_field.dart';
+import 'package:example&#47;pages&#47;input_otp.dart';
+import 'package:example&#47;pages&#47;input_otp_form_field.dart';
+import 'package:example&#47;pages&#47;menubar.dart';
+import 'package:example&#47;pages&#47;popover.dart';
+import 'package:example&#47;pages&#47;progress.dart';
+import 'package:example&#47;pages&#47;radio_group.dart';
+import 'package:example&#47;pages&#47;radio_group_form_field.dart';
+import 'package:example&#47;pages&#47;resizable.dart';
+import 'package:example&#47;pages&#47;select.dart';
+import 'package:example&#47;pages&#47;select_form_field.dart';
+import 'package:example&#47;pages&#47;sheet.dart';
+import 'package:example&#47;pages&#47;slider.dart';
+import 'package:example&#47;pages&#47;sonner.dart';
+import 'package:example&#47;pages&#47;switch.dart';
+import 'package:example&#47;pages&#47;switch_form_field.dart';
+import 'package:example&#47;pages&#47;table.dart';
+import 'package:example&#47;pages&#47;tabs.dart';
+import 'package:example&#47;pages&#47;portal.dart';
+import 'package:example&#47;pages&#47;textarea.dart';
+import 'package:example&#47;pages&#47;textarea_form_field.dart';
+import 'package:example&#47;pages&#47;time_picker.dart';
+import 'package:example&#47;pages&#47;time_picker_form_field.dart';
+import 'package:example&#47;pages&#47;toast.dart';
+import 'package:example&#47;pages&#47;tooltip.dart';
+import 'package:example&#47;pages&#47;typography.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_solidart&#47;flutter_solidart.dart';
+import 'package:shadcn_ui&#47;shadcn_ui.dart';
+
+void main() {
+  SolidartConfig.devToolsEnabled = false;
+  runApp(const App());
+}
+
+&#47;&#47; Maps the routes to the specific widget page.
+final routes = {
+  '&#47;accordion': (_) => const AccordionPage(),
+  '&#47;alert': (_) => const AlertPage(),
+  '&#47;avatar': (_) => const AvatarPage(),
+  '&#47;badge': (_) => const BadgePage(),
+  '&#47;breadcrumb': (_) => const BreadcrumbPage(),
+  '&#47;button': (_) => const ButtonPage(),
+  '&#47;calendar': (_) => const CalendarPage(),
+  '&#47;card': (_) => const CardPage(),
+  '&#47;checkbox': (_) => const CheckboxPage(),
+  '&#47;checkbox-form-field': (_) => const CheckboxFormFieldPage(),
+  '&#47;context-menu': (_) => const ContextMenuPage(),
+  '&#47;date-picker': (_) => const DatePickerPage(),
+  '&#47;date-picker-form-field': (_) => const DatePickerFormFieldPage(),
+  '&#47;dialog': (_) => const DialogPage(),
+  '&#47;divider': (_) => const SeparatorPage(),
+  '&#47;icon-button': (_) => const IconButtonPage(),
+  '&#47;input': (_) => const InputPage(),
+  '&#47;input-OTP': (_) => const InputOTPPage(),
+  '&#47;input-OTP-form-field': (_) => const InputOTPFormFieldPage(),
+  '&#47;input-form-field': (_) => const InputFormFieldPage(),
+  '&#47;keyboard-toolbar': (_) => const KeyboardToo
+// ... (truncated)

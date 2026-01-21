@@ -1,0 +1,122 @@
+&#47;&#47; Copyright 2023 Google LLC
+&#47;&#47;
+&#47;&#47; Licensed under the Apache License, Version 2.0 (the "License");
+&#47;&#47; you may not use this file except in compliance with the License.
+&#47;&#47; You may obtain a copy of the License at
+&#47;&#47;
+&#47;&#47;     https:&#47;&#47;www.apache.org&#47;licenses&#47;LICENSE-2.0
+&#47;&#47;
+&#47;&#47; Unless required by applicable law or agreed to in writing, software
+&#47;&#47; distributed under the License is distributed on an "AS IS" BASIS,
+&#47;&#47; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+&#47;&#47; See the License for the specific language governing permissions and
+&#47;&#47; limitations under the License.
+
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:google_navigation_flutter&#47;google_navigation_flutter.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+import 'pages&#47;circles.dart';
+import 'pages&#47;pages.dart';
+import 'utils&#47;utils.dart';
+import 'widgets&#47;widgets.dart';
+
+&#47;&#47;&#47; The list of pages to show in the Google Maps Navigation demo.
+final List _allPages = [
+  const NavigationPage(),
+  const BasicMapPage(),
+  const CameraPage(),
+  const MarkersPage(),
+  const PolygonsPage(),
+  const PolylinesPage(),
+  const CirclesPage(),
+  const PoiClickPage(),
+  const TurnByTurnPage(),
+  const WidgetInitializationPage(),
+  const NavigationWithoutMapPage(),
+  const MultipleMapViewsPage(),
+];
+
+&#47;&#47;&#47; The main Google Maps Navigation demo screen.
+class NavigationDemo extends StatelessWidget {
+  const NavigationDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const NavigationBody();
+  }
+}
+
+class NavigationBody extends StatefulWidget {
+  const NavigationBody({super.key});
+  @override
+  State createState() => _NavigationDemoState();
+}
+
+class _NavigationDemoState extends State {
+  _NavigationDemoState();
+
+  bool _locationPermitted = false;
+  bool _notificationsPermitted = false;
+  String _navSDKVersion = '';
+
+  @override
+  void initState() {
+    _requestPermissions();
+    super.initState();
+    unawaited(_checkSDKVersion());
+  }
+
+  Future _checkSDKVersion() async {
+    &#47;&#47; Get the Navigation SDK version.
+    _navSDKVersion = await GoogleMapsNavigator.getNavSDKVersion();
+  }
+
+  Future _pushPage(BuildContext context, ExamplePage page) async {
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => page));
+  }
+
+  &#47;&#47;&#47; Request permission for accessing the device's location and notifications.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; Android: Fine and Coarse Location
+  &#47;&#47;&#47; iOS: CoreLocation (Always and WhenInUse), Notification
+  Future _requestPermissions() async {
+    final PermissionStatus locationPermission =
+        await Permission.location.request();
+
+    PermissionStatus notificationPermission = PermissionStatus.denied;
+    if (Platform.isIOS) {
+      notificationPermission = await Permission.notification.request();
+    }
+    setState(() {
+      _locationPermitted = locationPermission == PermissionStatus.granted;
+      _notificationsPermitted =
+          notificationPermission == PermissionStatus.granted;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Google Navigation Flutter examples')),
+      body: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Card(
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                alignment: Alignment.center,
+                child: Column(
+                  children: [
+                    Text(
+                      Platform.isIOS
+                          ? 'Location ${_locationPermitted ? 'granted' : 'denied'} • Notifications ${_notificationsPermitted ? 'granted'
+// ... (truncated)

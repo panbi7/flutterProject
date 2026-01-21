@@ -1,0 +1,120 @@
+&#47;&#47; Copyright 2018 The Chromium Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'dart:io';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:location&#47;location.dart';
+import 'package:mapbox_gl_example&#47;custom_marker.dart';
+import 'package:mapbox_gl_example&#47;full_map.dart';
+import 'package:mapbox_gl_example&#47;offline_regions.dart';
+import 'package:mapbox_gl_example&#47;place_batch.dart';
+import 'package:mapbox_gl_example&#47;layer.dart';
+import 'package:mapbox_gl_example&#47;sources.dart';
+import 'package:device_info_plus&#47;device_info_plus.dart';
+
+import 'animate_camera.dart';
+import 'annotation_order_maps.dart';
+import 'full_map.dart';
+import 'line.dart';
+import 'local_style.dart';
+import 'map_ui.dart';
+import 'move_camera.dart';
+import 'click_annotations.dart';
+import 'page.dart';
+import 'place_circle.dart';
+import 'place_source.dart';
+import 'place_symbol.dart';
+import 'place_fill.dart';
+import 'scrolling_map.dart';
+import 'package:mapbox_gl&#47;mapbox_gl.dart';
+
+final List _allPages = [
+  MapUiPage(),
+  FullMapPage(),
+  AnimateCameraPage(),
+  MoveCameraPage(),
+  PlaceSymbolPage(),
+  PlaceSourcePage(),
+  LinePage(),
+  LocalStylePage(),
+  LayerPage(),
+  PlaceCirclePage(),
+  PlaceFillPage(),
+  ScrollingMapPage(),
+  OfflineRegionsPage(),
+  AnnotationOrderPage(),
+  CustomMarkerPage(),
+  BatchAddPage(),
+  ClickAnnotationPage(),
+  Sources()
+];
+
+class MapsDemo extends StatefulWidget {
+  &#47;&#47; FIXME: You need to pass in your access token via the command line argument
+  &#47;&#47; --dart-define=ACCESS_TOKEN=ADD_YOUR_TOKEN_HERE
+  &#47;&#47; It is also possible to pass it in while running the app via an IDE by
+  &#47;&#47; passing the same args there.
+  &#47;&#47;
+  &#47;&#47; Alternatively you can replace `String.fromEnvironment("ACCESS_TOKEN")`
+  &#47;&#47; in the following line with your access token directly.
+  static const String ACCESS_TOKEN = String.fromEnvironment("ACCESS_TOKEN");
+
+  @override
+  State createState() => _MapsDemoState();
+}
+
+class _MapsDemoState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  &#47;&#47;&#47; Determine the android version of the phone and turn off HybridComposition
+  &#47;&#47;&#47; on older sdk versions to improve performance for these
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; !!! Hybrid composition is currently broken do no use !!!
+  Future initHybridComposition() async {
+    if (!kIsWeb && Platform.isAndroid) {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      final sdkVersion = androidInfo.version.sdkInt;
+      if (sdkVersion != null && sdkVersion >= 29) {
+        MapboxMap.useHybridComposition = true;
+      } else {
+        MapboxMap.useHybridComposition = false;
+      }
+    }
+  }
+
+  void _pushPage(BuildContext context, ExamplePage page) async {
+    if (!kIsWeb) {
+      final location = Location();
+      final hasPermissions = await location.hasPermission();
+      if (hasPermissions != PermissionStatus.granted) {
+        await location.requestPermission();
+      }
+    }
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => Scaffold(
+              appBar: AppBar(title: Text(page.title)),
+              body: page,
+            )));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('MapboxMaps examples')),
+      body: MapsDemo.ACCESS_TOKEN.isEmpty ||
+              MapsDemo.ACCESS_TOKEN.contains("YOUR_TOKEN")
+          ? buildAccessTokenWarning()
+          : ListView.separated(
+              itemCount: _allPages.length,
+              separatorBuilder: (BuildContext context, int index) =>
+                  const Divider(height: 1),
+              itemBuilder: (_, int index) => ListTile(
+                leading: _allPages[index].leading,
+                title: Text(_allPages[index].t
+// ... (truncated)

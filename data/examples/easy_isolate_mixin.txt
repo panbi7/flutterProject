@@ -1,0 +1,19 @@
+import 'package:easy_isolate_mixin&#47;easy_isolate_mixin.dart';
+
+class Service with IsolateHelperMixin {
+  Future> performExpensiveWork() =>
+      loadWithIsolate(() => _expensiveWork());
+}
+
+void main() {
+  final service = Service();
+  service.performExpensiveWork();
+}
+
+Future> _expensiveWork() async {
+  List result = [];
+  for (int i = 0; i < 1000000; i++) {
+    result.add(i);
+  }
+  return result;
+}

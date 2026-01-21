@@ -1,0 +1,133 @@
+import 'dart:io';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_platform_alert&#47;flutter_platform_alert.dart';
+import 'package:flutter_window_close&#47;flutter_window_close.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(home: MainPage());
+  }
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MainPageState();
+}
+
+class _MainPageState extends State {
+  var _alertShowing = false;
+  var _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (kIsWeb) {
+      FlutterWindowClose.setWebReturnValue('Are you sure?');
+      return;
+    }
+
+    FlutterWindowClose.setWindowShouldCloseHandler(() async {
+      if (_index == 0) {
+        if (_alertShowing) return false;
+        _alertShowing = true;
+
+        return await showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                  title: const Text('Do you really want to quit?'),
+                  actions: [
+                    ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(true);
+                          _alertShowing = false;
+                        },
+                        child: const Text('Yes')),
+                    ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                          _alertShowing = false;
+                        },
+                        child: const Text('No'))
+                  ]);
+            });
+      } else if (_index == 1) {
+        final result = await FlutterPlatformAlert.showCustomAlert(
+          windowTitle: "Really?",
+          text: "Do you really want to quit?",
+          positiveButtonTitle: "Quit",
+          negativeButtonTitle: "Cancel",
+        );
+        return result == CustomButton.positiveButton;
+      } else if (_index == 3) {
+        return await Future.delayed(const Duration(seconds: 1), () => true);
+      }
+      return true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('flutter_window_close')),
+        body: const Center(child: Text('Please try to close the tab&#47;window.')),
+      );
+    }
+
+    final platformMenus = [
+      PlatformMenu(label: 'Flutter Window Close Example', menus: [
+        PlatformMenuItem(
+            label: 'Quit Flutter Window Close Example',
+            onSelected: () => FlutterWindowClose.closeWindow())
+      ]),
+      PlatformMenu(label: 'Help', menus: [
+        PlatformMenuItem(
+            label: 'About',
+            onSelected: () => FlutterPlatformAlert.showCustomAlert(
+                  windowTitle: 'About',
+                  text:
+                      'flutter_window_close\n\nhttps:&#47;&#47;pub.dev&#47;packages&#47;flutter_window_close',
+                ))
+      ]),
+    ];
+
+    final menu = MenuBar(
+        style: MenuStyle(
+          elevation: MaterialStateProperty.resolveWith((states) => 0),
+          backgroundColor:
+              MaterialStateColor.resolveWith((states) => Colors.white),
+        ),
+        children: [
+          SubmenuButton(
+            menuChildren: [
+              MenuItemButton(
+                  child: const Text('Exit'),
+                  onPressed: () => FlutterWindowClose.closeWindow()),
+            ],
+            child: const Text('File'),
+          ),
+          SubmenuButton(
+            menuChildren: [
+              MenuItemButton(
+                  child: const Text('About'),
+                  onPressed: () {
+                    FlutterPlatformAlert.showCusto
+// ... (truncated)

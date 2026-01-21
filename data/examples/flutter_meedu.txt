@@ -1,0 +1,9 @@
+import 'package:flutter_meedu/notifiers.dart';// import the StateNotifer class
+
+class CounterNotifier extends StateNotifer{
+  CounterNotifier(super.initialState); // the super class StateNotifer needs a initial state value
+
+  void increment(){
+    state++;
+  }
+}

@@ -1,0 +1,68 @@
+&#47;*
+ *  Copyright 2020 chaobinwu89@gmail.com
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http:&#47;&#47;www.apache.org&#47;licenses&#47;LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *&#47;
+
+import 'package:convex_app_bar_example&#47;convex_button_demo.dart';
+import 'package:convex_app_bar_example&#47;custom_appbar_sample.dart';
+import 'package:convex_bottom_bar&#47;convex_bottom_bar.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'default_appbar_demo.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  State createState() => _State();
+}
+
+class _State extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      initialRoute: "&#47;",
+      routes: {
+        "&#47;": (_) => HelloConvexAppBar(),
+        "&#47;bar": (BuildContext context) => DefaultAppBarDemo(),
+        "&#47;custom": (BuildContext context) => CustomAppBarDemo(),
+        "&#47;fab": (BuildContext context) => ConvexButtonDemo(),
+      },
+    );
+  }
+}
+
+class HelloConvexAppBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Hello ConvexAppBar')),
+      body: Center(
+          child: TextButton(
+        child: Text('Click to show full example'),
+        onPressed: () => Navigator.of(context).pushNamed('&#47;bar'),
+      )),
+      bottomNavigationBar: ConvexAppBar(
+        style: TabStyle.react,
+        items: [
+          TabItem(icon: Icons.list),
+          TabItem(icon: Icons.calendar_today),
+          TabItem(icon: Icons.assessment),
+        ],
+        initialActiveIndex: 1,
+        onTap: (int i) => print('click index=$i'),
+      ),
+    );
+  }
+}

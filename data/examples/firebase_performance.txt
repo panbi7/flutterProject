@@ -1,0 +1,137 @@
+&#47;&#47; Copyright 2021 The Chromium Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'dart:async';
+
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:firebase_performance&#47;firebase_performance.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:http&#47;http.dart';
+
+import 'firebase_options.dart';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MetricHttpClient extends BaseClient {
+  _MetricHttpClient(this._inner);
+
+  final Client _inner;
+
+  @override
+  Future send(BaseRequest request) async {
+    &#47;&#47; Custom network monitoring is not supported for web.
+    &#47;&#47; https:&#47;&#47;firebase.google.com&#47;docs&#47;perf-mon&#47;custom-network-traces?platform=android
+    final HttpMetric metric = FirebasePerformance.instance
+        .newHttpMetric(request.url.toString(), HttpMethod.Get);
+
+    metric.requestPayloadSize = request.contentLength;
+    await metric.start();
+
+    StreamedResponse response;
+    try {
+      response = await _inner.send(request);
+      print(
+        'Called ${request.url} with custom monitoring, response code: ${response.statusCode}',
+      );
+
+      metric.responseContentType = 'text&#47;html';
+      metric.httpResponseCode = response.statusCode;
+      metric.responsePayloadSize = response.contentLength;
+
+      metric.putAttribute('score', '15');
+      metric.putAttribute('to_be_removed', 'should_not_be_logged');
+    } finally {
+      metric.removeAttribute('to_be_removed');
+      await metric.stop();
+    }
+
+    final attributes = metric.getAttributes();
+
+    print('Http metric attributes: $attributes.');
+
+    String? score = metric.getAttribute('score');
+    print('Http metric score attribute value: $score');
+
+    return response;
+  }
+}
+
+class _MyAppState extends State {
+  FirebasePerformance _performance = FirebasePerformance.instance;
+  bool _isPerformanceCollectionEnabled = false;
+  String _performanceCollectionMessage =
+      'Unknown status of performance collection.';
+  bool _trace1HasRan = false;
+  bool _trace2HasRan = false;
+  bool _customHttpMetricHasRan = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _togglePerformanceCollection();
+  }
+
+  Future _togglePerformanceCollection() async {
+    &#47;&#47; No-op for web.
+    await _performance
+        .setPerformanceCollectionEnabled(!_isPerformanceCollectionEnabled);
+
+    &#47;&#47; Always true for web.
+    final bool isEnabled = await _performance.isPerformanceCollectionEnabled();
+    setState(() {
+      _isPerformanceCollectionEnabled = isEnabled;
+      _performanceCollectionMessage = _isPerformanceCollectionEnabled
+          ? 'Performance collection is enabled.'
+          : 'Performance collection is disabled.';
+    });
+  }
+
+  Future _testTrace1() async {
+    setState(() {
+      _trace1HasRan = false;
+    });
+
+    final Trace trace = _performance.newTrace('test_trace_3');
+    await trace.start();
+    trace.putAttribute('favorite_color', 'blue');
+    trace.putAttribute('to_be_removed', 'should_not_be_logged');
+
+    trace.incrementMetric('sum', 200);
+    trace.incrementMetric('total', 342);
+
+    trace.removeAttribute('to_be_removed');
+    await trace.stop();
+
+    final sum = trace.getMetric('sum');
+    print('test_trace_1 sum value: $sum');
+
+    final attributes = trace.getAttributes();
+    print('test_trace_1 attributes: $attributes');
+
+    final favoriteColor = trace.getAttribute('favorite_color');
+    print('test_trace_1 favorite_color: $favoriteColor');
+
+    setState(() {
+      _trace1HasRan = true;
+    });
+  }
+
+  Future _testTrace2() async {
+    setState(() {
+      _trace2HasRan = false;
+    });
+
+    final Trace trace = FirebasePerf
+// ... (truncated)

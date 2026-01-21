@@ -1,0 +1,132 @@
+&#47;*
+ *    Copyright (c) 2012-2023 DSR Corporation, Denver CO, USA
+ *
+ *    Unless explicitly stated otherwise all files in this repository are licensed under the Apache License, Version 2.0
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    You may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *    http:&#47;&#47;www.apache.org&#47;licenses&#47;LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ *&#47;
+
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter_background_executor&#47;flutter_background_executor.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final _backgroundExecutor = FlutterBackgroundExecutor();
+  String? _message;
+  String? _taskStatus;
+
+  Future _startImmediatelyClick() async {
+    final result = await _backgroundExecutor.runImmediatelyBackgroundTask(
+      callback: immediately,
+      cancellable: true,
+      withMessages: true,
+    );
+    result.connector?.messageStream.listen((event) {});
+    _backgroundExecutor.createConnector().messageStream.listen((event) {
+      if (!mounted) return;
+      setState(() {
+        _message = 'Message from ${event.from}:\n${event.content}';
+      });
+    });
+  }
+
+  Future _planRefreshTaskClick() async {
+    final response = await _backgroundExecutor.createRefreshTask(
+      callback: refresh,
+      settings: RefreshTaskSettings(
+        androidDetails:
+            AndroidRefreshTaskDetails(initialDelay: Duration(seconds: 10)),
+        iosDetails:
+            IosRefreshTaskDetails(taskIdentifier: 'com.dsr_corporation.task1'),
+      ),
+    );
+    if (Platform.isIOS) {
+      print(
+          'To simulate the refresh task you can use next command: "e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.dsr_corporation.task1"]"');
+    }
+  }
+
+  Future _checkBackgroundTaskClick() async {
+    final response = await _backgroundExecutor.isTaskRunning();
+    if (!mounted) return;
+    setState(() {
+      _taskStatus = response
+          ? 'The background task is running'
+          : 'The background task is not running';
+    });
+  }
+
+  Future _checkRefreshTaskClick() async {
+    final response = await _backgroundExecutor.isRefreshTaskRunning();
+    if (!mounted) return;
+    setState(() {
+      _taskStatus = response
+          ? 'The refresh task is running'
+          : 'The refresh task is not running';
+    });
+  }
+
+  Future _checkAnyTaskClick() async {
+    final response = await _backgroundExecutor.hasRunningTasks();
+    if (!mounted) return;
+    setState(() {
+      _taskStatus =
+          response ? 'Some task is running' : 'Some task is not running';
+    });
+  }
+
+  Future _stopBackgroundTaskClick() async {
+    await _backgroundExecutor.stopExecutingTask();
+  }
+
+  Future _stopRefreshTaskClick() async {
+    await _backgroundExecutor.stopRefreshTask();
+  }
+
+  Future _stopAllTaskClick() async {
+    await _backgroundExecutor.stopAllExecutingTasks();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            if (_message != null) _messageWidget,
+            if (_message != null) _spacer,
+            if (_taskStatus != null) _taskStatusWidget,
+        
+// ... (truncated)

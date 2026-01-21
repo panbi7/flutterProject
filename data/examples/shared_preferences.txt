@@ -1,0 +1,120 @@
+&#47;&#47; Copyright 2013 The Flutter Authors
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:shared_preferences&#47;shared_preferences.dart';
+&#47;&#47; #docregion migrate
+import 'package:shared_preferences&#47;util&#47;legacy_to_async_migration_util.dart';
+&#47;&#47; #enddocregion migrate
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: 'SharedPreferencesWithCache Demo',
+      home: SharedPreferencesDemo(),
+    );
+  }
+}
+
+class SharedPreferencesDemo extends StatefulWidget {
+  const SharedPreferencesDemo({super.key});
+
+  @override
+  SharedPreferencesDemoState createState() => SharedPreferencesDemoState();
+}
+
+class SharedPreferencesDemoState extends State {
+  final Future _prefs =
+      SharedPreferencesWithCache.create(
+        cacheOptions: const SharedPreferencesWithCacheOptions(
+          &#47;&#47; This cache will only accept the key 'counter'.
+          allowList: {'counter'},
+        ),
+      );
+  late Future _counter;
+  int _externalCounter = 0;
+
+  &#47;&#47;&#47; Completes when the preferences have been initialized, which happens after
+  &#47;&#47;&#47; legacy preferences have been migrated.
+  final Completer _preferencesReady = Completer();
+
+  Future _incrementCounter() async {
+    final SharedPreferencesWithCache prefs = await _prefs;
+    final int counter = (prefs.getInt('counter') ?? 0) + 1;
+
+    setState(() {
+      _counter = prefs.setInt('counter', counter).then((_) {
+        return counter;
+      });
+    });
+  }
+
+  &#47;&#47;&#47; Gets external button presses that could occur in another instance, thread,
+  &#47;&#47;&#47; or via some native system.
+  Future _getExternalCounter() async {
+    final prefs = SharedPreferencesAsync();
+    final int externalCounter = (await prefs.getInt('externalCounter')) ?? 0;
+    setState(() {
+      _externalCounter = externalCounter;
+    });
+  }
+
+  Future _migratePreferences() async {
+    &#47;&#47; #docregion migrate
+    const sharedPreferencesOptions = SharedPreferencesOptions();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await migrateLegacySharedPreferencesToSharedPreferencesAsyncIfNecessary(
+      legacySharedPreferencesInstance: prefs,
+      sharedPreferencesAsyncOptions: sharedPreferencesOptions,
+      migrationCompletedKey: 'migrationCompleted',
+    );
+    &#47;&#47; #enddocregion migrate
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _migratePreferences().then((_) {
+      _counter = _prefs.then((SharedPreferencesWithCache prefs) {
+        return prefs.getInt('counter') ?? 0;
+      });
+      _getExternalCounter();
+      _preferencesReady.complete();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('SharedPreferencesWithCache Demo')),
+      body: Center(
+        child: _WaitForInitialization(
+          initialized: _preferencesReady.future,
+          builder: (BuildContext context) => FutureBuilder(
+            future: _counter,
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                case ConnectionState.waiting:
+                  return const CircularProgressIndicator();
+                case ConnectionState.active:
+                case ConnectionState.done:
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    return Text(
+                      'Button tapped ${snapshot.data ?? 0 + _externalCounter} time${(snapshot.data ?? 0 + _externalCounter) == 1 ? '' : 's'}.\n\n'
+         
+// ... (truncated)

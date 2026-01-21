@@ -1,0 +1,63 @@
+import 'package:example&#47;list_page.dart';
+import 'package:example&#47;map_in_map_page.dart';
+import 'package:example&#47;polygon_page.dart';
+import 'package:example&#47;polyline_page.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const App());
+}
+
+class App extends StatefulWidget {
+  const App({super.key});
+
+  @override
+  State createState() => _AppState();
+}
+
+class _AppState extends State {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: const [
+            PolylinePage(),
+            PolygonPage(),
+            ListPage(),
+            MapInMapPage()
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          unselectedItemColor: Colors.black45,
+          selectedItemColor: Colors.black,
+          currentIndex: _selectedIndex,
+          onTap: (index) => setState(() {
+            _selectedIndex = index;
+          }),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.linear_scale_rounded),
+              label: 'Polyline',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard_outlined),
+              label: 'Polygon',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.list),
+              label: 'List',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.zoom_in),
+              label: 'Map in Map',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

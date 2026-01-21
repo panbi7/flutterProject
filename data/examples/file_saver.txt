@@ -1,0 +1,81 @@
+import 'package:excel&#47;excel.dart';
+import 'package:file_saver&#47;file_saver.dart';
+import 'package:file_saver_example&#47;save_with_byte_proxy.dart';
+import 'package:file_saver_example&#47;save_with_file_proxy.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  TextEditingController textEditingController = TextEditingController();
+  TextEditingController linkController = TextEditingController(
+      text:
+          "https:&#47;&#47;i.pinimg.com&#47;564x&#47;80&#47;d4&#47;90&#47;80d490f65d5e6132b2a6e3b5883785f3.jpg");
+  TextEditingController extController = TextEditingController(text: "jpg");
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  List? getExcel() {
+    final Excel excel = Excel.createExcel();
+    final Sheet sheetObject = excel['Sheet1'];
+    sheetObject.insertColumn(0);
+    for (int i = 1; i ? sheets = excel.encode();
+    return sheets;
+  }
+
+  MimeType type = MimeType.jpeg;
+
+  List modes = ['Byte proxy', 'File proxy'];
+
+  int currentMode = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget widgetToDisplay;
+
+    if (currentMode == 0) {
+      widgetToDisplay = const SaveWithByteProxy();
+    } else {
+      widgetToDisplay = const SaveWithFileProxy();
+    }
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('File Saver'),
+          actions: [
+            DropdownButton(
+              value: currentMode,
+              underline: Container(),
+              items: modes
+                  .asMap()
+                  .entries
+                  .map((entry) => DropdownMenuItem(
+                        value: entry.key,
+                        child: Text(entry.value),
+                      ))
+                  .toList(),
+              onChanged: (value) {
+                if (value == null) return;
+                setState(() {
+                  currentMode = value;
+                });
+              },
+            )
+          ],
+        ),
+        body: widgetToDisplay,
+      ),
+    );
+  }
+}

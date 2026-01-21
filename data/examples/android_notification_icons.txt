@@ -1,0 +1,6 @@
+app/
+  pubspec.yaml
+  assets/
+    images/
+      ic_launcher.png
+  ...

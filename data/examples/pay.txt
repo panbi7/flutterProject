@@ -1,0 +1,136 @@
+&#47;&#47; Copyright 2024 Google LLC
+&#47;&#47;
+&#47;&#47; Licensed under the Apache License, Version 2.0 (the "License");
+&#47;&#47; you may not use this file except in compliance with the License.
+&#47;&#47; You may obtain a copy of the License at
+&#47;&#47;
+&#47;&#47;     https:&#47;&#47;www.apache.org&#47;licenses&#47;LICENSE-2.0
+&#47;&#47;
+&#47;&#47; Unless required by applicable law or agreed to in writing, software
+&#47;&#47; distributed under the License is distributed on an "AS IS" BASIS,
+&#47;&#47; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+&#47;&#47; See the License for the specific language governing permissions and
+&#47;&#47; limitations under the License.
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+import 'package:pay&#47;pay.dart';
+
+import 'payment_configurations.dart' as payment_configurations;
+
+void main() {
+  runApp(const PayMaterialApp());
+}
+
+const _paymentItems = [
+  PaymentItem(
+    label: 'Total',
+    amount: '99.99',
+    status: PaymentItemStatus.final_price,
+  )
+];
+
+class PayMaterialApp extends StatelessWidget {
+  const PayMaterialApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: 'Pay for Flutter Demo',
+      localizationsDelegates: [
+        ...GlobalMaterialLocalizations.delegates,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale('en', ''),
+        Locale('es', ''),
+        Locale('de', ''),
+      ],
+      home: PaySampleApp(),
+    );
+  }
+}
+
+class PaySampleApp extends StatefulWidget {
+  const PaySampleApp({super.key});
+
+  @override
+  State createState() => _PaySampleAppState();
+}
+
+class _PaySampleAppState extends State {
+  late final Future _googlePayConfigFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _googlePayConfigFuture =
+        PaymentConfiguration.fromAsset('default_google_pay_config.json');
+  }
+
+  void onGooglePayResult(Map paymentResult) {
+    debugPrint(paymentResult.toString());
+  }
+
+  void onApplePayResult(Map paymentResult) {
+    debugPrint(paymentResult.toString());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('T-shirt Shop'),
+      ),
+      backgroundColor: Colors.white,
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        children: [
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 20),
+            child: const Image(
+              image: AssetImage('assets&#47;images&#47;ts_10_11019a.jpg'),
+              height: 350,
+            ),
+          ),
+          const Text(
+            'Amanda\'s Polo Shirt',
+            style: TextStyle(
+              fontSize: 20,
+              color: Color(0xff333333),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 5),
+          const Text(
+            '\$50.20',
+            style: TextStyle(
+              color: Color(0xff777777),
+              fontSize: 15,
+            ),
+          ),
+          const SizedBox(height: 15),
+          const Text(
+            'Description',
+            style: TextStyle(
+              fontSize: 15,
+              color: Color(0xff333333),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 5),
+          const Text(
+            'A versatile full-zip that you can wear all day long and even...',
+            style: TextStyle(
+              color: Color(0xff777777),
+              fontSize: 15,
+            ),
+          ),
+          &#47;&#47; Example pay button configured using an asset
+          FutureBuilder(
+              future: _googlePayConfigFuture,
+              builder: (context, snapshot) => snapshot.hasData
+                  ? GooglePayButton(
+                      paymentConfiguration: snapshot.data!,
+                      paymentItems: _pa
+// ... (truncated)

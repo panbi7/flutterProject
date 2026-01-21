@@ -1,0 +1,126 @@
+import 'package:flutter&#47;material.dart';
+import 'package:ruler_slider&#47;ruler_slider.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const RulerSliderDemoApp());
+}
+
+class RulerSliderDemoApp extends StatelessWidget {
+  const RulerSliderDemoApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: RulerSliderDemo(),
+    );
+  }
+}
+
+class RulerSliderDemo extends StatefulWidget {
+  @override
+  _RulerSliderDemoState createState() => _RulerSliderDemoState();
+}
+
+class _RulerSliderDemoState extends State {
+  double minValue = 0.0;
+  double maxValue = 100.0;
+  double initialValue = 50.0;
+  double rulerWidth = 300.0;
+  double rulerHeight = 100.0;
+  double tickSpacing = 10.0;
+  double scrollSensitivity = 1.0;
+  bool showFixedBar = true;
+  bool showFixedLabel = true;
+  bool enableSnapping = false;
+  int majorTickInterval = 5;
+  int labelInterval = 10;
+  double labelVerticalOffset = 25.0;
+  bool showBottomLabels = true;
+  double majorTickHeight = 20.0;
+  double minorTickHeight = 10.0;
+  String selectedColor = 'Blue';
+  String selectedLabelColor = 'Black';
+
+  final List colors = ['Blue', 'Red', 'Green', 'Yellow'];
+  final List labelColors = ['Black', 'Red', 'Blue', 'Green'];
+  final Map colorMap = {
+    'Blue': Colors.blue,
+    'Red': Colors.red,
+    'Green': Colors.green,
+    'Yellow': Colors.yellow,
+  };
+  final Map labelColorMap = {
+    'Black': Colors.black,
+    'Red': Colors.red,
+    'Blue': Colors.blue,
+    'Green': Colors.green,
+  };
+
+  final List customLabels = [
+    'Start', '10', '20', '30', '40', 'Mid', '60', '70', '80', '90', 'End'
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('RulerSlider Full Demo'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding:  EdgeInsets.symmetric(horizontal:16.0),
+          child: Column(
+            children: [
+              &#47;&#47; Display the RulerSlider with all dynamic values
+              RulerSlider(
+                minValue: minValue,
+                maxValue: maxValue,
+                initialValue: initialValue,
+                rulerHeight: rulerHeight,
+                selectedBarColor: colorMap[selectedColor]!,
+                unselectedBarColor: Colors.grey,
+                tickSpacing: tickSpacing,
+                showFixedBar: showFixedBar,
+                fixedBarColor: Colors.red,
+                fixedBarWidth: 2.0,
+                fixedBarHeight: 40.0,
+                showFixedLabel: showFixedLabel,
+                fixedLabelColor: Colors.red,
+                scrollSensitivity: scrollSensitivity,
+                enableSnapping: enableSnapping,
+                majorTickInterval: majorTickInterval,
+                labelInterval: 5,
+                labelVerticalOffset: labelVerticalOffset,
+                showBottomLabels: showBottomLabels,
+                labelTextStyle: TextStyle(
+                  color: labelColorMap[selectedLabelColor]!,
+                  fontSize: 12,
+                ),
+                majorTickHeight: majorTickHeight,
+                minorTickHeight: minorTickHeight,
+               labelBuilder: (i){
+                  return '${i.toStringAsFixed(0)}m';
+               },
+                onChanged: (value) {
+                  setState(() {
+                    initialValue = value;
+                  });
+                },
+              ),
+              const Divider(),
+              &#47;&#47; Controls to dynamically change properties
+              Text('Adjust RulerSlider Features:'),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Tick Spacing: ${tickSpacing.toStringAsFixed(1)}'),
+                  Slider(
+                    value: tickSpacing,
+                    min: 5,
+                    max: 30,
+                    onChanged: (value) {
+                      setState(() {
+     
+// ... (truncated)

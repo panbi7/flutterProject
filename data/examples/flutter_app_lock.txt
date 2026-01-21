@@ -1,0 +1,18 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_app_lock&#47;flutter_app_lock.dart';
+
+import 'app&#47;app.dart';
+
+void main({
+  @visibleForTesting bool initiallyEnabled = false,
+  @visibleForTesting
+  Duration initialBackgroundLockLatency = const Duration(seconds: 30),
+  @visibleForTesting
+  InactiveBehavior inactiveBehavior = InactiveBehavior.showWhenEnabled,
+}) {
+  runApp(MyApp(
+    initiallyEnabled: initiallyEnabled,
+    initialBackgroundLockLatency: initialBackgroundLockLatency,
+    inactiveBehavior: inactiveBehavior,
+  ));
+}

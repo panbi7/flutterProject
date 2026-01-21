@@ -1,0 +1,151 @@
+import 'package:flutter&#47;material.dart';
+import 'package:giffy_dialog&#47;giffy_dialog.dart';
+import 'package:google_fonts&#47;google_fonts.dart';
+
+void main() => runApp(MyApp());
+
+final material3Notifier = ValueNotifier(true);
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: material3Notifier,
+      builder: (context, useMaterial3, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Giffy Demo',
+          theme: ThemeData(
+            brightness: Brightness.light,
+            useMaterial3: useMaterial3,
+            colorSchemeSeed: Colors.teal,
+            textTheme: GoogleFonts.ralewayTextTheme(),
+          ),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            useMaterial3: useMaterial3,
+            colorSchemeSeed: Colors.teal,
+            textTheme: GoogleFonts.ralewayTextTheme(),
+          ),
+          home: MyHomePage(),
+        );
+      },
+    );
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Giffy Example"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            MaterialToggleButtons(),
+            SizedBox(height: 30),
+            Text('Image Giffy'),
+            SizedBox(height: 10),
+            TypedExample(type: GiffyType.image),
+            SizedBox(height: 30),
+            Text('Rive Giffy'),
+            SizedBox(height: 10),
+            TypedExample(type: GiffyType.rive),
+            SizedBox(height: 30),
+            Text('Lottie Giffy'),
+            SizedBox(height: 10),
+            TypedExample(type: GiffyType.lottie),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MaterialToggleButtons extends StatelessWidget {
+  const MaterialToggleButtons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final useMaterial3 = Theme.of(context).useMaterial3;
+    final primary = Theme.of(context).colorScheme.primary;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final selectedColor = useMaterial3
+        ? primary
+        : isDark
+            ? Colors.black
+            : Colors.white;
+    final borderColor = useMaterial3 ? primary.withOpacity(0.12) : primary;
+    final borderRadius = useMaterial3
+        ? const BorderRadius.all(Radius.circular(16))
+        : const BorderRadius.all(Radius.circular(4));
+
+    return ToggleButtons(
+      isSelected: [!useMaterial3, useMaterial3],
+      borderRadius: borderRadius,
+      borderColor: borderColor,
+      selectedBorderColor: borderColor,
+      color: primary,
+      selectedColor: selectedColor,
+      fillColor: borderColor,
+      constraints: const BoxConstraints(
+        minHeight: 30.0,
+        minWidth: 100.0,
+      ),
+      onPressed: (index) {
+        material3Notifier.value = index == 1;
+      },
+      children: [Text('Material 2'), Text('Material 3')],
+    );
+  }
+}
+
+enum GiffyType {
+  image,
+  rive,
+  lottie;
+
+  Widget when({
+    required Widget Function() image,
+    required Widget Function() rive,
+    required Widget Function() lottie,
+  }) {
+    switch (this) {
+      case GiffyType.image:
+        return image();
+      case GiffyType.rive:
+        return rive();
+      case GiffyType.lottie:
+        return lottie();
+    }
+  }
+}
+
+class TypedExample extends StatelessWidget {
+  const TypedExample({
+    super.key,
+    required this.type,
+  });
+
+  final GiffyType type;
+
+  @override
+  Widget build(BuildContext context) {
+    final useMaterial3 = Theme.of(context).useMaterial3;
+
+    final image = GiffyModel.image(context);
+    final rive = GiffyModel.rive(context);
+    final lottie = GiffyModel.lottie(context);
+
+    Widget buildDialog() {
+      ret
+// ... (truncated)

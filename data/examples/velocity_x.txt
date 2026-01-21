@@ -1,0 +1,52 @@
+import 'package:flutter&#47;material.dart';
+import 'package:velocity_x&#47;velocity_x.dart';
+import 'package:vx_example&#47;mutations&#47;mutations.dart';
+import 'package:vx_example&#47;pages&#47;pages.dart';
+import 'package:vx_example&#47;stores&#47;stores.dart';
+
+&#47;&#47;&#47; Build store and make it part of app
+void main() => runApp(VxState(store: BaseStore(), child: const VxExampleApp()));
+
+&#47;&#47;&#47; VxExampleApp
+class VxExampleApp extends StatelessWidget {
+  &#47;&#47;&#47; Create VxExampleApp
+  const VxExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      &#47;&#47; theme: ThemeData(
+      &#47;&#47;   &#47;&#47; Styles for the AppBar
+      &#47;&#47;   appBarTheme: const AppBarTheme(),
+
+      &#47;&#47;   &#47;&#47; Styles for the BottomNavigationBar
+      &#47;&#47;   bottomNavigationBarTheme: const BottomNavigationBarThemeData(),
+      &#47;&#47; ),
+      home: VxBuilder(
+        mutations: const {SetCurrentIndex},
+        builder: (context, store, status) {
+          return Scaffold(
+            body: store.currentIndex == 0
+                ? const HomePage()
+                : const ProfilePage(),
+            bottomNavigationBar: BottomNavigationBar(
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(key: Key('bottom-nav-home'), Icons.home),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(key: Key('bottom-nav-profile'), Icons.person),
+                  label: 'Profile',
+                ),
+              ],
+              currentIndex: store.currentIndex,
+              onTap: (_) => SetCurrentIndex(),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}

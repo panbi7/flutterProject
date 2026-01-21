@@ -1,0 +1,90 @@
+import 'package:flutter&#47;material.dart';
+
+import 'package:jitsi_meet_flutter_sdk&#47;jitsi_meet_flutter_sdk.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool audioMuted = true;
+  bool videoMuted = true;
+  bool screenShareOn = false;
+  List participants = [];
+  final _jitsiMeetPlugin = JitsiMeet();
+
+  join() async {
+    var options = JitsiMeetConferenceOptions(
+      room: "testgabigabi",
+      configOverrides: {
+        "startWithAudioMuted": true,
+        "startWithVideoMuted": true,
+        &#47;&#47; "customToolbarButtons": [
+        &#47;&#47;   {
+        &#47;&#47;     'id': 'location',
+        &#47;&#47;     'backgroundColor': 'orange',
+        &#47;&#47;     'icon': 'data:image&#47;png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFRSURBVHgB1VTRcYMwDBWdgBG8QTMCGzQbNBuUDWCDsgHZICPQDdINSCcgncCV7p5bVXHADpePvDsdRBbvyX5yiO6MIqXIe+&#47;4UXE4pD4liqI40RowccUx+OsYIH4TeQOSiaPVRPy+4dhxjKhpKAeKfM9RztSVqBHUlALpFB8cKBFSi29cSvEeW3dGdMBxSfRmvUR+uSl00hvyEQSdamDUx4e1ae5Ig3mCF&#47;Ohj+xI0KrcDrmN5nwyGkH9W+WeOT70zONd7oImOxmOqMAZT6dyX4bINmN&#47;n+kalFmdylVh1nE0UvOO3KuqE28mWgJGbjIGtv4SrVoPg9CnCETvAfJviCrS1L9BWBKpw7Ek1DZ2R6kiYTy3MzVb1HSUC5h5hB8usu6wdqRbocwbjek672gN&#47;N&#47;tHlTuELu1a0R+TVempv09Z4h06g7km5ooUmeP48PjBzBGLGGSG2WSAAAAAElFTkSuQmCC',
+        &#47;&#47;   },
+        &#47;&#47; ],
+        &#47;&#47; "toolbarButtons": [
+        &#47;&#47;   'location',
+        &#47;&#47;   'overflowmenu',
+        &#47;&#47;   'hangup'
+        &#47;&#47; ],
+        &#47;&#47; "participantsPane": {
+        &#47;&#47;   &#47;&#47; Enables feature
+        &#47;&#47;   "enabled": false,
+        &#47;&#47;   &#47;&#47; Hides the moderator settings tab.
+        &#47;&#47;   "hideModeratorSettingsTab": true,
+        &#47;&#47;   &#47;&#47; Hides the more actions button.
+        &#47;&#47;   "hideMoreActionsButton": true,
+        &#47;&#47;   &#47;&#47; Hides the mute all button.
+        &#47;&#47;   "hideMuteAllButton": true,
+        &#47;&#47; },
+      },
+      featureFlags: {
+        FeatureFlags.addPeopleEnabled: true,
+        FeatureFlags.welcomePageEnabled: true,
+        FeatureFlags.preJoinPageEnabled: true,
+        FeatureFlags.unsafeRoomWarningEnabled: true,
+        FeatureFlags.resolution: FeatureFlagVideoResolutions.resolution720p,
+        FeatureFlags.audioFocusDisabled: true,
+        FeatureFlags.audioMuteButtonEnabled: true,
+        FeatureFlags.audioOnlyButtonEnabled: true,
+        FeatureFlags.calenderEnabled: true,
+        FeatureFlags.callIntegrationEnabled: true,
+        FeatureFlags.carModeEnabled: true,
+        FeatureFlags.closeCaptionsEnabled: true,
+        FeatureFlags.conferenceTimerEnabled: true,
+        FeatureFlags.chatEnabled: true,
+        FeatureFlags.filmstripEnabled: true,
+        FeatureFlags.fullScreenEnabled: true,
+        FeatureFlags.helpButtonEnabled: true,
+        FeatureFlags.inviteEnabled: true,
+        FeatureFlags.androidScreenSharingEnabled: true,
+        FeatureFlags.speakerStatsEnabled: true,
+        FeatureFlags.kickOutEnabled: true,
+        FeatureFlags.liveStreamingEnabled: true,
+        FeatureFlags.lobbyModeEnabled: true,
+        FeatureFlags.meetingNameEnabled: true,
+        FeatureFlags.meetingPasswordEnabled: true,
+        FeatureFlags.notificationEnabled: true,
+        FeatureFlags.overflowMenuEnabled: true,
+        FeatureFlags.pipEnabled: true,
+        FeatureFlags.pipWhileScreenSharingEnabled: true,
+        FeatureFlags.preJoinPageHideDisplayName: true,
+        FeatureFlags.raiseHandEnabled: true,
+        FeatureFlags.reactionsEnabled: true,
+        FeatureFlags.recordingEnabled: true,
+        FeatureFlags.replaceParticipant: true,
+        FeatureFlags.securityOptionEnabled: true,
+        FeatureFlags.serverUrlChangeEnabled: true,
+        FeatureFlags.settingsEnabled
+// ... (truncated)

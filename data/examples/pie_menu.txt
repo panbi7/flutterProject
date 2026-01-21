@@ -1,0 +1,148 @@
+import 'package:flutter&#47;gestures.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:font_awesome_flutter&#47;font_awesome_flutter.dart';
+import 'package:pie_menu&#47;pie_menu.dart';
+import 'package:url_launcher&#47;url_launcher_string.dart';
+
+extension ContextExtension on BuildContext {
+  void showSnackBar(String message) {
+    ScaffoldMessenger.of(this).removeCurrentSnackBar();
+    ScaffoldMessenger.of(this).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
+void launchUrlExternally(String url) {
+  launchUrlString(url, mode: LaunchMode.externalApplication);
+}
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+    ),
+  );
+  runApp(const ExampleApp());
+}
+
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Pie Menu',
+      home: const HomePage(),
+      theme: ThemeData(
+        fontFamily: 'Poppins',
+        textTheme: const TextTheme().apply(fontFamily: 'Poppins'),
+        snackBarTheme: const SnackBarThemeData(
+          contentTextStyle: TextStyle(
+            fontFamily: 'Poppins',
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  var _navigationIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return PieCanvas(
+      theme: const PieTheme(
+        rightClickShowsMenu: true,
+        tooltipTextStyle: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Flutter Pie Menu 🥧',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+        body: IndexedStack(
+          index: _navigationIndex,
+          children: const [
+            StylingPage(),
+            ListViewPage(),
+            AboutPage(),
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _navigationIndex,
+          onTap: (index) => setState(() => _navigationIndex = index),
+          items: const [
+            BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.palette),
+              label: 'Styling',
+            ),
+            BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.list),
+              label: 'ListView',
+            ),
+            BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.circleInfo),
+              label: 'About',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47;* different styles *&#47;&#47;
+class StylingPage extends StatelessWidget {
+  const StylingPage({super.key});
+
+  static const double spacing = 20;
+
+  @override
+  Widget build(BuildContext context) {
+    return PieCanvas(
+      theme: const PieTheme(
+        regularPressShowsMenu: true,
+        tooltipTextStyle: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      child: Builder(
+        builder: (context) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(spacing),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: PieMenu(
+                            actions: [
+                              PieAction(
+  
+// ... (truncated)

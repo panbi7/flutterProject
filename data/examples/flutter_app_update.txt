@@ -1,0 +1,138 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_app_update&#47;flutter_app_update.dart';
+import 'package:flutter_app_update&#47;result_model.dart';
+import 'package:flutter_app_update_example&#47;generated&#47;l10n.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const App());
+}
+
+class App extends StatelessWidget {
+  const App({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(useMaterial3: false),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Builder(
+            builder: (context) {
+              return Text(
+                S.of(context).appTitle,
+                style: const TextStyle(fontSize: 16),
+              );
+            },
+          ),
+        ),
+        body: const HomePage(),
+      ),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  String url =
+      "https:&#47;&#47;imtt.dd.qq.com&#47;16891&#47;apk&#47;FA48766BA12A41A1D619CB4B152889C6.apk?fsname=com.estrongs.android.pop_4.2.3.3_10089.apk&csr=1bbd";
+
+  @override
+  void initState() {
+    super.initState();
+    AzhonAppUpdate.listener((ResultModel model) {
+      debugPrint('$model');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _item(S.of(context).upgrade, () {
+            _showUpdateDialog(false);
+          }),
+          _item(S.of(context).forceUpgrade, () {
+            _showUpdateDialog(true);
+          }),
+          _item(S.of(context).cancel, () {
+            AzhonAppUpdate.cancel.then((value) {
+              debugPrint('cancel download status = $value');
+            });
+          }),
+          const Divider(height: 10),
+          _item(S.of(context).install, () {
+            AzhonAppUpdate.install('Your apk path').then((value) {
+              debugPrint('install status = $value');
+            });
+          }),
+          const Divider(height: 10),
+          _item(S.of(context).getCode, () {
+            AzhonAppUpdate.getVersionCode.then((value) {
+              debugPrint('versionCode result = $value');
+            });
+          }),
+          _item(S.of(context).getName, () {
+            AzhonAppUpdate.getVersionName.then((value) {
+              debugPrint('versionName result = $value');
+            });
+          }),
+        ],
+      ),
+    );
+  }
+
+  _showUpdateDialog(bool forcedUpgrade) {
+    showDialog(
+      context: context,
+      barrierDismissible: !forcedUpgrade,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () => Future.value(!forcedUpgrade),
+          child: AlertDialog(
+            title: Text(S.of(context).dialogTitle),
+            content: Text(S.of(context).dialogContent),
+            actions: [
+              if (!forcedUpgrade)
+                TextButton(
+                  child: Text(S.of(context).dialogCancel),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              TextButton(
+                child: Text(S.of(context).dialogConfirm),
+                onPressed: () {
+                  _appUpdate();
+                  if (!forcedUpgrade) {
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  _appUpdate() {
+    UpdateModel model = UpdateModel(
+      url,
+      "
+// ... (truncated)

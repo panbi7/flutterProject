@@ -1,0 +1,107 @@
+import 'dart:ui';
+
+import 'package:flutter&#47;material.dart';
+import 'package:sound_generator&#47;sound_generator.dart';
+import 'package:sound_generator&#47;waveTypes.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class MyPainter extends CustomPainter {
+  &#47;&#47;          oneCycleData;
+
+  MyPainter(this.oneCycleData);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    var i = 0;
+    List maxPoints = [];
+
+    final t = size.width &#47; (oneCycleData.length - 1);
+    for (var i0 = 0, len = oneCycleData.length; i0  {
+  bool isPlaying = false;
+  double frequency = 20;
+  double balance = 0;
+  double volume = 1;
+  double dB = 0;
+  waveTypes waveType = waveTypes.SINUSOIDAL;
+  int sampleRate = 192000;
+  List? oneCycleData;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        home: Scaffold(
+            appBar: AppBar(
+              title: const Text('Sound Generator Example'),
+            ),
+            body: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 20,
+                ),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text("A Cycle's Snapshot With Real Data"),
+                      const SizedBox(height: 2),
+                      Container(
+                          height: 100,
+                          width: double.infinity,
+                          color: Colors.white54,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 0,
+                          ),
+                          child: oneCycleData != null
+                              ? CustomPaint(
+                                  painter: MyPainter(oneCycleData!),
+                                )
+                              : Container()),
+                      const SizedBox(height: 2),
+                      Text(
+                          "A Cycle Data Length is ${(sampleRate &#47; frequency).round()} on sample rate $sampleRate"),
+                      const SizedBox(height: 5),
+                      const Divider(
+                        color: Colors.red,
+                      ),
+                      const SizedBox(height: 5),
+                      CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Colors.lightBlueAccent,
+                          child: IconButton(
+                              icon: Icon(
+                                  isPlaying ? Icons.stop : Icons.play_arrow),
+                              onPressed: () {
+                                isPlaying
+                                    ? SoundGenerator.stop()
+                                    : SoundGenerator.play();
+                              })),
+                      const SizedBox(height: 5),
+                      const Divider(
+                        color: Colors.red,
+                      ),
+                      const SizedBox(height: 5),
+                      const Text("Wave Form"),
+                      Center(
+                          child: DropdownButton(
+                              value: waveType,
+                              onChanged: (waveTypes? newValue) {
+                                setState(() {
+                                  waveType = newValue!;
+                                  SoundGenerator.setWaveType(waveType);
+                                });
+                              },
+                              items:
+      
+// ... (truncated)

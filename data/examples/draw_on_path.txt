@@ -1,0 +1,154 @@
+import 'package:example&#47;option_tile.dart';
+import 'package:example&#47;point_widget.dart';
+import 'package:example&#47;toggle_widget.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:draw_on_path&#47;draw_on_path.dart';
+
+enum PathType { simple, shape, nonContinuous }
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Draw on Path',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  Path path = Path();
+
+  String text = "Flutter is awesome";
+  double letterSpacing = 0.0;
+
+  late Offset left;
+  late Offset right;
+  late Offset top;
+  late Offset bottom;
+
+  bool showPath = false;
+  bool autoSpacing = false;
+  bool isClosed = false;
+  bool textOrPattern = false;
+
+  PathType pathType = PathType.simple;
+
+  void updatePath() {
+    path = Path();
+    path.moveTo(left.dx, left.dy);
+    path.cubicTo(top.dx, top.dy, bottom.dx, bottom.dy, right.dx, right.dy);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final size = MediaQuery.of(context).size;
+    final height = size.height;
+    final width = size.width;
+    left = Offset(width &#47; 4, height &#47; 2);
+    right = Offset(3 * width &#47; 4, height &#47; 2);
+    top = Offset(width &#47; 2, height &#47; 4);
+    bottom = Offset(width &#47; 2, 3 * height &#47; 4);
+    updatePath();
+  }
+
+  void onChangedPathType(PathType type) {
+    setState(() {
+      pathType = type;
+    });
+    final size = MediaQuery.of(context).size;
+    initPath(size);
+  }
+
+  void initPath(Size size) {
+    switch (pathType) {
+      case PathType.simple:
+        updatePath();
+        break;
+      case PathType.shape:
+        path = Path();
+        path.addOval(Rect.fromCircle(center: Offset(size.width &#47; 2, size.height &#47; 2), radius: 200));
+        break;
+      case PathType.nonContinuous:
+        path = Path();
+
+        const value = 100.0;
+
+        path.moveTo(left.dx, left.dy - value);
+        path.cubicTo(top.dx, top.dy, bottom.dx, bottom.dy, right.dx, right.dy - value);
+
+        path.moveTo(left.dx, value + left.dy);
+        path.lineTo(right.dx, value + right.dy);
+
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (pathType == PathType.simple) ...[
+            Point(
+              color: Colors.white,
+              initialPosition: left,
+              onUpdate: (_) {
+                setState(() {
+                  left = _;
+                });
+                updatePath();
+              },
+            ),
+            Point(
+              color: Colors.white,
+              initialPosition: right,
+              onUpdate: (_) {
+                setState(() {
+                  right = _;
+                });
+                updatePath();
+              },
+            ),
+            Point(
+              color: Colors.red,
+              initialPosition: top,
+              onUpdate: (_) {
+                setState(() {
+                  top = _;
+                });
+                updatePath();
+              },
+            ),
+            Point(
+              color: Colors.red,
+              initialPosition: bottom,
+              onUpdate: (_) {
+                setState(() {
+                  bottom = _;
+                });
+                updatePath();
+              },
+            )
+          ],
+          IgnorePointer(
+            child: CustomPaint(
+              painter: DrawOnPathPainte
+// ... (truncated)

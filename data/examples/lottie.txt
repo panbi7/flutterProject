@@ -1,0 +1,30 @@
+import 'package:flutter&#47;material.dart';
+import 'package:lottie&#47;lottie.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: ListView(
+          children: [
+            &#47;&#47; Load a Lottie file from your assets
+            Lottie.asset('assets&#47;LottieLogo1.json'),
+
+            &#47;&#47; Load a Lottie file from a remote url
+            Lottie.network(
+              'https:&#47;&#47;raw.githubusercontent.com&#47;xvrh&#47;lottie-flutter&#47;master&#47;example&#47;assets&#47;Mobilo&#47;A.json',
+            ),
+
+            &#47;&#47; Load an animation and its images from a zip file
+            Lottie.asset('assets&#47;lottiefiles&#47;angel.zip'),
+          ],
+        ),
+      ),
+    );
+  }
+}

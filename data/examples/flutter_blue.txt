@@ -1,0 +1,117 @@
+&#47;&#47; Copyright 2017, Paul DeMarco.
+&#47;&#47; All rights reserved. Use of this source code is governed by a
+&#47;&#47; BSD-style license that can be found in the LICENSE file.
+
+import 'dart:async';
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_blue&#47;flutter_blue.dart';
+import 'package:flutter_blue_example&#47;widgets.dart';
+
+void main() {
+  runApp(FlutterBlueApp());
+}
+
+class FlutterBlueApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      color: Colors.lightBlue,
+      home: StreamBuilder(
+          stream: FlutterBlue.instance.state,
+          initialData: BluetoothState.unknown,
+          builder: (c, snapshot) {
+            final state = snapshot.data;
+            if (state == BluetoothState.on) {
+              return FindDevicesScreen();
+            }
+            return BluetoothOffScreen(state: state);
+          }),
+    );
+  }
+}
+
+class BluetoothOffScreen extends StatelessWidget {
+  const BluetoothOffScreen({Key? key, this.state}) : super(key: key);
+
+  final BluetoothState? state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.lightBlue,
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.bluetooth_disabled,
+              size: 200.0,
+              color: Colors.white54,
+            ),
+            Text(
+              'Bluetooth Adapter is ${state != null ? state.toString().substring(15) : 'not available'}.',
+              style: Theme.of(context)
+                  .primaryTextTheme
+                  .subhead
+                  ?.copyWith(color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class FindDevicesScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Find Devices'),
+      ),
+      body: RefreshIndicator(
+        onRefresh: () =>
+            FlutterBlue.instance.startScan(timeout: Duration(seconds: 4)),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              StreamBuilder>(
+                stream: Stream.periodic(Duration(seconds: 2))
+                    .asyncMap((_) => FlutterBlue.instance.connectedDevices),
+                initialData: [],
+                builder: (c, snapshot) => Column(
+                  children: snapshot.data!
+                      .map((d) => ListTile(
+                            title: Text(d.name),
+                            subtitle: Text(d.id.toString()),
+                            trailing: StreamBuilder(
+                              stream: d.state,
+                              initialData: BluetoothDeviceState.disconnected,
+                              builder: (c, snapshot) {
+                                if (snapshot.data ==
+                                    BluetoothDeviceState.connected) {
+                                  return RaisedButton(
+                                    child: Text('OPEN'),
+                                    onPressed: () => Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                DeviceScreen(device: d))),
+                                  );
+                                }
+                                return Text(snapshot.data.toString());
+                              },
+                            ),
+                          ))
+                      .toList(),
+                ),
+              ),
+              StreamBuilder>(
+                stream: FlutterBlue.instance.scanResults,
+                initialData: [],
+                builder: (c, snapshot) => Column(
+                  children: snapshot.data!
+                      .map(
+                        (r) => ScanResultT
+// ... (truncated)

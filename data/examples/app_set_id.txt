@@ -1,0 +1,57 @@
+import 'dart:async';
+
+import 'package:app_set_id&#47;app_set_id.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _identifier = 'Loading...';
+  final _appSetIdPlugin = AppSetId();
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    String identifier;
+    try {
+      identifier = await _appSetIdPlugin.getIdentifier() ?? "Unknown";
+    } on PlatformException {
+      identifier = 'Failed to get identifier.';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _identifier = identifier;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('App Set ID'),
+        ),
+        body: Center(
+          child: Text('App Set ID: $_identifier\n'),
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,82 @@
+import 'package:flutter&#47;material.dart';
+
+import 'required_validation_container.dart';
+import 'min_validation_container.dart';
+import 'max_validation_container.dart';
+import 'email_validation_container.dart';
+import 'min_length_validation_container.dart';
+import 'max_length_validation_container.dart';
+import 'pattern_validation_container.dart';
+import 'compose_validation_container.dart';
+import 'trimmed_validation_container.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(),
+        ),
+        buttonTheme: ButtonThemeData(
+          textTheme: ButtonTextTheme.primary,
+        ),
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Form Validtors Example'),
+        ),
+        body: _Body(),
+      ),
+    );
+  }
+}
+
+class _Body extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 8,
+      ),
+      children: [
+        SizedBox(height: 8),
+        RequiredValidationContainer(),
+        SizedBox(height: 8),
+        Divider(),
+        SizedBox(height: 8),
+        MinValidationContainer(),
+        SizedBox(height: 8),
+        Divider(),
+        SizedBox(height: 8),
+        MaxValidationContainer(),
+        SizedBox(height: 8),
+        Divider(),
+        SizedBox(height: 8),
+        EmailValidationContainer(),
+        SizedBox(height: 8),
+        Divider(),
+        SizedBox(height: 8),
+        MinLengthValidationContainer(),
+        SizedBox(height: 8),
+        Divider(),
+        SizedBox(height: 8),
+        MaxLengthValidationContainer(),
+        SizedBox(height: 8),
+        Divider(),
+        SizedBox(height: 8),
+        PatternValidationContainer(),
+        SizedBox(height: 8),
+        Divider(),
+        SizedBox(height: 8),
+        ComposeValidationContainer(),
+        SizedBox(height: 8),
+        TrimmedValidationContainer(),
+      ],
+    );
+  }
+}

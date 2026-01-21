@@ -1,0 +1,94 @@
+import 'package:flutter&#47;material.dart';
+import 'package:mapbox_maps_example&#47;animated_route_example.dart';
+import 'package:mapbox_maps_example&#47;animation_example.dart';
+import 'package:mapbox_maps_example&#47;camera_example.dart';
+import 'package:mapbox_maps_example&#47;circle_annotations_example.dart';
+import 'package:mapbox_maps_example&#47;cluster_example.dart';
+import 'package:mapbox_maps_example&#47;custom_vector_icons_example.dart';
+import 'package:mapbox_maps_example&#47;custom_header_example.dart';
+import 'package:mapbox_maps_example&#47;draggable-annotations-example.dart';
+import 'package:mapbox_maps_example&#47;edit_polygon_example.dart';
+import 'package:mapbox_maps_example&#47;model_layer_interactions_example.dart';
+import 'package:mapbox_maps_example&#47;offline_map_example.dart';
+import 'package:mapbox_maps_example&#47;model_layer_example.dart';
+import 'package:mapbox_maps_example&#47;ornaments_example.dart';
+import 'package:mapbox_maps_example&#47;geojson_line_example.dart';
+import 'package:mapbox_maps_example&#47;image_source_example.dart';
+import 'package:mapbox_maps_example&#47;map_interface_example.dart';
+import 'package:mapbox_maps_example&#47;standard_style_import_example.dart';
+import 'package:mapbox_maps_example&#47;standard_style_interactions_example.dart';
+import 'package:mapbox_maps_example&#47;polygon_annotations_example.dart';
+import 'package:mapbox_maps_example&#47;polyline_annotations_example.dart';
+import 'package:mapbox_maps_example&#47;simple_map_example.dart';
+import 'package:mapbox_maps_example&#47;snapshotter_example.dart';
+import 'package:mapbox_maps_example&#47;traffic_layer_example.dart';
+import 'package:mapbox_maps_example&#47;spinning_globe_example.dart';
+import 'package:mapbox_maps_example&#47;traffic_route_line_example.dart';
+import 'package:mapbox_maps_example&#47;tile_json_example.dart';
+import 'package:mapbox_maps_example&#47;vector_tile_source_example.dart';
+import 'package:mapbox_maps_example&#47;viewport_example.dart';
+import 'package:mapbox_maps_flutter&#47;mapbox_maps_flutter.dart';
+
+import 'full_map_example.dart';
+import 'location_example.dart';
+import 'example.dart';
+import 'point_annotations_example.dart';
+import 'projection_example.dart';
+import 'style_example.dart';
+import 'gestures_example.dart';
+import 'debug_options_example.dart';
+import 'map_recorder_example.dart';
+
+final List _allPages = [
+  SimpleMapExample(),
+  ViewportExample(),
+  SnapshotterExample(),
+  TrafficRouteLineExample(),
+  OfflineMapExample(),
+  ModelLayerExample(),
+  DebugOptionsExample(),
+  SpinningGlobeExample(),
+  StandardStyleImportExample(),
+  StandardStyleInteractionsExample(),
+  ModelLayerInteractionsExample(),
+  FullMapExample(),
+  StyleExample(),
+  CameraExample(),
+  ProjectionExample(),
+  MapInterfaceExample(),
+  StyleClustersExample(),
+  AnimationExample(),
+  MapRecorderExample(),
+  PointAnnotationExample(),
+  CircleAnnotationExample(),
+  PolylineAnnotationExample(),
+  PolygonAnnotationExample(),
+  DraggableAnnotationExample(),
+  EditPolygonExample(),
+  VectorTileSourceExample(),
+  DrawGeoJsonLineExample(),
+  ImageSourceExample(),
+  TileJsonExample(),
+  LocationExample(),
+  GesturesExample(),
+  OrnamentsExample(),
+  AnimatedRouteExample(),
+  CustomHeaderExample(),
+  TrafficLayerExample(),
+  CustomVectorIconsExample(),
+];
+
+class MapsDemo extends StatelessWidget {
+  &#47;&#47; FIXME: You need to pass in your access token via the command line argument
+  &#47;&#47; --dart-define=ACCESS_TOKEN=ADD_YOUR_TOKEN_HERE
+  &#47;&#47; It is also possible to pass it in while running the app via an IDE by
+  &#47;&#47; passing the same args there.
+  &#47;&#47;
+  &#47;&#47; Alternatively you can replace `String.fromEnvironment("ACCESS_TOKEN")`
+  &#47;&#47; in the following line with your access token directly.
+  static const String ACCESS_TOKEN = String.fromEnvironment("ACCESS_TOKEN");
+
+  void _pushPage(BuildContext context, Example page) async {
+    Navigator.of(context).push(MaterialPageRoute(
+      
+// ... (truncated)

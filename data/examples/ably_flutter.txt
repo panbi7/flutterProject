@@ -1,0 +1,6 @@
+// Create an instance of ClientOptions with Ably key
+final clientOptions = ably.ClientOptions(key: '');
+
+// Use ClientOptions to create Realtime or REST instance
+ably.Realtime realtime = ably.Realtime(options: clientOptions);
+ably.Rest rest = ably.Rest(options: clientOptions);

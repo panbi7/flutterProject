@@ -1,0 +1,68 @@
+import 'package:redux/redux.dart';
+
+// Create typed actions. You will dispatch these in order to
+// update the state of your application.
+enum Actions {
+  increment,
+  decrement,
+}
+
+// Create a Reducer. A reducer is a pure function that takes the 
+// current State (int) and the Action that was dispatched. It should
+// combine the two into a new state without mutating the state passed
+// in! After the state is updated, the store will emit the update to 
+// the `onChange` stream.
+// 
+// Because reducers are pure functions, they should not perform any 
+// side-effects, such as making an HTTP request or logging messages
+// to a console. For that, use Middleware.
+int counterReducer(int state, action) {
+  if (action == Actions.increment) {
+    return state + 1;
+  } else if (action == Actions.decrement) {
+    return state - 1;
+  }
+  
+  return state;
+}
+
+// A piece of middleware that will log all actions with a timestamp
+// to your console!
+// 
+// Note, this is just an example of how to write your own Middleware.
+// See the redux_logging package on pub for a pre-built logging 
+// middleware.
+loggingMiddleware(Store store, action, NextDispatcher next) {
+  print('${new DateTime.now()}: $action');
+
+  next(action);
+}
+
+main() {
+  // Create the store with our Reducer and Middleware
+  final store = new Store(
+    counterReducer, 
+    initialState: 0, 
+    middleware: [loggingMiddleware],
+  );
+
+  // Render our State right away
+  render(store.state);
+  
+  // Listen to store changes, and re-render when the state is updated
+  store.onChange.listen(render);
+
+  // Attach a click handler to a button. When clicked, the `INCREMENT` action
+  // will be dispatched. It will then run through the reducer, updating the 
+  // state.
+  //
+  // After the state changes, the html will be re-rendered by our `onChange`
+  // listener above. 
+  querySelector('#increment').onClick.listen((_) {
+    store.dispatch(Actions.increment);
+  });
+}
+
+render(int state) {
+  querySelector('#value').innerHtml = '${state}';
+}

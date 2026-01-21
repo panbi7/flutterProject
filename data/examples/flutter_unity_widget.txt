@@ -1,0 +1,37 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_unity_widget_example&#47;screens&#47;no_interaction_screen.dart';
+import 'package:flutter_unity_widget_example&#47;screens&#47;orientation_screen.dart';
+
+import 'menu_screen.dart';
+import 'screens&#47;api_screen.dart';
+import 'screens&#47;loader_screen.dart';
+import 'screens&#47;simple_screen.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Unity Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      initialRoute: '&#47;',
+      routes: {
+        '&#47;': (context) => const MenuScreen(),
+        '&#47;simple': (context) => const SimpleScreen(),
+        '&#47;loader': (context) => const LoaderScreen(),
+        '&#47;orientation': (context) => const OrientationScreen(),
+        '&#47;api': (context) => const ApiScreen(),
+        '&#47;none': (context) => const NoInteractionScreen(),
+      },
+    );
+  }
+}

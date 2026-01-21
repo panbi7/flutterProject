@@ -1,0 +1,79 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;foundation.dart' as foundation;
+import 'dart:async';
+import 'package:proximity_sensor&#47;proximity_sensor.dart';
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  &#47;&#47; ignore: library_private_types_in_public_api
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool _isNear = false;
+  late StreamSubscription _streamSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    listenSensor();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _streamSubscription.cancel();
+  }
+
+  Future listenSensor() async {
+    FlutterError.onError = (FlutterErrorDetails details) {
+      if (foundation.kDebugMode) {
+        FlutterError.dumpErrorToConsole(details);
+      }
+    };
+
+    &#47;&#47; -------------------------------------------------- 
+    &#47;&#47; NOTE: The following calls only work on Android. Otherwise, nothing happens.
+    &#47;&#47; You only need to make this call if you want to turn off the screen.
+    &#47;&#47; Add below permission in your AndroidManifest.xml file.
+    &#47;&#47;     
+    await ProximitySensor.setProximityScreenOff(true)
+        .onError((error, stackTrace) {
+      if (foundation.kDebugMode) {
+        debugPrint("could not enable screen off functionality");
+      }
+      return null;
+    });
+    &#47;&#47; -------------------------------------------------- 
+
+    _streamSubscription = ProximitySensor.events.listen((int event) {
+      setState(() {
+        if (foundation.kDebugMode) {
+          debugPrint("sensor event = $event");
+        }
+        _isNear = (event > 0) ? true : false;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Proximity Sensor Example'),
+        ),
+        body: Center(
+          child: Text('proximity sensor, is near ?  $_isNear\n'),
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;
+void main() {
+  runApp(MyApp());
+}

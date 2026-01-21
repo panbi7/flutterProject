@@ -1,0 +1,113 @@
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'package:example&#47;i18n.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:states_rebuilder&#47;states_rebuilder.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+import 'name_repository.dart';
+
+&#47;&#47; Inject the repository, so it can be mocked in test.
+&#47;&#47;
+&#47;&#47; As the behavior of the repository is not predicted because it depends on a
+&#47;&#47; random number.
+&#47;&#47; In test we define a fake implementation of NameRepository, and injected it
+&#47;&#47; using : repository.injectMock(()=> FakeNameRepository()); and voila, just
+&#47;&#47; pump the widget and test it predictably. (See test folder)
+final repository = RM.inject(() => NameRepository());
+
+&#47;&#47; create a name state and inject it.
+final name = RM.inject(() => '');
+
+final helloName = RM.inject(
+  () => 'Hello, ${name.state}',
+  &#47;&#47; helloName depends on the name injected model.
+  &#47;&#47; Whenever the name state changes the helloName will recalculate its
+  &#47;&#47; creation function and notify its listeners.
+  &#47;&#47;
+  &#47;&#47; helloName state status is a combination of its own state and the state
+  &#47;&#47; of the injected models that it depends on.
+  &#47;&#47; ex: if name is waiting => helloName is waiting,
+  &#47;&#47;     if name has error => helloName has error,
+  &#47;&#47;     if name has data => helloName state will be recalculated
+
+  dependsOn: DependsOn(
+    {name},
+    &#47;&#47; Do not recalculate until 400 ms has passed without any
+    &#47;&#47; further notification from name injected model.
+    debounceDelay: 400,
+  ),
+  &#47;&#47; Execute side effects while notify the state
+  &#47;&#47;
+  &#47;&#47; It take on On objects, it has many named constructor: On.data, On.error,
+  &#47;&#47; On.waiting, On.all and On.or
+  sideEffects: SideEffects(
+    onSetState: (snapState) {
+      snapState.onOrElse(
+        onWaiting: () => RM.scaffold.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Text('Waiting ...'),
+                Spacer(),
+                CircularProgressIndicator(),
+              ],
+            ),
+          ),
+        ),
+        onError: (err, refresh) => RM.scaffold.showSnackBar(
+          SnackBar(content: Text('${err.message}')),
+        ),
+        &#47;&#47; the other case. hide the snackbar
+        orElse: (_) => RM.scaffold.hideCurrentSnackBar(),
+      );
+    },
+  ),
+  &#47;&#47;Set the undoStackLength to 5. This will automatically
+  &#47;&#47; enable doing and undoing of the  state
+  undoStackLength: 5,
+);
+&#47;&#47;Stream that emits the entered name letter by letter
+final streamedHelloName = RM.injectStream(
+  () async* {
+    if (&#47;*name.isActive && *&#47; name.state.isEmpty) {
+      throw Exception(i18n.state.enterYourName);
+    }
+    final letters = name.state.trim().split('');
+    var n = '';
+    for (var letter in letters) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      &#47;&#47; yield the name letter by letter
+      yield n += letter;
+    }
+  },
+  initialState: '',
+  onInitialized: (state, subscription) {
+    &#47;&#47; As the stream will start automatically on creation,
+    &#47;&#47; we use the onInitialized hook to pause it.
+    subscription.pause();
+  },
+);
+&#47;&#47;
+&#47;&#47;
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends TopStatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      &#47;&#47; To navigate and show snackBars without the BuildContext, we define
+      &#47;&#47; the navigator key
+      navigatorKey: RM.navigate.navigatorKey,
+      locale: i18n.locale,
+      localeResolutionCallback: i18n.localeResolutionCallback,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      home: const HomeWidget(),
+      deb
+// ... (truncated)

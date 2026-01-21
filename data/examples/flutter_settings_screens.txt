@@ -1,0 +1,122 @@
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_settings_screens&#47;flutter_settings_screens.dart';
+
+import 'app_settings_page.dart';
+import 'cache_provider.dart';
+
+void main() {
+  initSettings().then((accentColor) {
+    runApp(MyApp(accentColor: accentColor));
+  });
+}
+
+Future> initSettings() async {
+  await Settings.init(
+    cacheProvider: _isUsingHive ? HiveCache() : SharePreferenceCache(),
+  );
+  final _accentColor = ValueNotifier(Colors.blueAccent);
+  return _accentColor;
+}
+
+bool _isDarkTheme = true;
+bool _isUsingHive = true;
+
+class MyApp extends StatelessWidget {
+  final ValueNotifier accentColor;
+
+  const MyApp({Key? key, required this.accentColor}) : super(key: key);
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MyHomePage(
+      title: 'Flutter Demo Home Page',
+      accentColor: accentColor,
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  final String title;
+  final ValueNotifier accentColor;
+
+  const MyHomePage({
+    Key? key,
+    required this.accentColor,
+    required this.title,
+  }) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: widget.accentColor,
+      builder: (_, color, __) {
+        final _darkTheme = ThemeData.dark();
+        final _lightTheme = ThemeData.light();
+        return MaterialApp(
+          title: 'App Settings Demo',
+          theme: _isDarkTheme
+              ? _darkTheme.copyWith(
+                  colorScheme: _darkTheme.colorScheme.copyWith(
+                    secondary: color,
+                  ),
+                  checkboxTheme: CheckboxThemeData(
+                    fillColor: MaterialStateProperty.resolveWith(
+                        (Set states) {
+                      if (states.contains(MaterialState.disabled)) {
+                        return null;
+                      }
+                      if (states.contains(MaterialState.selected)) {
+                        return color;
+                      }
+                      return null;
+                    }),
+                  ),
+                  radioTheme: RadioThemeData(
+                    fillColor: MaterialStateProperty.resolveWith(
+                        (Set states) {
+                      if (states.contains(MaterialState.disabled)) {
+                        return null;
+                      }
+                      if (states.contains(MaterialState.selected)) {
+                        return color;
+                      }
+                      return null;
+                    }),
+                  ),
+                  switchTheme: SwitchThemeData(
+                    thumbColor: MaterialStateProperty.resolveWith(
+                        (Set states) {
+                      if (states.contains(MaterialState.disabled)) {
+                        return null;
+                      }
+                      if (states.contains(MaterialState.selected)) {
+                        return color;
+                      }
+                      return null;
+                    }),
+                    trackColor: MaterialStateProperty.resolveWith(
+                        (Set states) {
+                      if (states.contains(MaterialState.disabled)) {
+                        return null;
+                      }
+                      if (states.contains(MaterialState.selected)) {
+                        return color;
+                      }
+                      return null;
+                    }),
+                  ),
+                )
+              : _lightTheme.copyWith(
+                  colorScheme: _darkTheme.colorScheme.copyWith(
+                    secondary: color,
+                  ),
+                  checkboxTheme: CheckboxThemeData(
+                    fillColor: MaterialStateProperty.r
+// ... (truncated)

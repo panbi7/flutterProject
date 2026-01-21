@@ -1,0 +1,115 @@
+import 'package:flutter&#47;material.dart';
+import 'package:provider&#47;provider.dart';
+import 'package:qonversion_flutter&#47;qonversion_flutter.dart';
+
+import 'app_state.dart';
+import 'theme.dart';
+import 'screens&#47;main_screen.dart';
+import 'screens&#47;products_screen.dart';
+import 'screens&#47;entitlements_screen.dart';
+import 'screens&#47;offerings_screen.dart';
+import 'screens&#47;remote_configs_screen.dart';
+import 'screens&#47;user_screen.dart';
+import 'screens&#47;no_codes_screen.dart';
+import 'screens&#47;other_screen.dart';
+
+const String projectKey = 'PV77YHL7qnGvsdmpTs7gimsxUvY-Znl2';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AppState(),
+      child: const QonversionDemoApp(),
+    ),
+  );
+}
+
+class QonversionDemoApp extends StatefulWidget {
+  const QonversionDemoApp({super.key});
+
+  @override
+  State createState() => _QonversionDemoAppState();
+}
+
+class _QonversionDemoAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47; Use addPostFrameCallback to avoid calling notifyListeners during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeQonversion();
+    });
+  }
+
+  Future _initializeQonversion() async {
+    final appState = Provider.of(context, listen: false);
+    
+    try {
+      appState.setInitStatus('initializing');
+      debugPrint('🔄 [Qonversion] Starting SDK initialization...');
+      
+      final config = QonversionConfigBuilder(
+        projectKey,
+        QLaunchMode.subscriptionManagement,
+      )
+          .setEnvironment(QEnvironment.sandbox)
+          .setEntitlementsCacheLifetime(QEntitlementsCacheLifetime.month)
+          .build();
+      
+      Qonversion.initialize(config);
+      debugPrint('✅ [Qonversion] SDK initialized successfully');
+      
+      &#47;&#47; Initialize No-Codes
+      final noCodesConfig = NoCodesConfigBuilder(projectKey).build();
+      final noCodes = NoCodes.initialize(noCodesConfig);
+      debugPrint('✅ [NoCodes] SDK initialized successfully');
+      
+      &#47;&#47; Subscribe to No-Codes events
+      _subscribeToNoCodesEvents(noCodes, appState);
+      
+      appState.setInitStatus('success');
+      
+      &#47;&#47; Load initial user info
+      _loadUserInfo();
+    } catch (e) {
+      debugPrint('❌ [Qonversion] SDK initialization failed: $e');
+      appState.setInitStatus('error');
+    }
+  }
+
+  void _subscribeToNoCodesEvents(NoCodes noCodes, AppState appState) {
+    noCodes.screenShownStream.listen((event) {
+      final screenId = event.payload?['screenId'] ?? 'unknown';
+      debugPrint('📡 [NoCodes] Screen shown: $screenId');
+      appState.addNoCodesEvent('Screen shown: $screenId');
+    });
+    
+    noCodes.actionStartedStream.listen((event) {
+      final actionType = event.payload?['actionType'] ?? event.payload?['type'] ?? 'unknown';
+      debugPrint('📡 [NoCodes] Action started: $actionType');
+      appState.addNoCodesEvent('Action started: $actionType');
+    });
+    
+    noCodes.actionFinishedStream.listen((event) {
+      final actionType = event.payload?['actionType'] ?? event.payload?['type'] ?? 'unknown';
+      debugPrint('📡 [NoCodes] Action finished: $actionType');
+      appState.addNoCodesEvent('Action finished: $actionType');
+    });
+    
+    noCodes.actionFailedStream.listen((event) {
+      final actionType = event.payload?['actionType'] ?? event.payload?['type'] ?? 'unknown';
+      final error = event.payload?['error'] ?? 'unknown error';
+      debugPrint('📡 [NoCodes] Action failed: $actionType - $error');
+      appState.addNoCodesEvent('Action failed: $actionType - $error');
+    });
+    
+    noCodes.finishedStream.listen((event) {
+      debugPrint('📡 [NoCodes] Flow finished');
+      appState.addNoCodesEvent('Flow finished');
+    });
+    
+    noCodes.screenFailedToLoadStream.listen((event) {
+      final error = event.payload?['error'] ?? 'unknown error';
+      debugPrint('📡 [NoCodes] Screen failed to loa
+// ... (truncated)

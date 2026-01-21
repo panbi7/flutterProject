@@ -1,0 +1,60 @@
+import 'package:floating_bubbles&#47;floating_bubbles.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'fps.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      showPerformanceOverlay: true,
+      home: Scaffold(
+        body: HomePage(),
+      ),
+    );
+  }
+}
+
+&#47;&#47; Simple example.
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    eachFrame()
+        .take(10000)
+        .transform(const ComputeFps())
+        &#47;&#47; ignore: avoid_print
+        .listen((fps) => print('fps: $fps'));
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Container(
+            color: Colors.blue,
+          ),
+        ),
+        Positioned.fill(
+          child: FloatingBubbles.alwaysRepeating(
+            noOfBubbles: 50,
+            colorsOfBubbles: const [
+              Colors.white,
+              Colors.red,
+            ],
+            sizeFactor: 0.2,
+            opacity: 70,
+            speed: BubbleSpeed.slow,
+            paintingStyle: PaintingStyle.fill,
+            shape: BubbleShape.circle, &#47;&#47;This is the default
+          ),
+        ),
+      ],
+    );
+  }
+}

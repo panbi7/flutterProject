@@ -1,0 +1,153 @@
+import 'package:dio&#47;dio.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:logarte&#47;logarte.dart';
+import 'package:share_plus&#47;share_plus.dart';
+
+final Logarte logarte = Logarte(
+  onShare: Share.share,
+  onExport: Share.share,
+  password: '1234',
+  customTab: const MyCustomTab(),
+  onRocketDoubleTapped: (context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const AlertDialog(
+          title: Text(
+            'onRocketDoubleTapped',
+          ),
+          content: Text(
+            'This callback is useful when you want to quickly access some pages or perform actions without leaving the currently page (toggle theme, change language and etc.).',
+          ),
+        );
+      },
+    );
+  },
+  onRocketLongPressed: (context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const AlertDialog(
+          title: Text(
+            'onRocketLongPressed',
+          ),
+          content: Text(
+            'This callback is useful when you want to quickly access some pages or perform actions without leaving the currently page (toggle theme, change language and etc.).',
+          ),
+        );
+      },
+    );
+  },
+);
+
+enum Environment { dev, prod }
+
+const Environment environment = Environment.dev;
+
+void main() {
+  runApp(const App());
+}
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Logarte Example',
+      debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.dark,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.blueGrey.shade900,
+      ),
+      navigatorObservers: [
+        LogarteNavigatorObserver(logarte),
+      ],
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => HomePageState();
+}
+
+class HomePageState extends State {
+  late final Dio _dio;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _dio = Dio()
+      ..interceptors.add(
+        LogarteDioInterceptor(logarte),
+      );
+
+    logarte.attach(
+      context: context,
+      visible: false,
+    );
+  }
+
+  @override
+  void dispose() {
+    _dio.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Logarte Example'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            LogarteMagicalTap(
+              logarte: logarte,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.blueGrey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const ListTile(
+                  leading: Icon(Icons.touch_app_rounded),
+                  title: Text('LogarteMagicalTap'),
+                  subtitle: Text(
+                    'Tap 10 times to attach the magical button.',
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.dashboard_outlined),
+              title: const Text('Logarte console'),
+              subtitle: const Text(
+                'Tap to open the console directly.',
+              ),
+              onTap: () {
+                logarte.openConsole(context);
+              },
+            ),
+            const Divider(
+              height: 40,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'HTTP Requests',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 12),
+    
+// ... (truncated)

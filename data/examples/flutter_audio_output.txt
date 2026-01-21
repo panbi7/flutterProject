@@ -1,0 +1,157 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_audio_output&#47;flutter_audio_output.dart';
+import 'dart:async';
+import 'package:just_audio&#47;just_audio.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Audio Output Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+      ),
+      home: const AudioOutputExample(),
+    );
+  }
+}
+
+class AudioOutputExample extends StatefulWidget {
+  const AudioOutputExample({super.key});
+
+  @override
+  State createState() => _AudioOutputExampleState();
+}
+
+class _AudioOutputExampleState extends State {
+  late AudioPlayer _audioPlayer;
+  AudioInput? _currentOutput;
+  List _availableDevices = [];
+  bool _isPlaying = false;
+  bool _isLoading = false;
+  String? _errorMessage;
+  String? _platformVersion;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeAudioPlayer();
+    _initializeAudioOutput();
+  }
+
+  Future _initializeAudioPlayer() async {
+    _audioPlayer = AudioPlayer();
+
+    &#47;&#47; Listen to player state changes
+    _audioPlayer.playerStateStream.listen((state) {
+      if (mounted) {
+        setState(() {
+          _isPlaying = state.playing;
+        });
+      }
+    });
+
+    try {
+      await _audioPlayer.setAudioSource(AudioSource.uri(
+        Uri.parse('asset:&#47;&#47;&#47;assets&#47;Sunflower.mp3'),
+      ));
+    } catch (e) {
+      _showError('Failed to load audio: $e');
+    }
+  }
+
+  Future _initializeAudioOutput() async {
+    try {
+      &#47;&#47; Get platform version
+      _platformVersion = await FlutterAudioOutput.getPlatformVersion();
+
+      &#47;&#47; Set up listener for audio device changes
+      FlutterAudioOutput.setListener(() async {
+        await _refreshAudioDevices();
+        _showSnackBar('Audio device changed');
+      });
+
+      &#47;&#47; Initial load of audio devices
+      await _refreshAudioDevices();
+    } catch (e) {
+      _showError('Failed to initialize audio output: $e');
+    }
+  }
+
+  Future _refreshAudioDevices() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final current = await FlutterAudioOutput.getCurrentOutput();
+      final available = await FlutterAudioOutput.getAvailableInputs();
+
+      if (mounted) {
+        setState(() {
+          _currentOutput = current;
+          _availableDevices = available;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future _switchToDevice(AudioPort port) async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      bool success = false;
+      String deviceName = '';
+
+      switch (port) {
+        case AudioPort.receiver:
+          success = await FlutterAudioOutput.changeToReceiver();
+          deviceName = 'Receiver';
+          break;
+        case AudioPort.speaker:
+          success = await FlutterAudioOutput.changeToSpeaker();
+          deviceName = 'Speaker';
+          break;
+        case AudioPort.headphones:
+          success = await FlutterAudioOutput.changeToHeadphones();
+          deviceName = 'Headphones';
+          break;
+        case AudioPort.bluetooth:
+          success = await FlutterAudioOutput.changeToBluetooth();
+          deviceName = 'Bluetooth';
+          break;
+        default:
+          _showError('Unsupported audio port: $port');
+          return;
+      }
+
+      if (success) {
+        _showSnackBar('Successfully switched to $deviceName');
+        await _refreshAudioDevices();
+      } else {
+        _showError('Failed to switch to $deviceName');
+      }
+    } catch (e) {
+      _showError('Error switching to ${port.name}: $e');
+    } finally {
+      if (mounte
+// ... (truncated)

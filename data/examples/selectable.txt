@@ -1,0 +1,140 @@
+import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:float_column&#47;float_column.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:selectable&#47;selectable.dart';
+
+&#47;&#47; import 'my_selection_painter.dart';
+
+&#47;&#47; Allow print in the example app.
+&#47;&#47; ignore_for_file: avoid_print, unreachable_from_main
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Selectable Example',
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  &#47;&#47; Stateful widgets with a private state class need this.
+  &#47;&#47; ignore: library_private_types_in_public_api
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final _scrollController = ScrollController();
+  final _selectionController = SelectableController();
+  var _isTextSelected = false;
+  var _showSelection = true;
+  late Timer _timer;
+  List _spans = [_text];
+  &#47;&#47; List _spans = [const TextSpan(text: text1)];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _selectionController
+      &#47;&#47; ..setCustomPainter(MySelectionPainter())
+      &#47;&#47; ..setCustomRectifier(SelectionRectifiers.merged)
+      ..setCustomRectifier((rects) => rects
+          .map((r) => Rect.fromLTRB(r.left - 2, r.top, r.right + 2, r.bottom))
+          .toList())
+      ..addListener(_selectionChangedListener);
+
+    _timer =
+        Timer.periodic(const Duration(seconds: 1), (_) => _selectRandomWord());
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    _selectionController
+      ..removeListener(_selectionChangedListener)
+      ..dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _selectionChangedListener() {
+    &#47;&#47; if (_isTextSelected != _selectionController.isTextSelected) {
+    if (mounted) {
+      setState(() {
+        _isTextSelected = _selectionController.isTextSelected;
+      });
+    }
+    &#47;&#47; }
+  }
+
+  void _toggleShowHideSelection() {
+    setState(() {
+      _showSelection = !_showSelection;
+      if (_showSelection) {
+        _selectionController.unhide();
+      } else {
+        _selectionController.hide();
+      }
+    });
+  }
+
+  void _toggleRectifier() {
+    setState(() {
+      _selectionController.setCustomRectifier(
+          _selectionController.getCustomRectifier() ==
+                  SelectionRectifiers.identity
+              ? SelectionRectifiers.merged
+              : SelectionRectifiers.identity);
+    });
+  }
+
+  void _selectRandomWord() {
+    &#47;&#47; final text = _selectionController.getContainedText();
+    &#47;&#47; if (text.isNotEmpty) {
+    &#47;&#47;   final i = random(max: text.length);
+    &#47;&#47;   if (_selectionController.selectWordAtIndex(i, key: 1)) {
+    &#47;&#47;     &#47;&#47; print('selected word at $i');
+    &#47;&#47;   } else {
+    &#47;&#47;     &#47;&#47; print('failed to select word at $i');
+    &#47;&#47;   }
+    &#47;&#47; }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          const SliverAppBar(
+            pinned: true,
+            collapsedHeight: kToolbarHeight,
+            title: Text('Selectable Example'),
+            expandedHeight: 70,
+            &#47;&#47; flexibleSpace: FlexibleSpaceBar(title: ),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => Stack(
+                children: [
+                  Selectable(
+                    selectWordOnDoubleTap: true,
+                    topOverlayHeight:
+                        kToolbarHeight + MediaQuery.paddingOf(context).top,
+                    selectionController
+// ... (truncated)

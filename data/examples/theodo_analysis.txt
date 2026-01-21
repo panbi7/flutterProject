@@ -1,0 +1,12 @@
+&#47;&#47; The following syntax deactivates a lint for the entire file:
+&#47;&#47; ignore_for_file: avoid_print
+
+void main() {
+  &#47;&#47;&#47; The following line would normally show a lint warning
+  &#47;&#47;&#47; but we can disable the lint rule for this line using the following syntax.
+  var greeting = 'hello world'; &#47;&#47; ignore: prefer_final_locals
+
+  &#47;&#47;&#47; The following line would normally show a lint warning
+  &#47;&#47;&#47; but we can disable the lint rule for this file using `ignore_for_file`.
+  print(greeting);
+}

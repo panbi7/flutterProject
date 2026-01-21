@@ -1,0 +1,128 @@
+import 'dart:io';
+
+import 'package:example&#47;pages&#47;buttons_page.dart';
+import 'package:example&#47;pages&#47;colors_page.dart';
+import 'package:example&#47;pages&#47;dialogs_page.dart';
+import 'package:example&#47;pages&#47;fields_page.dart';
+import 'package:example&#47;pages&#47;indicators_page.dart';
+import 'package:example&#47;pages&#47;resizable_pane_page.dart';
+import 'package:example&#47;pages&#47;selectors_page.dart';
+import 'package:example&#47;pages&#47;sliver_toolbar_page.dart';
+import 'package:example&#47;pages&#47;tabview_page.dart';
+import 'package:example&#47;pages&#47;toolbar_page.dart';
+import 'package:example&#47;pages&#47;typography_page.dart';
+import 'package:example&#47;platform_menus.dart';
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:macos_ui&#47;macos_ui.dart';
+import 'package:provider&#47;provider.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+
+import 'theme.dart';
+
+&#47;&#47;&#47; This method initializes macos_window_utils and styles the window.
+Future _configureMacosWindowUtils() async {
+  const config = MacosWindowUtilsConfig();
+  await config.apply();
+}
+
+Future main() async {
+  if (!kIsWeb) {
+    if (Platform.isMacOS) {
+      await _configureMacosWindowUtils();
+    }
+  }
+
+  runApp(const MacosUIGalleryApp());
+}
+
+class MacosUIGalleryApp extends StatelessWidget {
+  const MacosUIGalleryApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => AppTheme(),
+      builder: (context, _) {
+        final appTheme = context.watch();
+        return MacosApp(
+          title: 'macos_ui Widget Gallery',
+          themeMode: appTheme.mode,
+          debugShowCheckedModeBanner: false,
+          home: const WidgetGallery(),
+        );
+      },
+    );
+  }
+}
+
+class WidgetGallery extends StatefulWidget {
+  const WidgetGallery({super.key});
+
+  @override
+  State createState() => _WidgetGalleryState();
+}
+
+class _WidgetGalleryState extends State {
+  int pageIndex = 0;
+
+  late final searchFieldController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return PlatformMenuBar(
+      menus: menuBarItems(),
+      child: MacosWindow(
+        sidebar: Sidebar(
+          top: MacosSearchField(
+            placeholder: 'Search',
+            controller: searchFieldController,
+            onResultSelected: (result) {
+              switch (result.searchKey) {
+                case 'Buttons':
+                  setState(() {
+                    pageIndex = 0;
+                    searchFieldController.clear();
+                  });
+                  break;
+                case 'Indicators':
+                  setState(() {
+                    pageIndex = 1;
+                    searchFieldController.clear();
+                  });
+                  break;
+                case 'Fields':
+                  setState(() {
+                    pageIndex = 2;
+                    searchFieldController.clear();
+                  });
+                  break;
+                case 'Colors':
+                  setState(() {
+                    pageIndex = 3;
+                    searchFieldController.clear();
+                  });
+                  break;
+                case 'Dialogs and Sheets':
+                  setState(() {
+                    pageIndex = 4;
+                    searchFieldController.clear();
+                  });
+                  break;
+                case 'Toolbar':
+                  setState(() {
+                    pageIndex = 6;
+                    searchFieldController.clear();
+                  });
+                  break;
+                case 'ResizablePane':
+                  setState(() {
+                    pageIndex = 7;
+                    searchFieldController.clear();
+                  });
+                  break;
+                case 'Selectors':
+                  setState(() {
+                    pageIndex = 8;
+                    searchF
+// ... (truncated)

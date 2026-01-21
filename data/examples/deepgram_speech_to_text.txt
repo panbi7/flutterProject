@@ -1,0 +1,39 @@
+import 'dart:io';
+import 'package:deepgram_speech_to_text&#47;deepgram_speech_to_text.dart';
+
+void main() async {
+  &#47;&#47; Get your API key from the Deepgram console if you don't have one https:&#47;&#47;console.deepgram.com&#47;
+  String apiKey = "YOUR_API_KEY";
+
+  &#47;&#47; https:&#47;&#47;developers.deepgram.com&#47;reference&#47;deepgram-api-overview
+  Map params = {
+    'model': 'nova-2-general',
+    'detect_language': true,
+    'filler_words': false,
+    'punctuation': true,
+  };
+
+  Deepgram deepgram = Deepgram(apiKey);
+
+  &#47;&#47; -------------------- Speech To Text --------------------
+  deepgram.listen.file(File('audio.wav'), queryParams: params); &#47;&#47; or .path()
+  deepgram.listen.url('https:&#47;&#47;somewhere&#47;audio.wav');
+  deepgram.listen.bytes(List.from([1, 2, 3, 4, 5]));
+
+  &#47;&#47; Streaming
+  final audioStream = File('audio.wav').openRead(); &#47;&#47; mic.stream ...
+
+  deepgram.listen.live(audioStream); &#47;&#47; or .liveListener()
+
+  &#47;&#47; -------------------- Text to Speech --------------------
+  deepgram.speak.text('Hello World');
+
+  &#47;&#47; Streaming
+  final textStream = Stream.fromIterable(['Hello', 'World']);
+
+  deepgram.speak.live(textStream); &#47;&#47; or .liveSpeaker()
+
+  &#47;&#47; -------------------- Debugging --------------------
+  final isValid = await deepgram.isApiKeyValid();
+  print('API key is valid: $isValid');
+}

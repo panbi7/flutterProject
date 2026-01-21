@@ -1,0 +1,17 @@
+import 'package:ble_peripheral_example&#47;home_controller.dart';
+import 'package:ble_peripheral_example&#47;home_view.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'package:get&#47;get.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  Get.put(HomeController());
+  runApp(
+    const GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "BlePeripheral",
+      home: HomeView(),
+    ),
+  );
+}

@@ -1,0 +1,126 @@
+import 'package:animated_theme_switcher&#47;animated_theme_switcher.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;scheduler.dart' show timeDilation;
+
+import 'theme_config.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final isPlatformDark =
+        WidgetsBinding.instance.window.platformBrightness == Brightness.dark;
+    final initTheme = isPlatformDark ? darkTheme : lightTheme;
+    return ThemeProvider(
+      initTheme: initTheme,
+      builder: (_, myTheme) {
+        return MaterialApp(
+          title: 'Flutter Demo',
+          theme: myTheme,
+          home: const MyHomePage(),
+        );
+      },
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ThemeSwitchingArea(
+      child: Scaffold(
+        drawer: Drawer(
+          child: SafeArea(
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: ThemeSwitcher.withTheme(
+                    builder: (_, switcher, theme) {
+                      return IconButton(
+                        onPressed: () => switcher.changeTheme(
+                          theme: theme.brightness == Brightness.light
+                              ? darkTheme
+                              : lightTheme,
+                        ),
+                        icon: const Icon(Icons.brightness_3, size: 25),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        appBar: AppBar(
+          title: const Text(
+            'Flutter Demo Home Page',
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              const Text(
+                'You have pushed the button this many times:',
+              ),
+              Text(
+                '$_counter',
+                style: const TextStyle(fontSize: 200),
+              ),
+              CheckboxListTile(
+                title: const Text('Slow Animation'),
+                value: timeDilation == 5.0,
+                onChanged: (value) {
+                  setState(() {
+                    timeDilation = value != null && value ? 5.0 : 1.0;
+                  });
+                },
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ThemeSwitcher.switcher(
+                    clipper: const ThemeSwitcherBoxClipper(),
+                    builder: (context, switcher) {
+                      return TapDownButton(
+                        child: const Text('Box Animation'),
+                        onTap: (details) {
+                          switcher.changeTheme(
+                            theme: ThemeModelInheritedNotifier.of(context)
+                                        .theme
+                                        .brightness ==
+                                    Brightness.light
+                                ? darkTheme
+                                : lightTheme,
+                            offset: details.localPosition,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  ThemeSwitcher(
+                    clipper: const ThemeSwitcherCircleClipper(),
+                    builder: (context) {
+                      return TapDownButton(
+                        child: const Text('Circle Animation'),
+              
+// ... (truncated)

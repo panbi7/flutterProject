@@ -1,0 +1,160 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:example&#47;src&#47;custom&#47;index.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_duit&#47;flutter_duit.dart';
+
+class CustomDecoder extends Converter> {
+  @override
+  Map convert(Uint8List input) {
+    return jsonDecode(utf8.decode(input));
+  }
+}
+
+final class _Handler implements ExternalEventHandler {
+  const _Handler();
+
+  @override
+  FutureOr handleCustomEvent(
+      BuildContext context, String key, Object? extra) {
+    switch (key) {
+      case "event1":
+        {
+          debugPrint("Event 1");
+          break;
+        }
+      case "event2":
+        {
+          debugPrint("Event 2");
+          break;
+        }
+    }
+  }
+
+  @override
+  FutureOr handleNavigation(
+    BuildContext context,
+    String path,
+    Object? extra,
+  ) {
+    &#47;&#47; TODO: implement handleNavigation
+    throw UnimplementedError();
+  }
+
+  @override
+  FutureOr handleOpenUrl(String url) {
+    &#47;&#47; TODO: implement handleOpenUrl
+    throw UnimplementedError();
+  }
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  &#47;&#47; final dio = Dio();
+
+  &#47;&#47; DuitRegistry.configure(
+  &#47;&#47;   logger: DefaultLogger.instance,
+  &#47;&#47;   themeLoader: HttpThemeLoader(
+  &#47;&#47;     dio,
+  &#47;&#47;     "http:&#47;&#47;localhost:8999&#47;theme",
+  &#47;&#47;   ),
+  &#47;&#47; );
+
+  &#47;&#47; await DuitRegistry.initTheme();
+
+  DuitRegistry.register(
+    exampleCustomWidget,
+    buildFactory: exampleBuildFactory,
+  );
+
+  &#47;&#47; final res = await dio.get("http:&#47;&#47;localhost:8999&#47;components");
+
+  &#47;&#47; final comps = res.data!.cast>();
+  &#47;&#47; await DuitRegistry.registerComponents(comps);
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Duit Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  late final DuitDriver driver1;
+  late final FocusNode f1, f2, f3, f4;
+
+  @override
+  void initState() {
+    f1 = FocusNode();
+    f2 = FocusNode();
+    f3 = FocusNode();
+    f4 = FocusNode();
+    driver1 = DuitDriver.static(
+      {
+        "type": "Row",
+        "id": "row",
+        "attributes": {
+          "mainAxisAlignment": MainAxisAlignment.spaceBetween,
+        },
+        "children": [
+          {
+            "type": "Expanded",
+            "id": "ex",
+            "child": {
+              "type": "Column",
+              "id": "1",
+              "children": [
+                {
+                  "type": "Text",
+                  "id": "txt1",
+                  "attributes": {"data": "Input 1"}
+                },
+                {
+                  "type": "TextField",
+                  "id": "tf1",
+                  "attributes": {
+                    "focusNode": {
+                      "debugLabel": "tf1_label",
+                    },
+                    "inputDecoration": const InputDecoration(
+                      focusColor: Colors.red,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.green,
+                        ),
+                      ),
+                      filled: true,
+                    ),
+                  }
+                },
+                {
+                  "type": "Text",
+                  "id": "txt2",
+                  "attributes": {"data": "Input 2"}
+                },
+                {
+                  "type": "TextField",
+                  "id": "tf2",
+                  "attributes": const {
+                    "focusNode": {
+                      "debugLa
+// ... (truncated)

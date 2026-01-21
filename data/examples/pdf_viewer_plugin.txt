@@ -1,0 +1,70 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:http&#47;http.dart' as http;
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:pdf_viewer_plugin&#47;pdf_viewer_plugin.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final sampleUrl = 'http:&#47;&#47;www.africau.edu&#47;images&#47;default&#47;sample.pdf';
+
+  String? pdfFlePath;
+
+  Future downloadAndSavePdf() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}&#47;sample.pdf');
+    if (await file.exists()) {
+      return file.path;
+    }
+    final response = await http.get(Uri.parse(sampleUrl));
+    await file.writeAsBytes(response.bodyBytes);
+    return file.path;
+  }
+
+  void loadPdf() async {
+    pdfFlePath = await downloadAndSavePdf();
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Builder(builder: (context) {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            title: Text('Plugin example app'),
+          ),
+          body: Center(
+            child: Column(
+              children: [
+                ElevatedButton(
+                  child: Text("Load pdf"),
+                  onPressed: loadPdf,
+                ),
+                if (pdfFlePath != null)
+                  Expanded(
+                    child: Container(
+                      child: PdfView(path: pdfFlePath!),
+                    ),
+                  )
+                else
+                  Text("Pdf is not Loaded"),
+              ],
+            ),
+          ),
+        );
+      }),
+    );
+  }
+}

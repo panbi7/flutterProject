@@ -1,0 +1,147 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:widgets_to_image&#47;widgets_to_image.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Widgets to Image - Professional Demo',
+        theme: _buildTheme(),
+        home: const MainPage(),
+        debugShowCheckedModeBanner: false,
+      );
+
+  ThemeData _buildTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF6366F1), &#47;&#47; Indigo
+        brightness: Brightness.light,
+      ),
+      appBarTheme: const AppBarTheme(
+        centerTitle: false,
+        elevation: 0,
+        scrolledUnderElevation: 1,
+      ),
+      cardTheme: CardTheme(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: Colors.grey.shade200,
+            width: 1,
+          ),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(120, 48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(120, 48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  MainPageState createState() => MainPageState();
+}
+
+class MainPageState extends State with TickerProviderStateMixin {
+  &#47;&#47; Controllers
+  final WidgetsToImageController _basicController = WidgetsToImageController();
+  final WidgetsToImageController _advancedController =
+      WidgetsToImageController();
+  final WidgetsToImageController _animatedController =
+      WidgetsToImageController();
+
+  &#47;&#47; State
+  Uint8List? _basicImageBytes;
+  Uint8List? _advancedImageBytes;
+  Uint8List? _animatedImageBytes;
+
+  late AnimationController _animationController;
+  late Animation _rotationAnimation;
+
+  ImageFormat _selectedFormat = ImageFormat.png;
+  double _pixelRatio = 2.0;
+  int _quality = 95;
+  bool _waitForAnimations = false;
+
+  int _selectedTabIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat();
+
+    _rotationAnimation = Tween(
+      begin: 0,
+      end: 1,
+    ).animate(_animationController);
+
+    _setupControllerCallbacks();
+  }
+
+  void _setupControllerCallbacks() {
+    for (final controller in [
+      _basicController,
+      _advancedController,
+      _animatedController
+    ]) {
+      controller.onCaptureStart = () {
+        _showSnackBar('📸 Capturing widget...', Icons.camera_alt);
+      };
+
+      controller.onCaptureError = (error) {
+        _showSnackBar('❌ Capture failed: ${error.message}', Icons.error,
+            isError: true);
+      };
+    }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _basicController.dispose();
+    _advancedController.dispose();
+    _animatedController.dispose();
+    super.dispose();
+  }
+
+  void _showSnackBar(String message, IconData icon, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(icon, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: isError
+            ? Theme.of(context).colorScheme.error
+            : Theme.of(context).colorScheme.primary,
+        behavior: SnackBarBehavior.floating,
+        shape
+// ... (truncated)

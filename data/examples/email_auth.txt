@@ -1,0 +1,111 @@
+import 'package:email_auth&#47;email_auth.dart';
+import 'package:example&#47;auth.config.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+
+&#47;&#47;&#47; Importing the configuration file to pass them to the EmailAuth instance
+&#47;&#47;&#47; You can have a custom path and a variable name,
+&#47;&#47;&#47; but the Map should be in the pattern {server : "", serverKey : ""}
+&#47;&#47; import 'package:email_auth_example&#47;auth.config.dart';
+
+void main() {
+  const MyApp app = MyApp();
+  runApp(kDebugMode ? const MyApp() : app);
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  &#47;&#47; ignore: library_private_types_in_public_api
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  &#47;&#47;&#47; The boolean to handle the dynamic operations
+  bool submitValid = false;
+
+  &#47;&#47;&#47; Text editing controllers to get the value from text fields
+  final TextEditingController _emailcontroller = TextEditingController();
+  final TextEditingController _otpcontroller = TextEditingController();
+
+  &#47;&#47; Declare the object
+  late EmailAuth emailAuth;
+
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47; Initialize the package
+    emailAuth = EmailAuth(
+      sessionName: "Sample session",
+    );
+
+    &#47;&#47;&#47; Configuring the remote server
+    emailAuth.config(remoteServerConfiguration);
+  }
+
+  &#47;&#47;&#47; a void function to verify if the Data provided is true
+  &#47;&#47;&#47; Convert it into a boolean function to match your needs.
+  void verify() {
+    if (kDebugMode) {
+      print(
+          "OTP validation results >> ${emailAuth.validateOtp(recipientMail: _emailcontroller.value.text, userOtp: _otpcontroller.value.text)}");
+    }
+  }
+
+  &#47;&#47;&#47; a void funtion to send the OTP to the user
+  &#47;&#47;&#47; Can also be converted into a Boolean function and render accordingly for providers
+  void sendOtp() async {
+    bool result = await emailAuth.sendOtp(recipientMail: _emailcontroller.value.text, otpLength: 5);
+    if (result) {
+      setState(() {
+        submitValid = true;
+      });
+    } else if (kDebugMode) {
+      print("Error processing OTP requests, check server for logs");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Email Auth sample verification'),
+        ),
+        body: Container(
+            margin: const EdgeInsets.all(5),
+            child: Center(
+              child: Card(
+                elevation: 5,
+                margin: const EdgeInsets.all(15),
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Please enter a valid Email ID",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      TextField(
+                        controller: _emailcontroller,
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      Card(
+                        margin: const EdgeInsets.only(top: 20),
+                        elevation: 6,
+                        child: Container(
+                          height: 50,
+                          width: 200,
+                          color: Colors.green[400],
+                          child: GestureDetector(
+                            onTap: sendOtp,
+                            child: const Center(
+                              child: Text(
+                                "Request OTP",
+                                style: TextStyle(
+                             
+// ... (truncated)

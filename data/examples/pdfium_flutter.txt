@@ -1,0 +1,7 @@
+import 'package:pdfium_flutter/pdfium_flutter.dart';
+
+// Get PDFium bindings
+final pdfium = pdfiumBindings;
+
+// Or load with custom path
+final customPdfium = loadPdfium(modulePath: '/custom/path/to/pdfium.so');

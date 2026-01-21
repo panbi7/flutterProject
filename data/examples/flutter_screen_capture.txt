@@ -1,0 +1,124 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_screen_capture&#47;flutter_screen_capture.dart';
+import 'package:screen_retriever&#47;screen_retriever.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final _plugin = ScreenCapture();
+  Color? _color;
+  CapturedScreenArea? _screenArea;
+  CapturedScreenArea? _fullScreenArea;
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyboardListener(
+      focusNode: FocusNode(),
+      onKeyEvent: (key) async {
+        switch (key.character) {
+          case 'c': &#47;&#47; capture screen pixel
+            await _captureScreenPixel();
+          case 'a': &#47;&#47; capture screen area
+            await _captureScreenArea();
+          case 'f': &#47;&#47; capture full screen
+            await _captureFullScreen();
+        }
+      },
+      child: MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Screen pixel color',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 24),
+                const Row(
+                  children: [
+                    SizedBox(
+                      width: 64,
+                      height: 64,
+                      child: ScreenColorLiveView(),
+                    ),
+                    SizedBox(width: 24),
+                    Text('Live at cursor position'),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      color: _color,
+                    ),
+                    const SizedBox(width: 24),
+                    const Text('Press C to capture color at cursor position'),
+                  ],
+                ),
+                const SizedBox(height: 64),
+                Text(
+                  'Screen area',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 24),
+                const Row(
+                  children: [
+                    SizedBox(
+                      width: 72,
+                      height: 72,
+                      child: ScreenAreaLiveView(areaSize: 72 &#47; 4),
+                    ),
+                    SizedBox(width: 24),
+                    Text('Live at cursor position'),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    if (_screenArea != null)
+                      CapturedScreenAreaView(area: _screenArea!),
+                    const SizedBox(width: 24),
+                    const Text('Press A to capture screen at cursor position'),
+                  ],
+                ),
+                const SizedBox(height: 64),
+                Text(
+                  'Full screen',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 24),
+                const Text('Press F to capture the entire screen'),
+                const SizedBox(height: 24),
+                if (_fullScreenArea != null)
+                  CapturedScreenAreaView(area: _fullScreenArea!),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future _captureScreenPixel() async {
+    final cursorScreenPoint =
+        await ScreenRetriever.instance.getCursorScreenPoint();
+    final color = await _plugin.captureScreenColor(
+      cursorScreenPoint.dx,
+      cursorScreenPoint.dy,
+    );
+    s
+// ... (truncated)

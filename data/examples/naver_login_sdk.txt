@@ -1,0 +1,104 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_logcat&#47;flutter_logcat.dart';
+import 'package:naver_login_sdk&#47;naver_login_sdk.dart';
+
+const urlScheme = 'flutterNaverLogin';      &#47;&#47; Only iOS, Android was not used.
+const clientId = 'KH4kCq8piNCS57oematF';    &#47;&#47; iOS - consumerKey
+const clientSecret = 'sXQTGsyP39';          &#47;&#47; iOS - consumerSecret
+const clientName = "Flutter NaverLogin";    &#47;&#47; iOS - appName
+
+&#47;&#47;&#47; ISSUE]
+&#47;&#47;&#47; e-mail: noccippuca@gmail.com
+&#47;&#47;&#47;
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  &#47;&#47; Init - Change your API Key.
+  await NaverLoginSDK.initialize(
+    urlScheme: urlScheme,
+    clientId: clientId,
+    clientSecret: clientSecret,
+    clientName: clientName
+  );
+
+  runApp(MaterialApp(
+    home: const MyApp())
+  );
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: FittedBox(child: Text("Flutter-NaverLoginSDK Demo")),
+      ),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  NaverLoginButton(
+                    onPressed: () {
+                      NaverLoginSDK.authenticate(callback: OAuthLoginCallback(
+                        onSuccess: () {
+                          Log.d("onSuccess..");
+                        },
+                        onFailure: (httpStatus, message) {
+                          Log.w("onFailure.. httpStatus:$httpStatus, message:$message");
+                        },
+                        onError: (errorCode, message) {
+                          Log.e("onError.. errorCode:$errorCode, message:$message");
+
+                          if (message == 'naverapp_not_installed') {
+                            showDialog(context: context, builder: (context) => AlertDialog(
+                              title: Text('Alarm'),
+                              content: Text('NaverApp not installed'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text('ok', style: TextStyle(color: Colors.blueAccent),),
+                                )
+                              ],
+                            ),);
+                          }
+                        },
+                      ));
+                    },
+                    style: NaverLoginButtonStyle(
+                        language: NaverButtonLanguage.english,
+                        mode: NaverButtonMode.green,
+                        type: NaverButtonType.rectangleBar
+                    ),
+                    width: 200,
+                  ),
+                  SizedBox(height: 9.0,),
+                  NaverLogoutButton(
+                    onPressed: () => NaverLoginSDK.logout(),
+                    style: NaverLogoutButtonStyle(
+                        language: NaverButtonLanguage.english,
+                        mode: NaverButtonMode.green
+                    ),
+                    width: 200,
+                  ),
+                  SizedBox(height: 12.0,),
+                  ElevatedButton(
+                    onPressed: () {
+                      NaverLoginSDK.authenticate(callback: OAuthLoginCallback(
+                        onSuccess: () {
+                          Log.d("onSuccess..");
+                        },
+                        onFailure: (httpStatus, message) {
+                          Log.w("onFailure.. htt
+// ... (truncated)

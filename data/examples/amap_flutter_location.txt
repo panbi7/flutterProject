@@ -1,0 +1,124 @@
+import 'dart:async';
+import 'dart:io';
+import 'package:flutter&#47;material.dart';
+import 'package:amap_flutter_location&#47;amap_flutter_location.dart';
+import 'package:amap_flutter_location&#47;amap_location_option.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+
+void main() {
+  runApp(new MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => new _MyAppState();
+}
+
+class _MyAppState extends State {
+  Map? _locationResult;
+
+  StreamSubscription>? _locationListener;
+
+  AMapFlutterLocation _locationPlugin = new AMapFlutterLocation();
+
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47;&#47; 设置是否已经包含高德隐私政策并弹窗展示显示用户查看，如果未包含或者没有弹窗展示，高德定位SDK将不会工作
+    &#47;&#47;&#47;
+    &#47;&#47;&#47; 高德SDK合规使用方案请参考官网地址：https:&#47;&#47;lbs.amap.com&#47;news&#47;sdkhgsy
+    &#47;&#47;&#47; 必须保证在调用定位功能之前调用， 建议首次启动App时弹出《隐私政策》并取得用户同意
+    &#47;&#47;&#47;
+    &#47;&#47;&#47; 高德SDK合规使用方案请参考官网地址：https:&#47;&#47;lbs.amap.com&#47;news&#47;sdkhgsy
+    &#47;&#47;&#47;
+    &#47;&#47;&#47; [hasContains] 隐私声明中是否包含高德隐私政策说明
+    &#47;&#47;&#47;
+    &#47;&#47;&#47; [hasShow] 隐私权政策是否弹窗展示告知用户
+    AMapFlutterLocation.updatePrivacyShow(true, true);
+
+    &#47;&#47;&#47; 设置是否已经取得用户同意，如果未取得用户同意，高德定位SDK将不会工作
+    &#47;&#47;&#47;
+    &#47;&#47;&#47; 高德SDK合规使用方案请参考官网地址：https:&#47;&#47;lbs.amap.com&#47;news&#47;sdkhgsy
+    &#47;&#47;&#47;
+    &#47;&#47;&#47; 必须保证在调用定位功能之前调用, 建议首次启动App时弹出《隐私政策》并取得用户同意
+    &#47;&#47;&#47;
+    &#47;&#47;&#47; [hasAgree] 隐私权政策是否已经取得用户同意
+    AMapFlutterLocation.updatePrivacyAgree(true);
+
+    &#47;&#47;&#47; 动态申请定位权限
+    requestPermission();
+
+    &#47;&#47;&#47;设置Android和iOS的apiKey
+    &#47;&#47;&#47;key的申请请参考高德开放平台官网说明
+    &#47;&#47;&#47;Android: https:&#47;&#47;lbs.amap.com&#47;api&#47;android-location-sdk&#47;guide&#47;create-project&#47;get-key
+    &#47;&#47;&#47;iOS: https:&#47;&#47;lbs.amap.com&#47;api&#47;ios-location-sdk&#47;guide&#47;create-project&#47;get-key
+    AMapFlutterLocation.setApiKey("1dbf56e2e8a4d0e4cdc2df9efd36bc71", "dfb64c0463cb53927914364b5c09aba0");
+
+    &#47;&#47;&#47;iOS 获取native精度类型
+    if (Platform.isIOS) {
+      requestAccuracyAuthorization();
+    }
+
+    &#47;&#47;&#47;注册定位结果监听
+    _locationListener = _locationPlugin.onLocationChanged().listen((Map result) {
+      setState(() {
+        _locationResult = result;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    &#47;&#47;&#47;移除定位监听
+    if (null != _locationListener) {
+      _locationListener?.cancel();
+    }
+
+    &#47;&#47;&#47;销毁定位
+    _locationPlugin.destroy();
+  }
+
+  &#47;&#47;&#47;设置定位参数
+  void _setLocationOption() {
+    AMapLocationOption locationOption = new AMapLocationOption();
+
+    &#47;&#47;&#47;是否单次定位
+    locationOption.onceLocation = false;
+
+    &#47;&#47;&#47;是否需要返回逆地理信息
+    locationOption.needAddress = true;
+
+    &#47;&#47;&#47;逆地理信息的语言类型
+    locationOption.geoLanguage = GeoLanguage.DEFAULT;
+
+    locationOption.desiredLocationAccuracyAuthorizationMode = AMapLocationAccuracyAuthorizationMode.ReduceAccuracy;
+
+    locationOption.fullAccuracyPurposeKey = "AMapLocationScene";
+
+    &#47;&#47;&#47;设置Android端连续定位的定位间隔
+    locationOption.locationInterval = 2000;
+
+    &#47;&#47;&#47;设置Android端的定位模式
+    &#47;&#47;&#47;可选值：
+    &#47;&#47;&#47;[AMapLocationMode.Battery_Saving]
+    &#47;&#47;&#47;[AMapLocationMode.Device_Sensors]
+    &#47;&#47;&#47;[AMapLocationMode.Hight_Accuracy]
+    locationOption.locationMode = AMapLocationMode.Hight_Accuracy;
+
+    &#47;&#47;&#47;设置iOS端的定位最小更新距离
+    locationOption.distanceFilter = -1;
+
+    &#47;&#47;&#47;设置iOS端期望的定位精度
+    &#47;&#47;&#47; 可选值：
+    &#47;&#47;&#47; [DesiredAccuracy.Best] 最高精度
+    &#47;&#47;&#47; [DesiredAccuracy.BestForNavigation] 适用于导航场景的高精度 
+    &#47;&#47;&#47; [DesiredAccuracy.NearestTenMeters] 10米 
+    &#47;&#47;&#47; [DesiredAccuracy.Kilometer] 1000米
+    &#47;&#47;&#47; [DesiredAccuracy.ThreeKilometers] 3000米
+    locationOption.desiredAccuracy = DesiredAccuracy.Best;
+
+    &#47;&#47;&#47;设置iOS端是否允许系统暂停定位
+ 
+// ... (truncated)

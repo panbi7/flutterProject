@@ -1,0 +1,118 @@
+import 'package:example&#47;group_by_date_example.dart';
+import 'package:example&#47;group_by_date_grid_example.dart';
+import 'package:example&#47;group_by_type_example.dart';
+import 'package:example&#47;jump_to_group_example.dart';
+import 'package:example&#47;reactive_bloc_example.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Infinite Grouped List Examples',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+      home: const ExampleSelectionPage(),
+    );
+  }
+}
+
+class ExampleSelectionPage extends StatelessWidget {
+  const ExampleSelectionPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Infinite Grouped List Examples'),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: ListView(
+          children: [
+            const Text(
+              'Choose an example to explore:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            _buildExampleCard(
+              context,
+              title: 'Reactive BLoC Example',
+              subtitle:
+                  'Demonstrates reactive state management with BLoC pattern',
+              icon: Icons.memory,
+              color: Colors.blue,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const ReactiveBlocExample()),
+              ),
+              isNew: true,
+            ),
+            const SizedBox(height: 16),
+            _buildExampleCard(
+              context,
+              title: 'Jump to Group Example',
+              subtitle:
+                  'Shows controller.jumpToGroup with enableAnchoring for Today',
+              icon: Icons.flag,
+              color: Colors.teal,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const JumpToGroupExample()),
+              ),
+              isNew: true,
+            ),
+            const SizedBox(height: 16),
+            _buildExampleCard(
+              context,
+              title: 'Group by Date Example',
+              subtitle: 'Groups items by date with imperative pattern',
+              icon: Icons.date_range,
+              color: Colors.green,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const GroupByDateExample()),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildExampleCard(
+              context,
+              title: 'Group by Type Example',
+              subtitle: 'Groups items by category&#47;type',
+              icon: Icons.category,
+              color: Colors.orange,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const GroupByTypeExample()),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildExampleCard(
+              context,
+              title: 'Grid View Example',
+              subtitle: 'Groups items in a grid layout by date',
+              icon: Icons.grid_view,
+              color: Colors.purple,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const GroupByDateGridExample()),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const
+// ... (truncated)

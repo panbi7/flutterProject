@@ -1,0 +1,45 @@
+import 'package:flutter&#47;material.dart';
+
+import 'app_themes.dart';
+import 'views&#47;custom_indicator.dart';
+import 'views&#47;enlarge.dart';
+import 'views&#47;expandable.dart';
+import 'views&#47;fullscreen.dart';
+import 'views&#47;home.dart';
+import 'views&#47;indicator_halo.dart';
+import 'views&#47;manual.dart';
+import 'views&#47;multiple_items.dart';
+import 'views&#47;page_change_reason.dart';
+import 'views&#47;standard.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const FlutterCarouselDemo());
+}
+
+class FlutterCarouselDemo extends StatelessWidget {
+  const FlutterCarouselDemo({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialRoute: '&#47;',
+      routes: {
+        '&#47;': (ctx) => const CarouselDemoHome(),
+        '&#47;standard': (ctx) => const StandardCarouselDemo(),
+        '&#47;enlarge': (ctx) => const EnlargeStrategyCarouselDemo(),
+        '&#47;manual': (ctx) => const ManuallyControlledCarouselDemo(),
+        '&#47;fullscreen': (ctx) => const FullscreenCarouselDemo(),
+        '&#47;custom_indicator': (ctx) => const CustomIndicatorCarouselDemo(),
+        '&#47;indicator_halo': (ctx) => const HaloIndicatorCarouselDemo(),
+        '&#47;multiple_items': (ctx) => const MultipleItemsCarouselDemo(),
+        '&#47;expandable': (ctx) => const ExpandableCarouselDemo(),
+        '&#47;page_changed_reason': (ctx) => const PageChangedReasonCarouselDemo(),
+      },
+      theme: AppThemes.lightTheme,
+      darkTheme: AppThemes.darkTheme,
+      themeMode: ThemeMode.system,
+    );
+  }
+}

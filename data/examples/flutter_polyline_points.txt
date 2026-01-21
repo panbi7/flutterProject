@@ -1,0 +1,143 @@
+import 'package:flutter&#47;material.dart';
+import 'package:google_maps_flutter&#47;google_maps_flutter.dart';
+
+import 'package:flutter_polyline_points&#47;flutter_polyline_points.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Polyline Points Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+      ),
+      home: const MainScreen(),
+    );
+  }
+}
+
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  MainScreenState createState() {
+    return MainScreenState();
+  }
+}
+
+class MainScreenState extends State with TickerProviderStateMixin {
+  late TabController _tabController;
+  String googleApiKey =
+      "YOUR_GOOGLE_API_KEY_HERE"; &#47;&#47; Replace with your actual API key
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flutter Polyline Points'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Legacy API', icon: Icon(Icons.route)),
+            Tab(text: 'Routes API', icon: Icon(Icons.alt_route)),
+            Tab(text: 'Two-Wheeler', icon: Icon(Icons.motorcycle)),
+            Tab(text: 'Headers', icon: Icon(Icons.security)),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          LegacyMapScreen(apiKey: googleApiKey),
+          RoutesApiMapScreen(apiKey: googleApiKey),
+          TwoWheelerMapScreen(apiKey: googleApiKey),
+          CustomHeadersMapScreen(apiKey: googleApiKey),
+        ],
+      ),
+    );
+  }
+}
+
+&#47;&#47; Legacy API Example (Backward Compatibility)
+class LegacyMapScreen extends StatefulWidget {
+  final String apiKey;
+
+  const LegacyMapScreen({super.key, required this.apiKey});
+
+  @override
+  LegacyMapScreenState createState() => LegacyMapScreenState();
+}
+
+class LegacyMapScreenState extends State {
+  late GoogleMapController mapController;
+  final double _originLatitude = 6.5212402, _originLongitude = 3.3679965;
+  final double _destLatitude = 6.849660, _destLongitude = 3.648190;
+  Map markers = {};
+  Map polylines = {};
+  List polylineCoordinates = [];
+  late PolylinePoints polylinePoints;
+  bool isLoading = false;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    polylinePoints = PolylinePoints(apiKey: widget.apiKey);
+
+    _addMarker(LatLng(_originLatitude, _originLongitude), "origin",
+        BitmapDescriptor.defaultMarker);
+    _addMarker(LatLng(_destLatitude, _destLongitude), "destination",
+        BitmapDescriptor.defaultMarkerWithHue(90));
+
+    _getPolyline();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          GoogleMap(
+            initialCameraPosition: CameraPosition(
+                target: LatLng(_originLatitude, _originLongitude), zoom: 12),
+            myLocationEnabled: true,
+            tiltGesturesEnabled: true,
+            compassEnabled: true,
+            scrollGesturesEnabled: true,
+            zoomGesturesEnabled: true,
+            onMapCreated: _onMapCreated,
+            markers: Set.of(markers.values),
+            polylines: Set.of(polylines.values),
+          ),
+          if (isLoading)
+            Container(
+              color: Colors.black26,
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          if (errorMessage != null)
+            Positioned(
+              top: 16,
+              left: 16,
+              right: 16,
+              child: Card(
+                color: Colors.re
+// ... (truncated)

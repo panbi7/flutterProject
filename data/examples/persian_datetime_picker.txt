@@ -1,0 +1,107 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+import 'package:persian_datetime_picker&#47;persian_datetime_picker.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Date and Time Pickers',
+      locale: const Locale("fa", "IR"),
+      debugShowCheckedModeBanner: false,
+      supportedLocales: const [Locale("fa", "IR"), Locale("en", "US")],
+      localizationsDelegates: const [
+        PersianMaterialLocalizations.delegate,
+        PersianCupertinoLocalizations.delegate,
+        &#47;&#47; DariMaterialLocalizations.delegate, Dari
+        &#47;&#47; DariCupertinoLocalizations.delegate,
+        &#47;&#47; PashtoMaterialLocalizations.delegate, Pashto
+        &#47;&#47; PashtoCupertinoLocalizations.delegate,
+        &#47;&#47; SoraniMaterialLocalizations.delegate, Kurdish
+        &#47;&#47; SoraniCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      theme: ThemeData(
+        fontFamily: 'Dana',
+        datePickerTheme: DatePickerThemeData(
+          &#47;&#47; headerBackgroundColor: Color(0xffFF4893), &#47;&#47; Header background color
+          &#47;&#47; backgroundColor: Color(0xff121212),
+          &#47;&#47; dayBackgroundColor: WidgetStateProperty.resolveWith(
+          &#47;&#47;   (Set states) {
+          &#47;&#47;     if (states.contains(WidgetState.selected)) {
+          &#47;&#47;       return Color(0xff89ED5B); &#47;&#47; Background color for selected day
+          &#47;&#47;     } else if (states.contains(WidgetState.disabled)) {
+          &#47;&#47;       return Colors
+          &#47;&#47;           .grey.shade200; &#47;&#47; Background color for disabled days
+          &#47;&#47;     }
+          &#47;&#47;     return Color(0xff121212); &#47;&#47; Default background color for normal days
+          &#47;&#47;   },
+          &#47;&#47; ),
+          &#47;&#47; dayForegroundColor: WidgetStateProperty.resolveWith(
+          &#47;&#47;   (Set states) {
+          &#47;&#47;     if (states.contains(WidgetState.selected)) {
+          &#47;&#47;       return Color(0xff121212); &#47;&#47; Background color for selected day
+          &#47;&#47;     } else if (states.contains(WidgetState.disabled)) {
+          &#47;&#47;       return Colors
+          &#47;&#47;           .grey.shade200; &#47;&#47; Background color for disabled days
+          &#47;&#47;     }
+          &#47;&#47;     return Color(0xff89ED5B); &#47;&#47; Default background color for normal days
+          &#47;&#47;   },
+          &#47;&#47; ),
+          &#47;&#47; confirmButtonStyle: ButtonStyle(
+          &#47;&#47;   textStyle: WidgetStatePropertyAll(TextStyle(color: Colors.white))
+          &#47;&#47; ),
+          &#47;&#47; headerForegroundColor: Colors.white, &#47;&#47; Header text color
+        ),
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  String label = '';
+
+  String selectedDate = Jalali.now().toJalaliDateTime();
+
+  @override
+  void initState() {
+    super.initState();
+    label = 'انتخاب تاریخ زمان';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(
+          'دیت تایم پیکر فارسی',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.black),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            b
+// ... (truncated)

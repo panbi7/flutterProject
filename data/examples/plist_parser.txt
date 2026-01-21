@@ -1,0 +1,64 @@
+import 'dart:io';
+
+import 'package:plist_parser&#47;plist_parser.dart';
+
+&#47;&#47; ignore_for_file: avoid_print
+
+const xml = '''
+
+
+
+
+  string_type
+  hello plist
+  int_type
+  12345
+  double_type
+  12.345
+  bool_type_true
+  
+  bool_type_false
+  
+  date_type
+  2022-02-11T18:27:45Z
+  data_type
+  VGVzdCBWYWx1ZQ==
+  dict_type
+  
+    key1
+    value1
+    key2
+    2
+  
+  array_type
+  
+    array item1
+    array item2
+  
+
+
+''';
+
+void main() async {
+  &#47;&#47; parse from xml string.
+  &#47;&#47;
+  &#47;&#47; parse method detects the plist format automatically and use xml or
+  &#47;&#47; binary parser.
+  &#47;&#47; default parameter: typeDetection = true
+  &#47;&#47; to disable the detection, use typeDetection = false
+  &#47;&#47; then it will use xml parser.
+  var result = PlistParser().parse(xml);
+  print(result);
+
+  &#47;&#47; parse from xml file
+  &#47;&#47; you can use "parseFile" or "parseFileSync"
+  var result2 = PlistParser()
+      .parseFileSync("${Directory.current.path}&#47;example&#47;plist_xml.plist");
+  print(result2);
+
+  &#47;&#47; parse from binary file
+  &#47;&#47; it detects binary format automatically
+  var result3 = PlistParser()
+      .parseFileSync("${Directory.current.path}&#47;example&#47;plist_binary.plist");
+  print(result3);
+}

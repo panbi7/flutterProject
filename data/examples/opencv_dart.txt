@@ -1,0 +1,48 @@
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:opencv_dart&#47;opencv.dart' as cv;
+import 'package:image_picker&#47;image_picker.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  var images = [];
+  final _ft = cv.FreeType2.create();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  Future heavyTaskAsync(cv.Mat im, {int count = 1000}) async {
+    late cv.Mat gray, blur;
+    for (var i = 0; i  Card(child: Image.memory(images[idx])),
+                      ),
+                    ),
+                    Expanded(child: SingleChildScrollView(child: Text(cv.getBuildInformation()))),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

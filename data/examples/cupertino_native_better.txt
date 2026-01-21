@@ -1,0 +1,129 @@
+import 'package:cupertino_native_better&#47;cupertino_native_better.dart';
+import 'package:flutter&#47;cupertino.dart';
+import 'demos&#47;slider.dart';
+import 'demos&#47;switch.dart';
+import 'demos&#47;segmented_control.dart';
+import 'demos&#47;tab_bar.dart';
+import 'demos&#47;icon.dart';
+import 'demos&#47;popup_menu_button.dart';
+import 'demos&#47;button.dart';
+import 'demos&#47;overlay_test.dart';
+import 'demos&#47;app_bar.dart';
+import 'demos&#47;issues_test.dart';
+import 'demos&#47;native_tab_bar_demo.dart';
+import 'demos&#47;bottom_nav_test.dart';
+import 'demos&#47;bottom_nav_indexed_test.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  &#47;&#47; No longer need to call PlatformVersion.initialize() - it auto-initializes!
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool _isDarkMode = false;
+  Color _accentColor = CupertinoColors.systemBlue;
+
+  void _toggleTheme() {
+    setState(() {
+      _isDarkMode = !_isDarkMode;
+    });
+  }
+
+  void _setAccentColor(Color color) {
+    setState(() {
+      _accentColor = color;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoApp(
+      theme: CupertinoThemeData(
+        brightness: _isDarkMode ? Brightness.dark : Brightness.light,
+        primaryColor: _accentColor,
+      ),
+      home: HomePage(
+        isDarkMode: _isDarkMode,
+        onToggleTheme: _toggleTheme,
+        accentColor: _accentColor,
+        onSelectAccentColor: _setAccentColor,
+      ),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({
+    super.key,
+    required this.isDarkMode,
+    required this.onToggleTheme,
+    required this.accentColor,
+    required this.onSelectAccentColor,
+  });
+
+  final bool isDarkMode;
+  final VoidCallback onToggleTheme;
+  final Color accentColor;
+  final ValueChanged onSelectAccentColor;
+
+  static const _systemColors = >[
+    MapEntry('Red', CupertinoColors.systemRed),
+    MapEntry('Orange', CupertinoColors.systemOrange),
+    MapEntry('Yellow', CupertinoColors.systemYellow),
+    MapEntry('Green', CupertinoColors.systemGreen),
+    MapEntry('Teal', CupertinoColors.systemTeal),
+    MapEntry('Blue', CupertinoColors.systemBlue),
+    MapEntry('Indigo', CupertinoColors.systemIndigo),
+    MapEntry('Purple', CupertinoColors.systemPurple),
+    MapEntry('Pink', CupertinoColors.systemPink),
+    MapEntry('Gray', CupertinoColors.systemGrey),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      backgroundColor: CupertinoColors.systemGroupedBackground,
+      navigationBar: CupertinoNavigationBar(
+        backgroundColor: CupertinoColors.systemGroupedBackground,
+        border: null,
+        &#47;&#47; middle: const Text('Cupertino Native'),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CNPopupMenuButton.icon(
+              buttonIcon: CNSymbol(
+                'paintpalette.fill',
+                size: 18,
+                mode: CNSymbolRenderingMode.multicolor,
+              ),
+              tint: accentColor,
+              items: [
+                for (final entry in _systemColors)
+                  CNPopupMenuItem(
+                    label: entry.key,
+                    icon: CNSymbol('circle.fill', size: 18, color: entry.value),
+                  ),
+              ],
+              onSelected: (index) {
+                if (index >= 0 && index  const SliderDemoPage()),
+                  );
+                },
+              ),
+              CupertinoListTile(
+                title: Text('Switch'),
+                leading: CNIcon(
+                  symbol: CNSymbol('switch.2', color: accentColor),
+                ),
+                trailing: CupertinoListTileChevron(),
+                onTap: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(builder: (_) => cons
+// ... (truncated)

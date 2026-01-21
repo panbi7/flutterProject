@@ -1,0 +1,131 @@
+import 'package:activity_ring&#47;activity_ring.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;cupertino.dart' show CupertinoThemeData;
+
+import 'package:activity_ring_example&#47;constants.dart';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(const ExampleApp());
+}
+
+&#47;&#47;&#47; Example widget to show Ring widget
+class RingExample extends StatelessWidget {
+  &#47;&#47; ignore: public_member_api_docs
+  const RingExample({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Divider(height: 50),
+        const Text('One Ring. percent = $firstRingPercent'),
+        const Divider(
+          height: 100,
+          color: Colors.transparent,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Ring(
+              percent: firstRingPercent,
+              color: ringGradients,
+              radius: ringRadius,
+              width: width,
+              child: gradientsChild,
+            ),
+            Ring(
+              percent: firstRingPercent,
+              color: ringColors,
+              radius: ringRadius,
+              width: width,
+              child: colorsChild,
+            ),
+            Ring(
+              percent: firstRingPercent,
+              color: ringGradient,
+              radius: ringRadius,
+              width: width,
+              child: gradientChild,
+            ),
+            Ring(
+              percent: firstRingPercent,
+              color: ringColor,
+              radius: ringRadius,
+              width: width,
+              child: colorChild,
+            ),
+          ],
+        ),
+        const Divider(height: 80),
+        const Text('2 Rings. percent = $secondRingPercent'),
+        const Divider(height: 50),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Ring(
+              percent: secondRingPercent,
+              color: ringGradients,
+              radius: ringRadius,
+              width: width,
+              child: gradientsChild,
+            ),
+            Ring(
+              percent: secondRingPercent,
+              color: ringColors,
+              radius: ringRadius,
+              width: width,
+              child: colorsChild,
+            ),
+            Ring(
+              percent: secondRingPercent,
+              color: ringGradient,
+              radius: ringRadius,
+              width: width,
+              child: gradientChild,
+            ),
+            Ring(
+              percent: secondRingPercent,
+              color: ringColor,
+              radius: ringRadius,
+              width: width,
+              child: colorChild,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+&#47;&#47;&#47; Main Application.
+class ExampleApp extends StatelessWidget {
+  &#47;&#47; ignore: public_member_api_docs
+  const ExampleApp({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Bajat',
+      theme: ThemeData(
+        brightness: Brightness.light,
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        cupertinoOverrideTheme: const CupertinoThemeData(
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: ThemeMode.dark,
+      &#47;&#47; Use this instead of home so that we get the modal effect
+      &#47;&#47; for home screen
+      &#47;&#47; onGenerateRoute: router,
+      home: const Scaffold(
+        body: SafeArea(
+          child: RingExample(),
+        ),
+      ),
+    );
+  }
+}

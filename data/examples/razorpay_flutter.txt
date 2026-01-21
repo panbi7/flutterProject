@@ -1,0 +1,94 @@
+import 'package:flutter&#47;material.dart';
+import 'package:razorpay_flutter&#47;razorpay_flutter.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        &#47;&#47; This is the theme of your application.
+        &#47;&#47;
+        &#47;&#47; Try running your application with "flutter run". You'll see the
+        &#47;&#47; application has a blue toolbar. Then, without quitting the app, try
+        &#47;&#47; changing the primarySwatch below to Colors.green and then invoke
+        &#47;&#47; "hot reload" (press "r" in the console where you ran "flutter run",
+        &#47;&#47; or simply save your changes to "hot reload" in a Flutter IDE).
+        &#47;&#47; Notice that the counter didn't reset back to zero; the application
+        &#47;&#47; is not restarted.
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  &#47;&#47; This widget is the home page of your application. It is stateful, meaning
+  &#47;&#47; that it has a State object (defined below) that contains fields that affect
+  &#47;&#47; how it looks.
+
+  &#47;&#47; This class is the configuration for the state. It holds the values (in this
+  &#47;&#47; case the title) provided by the parent (in this case the App widget) and
+  &#47;&#47; used by the build method of the State. Fields in a Widget subclass are
+  &#47;&#47; always marked "final".
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      &#47;&#47; This call to setState tells the Flutter framework that something has
+      &#47;&#47; changed in this State, which causes it to rerun the build method below
+      &#47;&#47; so that the display can reflect the updated values. If we changed
+      &#47;&#47; _counter without calling setState(), then the build method would not be
+      &#47;&#47; called again, and so nothing would appear to happen.
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; This method is rerun every time setState is called, for instance as done
+    &#47;&#47; by the _incrementCounter method above.
+    &#47;&#47;
+    &#47;&#47; The Flutter framework has been optimized to make rerunning build methods
+    &#47;&#47; fast, so that you can just rebuild anything that needs updating rather
+    &#47;&#47; than having to individually change instances of widgets.
+    return Scaffold(
+      appBar: AppBar(
+        &#47;&#47; Here we take the value from the MyHomePage object that was created by
+        &#47;&#47; the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
+      body: Center(
+        &#47;&#47; Center is a layout widget. It takes a single child and positions it
+        &#47;&#47; in the middle of the parent.
+        child: Column(
+          &#47;&#47; Column is also a layout widget. It takes a list of children and
+          &#47;&#47; arranges them vertically. By default, it sizes itself to fit its
+          &#47;&#47; children horizontally, and tries to be as tall as its parent.
+          &#47;&#47;
+          &#47;&#47; Invoke "debug painting" (press "p" in the console, choose the
+          &#47;&#47; "Toggle Debug Paint" action from the Flutter Inspector in Android
+          &#47;&#47; Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
+          &#47;&#47; to see the wireframe for each widget.
+          &#47;&#47;
+          &#47;&#47; Column has various properties to control how it sizes itself and
+          &#47;&#47; how it position
+// ... (truncated)

@@ -1,0 +1,146 @@
+&#47;&#47; ignore_for_file: avoid_print, lines_longer_than_80_chars, diagnostic_describe_all_properties
+
+&#47;&#47;&#47; This simple example app allows users to view and add to a list of log
+&#47;&#47;&#47; messages.
+&#47;&#47;&#47;
+&#47;&#47;&#47; It demonstrates how to:
+&#47;&#47;&#47;
+&#47;&#47;&#47; - initialize Couchbase Lite,
+&#47;&#47;&#47; - open a database,
+&#47;&#47;&#47; - create an index,
+&#47;&#47;&#47; - save a new document,
+&#47;&#47;&#47; - build a query through the query builder,
+&#47;&#47;&#47; - explain how that query is executed,
+&#47;&#47;&#47; - and watch that query.
+library main;
+
+import 'dart:async';
+
+import 'package:cbl&#47;cbl.dart';
+import 'package:cbl_flutter&#47;cbl_flutter.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:intl&#47;intl.dart';
+
+Future main() async {
+  await initApp();
+  runApp(const MyApp());
+}
+
+&#47;&#47; === UI ======================================================================
+
+const spacing = 16.0;
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: LogMessagesPage(),
+  );
+}
+
+class LogMessagesPage extends StatefulWidget {
+  const LogMessagesPage({super.key});
+
+  @override
+  State createState() => _LogMessagesPageState();
+}
+
+class _LogMessagesPageState extends State {
+  List _logMessages = [];
+  late StreamSubscription _logMessagesSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _logMessagesSub = logMessageRepository.allLogMessagesStream().listen((
+      logMessages,
+    ) {
+      setState(() => _logMessages = logMessages);
+    });
+  }
+
+  @override
+  void dispose() {
+    _logMessagesSub.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: SafeArea(
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              &#47;&#47; By reversing the ListView new messages will be immediately
+              &#47;&#47; visible and when opening the page the ListView starts out
+              &#47;&#47; scrolled all the way to the bottom.
+              reverse: true,
+              itemCount: _logMessages.length,
+              itemBuilder: (context, index) {
+                &#47;&#47; Since the ListView is reversed, we need to access the
+                &#47;&#47; log messages in reverse, to end up with the correct
+                &#47;&#47; ordering.
+                final logMessage =
+                    _logMessages[_logMessages.length - 1 - index];
+
+                return LogMessageTile(logMessage: logMessage);
+              },
+            ),
+          ),
+          const Divider(height: 0),
+          _LogMessageForm(onSubmit: logMessageRepository.createLogMessage),
+        ],
+      ),
+    ),
+  );
+}
+
+class LogMessageTile extends StatelessWidget {
+  const LogMessageTile({super.key, required this.logMessage});
+
+  final LogMessage logMessage;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.all(spacing),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          DateFormat.yMd().add_jm().format(logMessage.createdAt),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: spacing &#47; 4),
+        Text(logMessage.message),
+      ],
+    ),
+  );
+}
+
+class _LogMessageForm extends StatefulWidget {
+  const _LogMessageForm({required this.onSubmit});
+
+  final ValueChanged onSubmit;
+
+  @override
+  _LogMessageFormState createState() => _LogMessageFormState();
+}
+
+class _LogMessageFormState extends State {
+  late final TextEditingController _messageController;
+  late final FocusNode _messageFocusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _messageController = TextEditingController();
+    _messageFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _messageController.di
+// ... (truncated)

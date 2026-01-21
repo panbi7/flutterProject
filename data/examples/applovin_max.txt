@@ -1,0 +1,118 @@
+import 'dart:async';
+import 'dart:io' show Platform;
+
+import 'package:applovin_max&#47;applovin_max.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'interstitial_ad.dart';
+import 'native_ad.dart';
+import 'programmatic_banner.dart';
+import 'programmatic_mrec.dart';
+import 'rewarded_ad.dart';
+import 'scrolled_adview.dart';
+import 'utils.dart';
+import 'widget_banner.dart';
+import 'widget_mrec.dart';
+
+void main() {
+  runApp(const MaterialApp(
+    title: 'AppLovin MAX Demo',
+    home: MyApp(),
+  ));
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  &#47;&#47; AppLovin MAX configuration
+  final String _sdkKey = 'YOUR_SDK_KEY';
+  final String _interstitialAdUnitId = Platform.isAndroid ? 'ANDROID_INTER_AD_UNIT_ID' : 'IOS_INTER_AD_UNIT_ID';
+  final String _rewardedAdUnitId = Platform.isAndroid ? 'ANDROID_REWARDED_AD_UNIT_ID' : 'IOS_REWARDED_AD_UNIT_ID';
+  final String _bannerAdUnitId = Platform.isAndroid ? 'ANDROID_BANNER_AD_UNIT_ID' : 'IOS_BANNER_AD_UNIT_ID';
+  final String _mrecAdUnitId = Platform.isAndroid ? 'ANDROID_MREC_AD_UNIT_ID' : 'IOS_MREC_AD_UNIT_ID';
+  final String _nativeAdUnitId = Platform.isAndroid ? 'ANDROID_NATIVE_AD_UNIT_ID' : 'IOS_NATIVE_AD_UNIT_ID';
+
+  &#47;&#47; App state tracking
+  bool _isInitialized = false;
+  bool _isWidgetBannerShowing = false;
+  bool _isWidgetMRecShowing = false;
+  bool _isProgrammaticBannerShowing = false;
+  bool _isProgrammaticMRecShowing = false;
+
+  &#47;&#47; Preloaded widget ad references
+  AdViewId? _preloadedBannerId;
+  AdViewId? _preloadedMRecId;
+  AdViewId? _preloadedBanner2Id;
+  AdViewId? _preloadedMRec2Id;
+
+  String _statusText = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _initializePlugin();
+  }
+
+  Future _initializePlugin() async {
+    _logStatus('Initializing SDK...');
+
+    AppLovinMAX.setTermsAndPrivacyPolicyFlowEnabled(true);
+    AppLovinMAX.setPrivacyPolicyUrl('https:&#47;&#47;your_company_name.com&#47;privacy');
+    AppLovinMAX.setTermsOfServiceUrl('https:&#47;&#47;your_company_name.com&#47;terms');
+
+    MaxConfiguration? configuration = await AppLovinMAX.initialize(_sdkKey);
+    if (configuration == null) {
+      _logStatus('SDK failed to initialize.');
+    } else {
+      setState(() => _isInitialized = true);
+      _logStatus('SDK Initialized in ${configuration.countryCode}');
+
+      &#47;&#47; Optionally preload widget-based banner and MREC ads. Comment out if preloading isn't needed.
+      _preloadWidgetAdViews();
+    }
+  }
+
+  void _preloadWidgetAdViews() async {
+    AppLovinMAX.setWidgetAdViewAdListener(WidgetAdViewAdListener(
+      onAdLoadedCallback: (ad) => _logStatus('${ad.adFormat} ad (${ad.adViewId}) preloaded from ${ad.networkName}'),
+      onAdLoadFailedCallback: (adUnitId, error) => _logStatus('Failed to preload $adUnitId: ${error.message}'),
+    ));
+
+    _preloadedBannerId = await AppLovinMAX.preloadWidgetAdView(_bannerAdUnitId, AdFormat.banner);
+    _preloadedMRecId = await AppLovinMAX.preloadWidgetAdView(_mrecAdUnitId, AdFormat.mrec);
+    _preloadedBanner2Id = await AppLovinMAX.preloadWidgetAdView(_bannerAdUnitId, AdFormat.banner);
+    _preloadedMRec2Id = await AppLovinMAX.preloadWidgetAdView(_mrecAdUnitId, AdFormat.mrec);
+  }
+
+  void _logStatus(String status) {
+    &#47;&#47; ignore_for_file: avoid_print
+    print(status);
+    setState(() => _statusText = status);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 60,
+        centerTitle: true,
+        title: Container(
+          height: 42,
+          alignment: Alignment.center,
+          child: ColorFiltered(
+            colorFilter: const ColorFilter.mode(
+              Colors.black,
+              BlendMode.srcIn,
+            ),
+            child: Image.asset('assets&#47;applovin_logo.png', fit: BoxFit.cover),
+          ),
+        ),
+      ),
+      body: Column(
+        children
+// ... (truncated)

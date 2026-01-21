@@ -1,0 +1,73 @@
+&#47;&#47;&#47; Example app for flutter_charts.
+&#47;&#47;&#47;
+&#47;&#47;&#47; All classes without prefix in this code are either
+&#47;&#47;&#47; - from material.dart or
+&#47;&#47;&#47; - from flutter_charts.dart exports (this library)
+&#47;&#47;&#47; Also, material.dart exports many dart files, including widgets.dart,
+&#47;&#47;&#47; so Widget classes are referred to without prefix
+import 'package:flutter&#47;material.dart';
+import 'package:google_fonts&#47;google_fonts.dart';
+import 'package:tuple&#47;tuple.dart' show Tuple2;
+import 'dart:io' as io show exit;
+
+&#47;&#47; provides: data.dart, random_chart_data.dart, line_chart_options.dart
+import 'package:flutter_charts&#47;flutter_charts.dart';
+import 'package:flutter_charts&#47;src&#47;util&#47;string_extension.dart' show StringExtension;
+
+import 'src&#47;util&#47;examples_descriptor.dart';
+
+import 'dart:ui' as ui show Color;
+
+
+&#47;&#47; import 'package:flutter&#47;material.dart' as material show Colors; &#47;&#47; any color we can use is from here, more descriptive
+
+&#47;&#47;&#47; Example of simple line chart usage in an application.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Library note: This file is on the same level as _lib_, so everything from _lib_ must
+&#47;&#47;&#47; be imported using the "package:" scheme, e.g.
+&#47;&#47;&#47; ```dart
+&#47;&#47;&#47;    import 'package:flutter_charts&#47;flutter_charts.dart';
+&#47;&#47;&#47; ```
+void main() {
+  &#47;&#47; runApp is function (not method) in PROJ&#47;packages&#47;flutter&#47;lib&#47;src&#47;widgets&#47;binding.dart.
+  &#47;&#47;
+  &#47;&#47; Why we do not have to import binding.dart?
+  &#47;&#47;
+  &#47;&#47; In brief, because it is imported through another file, material.dart.
+  &#47;&#47;
+  &#47;&#47; Longer reason
+  &#47;&#47;
+  &#47;&#47;      - Because Any Flutter app must have:
+  &#47;&#47;        1) main() { runApp(MyApp()) } &#47;&#47; entry point
+  &#47;&#47;        2) import 'package:flutter&#47;material.dart';
+  &#47;&#47;          Note: *NOT* 'package:flutter&#47;material&#47;material.dart'.
+  &#47;&#47;          Note: material.dart is on path: PROJ&#47;packages&#47;flutter&#47;lib&#47;material.dart
+  &#47;&#47;          so another note:
+  &#47;&#47;             * the lib level is skipped int the import reference
+  &#47;&#47;             * package: represent a directory where packages
+  &#47;&#47;               for this project are installed in pub update package
+  &#47;&#47;      - And:
+  &#47;&#47;        3) The imported 'package:flutter&#47;material.dart' contains line:
+  &#47;&#47;            export 'widgets.dart';
+  &#47;&#47;            which references, at the same level, a path:
+  &#47;&#47;               PROJ&#47;packages&#47;flutter&#47;lib&#47;widgets.dart
+  &#47;&#47;            which contains:
+  &#47;&#47;               export 'src&#47;widgets&#47;binding.dart';
+  &#47;&#47;               on path: PROJ&#47;packages&#47;flutter&#47;lib&#47;src&#47;widgets&#47;binding.dart
+  &#47;&#47;            which contains the function runApp().
+  &#47;&#47;
+  &#47;&#47;  So, eventually, the loading of binding.dart, and it's runApp() function
+  &#47;&#47;  in MyApp is achieved this way:
+  &#47;&#47;    1) This file (example&#47;lib&#47;main.dart) has
+  &#47;&#47;        - import 'package:flutter&#47;material.dart' (references PROJ&#47;packages&#47;flutter&#47;lib&#47;material.dart)
+  &#47;&#47;    2) material.dart has
+  &#47;&#47;        - export 'widgets.dart'; (references same dir        PROJ&#47;packages&#47;flutter&#47;lib&#47;widgets.dart)
+  &#47;&#47;    3) widgets.dart has
+  &#47;&#47;        - export 'src&#47;widgets&#47;binding.dart'; (references dir PROJ&#47;packages&#47;flutter&#47;lib&#47;src&#47;widgets&#47;binding.dart)
+  &#47;&#47;    4) binding.dart has
+  &#47;&#47;        - the runApp() function
+  &#47;&#47;
+  &#47;&#47; This process achieves importing (heh via exports) the file
+  &#47;&#47;    packages&#47;flutter&#47;lib&#47;src&#47;widgets&#47;binding.dart
+  &#47;&#47;    which has the runApp(
+// ... (truncated)

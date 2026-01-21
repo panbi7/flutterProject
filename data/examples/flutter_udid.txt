@@ -1,0 +1,53 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_udid&#47;flutter_udid.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _udid = 'Unknown';
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  Future initPlatformState() async {
+    String udid;
+    try {
+      udid = await FlutterUdid.udid;
+    } on PlatformException {
+      udid = 'Failed to get UDID.';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _udid = udid;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: Text('Running on: $_udid\n'),
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,138 @@
+import 'package:flutter&#47;material.dart';
+import 'package:linear_progress_bar&#47;linear_progress_bar.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; The main application widget.
+class MyApp extends StatelessWidget {
+  &#47;&#47;&#47; Creates the main application widget.
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Linear Progress Bar Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const ExamplesPage(),
+    );
+  }
+}
+
+&#47;&#47;&#47; The main examples page that displays different progress bar examples.
+class ExamplesPage extends StatefulWidget {
+  &#47;&#47;&#47; Creates the examples page widget.
+  const ExamplesPage({super.key});
+
+  @override
+  State createState() => _ExamplesPageState();
+}
+
+class _ExamplesPageState extends State {
+  int _selectedIndex = 0;
+
+  final List _pages = const [
+    LinearProgressExamples(),
+    DotsProgressExamples(),
+    TitledProgressExamples(),
+    AnimatedProgressExamples(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Linear Progress Bar Demo'),
+      ),
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (index) {
+          setState(() => _selectedIndex = index);
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.linear_scale),
+            label: 'Linear',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.more_horiz),
+            label: 'Dots',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.title),
+            label: 'Titled',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.animation),
+            label: 'Animated',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47; Examples of linear progress bars
+class LinearProgressExamples extends StatefulWidget {
+  &#47;&#47;&#47; Creates the linear progress examples widget.
+  const LinearProgressExamples({super.key});
+
+  @override
+  State createState() => _LinearProgressExamplesState();
+}
+
+class _LinearProgressExamplesState extends State {
+  int _currentStep = 3;
+  final int _maxSteps = 6;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle('Basic Linear Progress'),
+          _buildExampleCard(
+            'Simple Progress Bar',
+            LinearProgressBar(
+              maxSteps: _maxSteps,
+              progressType: ProgressType.linear,
+              currentStep: _currentStep,
+              progressColor: Colors.blue,
+              backgroundColor: Colors.grey.shade300,
+              minHeight: 10,
+            ),
+          ),
+
+          _buildSectionTitle('Rounded Corners'),
+          _buildExampleCard(
+            'With Border Radius',
+            LinearProgressBar(
+              maxSteps: _maxSteps,
+              progressType: ProgressType.linear,
+              currentStep: _currentStep,
+              progressColor: Colors.green,
+              backgroundColor: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(10),
+              minHeight: 16,
+            ),
+          ),
+
+          _buildSectionTitle('Different Heights'),
+          _buildExampleCard(
+            'Thin (4px)',
+            LinearProgressBar(
+              maxSteps: _maxSteps,
+              progressType: ProgressType.linear,
+              currentStep: _currentStep,
+              progressColor: Colors.purple,
+              backgroundColor: Colors.gre
+// ... (truncated)

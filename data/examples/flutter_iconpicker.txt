@@ -1,0 +1,13 @@
+import 'package:flutter&#47;material.dart';
+import 'package:fluttericonpickerexample&#47;app&#47;icon_notifier.dart';
+
+import 'app&#47;app.dart';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final notifier = await IconNotifier.init();
+
+  runApp(FlutterIconPickerExample(
+    notifier: notifier,
+  ));
+}

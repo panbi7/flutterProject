@@ -1,0 +1,57 @@
+import 'package:flutter&#47;material.dart';
+import 'package:simple_rich_text&#47;simple_rich_text.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(new MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+&#47;&#47;    String text = null;
+&#47;&#47;    String text = 'no format characters';
+&#47;&#47;    String text = r'format characters: \*\&#47;\_';
+&#47;&#47;    String text = '_entire string_';
+&#47;&#47;    String text = '*&#47;_fully loaded!_*&#47;';
+&#47;&#47;    String text = 'first *bold*.';
+&#47;&#47;    String text = r'test*\_quoted\_*.';
+&#47;&#47;    String text = r'don't*close';
+&#47;&#47;    String text = r'_start at beginning and do not close';
+&#47;&#47;    String text = r'&#47;Alissa&#47; is &#47;awesome&#47;!';
+&#47;&#47;    String text = r'_back__to back_';
+&#47;&#47;    String text = r'go to _{route}home_ page';
+    &#47;&#47;String text = '*_&#47;this is all three*_&#47; (*{color:red}bold*, _underlined_, and &#47;{color:brown}italicized&#47;). _{push:home;color:blue}clickable hyperlink to home screen_';
+    &#47;&#47;String text = r'This is a text with \nnew line';
+    String text =
+        r'Now you can change the ~{fontSize:32}size~ of the text. \nInsert a new line.\nChange the ~{backgroundColor:yellow}background color~\nAnd modify more style as: fontFamily, _{decorationColor:blue}decorationColor_, ~{height:3}height~, etc\n\nToo you can open url: _{http:www.google.com;color:blue}go to Google_\nFinaly, you can define textAlign, maxLines and textOverflow';
+    return new MaterialApp(
+      &#47;&#47;set global text scale factor in builder
+      builder: (BuildContext context, Widget child) {
+        final MediaQueryData data = MediaQuery.of(context);
+        return MediaQuery(
+          data: data.copyWith(textScaleFactor: 3),
+          child: child,
+        );
+      },
+
+      home: Scaffold(
+        &#47;&#47; , chars: r"[*]"
+&#47;&#47;          backgroundColor: Colors.grey[300],
+        body: Center(
+          child: SimpleRichText(text,
+              logIt: false,
+              maxLines: 20,
+              pre:
+                  TextSpan(text: 'PRE', style: TextStyle(color: Colors.purple)),
+              post: TextSpan(
+                  text: 'POST', style: TextStyle(color: Colors.purple)),
+              style: TextStyle(color: Colors.orange),
+              textAlign: TextAlign.center,
+              textOverflow: TextOverflow.ellipsis,
+              textScaleFactor: 1.5),
+        ),
+      ),
+    );
+  }
+}

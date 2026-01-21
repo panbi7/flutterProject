@@ -1,0 +1,137 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:liquid_pull_to_refresh&#47;liquid_pull_to_refresh.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Liquid Pull To Refresh'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, this.title}) : super(key: key);
+
+  final String? title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final GlobalKey _scaffoldKey = GlobalKey();
+  final GlobalKey _refreshIndicatorKey =
+      GlobalKey();
+
+  static int refreshNum = 10; &#47;&#47; number that changes when refreshed
+  Stream counterStream =
+      Stream.periodic(const Duration(seconds: 3), (x) => refreshNum);
+
+  ScrollController? _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  static final List _items = [
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G',
+    'H',
+    'I',
+    'J',
+    'K',
+    'L',
+    'M',
+    'N'
+  ];
+
+  Future _handleRefresh() {
+    final Completer completer = Completer();
+    Timer(const Duration(seconds: 3), () {
+      completer.complete();
+    });
+    setState(() {
+      refreshNum = Random().nextInt(100);
+    });
+    return completer.future.then((_) {
+      ScaffoldMessenger.of(_scaffoldKey.currentState!.context).showSnackBar(
+        SnackBar(
+          content: const Text('Refresh complete'),
+          action: SnackBarAction(
+            label: 'RETRY',
+            onPressed: () {
+              _refreshIndicatorKey.currentState!.show();
+            },
+          ),
+        ),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Stack(
+          children: [
+            const Align(
+              alignment: Alignment(-1.0, 0.0),
+              child: Icon(Icons.reorder),
+            ),
+            Align(
+              alignment: const Alignment(-0.3, 0.0),
+              child: Text(widget.title!),
+            ),
+          ],
+        ),
+      ),
+      body: LiquidPullToRefresh(
+        key: _refreshIndicatorKey,
+        onRefresh: _handleRefresh,
+        showChildOpacityTransition: false,
+        child: StreamBuilder(
+          stream: counterStream,
+          builder: (context, snapshot) {
+            return ListView.builder(
+              padding: kMaterialListPadding,
+              itemCount: _items.length,
+              controller: _scrollController,
+              itemBuilder: (BuildContext context, int index) {
+                final String item = _items[index];
+                return ListTile(
+                  isThreeLine: true,
+                  leading: CircleAvatar(child: Text(item)),
+                  title: Text('This item represents $item.'),
+                  subtitle: Text(
+                      'Even more additional list item information appears on line three. ${snapshot.data}'),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+}

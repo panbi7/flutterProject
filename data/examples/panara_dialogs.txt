@@ -1,0 +1,132 @@
+import 'package:flutter&#47;material.dart';
+import 'package:panara_dialogs&#47;panara_dialogs.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47;
+&#47;&#47;&#47; For more information read documentation at https:&#47;&#47;pub.dev&#47;documentation&#47;panara_dialogs&#47;latest&#47;
+&#47;&#47;&#47;
+
+ValueNotifier _themeMode =
+    ValueNotifier(ThemeMode.system);
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: _themeMode,
+      builder: (context, value, child) => MaterialApp(
+        title: 'Panara Dialogs Demo',
+        themeMode: value,
+        theme: ThemeData(
+          useMaterial3: true,
+          primarySwatch: Colors.blue,
+        ),
+        darkTheme: ThemeData.dark(
+          useMaterial3: true,
+        ),
+        home: const MyHomePage(title: 'Panara Dialogs Demo'),
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: [
+          ValueListenableBuilder(
+            valueListenable: _themeMode,
+            builder: (context, value, child) => IconButton(
+              onPressed: () {
+                if (value == ThemeMode.system) {
+                  _themeMode.value = ThemeMode.light;
+                } else if (value == ThemeMode.light) {
+                  _themeMode.value = ThemeMode.dark;
+                } else {
+                  _themeMode.value = ThemeMode.system;
+                }
+              },
+              icon: Icon(
+                value == ThemeMode.system
+                    ? Icons.brightness_auto
+                    : value == ThemeMode.light
+                        ? Icons.brightness_high
+                        : Icons.brightness_low,
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(
+              height: 10,
+            ),
+            const Text(
+              "PanaraInfoDialog & It's Variants",
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            TextButton(
+              onPressed: () {
+                PanaraInfoDialog.show(
+                  context,
+                  title: "Hello",
+                  message: "This is the Panara Info Dialog Success.",
+                  buttonText: "Okay",
+                  onTapDismiss: () {
+                    Navigator.pop(context);
+                  },
+                  panaraDialogType: PanaraDialogType.success,
+                );
+              },
+              child: const Text("Show Success Info"),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            TextButton(
+              onPressed: () {
+                PanaraInfoDialog.showAnimatedGrow(
+                  context,
+                  title: "Hello",
+                  message: "This is the Panara Info Dialog Normal.",
+                  buttonText: "Okay",
+                  onTapDismiss: () {
+                    Navigator.pop(context);
+                  },
+                  panaraDialogType: PanaraDialogType.normal,
+                );
+              },
+              child: const Text("Show Normal Info"),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            TextButton(
+              onPressed: () {
+                PanaraInfoDialog.showAnimatedGrow(
+                  context,
+                  title: "Hello",
+                  message: "This is the Pana
+// ... (truncated)

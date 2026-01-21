@@ -1,0 +1,119 @@
+import 'dart:developer' as dev;
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_blurhash&#47;flutter_blurhash.dart';
+import 'package:google_fonts&#47;google_fonts.dart';
+import 'package:inview_notifier_list&#47;inview_notifier_list.dart';
+
+const entries = [
+  [
+    r'f8C6M$9tcY,FKOR*00%2RPNaaKjZUawdv#K4$Ps:HXELTJ,@XmS2=yxuNGn%IoR*',
+    'https:&#47;&#47;www.auto-moto.com&#47;wp-content&#47;uploads&#47;sites&#47;9&#47;2021&#47;04&#47;home-peugeot-3008-750x410.jpg',
+    'LG6'
+  ],
+  [
+    r'f86RZIxu4TITofx]jsaeayozofWB00RP?w%NayMxkDt8ofM_Rjt8_4tRD$IUWAxu',
+    'https:&#47;&#47;www.auto-moto.com&#47;wp-content&#47;uploads&#47;sites&#47;9&#47;2021&#47;04&#47;home-peugeot-3008-750x410.jpg',
+    'ED8'
+  ],
+  [
+    r'LZG6p1{I^6rX}G=0jGR$Z|t7NLW,',
+    'https:&#47;&#47;www.auto-moto.com&#47;wp-content&#47;uploads&#47;sites&#47;9&#47;2021&#47;04&#47;home-peugeot-3008-750x410.jpg',
+    'MT2'
+  ],
+  [
+    r'L371cr_3RKKFsqICIVNG00eR?d-r',
+    'https:&#47;&#47;www.auto-moto.com&#47;wp-content&#47;uploads&#47;sites&#47;9&#47;2021&#47;04&#47;home-peugeot-3008-750x410.jpg',
+    'TK1'
+  ],
+  [
+    r'L371cr_3RKKFsqICIVNG00eR?d-r',
+    'https:&#47;&#47;www.auto-moto.com&#47;wp-content&#47;uploads&#47;sites&#47;9&#47;2021&#47;04&#47;home-peugeot-3008-750x410.jpg',
+    'TK2'
+  ],
+  [
+    r'L371cr_3RKKFsqICIVNG00eR?d-r',
+    'https:&#47;&#47;www.auto-moto.com&#47;wp-content&#47;uploads&#47;sites&#47;9&#47;2021&#47;04&#47;home-peugeot-3008-750x410.jpg',
+    'TK3'
+  ],
+  [
+    r'L371cr_3RKKFsqICIVNG00eR?d-r',
+    'https:&#47;&#47;www.auto-moto.com&#47;wp-content&#47;uploads&#47;sites&#47;9&#47;2021&#47;04&#47;home-peugeot-3008-750x410.jpg',
+    'TK4'
+  ],
+];
+
+const duration = Duration(milliseconds: 500);
+
+const radius = Radius.circular(16);
+
+const topMark = .7;
+
+void main() => runApp(
+    const MaterialApp(debugShowCheckedModeBanner: false, home: BlurHashApp()));
+
+class BlurHashApp extends StatefulWidget {
+  const BlurHashApp({super.key});
+
+  @override
+  BlurHashAppState createState() => BlurHashAppState();
+}
+
+class BlurHashAppState extends State {
+  double progression = 0;
+
+  void onStarted() {
+    debugPrint("Ready");
+  }
+
+  double norm(double value, double min, double max) =>
+      (value - min) &#47; (max - min);
+
+  @override
+  Widget build(BuildContext context) =>
+      NotificationListener(
+          onNotification: (ScrollNotification notif) {
+            &#47;&#47; NO need to setState
+            setState(() {
+              progression = norm(notif.metrics.pixels, 0, 1);
+              &#47;&#47; print("Progression $progression &#47; px ${notif.metrics.pixels}");
+            });
+            return true;
+          },
+          child: Stack(children: [
+            FractionallySizedBox(
+              heightFactor: topMark,
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xEEFFFFFF), Color(0xCCFFFFFF)],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                ),
+              ),
+            ),
+            Align(
+              alignment: const Alignment(-.8, -.5),
+              child: Container(
+                margin: const EdgeInsets.only(top: 100),
+                child: Header(progression: progression),
+              ),
+            ),
+            &#47;&#47;BackdropFilter(child: , filter: ImageFilter.blur(sigmaY: 15, sigmaX: 15)),
+            buildInViewNotifierList()
+          ]));
+
+  Widget buildList() => ListView.builder(
+      itemCount: entries.length,
+      itemBuilder: (ctx, idx) => buildEntry(true, idx));
+
+  Widget buildInViewNotifierList() => InViewNotifierList(
+      itemCount: entries.length + 2,
+      builder: (ctx, idx) => InViewNotifierWidget(
+          id: '$idx',
+          builder: (BuildContext context, bool isInView, Widget? child) {
+            if (idx == 0) return const SizedBox(height: 500);
+       
+// ... (truncated)

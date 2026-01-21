@@ -1,0 +1,58 @@
+import 'package:flutter&#47;material.dart';
+import 'package:simple_html_css&#47;simple_html_css.dart';
+
+void main() => runApp(const Home());
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const String htmlContent = """
+
+
+ Hello word! 
+Convert your HTML and CSS easily into RichText
+Lorem ipsum dolor sit, consectetur adipiscing elit. Pellentesque in leo id dui bibendum fringilla in et arcu. In vehicula vel est sed mattis.
+Need more? click this link
+We all spell recieve wrong.Some times we delete stuff
+We write things that are Big, bold&nbsp; or colorful
+Some different FONT with this part highlighted
+x &lt; 2 &amp;&amp;&nbsp;x &gt; 0
+Finally some line heights. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque in leo id dui bibendum fringilla in et arcu. In vehicula vel est sed mattis. Duis varius, sem non mattis.
+
+
+""";
+
+    &#47;&#47; or use HTML.toRichText()
+    final TextSpan textSpan = HTML.toTextSpan(
+      context,
+      htmlContent,
+      linksCallback: (dynamic link) {
+        debugPrint('You clicked on $link');
+      },
+      &#47;&#47; as name suggests, optionally set the default text style
+      defaultTextStyle: TextStyle(color: Colors.grey[700]),
+      overrideStyle: {
+        'p': const TextStyle(fontSize: 17.3),
+        'a': const TextStyle(wordSpacing: 2),
+        &#47;&#47; specify any tag not just the supported ones,
+        &#47;&#47; and apply TextStyles to them and&#47;override them
+      },
+    );
+
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Demo')),
+        body: SingleChildScrollView(
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(16.0),
+            child: RichText(text: textSpan),
+          ),
+        ),
+      ),
+    );
+  }
+}

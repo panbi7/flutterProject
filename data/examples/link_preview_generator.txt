@@ -1,0 +1,67 @@
+import 'package:flutter&#47;material.dart';
+import 'package:link_preview_generator&#47;link_preview_generator.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Link Preview Generator Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  &#47;&#47; List of links to preview.
+  List get urls => const [
+        'https:&#47;&#47;github.com&#47;ghpranav&#47;link_preview_generator',
+        'https:&#47;&#47;www.espn.in&#47;football&#47;soccer-transfers&#47;story&#47;4163866&#47;transfer-talk-lionel-messi-tells-barcelona-hes-more-likely-to-leave-then-stay',
+        'https:&#47;&#47;speakerdeck.com&#47;themsaid&#47;the-power-of-laravel-queues',
+        'https:&#47;&#47;twitter.com&#47;laravelphp&#47;status&#47;1222535498880692225',
+        'https:&#47;&#47;www.youtube.com&#47;watch?v=W1pNjxmNHNQ',
+        'https:&#47;&#47;www.instagram.com&#47;p&#47;CQ3WCUOru1T&#47;',
+        'https:&#47;&#47;www.google.com&#47;'
+      ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        brightness: Brightness.dark,
+        title: Text('Link Preview Generator'),
+      ),
+      body: ListView.builder(
+        itemCount: urls.length,
+        itemBuilder: (context, index) => Container(
+          key: ValueKey(urls[index]),
+          margin: const EdgeInsets.all(15),
+          &#47;&#47; Generate a preview for each link.
+          &#47;&#47; Alternate between a large and small type preview widget.
+          child: LinkPreviewGenerator(
+            link: urls[index],
+            linkPreviewStyle: index % 2 == 0
+                ? LinkPreviewStyle.large
+                : LinkPreviewStyle.small,
+          ),
+        ),
+      ),
+    );
+  }
+}

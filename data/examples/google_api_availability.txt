@@ -1,0 +1,151 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:google_api_availability&#47;google_api_availability.dart';
+
+void main() => runApp(const MyApp());
+
+&#47;&#47;&#47;Creates the mutable state for this widget.
+class MyApp extends StatefulWidget {
+  &#47;&#47;&#47; Named [key] parameter to identify a widget.
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  GooglePlayServicesAvailability _playStoreAvailability =
+      GooglePlayServicesAvailability.unknown;
+  String _errorString = 'unknown';
+  bool _isUserResolvable = false;
+  bool _errorDialogFragmentShown = false;
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future checkPlayServices([bool showDialog = false]) async {
+    GooglePlayServicesAvailability playStoreAvailability;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    try {
+      playStoreAvailability = await GoogleApiAvailability.instance
+          .checkGooglePlayServicesAvailability(showDialog);
+    } on PlatformException {
+      playStoreAvailability = GooglePlayServicesAvailability.unknown;
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _playStoreAvailability = playStoreAvailability;
+    });
+  }
+
+  Future makeGooglePlayServicesAvailable() async {
+    try {
+      await GoogleApiAvailability.instance.makeGooglePlayServicesAvailable();
+    } on PlatformException {
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+  }
+
+  Future getErrorString() async {
+    String errorString;
+
+    try {
+      errorString = await GoogleApiAvailability.instance.getErrorString();
+    } on PlatformException {
+      errorString = 'Not available on non Android devices';
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _errorString = errorString;
+    });
+  }
+
+  Future isUserResolvable() async {
+    bool isUserResolvable;
+
+    try {
+      isUserResolvable =
+          await GoogleApiAvailability.instance.isUserResolvable();
+    } on PlatformException {
+      isUserResolvable = false;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isUserResolvable = isUserResolvable;
+    });
+  }
+
+  Future showErrorNotification() async {
+    try {
+      await GoogleApiAvailability.instance.showErrorNotification();
+    } on PlatformException {
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+  }
+
+  Future showErrorDialogFragment() async {
+    bool errorDialogFragmentShown;
+
+    try {
+      errorDialogFragmentShown =
+          await GoogleApiAvailability.instance.showErrorDialogFragment();
+    } on PlatformException {
+      errorDialogFragmentShown = false;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _errorDialogFragmentShown = errorDialogFragmentShown;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Plugin example app')),
+        body: ListView(
+          children: [
+            MaterialButton(
+              onPressed: () => checkPlayServices(),
+              child: const Text('Get PlayServices availability'),
+              color: Colors.red,
+            ),
+            Center(
+              child: Text(
+                'Google Play Store status: ${_playStoreAvailability.toString().split('.').last}\n',
+              ),
+            ),
+            MaterialButton(
+              onPressed: () => checkPlayServices(true),
+              child: const Text(
+                'Get PlayServices availability with fix dialog',
+              ),
+              color: Colors.redAc
+// ... (truncated)

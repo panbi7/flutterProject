@@ -1,0 +1,44 @@
+import 'package:flutter&#47;material.dart';
+import 'package:stacked_themes&#47;stacked_themes.dart';
+import 'package:themes_example&#47;app&#47;locator.dart';
+import 'package:themes_example&#47;ui&#47;dark_light&#47;dark_light_view.dart';
+
+Future main() async {
+  setupLocator();
+  await ThemeManager.initialise();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ThemeBuilder(
+      defaultThemeMode: ThemeMode.system,
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          surface: Colors.blue[700],
+          brightness: Brightness.dark,
+          secondary: Colors.yellow[700],
+        ),
+      ),
+      lightTheme: ThemeData(
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          surface: Colors.blue[300],
+          brightness: Brightness.light,
+          secondary: Colors.yellow[300],
+        ),
+      ),
+      statusBarColorBuilder: (theme) => theme?.colorScheme.secondary,
+      navigationBarColorBuilder: (theme) => theme?.colorScheme.secondary,
+      builder: (context, regularTheme, darkTheme, themeMode) => MaterialApp(
+        title: 'Flutter Demo',
+        theme: regularTheme,
+        darkTheme: darkTheme,
+        themeMode: themeMode,
+        home: DarkLightView(),
+      ),
+    );
+  }
+}

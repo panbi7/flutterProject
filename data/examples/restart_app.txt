@@ -1,0 +1,70 @@
+&#47;&#47; ignore_for_file: use_build_context_synchronously
+
+import 'package:flutter&#47;material.dart';
+import 'package:restart_app&#47;restart_app.dart';
+import 'package:url_strategy&#47;url_strategy.dart';
+
+void main() {
+  setPathUrlStrategy();
+
+  runApp(const MaterialApp(home: SplashPage()));
+}
+
+class SplashPage extends StatefulWidget {
+  const SplashPage({super.key});
+
+  @override
+  State createState() => _SplashPageState();
+}
+
+class _SplashPageState extends State {
+  @override
+  void initState() {
+    Future.delayed(
+      const Duration(milliseconds: 600),
+      () {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const HomePage()),
+          (route) => false,
+        );
+      },
+    );
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: FlutterLogo(size: 64)),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Restart App Example')),
+        body: Center(
+          child: FilledButton(
+            child: const Text('Restart!'),
+            onPressed: () {
+              Restart.restartApp(
+                &#47;&#47;&#47; In Web Platform, Fill webOrigin only when your new origin is different than the app's origin
+                &#47;&#47; webOrigin: 'http:&#47;&#47;example.com',
+
+                &#47;&#47; Customizing the notification message only on iOS
+                notificationTitle: 'Restarting App',
+                notificationBody: 'Please tap here to open the app again.',
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}

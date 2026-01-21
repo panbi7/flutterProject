@@ -1,0 +1,138 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_swipe_action_cell&#47;flutter_swipe_action_cell.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      &#47;&#47;&#47; Add this SwipeActionNavigatorObserver to close opening cell when navigator changes its routes
+      &#47;&#47;&#47; 添加这个可以在路由切换的时候统一关闭打开的cell，全局有效
+      navigatorObservers: [SwipeActionNavigatorObserver()],
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CupertinoButton.filled(
+            child: const Text('Enter new page'),
+            onPressed: () {
+              Navigator.push(context,
+                  CupertinoPageRoute(builder: (c) => const SwipeActionPage()));
+            }),
+      ),
+    );
+  }
+}
+
+class Model {
+  String id = UniqueKey().toString();
+  int index = 0;
+
+  @override
+  String toString() {
+    return index.toString();
+  }
+}
+
+class SwipeActionPage extends StatefulWidget {
+  const SwipeActionPage({Key? key}) : super(key: key);
+
+  @override
+  _SwipeActionPageState createState() => _SwipeActionPageState();
+}
+
+class _SwipeActionPageState extends State {
+  List list = List.generate(30, (index) {
+    return Model()..index = index;
+  });
+
+  late SwipeActionController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = SwipeActionController(selectedIndexPathsChangeCallback:
+        (changedIndexPaths, selected, currentCount) {
+      print(
+          'cell at ${changedIndexPaths.toString()} is&#47;are ${selected ? 'selected' : 'unselected'} ,current selected count is $currentCount');
+
+      &#47;&#47;&#47; I just call setState() to update simply in this example.
+      &#47;&#47;&#47; But the whole page will be rebuilt.
+      &#47;&#47;&#47; So when you are developing,you'd better update a little piece
+      &#47;&#47;&#47; of UI sub tree for best performance....
+
+      setState(() {});
+    });
+  }
+
+  Widget bottomBar() {
+    return Container(
+      color: Colors.grey[200],
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: CupertinoButton.filled(
+                  padding: const EdgeInsets.only(),
+                  child: const Text('open cell at 2'),
+                  onPressed: () {
+                    controller.openCellAt(
+                        index: 2, trailing: true, animated: true);
+                  }),
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            Expanded(
+              child: CupertinoButton.filled(
+                  padding: const EdgeInsets.only(),
+                  child: const Text('switch edit mode'),
+                  onPressed: () {
+                    controller.toggleEditingMode();
+                  }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      bottomNavigationBar: bottomBar(),
+      appBar: CupertinoNavigationBar(
+        middle: CupertinoButton.filled(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            minSize: 0,
+            child: const Text('deselect all', style: TextStyle(fontSize: 22)),
+            onPressed: () {
+           
+// ... (truncated)

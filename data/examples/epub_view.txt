@@ -1,0 +1,135 @@
+import 'package:epub_view&#47;epub_view.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart' show SystemChrome, SystemUiOverlayStyle;
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State with WidgetsBindingObserver {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    _setSystemUIOverlayStyle();
+  }
+
+  Brightness get platformBrightness =>
+      MediaQueryData.fromView(WidgetsBinding.instance.window)
+          .platformBrightness;
+
+  void _setSystemUIOverlayStyle() {
+    if (platformBrightness == Brightness.light) {
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        statusBarBrightness: Brightness.light,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.grey[50],
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ));
+    } else {
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        statusBarBrightness: Brightness.dark,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.grey[850],
+        systemNavigationBarIconBrightness: Brightness.light,
+      ));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Epub demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          brightness: Brightness.light,
+        ),
+        darkTheme: ThemeData(
+          primarySwatch: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+        debugShowCheckedModeBanner: false,
+        home: const MyHomePage(),
+      );
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  late EpubController _epubReaderController;
+
+  @override
+  void initState() {
+    _epubReaderController = EpubController(
+      document:
+          &#47;&#47; EpubDocument.openAsset('assets&#47;New-Findings-on-Shirdi-Sai-Baba.epub'),
+          EpubDocument.openAsset('assets&#47;New-Findings-on-Shirdi-Sai-Baba.epub'),
+      &#47;&#47; epubCfi:
+      &#47;&#47;     'epubcfi(&#47;6&#47;26[id4]!&#47;4&#47;2&#47;2[id4]&#47;22)', &#47;&#47; book.epub Chapter 3 paragraph 10
+      &#47;&#47; epubCfi:
+      &#47;&#47;     'epubcfi(&#47;6&#47;6[chapter-2]!&#47;4&#47;2&#47;1612)', &#47;&#47; book_2.epub Chapter 16 paragraph 3
+    );
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _epubReaderController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: EpubViewActualChapter(
+            controller: _epubReaderController,
+            builder: (chapterValue) => Text(
+              chapterValue?.chapter?.Title?.replaceAll('\n', '').trim() ?? '',
+              textAlign: TextAlign.start,
+            ),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.save_alt),
+              color: Colors.white,
+              onPressed: () => _showCurrentEpubCfi(context),
+            ),
+          ],
+        ),
+        drawer: Drawer(
+          child: EpubViewTableOfContents(controller: _epubReaderController),
+        ),
+        body: EpubView(
+          builders: EpubViewBuilders(
+            options: const DefaultBuilderOptions(),
+            chapterDividerBuilder: (_) => const Divider(),
+          ),
+          controller: _epubReaderController,
+        ),
+      );
+
+  void _showCurrentEpubCfi(context) {
+    final cfi = _epubReaderController.generateEpubCfi();
+
+    if (cfi != null) {
+      ScaffoldMessenger.of(contex
+// ... (truncated)

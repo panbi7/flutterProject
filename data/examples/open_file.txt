@@ -1,0 +1,125 @@
+import 'package:flutter&#47;material.dart';
+import 'package:open_file&#47;open_file.dart';
+import 'dart:async';
+import 'package:path&#47;path.dart' as path;
+
+import 'package:permission_handler&#47;permission_handler.dart';
+
+void main() => runApp(MyApp());
+
+const types = {
+  "application&#47;pdf": "pdf",
+  ".dwg": "application&#47;x-autocad"
+};
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  var _openResult = 'Unknown';
+
+  Future openFile() async {
+    _openExternalImage();
+  }
+
+  _openOtherTypeFile() async {
+    final filePath = "&#47;sdcard&#47;Download&#47;R-C.dwg";
+    final extension = path.extension(filePath);
+    final result = await OpenFile.open(filePath, type: types[extension]);
+    setState(() {
+      _openResult = "type=${result.type}  message=${result.message}";
+    });
+  }
+
+  &#47;&#47; ignore: unused_element
+  _openWebFile() async {
+    &#47;&#47;open an app private storage file
+    &#47;&#47; FilePickerResult? fileResult = await FilePicker.platform.pickFiles();
+    &#47;&#47; if (fileResult?.files.first != null) {
+    &#47;&#47;   Uint8List? fileBytes = fileResult!.files.first.bytes;
+    final result = await OpenFile.open(".&#47;icons&#47;Icon-512.png");
+    setState(() {
+      _openResult = "type=${result.type}  message=${result.message}";
+    });
+    &#47;&#47; }
+  }
+
+  &#47;&#47; ignore: unused_element
+  _openAppPrivateFile() async {
+    &#47;&#47;open an app private storage file
+    final result = await OpenFile.open(
+        "&#47;data&#47;data&#47;com.crazecoder.openfileexample&#47;cache&#47;IMG20230610192318.jpg");
+    setState(() {
+      _openResult = "type=${result.type}  message=${result.message}";
+    });
+  }
+
+  &#47;&#47; ignore: unused_element
+  _openOtherAppFile() async {
+    &#47;&#47;open an external storage image file on android 13
+    if (await Permission.manageExternalStorage.request().isGranted) {
+      final result = await OpenFile.open("&#47;data&#47;user&#47;0&#47;xxx&#47;images&#47;1.jpg");
+      setState(() {
+        _openResult = "type=${result.type}  message=${result.message}";
+      });
+    }
+  }
+
+  &#47;&#47; ignore: unused_element
+  _openExternalImage() async {
+    &#47;&#47;open an external storage image file on android 13
+    &#47;&#47; if (await Permission.photos.request().isGranted) {
+    final result = await OpenFile.open("&#47;sdcard&#47;Download&#47;R-C.jpg");
+    setState(() {
+      _openResult = "type=${result.type}  message=${result.message}";
+    });
+    &#47;&#47; }
+  }
+
+  &#47;&#47; ignore: unused_element
+  _openExternalVideo() async {
+    &#47;&#47;open an external storage video file on android 13
+    if (await Permission.videos.request().isGranted) {
+      final result = await OpenFile.open("&#47;sdcard&#47;Download&#47;R-C.mp4");
+      setState(() {
+        _openResult = "type=${result.type}  message=${result.message}";
+      });
+    }
+  }
+
+  &#47;&#47; ignore: unused_element
+  _openExternalAudio() async {
+    &#47;&#47;open an external storage audio file on android 13
+    if (await Permission.audio.request().isGranted) {
+      final result = await OpenFile.open("&#47;sdcard&#47;Download&#47;R-C.mp3");
+      setState(() {
+        _openResult = "type=${result.type}  message=${result.message}";
+      });
+    }
+  }
+
+  &#47;&#47; ignore: unused_element
+  _openExternalFile() async {
+    &#47;&#47;open an external storage file
+    if (await Permission.manageExternalStorage.request().isGranted) {
+      final result = await OpenFile.open("&#47;sdcard&#47;Android&#47;data&#47;R-C.xml");
+      setState(() {
+        _openResult = "type=${result.type}  message=${result.message}";
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+           
+// ... (truncated)

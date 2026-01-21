@@ -1,0 +1,112 @@
+import 'package:flutter&#47;material.dart';
+import 'package:footer&#47;footer.dart';
+import 'package:footer&#47;footer_view.dart';
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  static Map color = {
+    50:Color.fromRGBO(4, 131, 184, .1),
+    100:Color.fromRGBO(4, 131, 184, .2),
+    200:Color.fromRGBO(4, 131, 184, .3),
+    300:Color.fromRGBO(4, 131, 184, .4),
+    400:Color.fromRGBO(4, 131, 184, .5),
+    500:Color.fromRGBO(4, 131, 184, .6),
+    600:Color.fromRGBO(4, 131, 184, .7),
+    700:Color.fromRGBO(4, 131, 184, .8),
+    800:Color.fromRGBO(4, 131, 184, .9),
+    900:Color.fromRGBO(4, 131, 184, 1),
+  };
+  &#47;&#47;MaterialColor myColor = MaterialColor(0xFF162A49, color);
+  
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Footer',
+      theme: ThemeData(
+        primarySwatch: MaterialColor(0xFF162A49, color),
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: FooterPage(),
+    );
+  }
+}
+
+class FooterPage extends StatefulWidget {
+  @override
+  FooterPageState createState() {
+    return new FooterPageState();
+  }
+}
+
+class FooterPageState extends State {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: new  Text('Flutter Footer View',style: TextStyle(fontWeight:FontWeight.w200),)
+      ),
+      drawer: new Drawer(),
+      body: FooterView(
+          children: [
+            new Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                new Padding(
+                  padding: EdgeInsets.only(top:50,left: 70),
+                    child: new Text('Scrollable View Section'),
+                )
+              ],
+            ),
+          ],
+          footer: new Footer(
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children:[
+                  new Center(
+                    child:new Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        new Container(
+                          height: 45.0,
+                          width: 45.0,
+                          child: Center(
+                            child:Card(
+                              elevation: 5.0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.0), &#47;&#47; half of height and width of Image
+                              ),
+                              child: IconButton(
+                                icon: new Icon(Icons.audiotrack,size: 20.0,),
+                                color: Color(0xFF162A49),
+                                onPressed: () {},
+                              ),
+                            ),
+                          )
+                        ),
+                        new Container(
+                          height: 45.0,
+                          width: 45.0,
+                          child: Center(
+                            child:Card(
+                              elevation: 5.0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.0), &#47;&#47; half of height and width of Image
+                              ),
+                              child: IconButton(
+                                icon: new Icon(Icons.fingerprint,size: 20.0,),
+                                color: Color(0xFF162A49),
+                                onPressed: () {},
+                              ),
+                            ),
+                          )
+                        ),
+                        new Container(
+                          height: 45.0,
+                          width: 45.0,
+                          chi
+// ... (truncated)

@@ -1,0 +1,138 @@
+import 'dart:async';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_cache_manager&#47;file.dart';
+import 'package:flutter_cache_manager&#47;flutter_cache_manager.dart';
+import 'package:image&#47;image.dart' as image;
+import 'package:path&#47;path.dart' as path;
+import 'package:uuid&#47;uuid.dart';
+import 'package:wechat_kit&#47;wechat_kit.dart';
+import 'package:wechat_kit_extension&#47;wechat_kit_extension.dart';
+
+const String kWechatAppID = 'your wechat appId';
+const String kWechatUniversalLink = 'your wechat universal link'; &#47;&#47; iOS 请配置
+const String kWechatAppSecret = 'your wechat appSecret';
+const String kWechatMiniAppID = 'your wechat miniAppId';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Home(),
+    );
+  }
+}
+
+class Home extends StatefulWidget {
+  const Home({
+    super.key,
+  });
+
+  @override
+  State createState() {
+    return _HomeState();
+  }
+}
+
+class _HomeState extends State {
+  late final StreamSubscription _respSubs;
+
+  WechatAuthResp? _authResp;
+
+  @override
+  void initState() {
+    super.initState();
+    _respSubs = WechatKitPlatform.instance.respStream().listen(_listenResp);
+  }
+
+  void _listenResp(WechatResp resp) {
+    if (resp is WechatAuthResp) {
+      _authResp = resp;
+      final String content = 'auth: ${resp.errorCode} ${resp.errorMsg}';
+      _showTips('登录', content);
+    } else if (resp is WechatShareMsgResp) {
+      final String content = 'share: ${resp.errorCode} ${resp.errorMsg}';
+      _showTips('分享', content);
+    } else if (resp is WechatPayResp) {
+      final String content = 'pay: ${resp.errorCode} ${resp.errorMsg}';
+      _showTips('支付', content);
+    } else if (resp is WechatLaunchMiniProgramResp) {
+      final String content = 'mini program: ${resp.errorCode} ${resp.errorMsg}';
+      _showTips('拉起小程序', content);
+    }
+  }
+
+  @override
+  void dispose() {
+    _respSubs.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Wechat Kit Demo'),
+      ),
+      body: ListView(
+        children: [
+          ListTile(
+            title: Text('注册APP'),
+            onTap: () async {
+              await WechatKitPlatform.instance.registerApp(
+                appId: kWechatAppID,
+                universalLink: kWechatUniversalLink,
+              );
+              _showTips('注册APP', '注册成功');
+            },
+          ),
+          ListTile(
+            title: Text('微信回调 - 冷启'),
+            onTap: () async {
+              await WechatKitPlatform.instance.handleInitialWXReq();
+            },
+          ),
+          ListTile(
+            title: Text('环境检查'),
+            onTap: () async {
+              final String content =
+                  'wechat: ${await WechatKitPlatform.instance.isInstalled()} - ${await WechatKitPlatform.instance.isSupportApi()}';
+              _showTips('环境检查', content);
+            },
+          ),
+          ListTile(
+            title: Text('登录'),
+            onTap: () {
+              WechatKitPlatform.instance.auth(
+                scope: [WechatScope.kSNSApiUserInfo],
+                state: 'auth',
+              );
+            },
+          ),
+          ListTile(
+            title: Text('扫码登录'),
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => Qrauth(),
+              ));
+            },
+          ),
+          ListTile(
+            title: Text('获取用户信息'),
+            onTap: () async {
+              if (_authResp != null && _authResp!.isSuccessful) {
+                final WechatAccessTokenResp accessTokenResp =
+                    await WechatExtension.getAccessTokenUnionID(
+                  appId: kWechatAppID,
+                  appSecret: kWechatAppSecret,
+                  code: _au
+// ... (truncated)

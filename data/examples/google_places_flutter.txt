@@ -1,0 +1,107 @@
+import 'package:flutter&#47;material.dart';
+import 'package:google_places_flutter&#47;google_places_flutter.dart';
+import 'package:google_places_flutter&#47;model&#47;place_type.dart';
+import 'package:google_places_flutter&#47;model&#47;prediction.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Custom Autocomplete sample'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, this.title}) : super(key: key);
+
+  final String? title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  TextEditingController controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        &#47;&#47; Here we take the value from the MyHomePage object that was created by
+        &#47;&#47; the App.build method, and use it to set our appbar title.
+        title: Text(widget.title ?? ""),
+      ),
+      body: Center(
+        &#47;&#47; Center is a layout widget. It takes a single child and positions it
+        &#47;&#47; in the middle of the parent.
+        child: Column(
+          &#47;&#47; Column is also a layout widget. It takes a list of children and
+          &#47;&#47; arranges them vertically. By default, it sizes itself to fit its
+          &#47;&#47; children horizontally, and tries to be as tall as its parent.
+          &#47;&#47;
+          &#47;&#47; Invoke "debug painting" (press "p" in the console, choose the
+          &#47;&#47; "Toggle Debug Paint" action from the Flutter Inspector in Android
+          &#47;&#47; Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
+          &#47;&#47; to see the wireframe for each widget.
+          &#47;&#47;
+          &#47;&#47; Column has various properties to control how it sizes itself and
+          &#47;&#47; how it positions its children. Here we use mainAxisAlignment to
+          &#47;&#47; center the children vertically; the main axis here is the vertical
+          &#47;&#47; axis because Columns are vertical (the cross axis would be
+          &#47;&#47; horizontal).
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(height: 20),
+            placesAutoCompleteTextField(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  placesAutoCompleteTextField() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: GooglePlaceAutoCompleteTextField(
+        textEditingController: controller,
+        googleAPIKey:"YOUR_GOOGLE_API_KEY",
+        inputDecoration: InputDecoration(
+          hintText: "Search your location",
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+        ),
+        debounceTime: 400,
+        countries: ["in", "fr"],
+        isLatLngRequired: true,
+        getPlaceDetailWithLatLng: (Prediction prediction) {
+          print("placeDetails" + prediction.lat.toString());
+        },
+
+        itemClick: (Prediction prediction) {
+          controller.text = prediction.description ?? "";
+          controller.selection = TextSelection.fromPosition(
+              TextPosition(offset: prediction.description?.length ?? 0));
+        },
+        seperatedBuilder: Divider(),
+        containerHorizontalPadding: 10,
+        
+        &#47;&#47; Optional: specify keyboard type (defaults to TextInputType.streetAddress)
+        &#47;&#47; keyboardType: TextInputType.text,
+
+
+        &#47;&#47; OPTIONAL&#47;&#47; If you want to customize list view item builder
+        itemBuilder: (context, index, Prediction prediction) {
+          return Container(
+            padding: EdgeInsets.all(10),
+            child: Row(
+              children: [
+    
+// ... (truncated)

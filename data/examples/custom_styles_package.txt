@@ -1,0 +1,118 @@
+import 'package:custom_styles_package&#47;custom_styles_package.dart';
+import 'package:custom_styles_package&#47;functions&#47;show_snackbar.dart';
+import 'package:custom_styles_package&#47;theme&#47;custom_decorations.dart';
+import 'package:custom_styles_package&#47;theme&#47;custom_text_styles.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  CustomStylesConfig.init(
+    primary: Colors.black,
+    isDarkMode: true,
+    fontSize: 14,
+    initializeCustomDecoration: false,
+    initializeCustomTextSyle: false,
+  );
+  CustomTextStyle.init(headingLargeStyle: TextStyle(fontSize: 70));
+
+  CustomDecorations.init(
+    textfieldInputDecoration: InputDecoration(
+      &#47;&#47; contentPadding: EdgeInsets.symmetric(horizontal: 16),
+    ),
+  );
+  &#47;&#47; CustomStylesConfig.init(primary: Colors.black,isDarkMode: true,fontSize: 14 );
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return CustomScreenUtil(
+      designSize: const Size(390, 850),
+      child: MaterialApp(
+        title: 'Custom Styling Demo',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        ),
+        home: const MyHomePage(title: 'App bar title'),
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final GlobalKey key = GlobalKey();
+  @override
+  void initState() {
+    &#47;&#47; TODO: implement initState
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        &#47;&#47; backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: CustomText.appbarText(
+          widget.title,
+        ), &#47;&#47; use this widget to show app bar title
+      ),
+      body: Center(
+        child: Form(
+          key: key,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CustomImage(
+                height: 150,
+                onTap: () {},
+                width: double.infinity,
+                fit: BoxFit.cover,
+                borderRadius: 10,
+
+                border: Border.all(
+                  width: 2,
+                  style: BorderStyle.solid,
+                  color: Colors.red,
+                ),
+                fileType: CustomFileType.network,
+                imageUrl: "https:&#47;&#47;picsum.photos&#47;200&#47;300",
+              ),
+              CustomText.heading(
+                'Heading Text',
+                selectionColor: Colors.red,
+              ), &#47;&#47; use this widget to show headings
+              CustomText.bodyText1(
+                'Body Text 1',
+              ), &#47;&#47; use this widget to body text 1
+              CustomText.bodyText2(
+                'Body Text 2',
+              ), &#47;&#47; use this widget to body text 2
+              CustomTextField(
+                headingText: "Hellll",
+                prefixIconColor: Colors.red,
+                controller: TextEditingController(),
+                hintText: 'Type something here',
+                prefixIcon: Icon(Icons.add, size: 20),
+
+                &#47;&#47;prefix: Icon(Icons.abc),
+                keyboardType: TextInputType.number,
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return 'Please enter something fkshfks fskdj dfskj djks dkj jkj jkj fkshjkswhj';
+                  }
+                  return null;
+                },
+                &#47;&#47; validator:
+                &#47;&#47;     (val) => CustomValidators.requiredNumberVa
+// ... (truncated)

@@ -1,0 +1,9 @@
+TextMarquee(
+  '"Stay close to anything that makes you glad you are alive." -Hafez',
+  spaceSize: 72,
+  style: const TextStyle(
+    color: Colors.white,
+    fontWeight: FontWeight.w600,
+    fontSize: 24
+  ),
+)

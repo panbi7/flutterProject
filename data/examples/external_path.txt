@@ -1,0 +1,87 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:external_path&#47;external_path.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  List _exPath = [];
+  List _directories = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    getPath();
+
+    getPublicDirectoryPath();
+  }
+
+  &#47;&#47; Get storage directory paths
+  &#47;&#47; Like internal and external (SD card) storage path
+  Future getPath() async {
+    List? paths;
+    &#47;&#47; getExternalStorageDirectories() will return list containing internal storage directory path
+    &#47;&#47; And external storage (SD card) directory path (if exists)
+    paths = await ExternalPath.getExternalStorageDirectories();
+
+    setState(() {
+      _exPath = paths!; &#47;&#47; [&#47;storage&#47;emulated&#47;0, &#47;storage&#47;B3AE-4D28]
+    });
+  }
+
+  &#47;&#47; To get public storage directory path like Downloads, Picture, Movie etc.
+  &#47;&#47; Use below code
+  Future getPublicDirectoryPath() async {
+    var path = await ExternalPath.getExternalStoragePublicDirectory(
+        ExternalPath.DIRECTORY_DOCUMENTS);
+    var path1 = await ExternalPath.getExternalStoragePublicDirectory(
+        ExternalPath.DIRECTORY_CACHES);
+    var path2 = await ExternalPath.getExternalStoragePublicDirectory(
+        ExternalPath.DIRECTORY_DOWNLOAD);
+    var path3 = await ExternalPath.getExternalStoragePublicDirectory(
+        ExternalPath.DIRECTORY_LIBRARY);
+    var path4 = await ExternalPath.getExternalStoragePublicDirectory(
+        ExternalPath.DIRECTORY_APPLICATION_SUPPORT);
+    var path5 = await ExternalPath.getExternalStoragePublicDirectory(
+        ExternalPath.DIRECTORY_ALARMS);
+    &#47;&#47; var paths = await ExternalPath.getExternalStorageDirectories();
+    _directories.addAll([path, path1, path2, path3, path4, path5]);
+    &#47;&#47; final directory = await getApplicationSupportDirectory();
+    print('DOCUMENTS: ${path}'); &#47;&#47; Print to debug
+    print('CACHES: ${path1}'); &#47;&#47; Print to debug
+    print('DOWNLOADS: ${path2}'); &#47;&#47; Print to debug
+    print('LIBRARY: ${path3}'); &#47;&#47; Print to debug
+    print('APPLICATION_SUPPORT: ${path4}'); &#47;&#47; Print to debug
+
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ..._exPath.map((e) => Text("$e")).toList(),
+            const SizedBox(height: 8),
+            ..._directories.map((e) => Text("$e")).toList(),
+          ],
+        ),
+      ),
+    );
+  }
+}

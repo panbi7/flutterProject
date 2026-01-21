@@ -1,0 +1,119 @@
+&#47;&#47; Copyright 2013 The Flutter Authors
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:google_maps_flutter_android&#47;google_maps_flutter_android.dart';
+import 'package:google_maps_flutter_platform_interface&#47;google_maps_flutter_platform_interface.dart';
+
+import 'animate_camera.dart';
+import 'clustering.dart';
+import 'ground_overlay.dart';
+import 'lite_mode.dart';
+import 'map_click.dart';
+import 'map_coordinates.dart';
+import 'map_map_id.dart';
+import 'map_ui.dart';
+import 'marker_icons.dart';
+import 'move_camera.dart';
+import 'padding.dart';
+import 'page.dart';
+import 'place_circle.dart';
+import 'place_marker.dart';
+import 'place_polygon.dart';
+import 'place_polyline.dart';
+import 'scrolling_map.dart';
+import 'snapshot.dart';
+import 'tile_overlay.dart';
+
+final List _allPages = [
+  const MapUiPage(),
+  const MapCoordinatesPage(),
+  const MapClickPage(),
+  const AnimateCameraPage(),
+  const MoveCameraPage(),
+  const PlaceMarkerPage(),
+  const MarkerIconsPage(),
+  const ScrollingMapPage(),
+  const PlacePolylinePage(),
+  const PlacePolygonPage(),
+  const PlaceCirclePage(),
+  const PaddingPage(),
+  const SnapshotPage(),
+  const LiteModePage(),
+  const TileOverlayPage(),
+  const GroundOverlayPage(),
+  const ClusteringPage(),
+  const MapIdPage(),
+];
+
+&#47;&#47;&#47; MapsDemo is the Main Application.
+class MapsDemo extends StatelessWidget {
+  &#47;&#47;&#47; Default Constructor
+  const MapsDemo({super.key});
+
+  void _pushPage(BuildContext context, GoogleMapExampleAppPage page) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => Scaffold(
+          appBar: AppBar(title: Text(page.title)),
+          body: page,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('GoogleMaps examples')),
+      body: ListView.builder(
+        itemCount: _allPages.length,
+        itemBuilder: (_, int index) => ListTile(
+          leading: _allPages[index].leading,
+          title: Text(_allPages[index].title),
+          onTap: () => _pushPage(context, _allPages[index]),
+        ),
+      ),
+    );
+  }
+}
+
+void main() {
+  initializeMapRenderer();
+  runApp(const MaterialApp(home: MapsDemo()));
+}
+
+Completer? _initializedRendererCompleter;
+
+&#47;&#47;&#47; Initializes map renderer to the `latest` renderer type, and calls
+&#47;&#47;&#47; [GoogleMapsFlutterAndroid.warmup()].
+&#47;&#47;&#47;
+&#47;&#47;&#47; The renderer must be requested before creating GoogleMap instances,
+&#47;&#47;&#47; as the renderer can be initialized only once per application context.
+Future initializeMapRenderer() async {
+  if (_initializedRendererCompleter != null) {
+    return _initializedRendererCompleter!.future;
+  }
+
+  final completer = Completer();
+  _initializedRendererCompleter = completer;
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final platform =
+      GoogleMapsFlutterPlatform.instance as GoogleMapsFlutterAndroid;
+  unawaited(
+    platform
+        .initializeWithRenderer(AndroidMapRenderer.latest)
+        .then(
+          (AndroidMapRenderer initializedRenderer) =>
+              completer.complete(initializedRenderer),
+        )
+        .then((_) => platform.warmup()),
+  );
+
+  return completer.future;
+}

@@ -1,0 +1,72 @@
+import 'package:atproto&#47;atproto.dart';
+import 'package:atproto&#47;core.dart';
+import 'package:atproto&#47;firehose.dart' as firehose;
+
+&#47;&#47;&#47; https:&#47;&#47;atprotodart.com&#47;docs&#47;packages&#47;atproto
+Future main() async {
+  try {
+    &#47;&#47;! First you need to establish session with ATP server.
+    final session = await createSession(
+      service: 'SERVICE_NAME', &#47;&#47;! The default is `bsky.social`
+      identifier: 'YOUR_HANDLE_OR_EMAIL', &#47;&#47;! Like `shinyakato.bsky.social`
+      password: 'YOUR_PASSWORD',
+    );
+
+    print(session);
+
+    final atproto = ATProto.fromSession(
+      session.data,
+
+      &#47;&#47;! The default is `bsky.social`, or resolve dynamically based on session
+      service: 'SERVICE_NAME',
+
+      &#47;&#47;! The default is `bsky.network`
+      relayService: 'STREAM_SERVICE_NAME',
+
+      &#47;&#47;! Automatic retry is available when server error or network error occurs
+      &#47;&#47;! when communicating with the API.
+      retryConfig: RetryConfig(
+        maxAttempts: 5,
+        jitter: Jitter(minInSeconds: 2, maxInSeconds: 5),
+        onExecute: (event) => print(
+          'Retry after ${event.intervalInSeconds} seconds...'
+          '[${event.retryCount} times]',
+        ),
+      ),
+
+      &#47;&#47;! The default timeout is 30 seconds.
+      timeout: Duration(seconds: 20),
+    );
+
+    &#47;&#47;! Create a record to specific service.
+    final createdRecord = await atproto.repo.createRecord(
+      repo: session.data.did,
+      collection: 'app.bsky.feed.post',
+      record: {
+        'text': 'Hello, Bluesky!',
+        "createdAt": DateTime.now().toUtc().toIso8601String(),
+      },
+    );
+
+    final recordUri = createdRecord.data.uri;
+
+    &#47;&#47;! And delete it.
+    await atproto.repo.deleteRecord(
+      repo: recordUri.hostname,
+      collection: recordUri.collection.toString(),
+      rkey: recordUri.rkey,
+    );
+
+    &#47;&#47;! You can use Stream API easily.
+    final subscription = await atproto.sync.subscribeRepos();
+    subscription.data.stream.listen((event) {
+      final repos = const firehose.SyncSubscribeReposAdaptor().execute(event);
+
+      print(repos);
+    });
+  } on UnauthorizedException catch (e) {
+    print(e);
+  } on XRPCException catch (e) {
+    print(e);
+  }
+}

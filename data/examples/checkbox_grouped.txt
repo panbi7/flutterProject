@@ -1,0 +1,161 @@
+import 'package:checkbox_grouped&#47;checkbox_grouped.dart';
+import 'package:example&#47;custom_grid_grouped_example.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'custom_grouped_example.dart';
+import 'grid_of_grouped_checkbox.dart';
+import 'list_custom_group.dart';
+import 'list_of_grouped.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  State createState() {
+    return _MyAppState();
+  }
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        useMaterial3: true,
+        primaryColor: Colors.blue,
+      ),
+      home: MainExample(),
+    );
+  }
+}
+
+class MainExample extends StatefulWidget {
+  @override
+  State createState() {
+    return _MainExampleState();
+  }
+}
+
+class _MainExampleState extends State
+    with TickerProviderStateMixin {
+  late TabController tabController;
+  ValueNotifier current = ValueNotifier(0);
+  final customController = CustomGroupController(
+    isMultipleSelection: false,
+    initSelectedItem: "basics",
+  );
+  final List drawerItems = [
+    "basics",
+    "custom",
+    "grid custom",
+    "dialog",
+    "list of group",
+    "more example",
+    "list of custom group"
+  ];
+
+  void tabChanged() {
+    current.value = tabController.index;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    tabController = TabController(
+      initialIndex: current.value,
+      length: drawerItems.length,
+      vsync: this,
+    );
+    tabController.addListener(tabChanged);
+    customController.listen((value) {
+      final index = drawerItems.indexOf(value);
+      if (index != -1) {
+        tabController.index = index;
+        Navigator.pop(context);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    tabController.removeListener(tabChanged);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: Drawer(
+        child: ValueListenableBuilder(
+          valueListenable: current,
+          builder: (ctx, value, _) {
+            return Column(
+              children: [
+                SizedBox(
+                  height: 56,
+                ),
+                Expanded(
+                  child: CustomGroupedCheckbox(
+                    controller: customController,
+                    itemBuilder: (ctx, index, isSelected, isDisabled) {
+                      return ListTile(
+                        title: Text(
+                          drawerItems[index],
+                          style: TextStyle(
+                            color: value == index ? Colors.blue : null,
+                          ),
+                        ),
+                      );
+                    },
+                    itemExtent: 64,
+                    values: drawerItems,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+      appBar: AppBar(
+        title: Text("examples"),
+      ),
+      body: TabBarView(
+        controller: tabController,
+        physics: NeverScrollableScrollPhysics(),
+        children: [
+          _SimpleGrouped(),
+          CustomGroupedExample(),
+          CustomGridGroupedExample(),
+          _DialogExample(),
+          ListOfGrouped(),
+          GridOfListGroupedCheckbox(),
+          ListCustomGroup(),
+        ],
+      ),
+    );
+  }
+}
+
+class _SimpleGrouped extends StatefulWidget {
+  @override
+  State createState() => _SimpleGroupedState();
+}
+
+class _SimpleGroupedState extends State {
+  GroupController controller = GroupController(initSelectedItem: [2]);
+  GroupController switchController = GroupController();
+  GroupController chipsController = GroupController(isMultipleSelection: true);
+  GroupController multipleCheckController = GroupController(
+    isMultipleSelection: true,
+    initSelectedItem: List.generate(10, (index) => index),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Single
+// ... (truncated)

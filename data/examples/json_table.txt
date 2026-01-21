@@ -1,0 +1,93 @@
+import 'dart:io';
+
+import 'package:example&#47;pages&#47;custom_data_table.dart';
+import 'package:example&#47;pages&#47;local_table.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'pages&#47;custom_column_nested_table.dart';
+import 'pages&#47;custom_column_table.dart';
+import 'pages&#47;simple_table.dart';
+
+void enablePlatformOverrideForDesktop() {
+  if (!kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
+    debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+  }
+}
+
+void main() {
+  enablePlatformOverrideForDesktop();
+
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Json Table Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+      ),
+      debugShowCheckedModeBanner: false,
+      initialRoute: '&#47;',
+      routes: {
+        '&#47;': (context) => RootPage(),
+        &#47;&#47; When navigating to the "&#47;second" route, build the SecondScreen widget.
+        '&#47;customData': (context) => CustomDataTable(),
+      },
+    );
+  }
+}
+
+class RootPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Table Widget"),
+          actions: [
+            FlatButton(
+              child: Text(
+                "TEST LIVE",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pushNamed('&#47;customData');
+              },
+            )
+          ],
+          bottom: TabBar(
+            tabs: [
+              Tab(
+                text: "Simple Table",
+              ),
+              Tab(
+                text: "Custom Table",
+              ),
+              Tab(
+                text: "Nested Data Table",
+              ),
+              Tab(
+                text: "Local Data Table",
+              ),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            SimpleTable(),
+            CustomColumnTable(),
+            CustomColumnNestedTable(),
+            LocalTable(),
+          ],
+        ),
+      ),
+    );
+  }
+}

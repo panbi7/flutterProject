@@ -1,0 +1,17 @@
+import 'package:requests&#47;requests.dart';
+
+void main(List arguments) async {
+  &#47;&#47; This example uses the Google Books API to search for books about requests.
+  &#47;&#47; https:&#47;&#47;developers.google.com&#47;books&#47;docs&#47;overview
+  var url = 'https:&#47;&#47;www.googleapis.com&#47;books&#47;v1&#47;volumes?q={requests}';
+
+  &#47;&#47; Await the http get response, then decode the json-formatted response.
+  var response = await Requests.get(url);
+  if (response.statusCode == 200) {
+    var jsonResponse = response.json();
+    var itemCount = jsonResponse["totalItems"];
+    print('Number of books about requests: $itemCount.');
+  } else {
+    print('Request failed with status: ${response.statusCode}');
+  }
+}

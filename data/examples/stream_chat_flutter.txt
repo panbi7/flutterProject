@@ -1,0 +1,126 @@
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:async';
+import 'dart:math' as math;
+import 'dart:ui';
+
+import 'package:flutter&#47;material.dart';
+import 'package:responsive_builder&#47;responsive_builder.dart';
+import 'package:stream_chat_flutter&#47;stream_chat_flutter.dart';
+import 'package:stream_chat_flutter_example&#47;debug&#47;channel_page.dart';
+import 'package:stream_chat_localizations&#47;stream_chat_localizations.dart';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  &#47;&#47;&#47; Create a new instance of [StreamChatClient] passing the apikey obtained
+  &#47;&#47;&#47; from your project dashboard.
+  final client = StreamChatClient(
+    's2dxdhpxd94g',
+    logLevel: Level.OFF,
+  );
+
+  &#47;&#47;&#47; Set the current user and connect the websocket. In a production
+  &#47;&#47;&#47; scenario, this should be done using a backend to generate a user token
+  &#47;&#47;&#47; using our server SDK.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; Please see the following for more information:
+  &#47;&#47;&#47; https:&#47;&#47;getstream.io&#47;chat&#47;docs&#47;ios_user_setup_and_tokens&#47;
+  await client.connectUser(
+    User(id: 'super-band-9'),
+    '''eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoic3VwZXItYmFuZC05In0.0L6lGoeLwkz0aZRUcpZKsvaXtNEDHBcezVTZ0oPq40A''',
+  );
+
+  runApp(
+    MyApp(client: client),
+  );
+}
+
+&#47;&#47;&#47; Example application using Stream Chat Flutter widgets.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Stream Chat Flutter is a set of Flutter widgets which provide full chat
+&#47;&#47;&#47; functionalities for building Flutter applications using Stream. If you'd
+&#47;&#47;&#47; prefer using minimal wrapper widgets for your app, please see our other
+&#47;&#47;&#47; package, `stream_chat_flutter_core`.
+class MyApp extends StatelessWidget {
+  &#47;&#47;&#47; Example using Stream's Flutter package.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; If you'd prefer using minimal wrapper widgets for your app, please see
+  &#47;&#47;&#47; our other package, `stream_chat_flutter_core`.
+  const MyApp({
+    super.key,
+    required this.client,
+  });
+
+  &#47;&#47;&#47; Instance of Stream Client.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; Stream's [StreamChatClient] can be used to connect to our servers and
+  &#47;&#47;&#47; set the default user for the application. Performing these actions
+  &#47;&#47;&#47; trigger a websocket connection allowing for real-time updates.
+  final StreamChatClient client;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      &#47;&#47; themeMode: ThemeMode.dark,
+      supportedLocales: const [
+        Locale('en'),
+        Locale('hi'),
+        Locale('fr'),
+        Locale('it'),
+        Locale('es'),
+      ],
+      localizationsDelegates: GlobalStreamChatLocalizations.delegates,
+      builder: (context, widget) => StreamChat(
+        client: client,
+        child: widget,
+      ),
+      home: const ResponsiveChat(),
+    );
+  }
+}
+
+class ResponsiveChat extends StatelessWidget {
+  const ResponsiveChat({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ResponsiveBuilder(
+      builder: (context, sizingInformation) {
+        if (sizingInformation.isDesktop || sizingInformation.isTablet) {
+          return const SplitView();
+        }
+
+        return ChannelListPage(
+          onTap: (c) => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => StreamChannel(
+                channel: c,
+                child: ChannelPage(
+                  onBackPressed: (context) {
+                    Navigator.of(context, rootNavigator: true).pop();
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class SplitView extends StatefulWidget {
+  const SplitView({
+    super.key,
+  });
+
+  @override
+  _SplitViewState create
+// ... (truncated)

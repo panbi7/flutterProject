@@ -1,0 +1,153 @@
+import 'package:flutter&#47;material.dart';
+import 'package:material_charts&#47;material_charts.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Material Charts Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+      ),
+      home: const ChartsDemo(),
+    );
+  }
+}
+
+class ChartsDemo extends StatefulWidget {
+  const ChartsDemo({super.key});
+
+  @override
+  State createState() => _ChartsDemoState();
+}
+
+class _ChartsDemoState extends State {
+  int _selectedIndex = 0;
+
+  final List _charts = [
+    const LineChartExample(),
+    const BarChartExample(),
+    const PieChartExample(),
+    const AreaChartExample(),
+    const MultiLineChartExample(),
+    const StackedBarChartExample(),
+    const HollowSemiCircleExample(),
+    const GanttChartExample(),
+    const CandlestickChartExample(),
+  ];
+
+  final List _chartNames = [
+    'Line Chart',
+    'Bar Chart',
+    'Pie Chart',
+    'Area Chart',
+    'Multi-Line Chart',
+    'Stacked Bar Chart',
+    'Hollow Semi-Circle',
+    'Gantt Chart',
+    'Candlestick Chart',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_chartNames[_selectedIndex]),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: _charts[_selectedIndex],
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.shifting,
+        currentIndex: _selectedIndex,
+        onTap: (index) => setState(() => _selectedIndex = index),
+        items: _chartNames
+            .map((name) => BottomNavigationBarItem(
+                  icon: const Icon(Icons.bar_chart),
+                  label: name,
+                  backgroundColor: Colors.blue,
+                ))
+            .toList(),
+      ),
+    );
+  }
+}
+
+&#47;&#47; Line Chart Example
+class LineChartExample extends StatelessWidget {
+  const LineChartExample({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final data = [
+      const ChartData(value: 10, label: 'Jan'),
+      const ChartData(value: 25, label: 'Feb'),
+      const ChartData(value: 15, label: 'Mar'),
+      const ChartData(value: 30, label: 'Apr'),
+      const ChartData(value: 45, label: 'May'),
+      const ChartData(value: 35, label: 'Jun'),
+    ];
+
+    return Column(
+      children: [
+        const Text(
+          'Monthly Sales Data',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 20),
+        MaterialChartLine(
+          data: data,
+          width: 350,
+          height: 250,
+          style: const LineChartStyle(
+            lineColor: Colors.blue,
+            pointColor: Colors.red,
+            useCurvedLines: true,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+&#47;&#47; Bar Chart Example
+class BarChartExample extends StatelessWidget {
+  const BarChartExample({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final data = [
+      const BarChartData(value: 20, label: 'Product A'),
+      const BarChartData(value: 35, label: 'Product B'),
+      const BarChartData(value: 25, label: 'Product C'),
+      const BarChartData(value: 40, label: 'Product D'),
+      const BarChartData(value: 30, label: 'Product E'),
+    ];
+
+    return Column(
+      children: [
+        const Text(
+          'Product Sales Comparison',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 20),
+        MaterialBarChart(
+          data: data,
+          width: 350,
+          height: 300,
+          style: const BarChartStyle(
+            barColor: Colors.green,
+            gradientEffect: true,
+            gradientColors: [Colors.green, 
+// ... (truncated)

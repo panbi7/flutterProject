@@ -1,0 +1,131 @@
+&#47;&#47; Copyright 2020 The Chromium Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:battery_plus&#47;battery_plus.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: const Color(0x9f4376f8),
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final Battery _battery = Battery();
+
+  BatteryState? _batteryState;
+  StreamSubscription? _batteryStateSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _battery.batteryState.then(_updateBatteryState);
+    _batteryStateSubscription =
+        _battery.onBatteryStateChanged.listen(_updateBatteryState);
+  }
+
+  void _updateBatteryState(BatteryState state) {
+    if (_batteryState == state) return;
+    setState(() {
+      _batteryState = state;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Battery plus example app'),
+        elevation: 4,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Current battery state:',
+              style: TextStyle(fontSize: 24),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${_batteryState?.name}',
+              style: const TextStyle(fontSize: 24),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                _battery.batteryLevel.then(
+                  (batteryLevel) {
+                    if (context.mounted) {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          content: Text('Battery: $batteryLevel%'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('OK'),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                );
+              },
+              child: const Text('Get battery level'),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                _battery.isInBatterySaveMode.then(
+                  (isInPowerSaveMode) {
+                    if (context.mounted) {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: const Text(
+                            'Is in Battery Save mode?',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          content: Text(
+                            "$isInPowerSaveMode",
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Close'),
+                            )
+                          ],
+                        ),
+                      );
+             
+// ... (truncated)

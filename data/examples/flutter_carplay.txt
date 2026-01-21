@@ -1,0 +1,137 @@
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_carplay&#47;controllers&#47;android_auto_controller.dart';
+import 'package:flutter_carplay&#47;controllers&#47;carplay_controller.dart';
+import 'package:flutter_carplay&#47;flutter_carplay.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  ConnectionStatusTypes connectionStatus = ConnectionStatusTypes.unknown;
+  final FlutterCarplay _flutterCarplay = FlutterCarplay();
+  final FlutterAndroidAuto _flutterAndroidAuto = FlutterAndroidAuto();
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (Platform.isIOS) {
+      setupCarplay();
+    } else if (Platform.isAndroid) {
+      setupAndroidAuto();
+    }
+  }
+
+  void setupCarplay() {
+    _flutterCarplay.addListenerOnConnectionChange(onConnectionChange);
+    setInitialCarplayRootTemplate();
+  }
+
+  void setInitialCarplayRootTemplate() {
+    final List section1Items = [];
+    section1Items.add(CPListSection(
+      items: [
+        CPListItem(
+          text: 'Item 1',
+          detailText: 'Detail Text',
+          onPress: (complete, self) {
+            self.setDetailText('You can change the detail text.. 🚀');
+            self.setAccessoryType(CPListItemAccessoryTypes.cloud);
+            Future.delayed(const Duration(seconds: 1), () {
+              self.setDetailText('Customizable Detail Text');
+              complete();
+            });
+          },
+          image: 'images&#47;logo_flutter_1080px_clr.png',
+        ),
+        CPListItem(
+          text: 'Item 2',
+          detailText: 'Start progress bar',
+          isPlaying: false,
+          playbackProgress: 0,
+          image: 'images&#47;logo_flutter_1080px_clr.png',
+          onPress: (complete, self) {
+            for (var i = 1; i  section2Items = [];
+    section2Items.add(CPListSection(
+      items: [
+        CPListItem(
+          text: 'Alert',
+          detailText: 'Action template that the user can perform on an alert',
+          onPress: (complete, self) {
+            showAlert();
+            complete();
+          },
+        ),
+        CPListItem(
+          text: 'Grid Template',
+          detailText: 'A template that displays and manages a grid of items',
+          onPress: (complete, self) {
+            openGridTemplate();
+            complete();
+          },
+        ),
+        CPListItem(
+          text: 'Action Sheet',
+          detailText: 'A template that displays a modal action sheet',
+          onPress: (complete, self) {
+            showActionSheet();
+            complete();
+          },
+        ),
+        CPListItem(
+          text: 'List Template',
+          detailText: 'Displays and manages a list of items',
+          onPress: (complete, self) {
+            openListTemplate();
+            complete();
+          },
+        ),
+        CPListItem(
+          text: 'Information Template',
+          detailText: 'Displays a list of items and up to three actions',
+          onPress: (complete, self) {
+            openInformationTemplate();
+            complete();
+          },
+        ),
+        CPListItem(
+          text: 'Point Of Interest Template',
+          detailText: 'Displays a Map with points of interest.',
+          onPress: (complete, self) {
+            openPoiTemplate();
+            complete();
+          },
+        ),
+      ],
+      header: 'Features',
+    ));
+
+    FlutterCarplay.setRootTemplate(
+      rootTemplate: CPTabBarTemplate(
+        templates: [
+          CPListTemplate(
+            sections: section1Items,
+            title: 'Home',
+            systemIcon: 'house.fill',
+          ),
+          CPListTemplate(
+            sections: section2Items,
+            title: 'Features',
+            showsTabBadge: true,
+            systemIcon: 'star.circle.fill',
+          ),
+          CPListTemplate(
+            sections
+// ... (truncated)

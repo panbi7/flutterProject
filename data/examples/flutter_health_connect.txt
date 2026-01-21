@@ -1,0 +1,110 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_health_connect&#47;flutter_health_connect.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  &#47;&#47; List types = [
+  &#47;&#47;   HealthConnectDataType.ActiveCaloriesBurned,
+  &#47;&#47;   HealthConnectDataType.BasalBodyTemperature,
+  &#47;&#47;   HealthConnectDataType.BasalMetabolicRate,
+  &#47;&#47;   HealthConnectDataType.BloodGlucose,
+  &#47;&#47;   HealthConnectDataType.BloodPressure,
+  &#47;&#47;   HealthConnectDataType.BodyFat,
+  &#47;&#47;   HealthConnectDataType.BodyTemperature,
+  &#47;&#47;   HealthConnectDataType.BoneMass,
+  &#47;&#47;   HealthConnectDataType.CervicalMucus,
+  &#47;&#47;   HealthConnectDataType.CyclingPedalingCadence,
+  &#47;&#47;   HealthConnectDataType.Distance,
+  &#47;&#47;   HealthConnectDataType.ElevationGained,
+  &#47;&#47;   HealthConnectDataType.ExerciseSession,
+  &#47;&#47;   HealthConnectDataType.FloorsClimbed,
+  &#47;&#47;   HealthConnectDataType.HeartRate,
+  &#47;&#47;   HealthConnectDataType.Height,
+  &#47;&#47;   HealthConnectDataType.Hydration,
+  &#47;&#47;   HealthConnectDataType.LeanBodyMass,
+  &#47;&#47;   HealthConnectDataType.MenstruationFlow,
+  &#47;&#47;   HealthConnectDataType.Nutrition,
+  &#47;&#47;   HealthConnectDataType.OvulationTest,
+  &#47;&#47;   HealthConnectDataType.OxygenSaturation,
+  &#47;&#47;   HealthConnectDataType.Power,
+  &#47;&#47;   HealthConnectDataType.RespiratoryRate,
+  &#47;&#47;   HealthConnectDataType.RestingHeartRate,
+  &#47;&#47;   HealthConnectDataType.SexualActivity,
+  &#47;&#47;   HealthConnectDataType.SleepSession,
+  &#47;&#47;   HealthConnectDataType.SleepStage,
+  &#47;&#47;   HealthConnectDataType.Speed,
+  &#47;&#47;   HealthConnectDataType.StepsCadence,
+  &#47;&#47;   HealthConnectDataType.Steps,
+  &#47;&#47;   HealthConnectDataType.TotalCaloriesBurned,
+  &#47;&#47;   HealthConnectDataType.Vo2Max,
+  &#47;&#47;   HealthConnectDataType.Weight,
+  &#47;&#47;   HealthConnectDataType.WheelchairPushes,
+  &#47;&#47; ];
+
+  List types = [
+    HealthConnectDataType.Steps,
+    HealthConnectDataType.ExerciseSession,
+    &#47;&#47; HealthConnectDataType.HeartRate,
+    &#47;&#47; HealthConnectDataType.SleepSession,
+    &#47;&#47; HealthConnectDataType.OxygenSaturation,
+    &#47;&#47; HealthConnectDataType.RespiratoryRate,
+  ];
+
+  bool readOnly = true;
+  String resultText = '';
+
+  String token = "";
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Health Connect'),
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                var result = await HealthConnectFactory.isApiSupported();
+                resultText = 'isApiSupported: $result';
+                _updateResultText();
+              },
+              child: const Text('isApiSupported'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                var result = await HealthConnectFactory.isAvailable();
+                resultText = 'isAvailable: $result';
+                _updateResultText();
+              },
+              child: const Text('Check installed'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await HealthConnectFactory.installHealthConnect();
+                  resultText = 'Install activity started';
+                } catch (e) {
+                  resultText = e.toString();
+                }
+                _updateResultText();
+              },
+              child: const Text('Install Health Connect'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await HealthConnectFactory.openHe
+// ... (truncated)

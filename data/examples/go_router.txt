@@ -1,0 +1,85 @@
+&#47;&#47; Copyright 2013 The Flutter Authors
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'package:flutter&#47;material.dart';
+import 'package:go_router&#47;go_router.dart';
+
+&#47;&#47;&#47; This sample app shows an app with two screens.
+&#47;&#47;&#47;
+&#47;&#47;&#47; The first route '&#47;' is mapped to [HomeScreen], and the second route
+&#47;&#47;&#47; '&#47;details' is mapped to [DetailsScreen].
+&#47;&#47;&#47;
+&#47;&#47;&#47; The buttons use context.go() to navigate to each destination. On mobile
+&#47;&#47;&#47; devices, each destination is deep-linkable and on the web, can be navigated
+&#47;&#47;&#47; to using the address bar.
+void main() => runApp(const MyApp());
+
+&#47;&#47;&#47; The route configuration.
+final GoRouter _router = GoRouter(
+  routes: [
+    GoRoute(
+      path: '&#47;',
+      builder: (BuildContext context, GoRouterState state) {
+        return const HomeScreen();
+      },
+      routes: [
+        GoRoute(
+          path: 'details',
+          builder: (BuildContext context, GoRouterState state) {
+            return const DetailsScreen();
+          },
+        ),
+      ],
+    ),
+  ],
+);
+
+&#47;&#47;&#47; The main app.
+class MyApp extends StatelessWidget {
+  &#47;&#47;&#47; Constructs a [MyApp]
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(routerConfig: _router);
+  }
+}
+
+&#47;&#47;&#47; The home screen
+class HomeScreen extends StatelessWidget {
+  &#47;&#47;&#47; Constructs a [HomeScreen]
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Home Screen')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => context.go('&#47;details'),
+          child: const Text('Go to the Details screen'),
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47; The details screen
+class DetailsScreen extends StatelessWidget {
+  &#47;&#47;&#47; Constructs a [DetailsScreen]
+  const DetailsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Details Screen')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => context.go('&#47;'),
+          child: const Text('Go back to the Home screen'),
+        ),
+      ),
+    );
+  }
+}

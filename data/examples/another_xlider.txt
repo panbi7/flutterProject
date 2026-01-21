@@ -1,0 +1,138 @@
+import 'package:another_xlider&#47;models&#47;handler.dart';
+import 'package:another_xlider&#47;models&#47;handler_animation.dart';
+import 'package:another_xlider&#47;models&#47;hatch_mark.dart';
+import 'package:another_xlider&#47;models&#47;hatch_mark_label.dart';
+import 'package:another_xlider&#47;models&#47;ignore_steps.dart';
+import 'package:another_xlider&#47;models&#47;slider_step.dart';
+import 'package:another_xlider&#47;models&#47;tooltip&#47;tooltip.dart';
+import 'package:another_xlider&#47;models&#47;trackbar.dart';
+import 'package:another_xlider&#47;widgets&#47;sized_box.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:another_xlider&#47;another_xlider.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        &#47;&#47;
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Xlider Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, this.title}) : super(key: key);
+
+  final String? title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  double _lowerValue = 50;
+  double _upperValue = 200;
+
+  double _lv = 50.0;
+  double _uv = 250.0;
+
+  double _lv1 = 1000.0;
+  double _uv1 = 15000.0;
+
+  double _lv2 = 3000.0;
+  double _uv2 = 17000.0;
+
+  double _lv3 = 3000;
+  double _uv3 = 3500;
+
+  double _lv4 = 0;
+  double _uv4 = 2500;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title!),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _singleSlider(),
+            _singleSlider(rtl: true),
+            _rangeSlider(),
+            _rangeSliderIgnoreSteps(),
+            _customHandler(),
+            _tooltipExample(),
+            _hatchMarkWithLabels(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  FlutterSliderHandler customHandler(IconData icon) {
+    return FlutterSliderHandler(
+      decoration: BoxDecoration(),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(color: Colors.blue.withOpacity(0.3), spreadRadius: 0.05, blurRadius: 5, offset: Offset(0, 1))
+          ],
+        ),
+        child: Container(
+          margin: EdgeInsets.all(5),
+          decoration: BoxDecoration(color: Colors.blue.withOpacity(0.3), shape: BoxShape.circle),
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 23,
+          ),
+        ),
+      ),
+    );
+  }
+
+  _singleSlider({bool rtl = false}) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ListTile(
+        title: Text('Single Slider ' + (rtl ? 'RTL' : 'LTR')),
+        subtitle: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: FlutterSlider(
+                handlerWidth: 30,
+                rtl: rtl,
+                handlerHeight: 30,
+                values: [_lowerValue],
+                max: 100,
+                min: 0,
+                tooltip: FlutterSliderTooltip(
+                  disabled: true,
+                ),
+                trackBar: FlutterSliderTrackBar(activeTrackBar: BoxDecoration(color: Colors.blue.withOpacity(0.5))),
+                onDragging: (handlerIndex, lowerValue, upperValue) {
+                  setState(() {
+                    _lowerValue = lowerValue;
+                  });
+                },
+                onDragCompleted: (handlerIndex, lowerValue, upperValue) {
+                  setState(() {
+                    _lowerValue = lowerValue;
+                  });
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              c
+// ... (truncated)

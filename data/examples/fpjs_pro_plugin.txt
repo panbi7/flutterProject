@@ -1,0 +1,126 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:env_flutter&#47;env_flutter.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:fpjs_pro_plugin&#47;error.dart';
+import 'package:fpjs_pro_plugin&#47;fpjs_pro_plugin.dart';
+import 'package:fpjs_pro_plugin&#47;region.dart';
+import 'package:geolocator&#47;geolocator.dart';
+
+const tags = {
+  'a': 'a',
+  'b': 0,
+  'c': {
+    'foo': true,
+    'bar': [1, 2, 3]
+  },
+  'd': false
+};
+
+Future main() async {
+  &#47;&#47; Explicitly define which files to load to avoid
+  &#47;&#47; console warnings about not finding other possible .env files
+  await dotenv.load(fileNames: ['.env', '.env.local']);
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _deviceId = 'Unknown';
+  String _checksResult = 'Not run';
+  String? _initializationError;
+  final String? _apiKey = dotenv.env['API_KEY'];
+  final String? _region = dotenv.env['REGION'];
+  final String? _endpoint = dotenv.env['ENDPOINT'];
+  final String? _scriptUrlPattern = dotenv.env['SCRIPT_URL_PATTERN'];
+
+  @override
+  void initState() {
+    super.initState();
+    _initFpjs();
+  }
+
+  Region? _parseRegion(String? region) {
+    switch (region) {
+      case 'us':
+        return Region.us;
+      case 'eu':
+        return Region.eu;
+      case 'ap':
+        return Region.ap;
+    }
+    return null;
+  }
+
+  Future _initFpjs() async {
+    try {
+      if (_apiKey == null || _apiKey!.isEmpty) {
+        throw Exception('Set the API_KEY environment variable');
+      }
+      &#47;&#47; Must use ! because field promotion only available in Dart >3.2
+      &#47;&#47; https:&#47;&#47;dart.dev&#47;tools&#47;non-promotion-reasons#language-version
+      await FpjsProPlugin.initFpjs(_apiKey!,
+          endpoint: _endpoint,
+          scriptUrlPattern: _scriptUrlPattern,
+          region: _parseRegion(_region),
+          allowUseOfLocationData: true,
+          locationTimeoutMillisAndroid: 6000,
+          extendedResponseFormat: true);
+    } catch (error) {
+      &#47;&#47; print('Failed to initialize Fingerprint agent: $error');
+      setState(() {
+        _initializationError = 'Failed to initialize Fingerprint agent: $error';
+      });
+    }
+  }
+
+  Future requestLocationPermission() async {
+    if (kIsWeb) {
+      return;
+    }
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        &#47;&#47; Permissions are denied, next time you could try
+        &#47;&#47; requesting permissions again (this is also where
+        &#47;&#47; Android's shouldShowRequestPermissionRationale
+        &#47;&#47; returned true. According to Android guidelines
+        &#47;&#47; your App should show an explanatory UI now.
+        if (kDebugMode) {
+          print('Location permissions are denied');
+        }
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      &#47;&#47; Permissions are denied forever, handle appropriately.
+      if (kDebugMode) {
+        print(
+            'Location permissions are permanently denied, we cannot request permissions.');
+      }
+      return;
+    }
+  }
+
+  &#47;&#47;&#47; The native FingerprintJS libraries expose a method called `getVisitorId`
+  &#47;&#47;&#47; to stay consistent with the original Javascript library used for browser identification.
+  &#47;&#47;&#47; However in the mobile application context a more accurate name would be something like `getDeviceId`.
+  Future _getDeviceId() async {
+    await requestLocationPermission();
+    String deviceId;
+    try {
+      deviceId = await FpjsProPlugin.getVisitorId(
+              tags: tags, linkedId: 'some linkedId') ??
+          'Unknown';
+    } catch (error)
+// ... (truncated)

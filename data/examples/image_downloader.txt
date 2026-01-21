@@ -1,0 +1,112 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:image_downloader&#47;image_downloader.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _message = "";
+  String _path = "";
+  String _size = "";
+  String _mimeType = "";
+  File? _imageFile;
+  int _progress = 0;
+
+  List _mulitpleFiles = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    ImageDownloader.callback(onProgressUpdate: (String? imageId, int progress) {
+      setState(() {
+        _progress = progress;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Progress: $_progress %'),
+                Text(_message),
+                Text(_size),
+                Text(_mimeType),
+                Text(_path),
+                _path == ""
+                    ? Container()
+                    : Builder(
+                        builder: (context) => ElevatedButton(
+                          onPressed: () async {
+                            await ImageDownloader.open(_path)
+                                .catchError((error) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(
+                                    (error as PlatformException).message ?? ''),
+                              ));
+                            });
+                          },
+                          child: Text("Open"),
+                        ),
+                      ),
+                ElevatedButton(
+                  onPressed: () {
+                    ImageDownloader.cancel();
+                  },
+                  child: Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _downloadImage(
+                        "https:&#47;&#47;raw.githubusercontent.com&#47;wiki&#47;ko2ic&#47;image_downloader&#47;images&#47;bigsize.jpg");
+                  },
+                  child: Text("default destination"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _downloadImage(
+                      "https:&#47;&#47;raw.githubusercontent.com&#47;wiki&#47;ko2ic&#47;image_downloader&#47;images&#47;flutter.png",
+                      destination: AndroidDestinationType.directoryPictures
+                        ..inExternalFilesDir()
+                        ..subDirectory("sample.gif"),
+                    );
+                  },
+                  child: Text("custom destination(only android)"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _downloadImage(
+                        "https:&#47;&#47;raw.githubusercontent.com&#47;wiki&#47;ko2ic&#47;image_downloader&#47;images&#47;flutter_no.png",
+                        whenError: true);
+                  },
+                  child: Text("404 error"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _downloadImage(
+                        "https:&#47;&#47;raw.githubusercontent.com&#47;wiki&#47;ko2ic&#47;image_downloader&#47;images&#47;sample.mkv",
+                        whenError: true);
+                    &#47;&#47;_downloadImage("https:&#47;&#47;raw.githubusercontent.com&#47;wiki&#47;ko2ic&#47;image_downloader&#47;images&#47;sample.3gp");
+                  },
+                  child: Text("unsupported file error(only ios)"),
+                ),
+                Ele
+// ... (truncated)

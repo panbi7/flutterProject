@@ -1,0 +1,76 @@
+import 'package:flutter&#47;material.dart';
+import 'package:image_downloader_web&#47;image_downloader_web.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Web image downloader example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const ImageDownloaderExample(),
+    );
+  }
+}
+
+class ImageDownloaderExample extends StatefulWidget {
+  const ImageDownloaderExample({Key? key}) : super(key: key);
+
+  @override
+  _ImageDownloaderExampleState createState() => _ImageDownloaderExampleState();
+}
+
+class _ImageDownloaderExampleState extends State {
+  bool downloading = false;
+
+  Future _downloadImage() async {
+    setState(() {
+      downloading = true;
+    });
+    const _url = "https:&#47;&#47;picsum.photos&#47;200";
+    await WebImageDownloader.downloadImageFromWeb(
+      _url,
+      name: 'image01',
+      imageType: ImageType.png,
+    );
+    setState(() {
+      downloading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Web image downloader example"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (downloading)
+              const CircularProgressIndicator()
+            else
+              MaterialButton(
+                onPressed: _downloadImage,
+                child: const Text(
+                  "Download",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                color: Colors.blue,
+              )
+          ],
+        ),
+      ),
+    );
+  }
+}

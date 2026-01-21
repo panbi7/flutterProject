@@ -25,8 +25,8 @@ export async function callGeminiForGuide(prompt) {
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 0.2, // 가이드 생성은 약간의 창의성 허용
-        maxOutputTokens: 8192,
+        temperature: 0.1,
+        maxOutputTokens: 4096, // 응답 크기 제한으로 속도 향상
       },
     })
     const response = await result.response

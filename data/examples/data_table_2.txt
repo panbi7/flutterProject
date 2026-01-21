@@ -1,0 +1,106 @@
+import 'package:example&#47;screens&#47;data_table2_fixed_nm.dart';
+import 'package:example&#47;screens&#47;data_table2_resizable.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'nav_helper.dart';
+import 'screens&#47;async_paginated_data_table2.dart';
+import 'screens&#47;data_table.dart';
+import 'screens&#47;data_table2.dart';
+import 'screens&#47;data_table2_rounded.dart';
+import 'screens&#47;data_table2_scrollup.dart';
+import 'screens&#47;data_table2_simple.dart';
+import 'screens&#47;data_table2_tests.dart';
+import 'screens&#47;paginated_data_table.dart';
+import 'screens&#47;paginated_data_table2.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+
+void main() {
+  runApp(MyApp());
+  &#47;&#47; Add import
+  &#47;&#47; import 'package:data_table_2&#47;data_table_2.dart';
+  &#47;&#47; and uncomment below line to remove widgets' logs
+  &#47;&#47;dataTableShowLogs = false;
+}
+
+const String initialRoute = '&#47;datatable2';
+
+Scaffold _getScaffold(BuildContext context, Widget body,
+    [List? options]) {
+  var defaultOption = getCurrentRouteOption(context);
+  if (defaultOption.isEmpty && options != null && options.isNotEmpty) {
+    defaultOption = options[0];
+  }
+  return Scaffold(
+    appBar: AppBar(
+      backgroundColor: Colors.grey[200],
+      shadowColor: Colors.transparent,
+      automaticallyImplyLeading: false,
+      title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Container(
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+            color: Colors.grey[850],
+            &#47;&#47;screen selection
+            child: DropdownButton(
+              icon: const Icon(Icons.arrow_forward),
+              dropdownColor: Colors.grey[800],
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium!
+                  .copyWith(color: Colors.white),
+              value: _getCurrentRoute(context),
+              onChanged: (v) {
+                Navigator.of(context).pushNamed(v!);
+              },
+              items: const [
+                DropdownMenuItem(
+                  value: '&#47;datatable2',
+                  child: Text('DataTable2'),
+                ),
+                DropdownMenuItem(
+                  value: '&#47;datatable2simple',
+                  child: Text('Simple'),
+                ),
+                DropdownMenuItem(
+                  value: '&#47;datatable2scrollup',
+                  child: Text('Scroll-up&#47;Scroll-left'),
+                ),
+                DropdownMenuItem(
+                  value: '&#47;datatable2fixedmn',
+                  child: Text('Fixed Rows&#47;Cols'),
+                ),
+                DropdownMenuItem(
+                  value: '&#47;datatable2resize',
+                  child: Text('Resizable Columns'),
+                ),
+                DropdownMenuItem(
+                  value: '&#47;paginated2',
+                  child: Text('PaginatedDataTable2'),
+                ),
+                DropdownMenuItem(
+                  value: '&#47;asyncpaginated2',
+                  child: Text('AsyncPaginatedDataTable2'),
+                ),
+                DropdownMenuItem(
+                  value: '&#47;datatable',
+                  child: Text('DataTable'),
+                ),
+                DropdownMenuItem(
+                  value: '&#47;paginated',
+                  child: Text('PaginatedDataTable'),
+                ),
+                if (kDebugMode)
+                  DropdownMenuItem(
+                    value: '&#47;datatable2tests',
+                    child: Text('Unit Tests Preview'),
+                  ),
+              ],
+            )),
+        options != null && options.isNotEmpty
+            ? Flexible(
+                child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 4, 0, 4),
+           
+// ... (truncated)

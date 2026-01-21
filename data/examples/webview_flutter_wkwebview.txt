@@ -1,0 +1,185 @@
+&#47;&#47; Copyright 2013 The Flutter Authors
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter&#47;material.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:webview_flutter_platform_interface&#47;webview_flutter_platform_interface.dart';
+import 'package:webview_flutter_wkwebview&#47;webview_flutter_wkwebview.dart';
+
+void main() {
+  runApp(const MaterialApp(home: WebViewExample()));
+}
+
+const String kNavigationExamplePage = '''
+
+Navigation Delegate Example
+
+
+The navigation delegate is set to block navigation to the youtube website.
+
+
+https:&#47;&#47;www.youtube.com&#47;
+https:&#47;&#47;www.google.com&#47;
+
+
+
+''';
+
+const String kLocalExamplePage = '''
+
+
+
+Load file or HTML string example
+
+
+
+Local demo page
+
+  This is an example page used to demonstrate how to load a local file or HTML
+  string using the Flutter
+  webview plugin.
+
+
+
+
+''';
+
+&#47;&#47; NOTE: This is used by the transparency test in `example&#47;ios&#47;RunnerUITests&#47;FLTWebViewUITests.m`.
+const String kTransparentBackgroundPage = '''
+
+
+
+  Transparent background test
+
+
+  body { background: transparent; margin: 0; padding: 0; }
+  #container { position: relative; margin: 0; padding: 0; width: 100vw; height: 100vh; }
+  #shape { background: #FF0000; width: 200px; height: 100%; margin: 0; padding: 0; position: absolute; top: 0; bottom: 0; left: calc(50% - 100px); }
+  p { text-align: center; }
+
+
+  
+    Transparent background test
+    
+  
+
+
+''';
+
+const String kLogExamplePage = '''
+
+
+
+Load file or HTML string example
+
+
+
+Local demo page
+
+  This page is used to test the forwarding of console logs to Dart.
+
+
+
+    .btn-group button {
+      padding: 24px; 24px;
+      display: block;
+      width: 25%;
+      margin: 5px 0px 0px 0px;
+    }
+
+
+
+    Error
+    Warning
+    Info
+    Debug
+    Log
+
+
+
+
+''';
+
+const String kAlertTestPage = '''
+
+
+   
+      
+            function showAlert(text) {
+	            alert(text);
+            }
+
+            function showConfirm(text) {
+              var result = confirm(text);
+              alert(result);
+            }
+
+            function showPrompt(text, defaultText) {
+              var inputString = prompt('Enter input', 'Default text');
+	            alert(inputString);
+            }
+      
+   
+
+   
+       Click the following button to see the effect 
+      
+        
+        
+        
+      
+   
+
+''';
+
+class WebViewExample extends StatefulWidget {
+  const WebViewExample({super.key, this.cookieManager});
+
+  final PlatformWebViewCookieManager? cookieManager;
+
+  @override
+  State createState() => _WebViewExampleState();
+}
+
+class _WebViewExampleState extends State {
+  late final PlatformWebViewController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller =
+        PlatformWebViewController(
+            WebKitWebViewControllerCreationParams(
+              allowsInlineMediaPlayback: true,
+            ),
+          )
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..setPlatformNavigationDelegate(
+            PlatformNavigationDelegate(
+                const PlatformNavigationDelegateCreationParams(),
+              )
+              ..setOnProgress((int progress) {
+                debugPrint('WebView is loading (progress : $progress%)');
+              })
+              ..setOnPageStarted((String url) {
+                debugPrint('Page started loading: $url');
+              })
+              ..setOnPageFinished((String url) {
+                debugPrint('Page finished loading: $url');
+              })
+              ..setOnHttpError((HttpResponseError error) {
+                debugPrint(
+                  'Error occurred on page: ${error.response?.statusCode}',
+                );
+              })
+              ..setOnWebResourceError((WebResource
+// ... (truncated)

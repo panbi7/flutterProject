@@ -1,0 +1,30 @@
+&#47;&#47; Copyright (c) 2019-present,  SurfStudio LLC
+&#47;&#47;
+&#47;&#47; Licensed under the Apache License, Version 2.0 (the "License");
+&#47;&#47; you may not use this file except in compliance with the License.
+&#47;&#47; You may obtain a copy of the License at
+&#47;&#47;
+&#47;&#47;     http:&#47;&#47;www.apache.org&#47;licenses&#47;LICENSE-2.0
+&#47;&#47;
+&#47;&#47; Unless required by applicable law or agreed to in writing, software
+&#47;&#47; distributed under the License is distributed on an "AS IS" BASIS,
+&#47;&#47; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+&#47;&#47; See the License for the specific language governing permissions and
+&#47;&#47; limitations under the License.
+
+import 'package:example&#47;my_app.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:surf_logger&#47;surf_logger.dart';
+
+&#47;&#47;&#47; Starting from version 2.0.0, the logger is no longer a singleton.
+&#47;&#47;&#47; Therefore, it needs to be passed as a dependency or made global.
+void main() {
+  final logger = _setupLogger();
+
+  runApp(MyApp(logger: logger));
+}
+
+LogWriter _setupLogger() {
+  &#47;&#47;&#47; Simple log strategy for quick start with Surf Logger.
+  return Logger.withStrategies({SimpleLogStrategy()});
+}

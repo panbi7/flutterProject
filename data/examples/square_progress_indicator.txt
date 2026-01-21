@@ -1,0 +1,108 @@
+import 'package:flutter&#47;material.dart';
+import 'package:square_progress_indicator&#47;square_progress_indicator.dart';
+
+void main() {
+  runApp(const MainApp());
+}
+
+class MainApp extends StatefulWidget {
+  const MainApp({super.key});
+
+  @override
+  State createState() => _MainAppState();
+}
+
+class _MainAppState extends State {
+  double _value = 0;
+
+  Widget _infoLeftText(String s) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text("🤩 $s", style: const TextStyle(color: Color(0xff445b79))),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(title: const Text("SquareProgressIndicator")),
+        body: Column(
+          children: [
+            Row(
+              children: [
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Slider(
+                    value: _value,
+                    onChanged: (v) => setState(() => _value = v),
+                    label: _value.toStringAsFixed(2),
+                  ),
+                ),
+                SizedBox(
+                  width: 32,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text("${(_value * 100).toStringAsFixed(0)}%"),
+                  ),
+                ),
+                const SizedBox(width: 16),
+              ],
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _infoLeftText("Simple usage with infinity loading:"),
+                    const SquareProgressIndicator(),
+                    const Divider(),
+                    _infoLeftText("Simple usage with value:"),
+                    SquareProgressIndicator(value: _value),
+                    const Divider(),
+                    _infoLeftText("Customize colors:"),
+                    SquareProgressIndicator(
+                      value: _value,
+                      color: Colors.pink,
+                      emptyStrokeColor: Colors.grey,
+                    ),
+                    const Divider(),
+                    _infoLeftText("Also customize colors with theme:"),
+                    Theme(
+                      data: ThemeData(
+                        progressIndicatorTheme: ProgressIndicatorThemeData(
+                          color: Colors.deepOrange,
+                          circularTrackColor: Colors.deepOrange.shade200,
+                        ),
+                      ),
+                      child: SquareProgressIndicator(value: _value),
+                    ),
+                    const Divider(),
+                    _infoLeftText("Customize sizes and border radius:"),
+                    SquareProgressIndicator(
+                      value: _value,
+                      width: 64,
+                      height: 64,
+                      borderRadius: 18,
+                      strokeWidth: 10,
+                      emptyStrokeWidth: 4,
+                      emptyStrokeColor: Colors.grey,
+                    ),
+                    const Divider(),
+                    _infoLeftText(
+                        "Customize start position and turning direction:"),
+                    SquareProgressIndicator(
+                      value: _value,
+                      clockwise: false,
+                      startPosition: StartPosition.topRight,
+                    ),
+                    const Divider(),
+                    _infoLeftText("Customize stroke align:"),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: SquareProgressIndicator(
+                           
+// ... (truncated)

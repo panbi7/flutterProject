@@ -1,0 +1,124 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_qiblah&#47;flutter_qiblah.dart';
+import 'package:flutter_qiblah_example&#47;loading_indicator.dart';
+import 'package:flutter_qiblah_example&#47;qiblah_compass.dart';
+import 'package:flutter_qiblah_example&#47;qiblah_maps.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final _deviceSupport = FlutterQiblah.androidDeviceSensorSupport();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        primaryColor: Color(0xff0c7b93),
+        primaryColorLight: Color(0xff00a8cc),
+        primaryColorDark: Color(0xff27496d),
+        colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Color(0xffecce6d)),
+      ),
+      darkTheme:
+          ThemeData.dark().copyWith(colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Color(0xffecce6d))),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: FutureBuilder(
+          future: _deviceSupport,
+          builder: (_, AsyncSnapshot snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) return LoadingIndicator();
+            if (snapshot.hasError)
+              return Center(
+                child: Text("Error: ${snapshot.error.toString()}"),
+              );
+
+            if (snapshot.data!)
+              return QiblahCompass();
+            else
+              return QiblahMaps();
+          },
+        ),
+      ),
+    );
+  }
+}
+
+&#47;*class CenterEx extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: FlatButton(
+            color: Colors.green,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return Example();
+                  },
+                ),
+              );
+            },
+            child: Text('Open Qiplah'),
+          ),
+        ));
+  }
+}*&#47;
+
+
+&#47;&#47; class CenterEx extends StatelessWidget {
+&#47;&#47;   @override
+&#47;&#47;   Widget build(BuildContext context) {
+&#47;&#47;     return Scaffold(
+&#47;&#47;         appBar: AppBar(
+&#47;&#47;           title: const Text('Plugin example app'),
+&#47;&#47;         ),
+&#47;&#47;         body: Center(
+&#47;&#47;           child: RaisedButton(
+&#47;&#47;             color: Theme.of(context).accentColor,
+&#47;&#47;             onPressed: () {
+&#47;&#47;               Navigator.push(
+&#47;&#47;                 context,
+&#47;&#47;                 MaterialPageRoute(
+&#47;&#47;                   builder: (context) {
+&#47;&#47;                     return Scaffold(
+&#47;&#47;                       appBar: AppBar(
+&#47;&#47;                         title: Text("Compass"),
+&#47;&#47;                       ),
+&#47;&#47;                       body: TestingCompassWidget(),
+&#47;&#47;                     );
+&#47;&#47;                   },
+&#47;&#47;                 ),
+&#47;&#47;               );
+&#47;&#47;             },
+&#47;&#47;             child: Text('Open Compass'),
+&#47;&#47;           ),
+&#47;&#47;         ));
+&#47;&#47;   }
+&#47;&#47; }
+&#47;&#47;
+&#47;&#47; class TestingCompassWidget extends StatefulWidget {
+&#47;&#47;   @override
+&#47;&#47;   _TestingCompassWidgetState createState() => _TestingCompassWidgetState();
+&#47;&#47; }
+&#47;&#47;
+&#47;&#47; class _TestingCompassWidgetState extends State {
+&#47;&#47;   @override
+&#47;&#47;   void dispose() {
+&#47;&#47;     FlutterCompass().dispose();
+&#47;&#47;     super.dispose();
+&#47;&#47;   }
+&#47;&#47;
+&#47;&#47;   @override
+&#47;&#47;   Widg
+// ... (truncated)

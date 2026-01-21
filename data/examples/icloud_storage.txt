@@ -1,0 +1,44 @@
+import 'package:flutter&#47;material.dart';
+import 'gather.dart';
+import 'upload.dart';
+import 'download.dart';
+import 'delete.dart';
+import 'move.dart';
+import 'rename.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      onGenerateRoute: ((settings) {
+        final args = settings.arguments;
+        Widget page = const Gather();
+        switch (settings.name) {
+          case '&#47;upload':
+            page = Upload(containerId: args as String);
+            break;
+          case '&#47;download':
+            page = Download(containerId: args as String);
+            break;
+          case '&#47;delete':
+            page = Delete(containerId: args as String);
+            break;
+          case '&#47;move':
+            page = Move(containerId: args as String);
+            break;
+          case '&#47;rename':
+            page = Rename(containerId: args as String);
+            break;
+        }
+        return MaterialPageRoute(builder: (_) => page);
+      }),
+    );
+  }
+}

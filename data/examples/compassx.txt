@@ -1,0 +1,64 @@
+import 'dart:io';
+
+import 'package:compassx&#47;compassx.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'dart:math' as math;
+
+import 'package:permission_handler&#47;permission_handler.dart';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  runApp(const App());
+}
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: DefaultTextStyle(
+          style: Theme.of(context).textTheme.headlineSmall!,
+          child: Center(
+            child: StreamBuilder(
+              stream: CompassX.events,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) return Text(snapshot.error.toString());
+                if (!snapshot.hasData) return const CircularProgressIndicator();
+                final compass = snapshot.data!;
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Heading: ${compass.heading}'),
+                    Text('Accuracy: ${compass.accuracy}'),
+                    Text('Should calibrate: ${compass.shouldCalibrate}'),
+                    Transform.rotate(
+                      angle: compass.heading * math.pi &#47; 180,
+                      child: Icon(
+                        Icons.arrow_upward_rounded,
+                        size: MediaQuery.of(context).size.width - 80,
+                      ),
+                    ),
+                    FilledButton(
+                      onPressed: () async {
+                        if (!Platform.isAndroid) return;
+                        await Permission.location.request();
+                      },
+                      child: const Text('Request permission'),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,131 @@
+import 'package:flutter&#47;material.dart';
+import 'package:photo_viewer&#47;photo_viewer.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Sample',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Photo Viewer Sample'),
+      ),
+      body: ListView(
+        children: [
+          ListTile(
+            title: const Text('Simplest Sample'),
+            subtitle: const Text('Basic photo viewer implementation'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const SimplestSamplePage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Network Image Sample'),
+            subtitle: const Text('Photo viewer with network images'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const NetworkImageSamplePage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Overlay Sample'),
+            subtitle: const Text('Photo viewer with comment input overlay'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const OverlaySamplePage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('SNS Sample'),
+            subtitle: const Text('Complex implementation with multiple photos'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => PostListPage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Gallery Sample'),
+            subtitle: const Text('Photo viewer with thumbnails'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const GallerySamplePage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Manga Sample'),
+            subtitle: const Text('Photo viewer with page slider'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const MangaSamplePage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('PhotoViewerImage properties Sample'),
+            subtitle:
+                const Text('PhotoViewerImage with custom gesture handling'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const CustomGestureSamplePage(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SimplestSamplePage extends StatelessWidget {
+  const SimplestSamplePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Simplest Sample'),
+      ),
+      body: con
+// ... (truncated)

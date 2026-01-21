@@ -1,0 +1,89 @@
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:in_app_review&#47;in_app_review.dart';
+
+void main() => runApp(const InAppReviewExampleApp());
+
+enum Availability { loading, available, unavailable }
+
+class InAppReviewExampleApp extends StatefulWidget {
+  const InAppReviewExampleApp({super.key});
+
+  @override
+  InAppReviewExampleAppState createState() => InAppReviewExampleAppState();
+}
+
+class InAppReviewExampleAppState extends State {
+  final InAppReview _inAppReview = InAppReview.instance;
+
+  String _appStoreId = '';
+  String _microsoftStoreId = '';
+  Availability _availability = Availability.loading;
+
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47; ((T? o) => o!) ensures that the following expression is not null for backwards compatibility.
+    ((T? o) => o!)(WidgetsBinding.instance).addPostFrameCallback((_) async {
+      try {
+        final isAvailable = await _inAppReview.isAvailable();
+
+        setState(() {
+          &#47;&#47; This plugin cannot be tested on Android by installing your app
+          &#47;&#47; locally. See https:&#47;&#47;github.com&#47;britannio&#47;in_app_review#testing for
+          &#47;&#47; more information.
+          _availability = isAvailable && !Platform.isAndroid
+              ? Availability.available
+              : Availability.unavailable;
+        });
+      } catch (_) {
+        setState(() => _availability = Availability.unavailable);
+      }
+    });
+  }
+
+  void _setAppStoreId(String id) => _appStoreId = id;
+
+  void _setMicrosoftStoreId(String id) => _microsoftStoreId = id;
+
+  Future _requestReview() => _inAppReview.requestReview();
+
+  Future _openStoreListing() => _inAppReview.openStoreListing(
+        appStoreId: _appStoreId,
+        microsoftStoreId: _microsoftStoreId,
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'In App Review Example',
+      home: Scaffold(
+        appBar: AppBar(title: const Text('In App Review Example')),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('In App Review status: ${_availability.name}'),
+            TextField(
+              onChanged: _setAppStoreId,
+              decoration: const InputDecoration(hintText: 'App Store ID'),
+            ),
+            TextField(
+              onChanged: _setMicrosoftStoreId,
+              decoration: const InputDecoration(hintText: 'Microsoft Store ID'),
+            ),
+            ElevatedButton(
+              onPressed: _requestReview,
+              child: const Text('Request Review'),
+            ),
+            ElevatedButton(
+              onPressed: _openStoreListing,
+              child: const Text('Open Store Listing'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

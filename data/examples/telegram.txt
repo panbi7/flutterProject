@@ -1,0 +1,126 @@
+import 'package:flutter&#47;material.dart';
+import 'package:telegram&#47;telegram.dart';
+
+void main() {
+  runApp(const TelegramApp());
+}
+
+class TelegramApp extends StatefulWidget {
+  const TelegramApp({super.key});
+
+  @override
+  State createState() => _TelegramAppState();
+}
+
+class _TelegramAppState extends State {
+  final _key = GlobalKey();
+  String? username;
+  String? message;
+  String? botToken;
+  String? chatId;
+  bool _isLoading = false;
+  String _result = '';
+
+  &#47;&#47; Demo values
+  final String demoUsername = 'UsamaSarwar';
+  final String demoChannel = 'freelancers_inc';
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Telegram API Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(
+              username == null || username == ''
+                  ? 'Telegram API Demo'
+                  : '@$username',
+            ),
+            bottom: const TabBar(
+              tabs: [
+                Tab(icon: Icon(Icons.send), text: 'URL Schemes'),
+                Tab(icon: Icon(Icons.smart_toy), text: 'Bot API'),
+                Tab(icon: Icon(Icons.extension), text: 'Utilities'),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              _buildUrlSchemeTab(),
+              _buildBotApiTab(),
+              _buildUtilitiesTab(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUrlSchemeTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Form(
+        key: _key,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'URL Scheme Methods',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                hintText: 'UsamaSarwar',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (String value) {
+                setState(() {
+                  username = value;
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Username is required';
+                }
+                if (value.length  _performAction(() {
+                    if (_key.currentState!.validate()) {
+                      Telegram.send(username: username!, message: message);
+                    }
+                  }),
+                  icon: const Icon(Icons.send),
+                  label: const Text('Send Message'),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () => _performAction(() {
+                    if (_key.currentState!.validate()) {
+                      Telegram.copyLinkToClipboard(
+                        username: username!,
+                        message: message,
+                      );
+                      _showSnackBar('Link copied to clipboard!');
+                    }
+                  }),
+                  icon: const Icon(Icons.content_copy),
+                  label: const Text('Copy Link'),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () => _performAction(() async {
+                    if (_key.currentState!.validate()) {
+                      await Telegram.openChat(username: username!);
+                    }
+                  }),
+                  icon: const Icon(Icons.chat),
+                  label: const Text('Open Chat'),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () => _performAction(() async {
+// ... (truncated)

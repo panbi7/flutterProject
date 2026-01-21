@@ -1,0 +1,135 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:esys_flutter_share_plus&#47;esys_flutter_share_plus.dart';
+
+void main() => runApp(MaterialApp(
+      home: MaterialApp(
+        home: MyHomePage(),
+      ),
+    ));
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage();
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47; initialise the plugin before work with share.
+    Share.init();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Share Example'),
+        ),
+        body: Container(
+            padding: const EdgeInsets.all(20.0),
+            child: ListView(
+              children: [
+                MaterialButton(
+                  child: Text('Share text'),
+                  onPressed: () async => await _shareText(),
+                ),
+                MaterialButton(
+                  child: Text('Share image'),
+                  onPressed: () async => await _shareImage(),
+                ),
+                MaterialButton(
+                  child: Text('Share images'),
+                  onPressed: () async => await _shareImages(),
+                ),
+                MaterialButton(
+                  child: Text('Share CSV'),
+                  onPressed: () async => await _shareCSV(),
+                ),
+                MaterialButton(
+                  child: Text('Share mixed'),
+                  onPressed: () async => await _shareMixed(),
+                ),
+                MaterialButton(
+                  child: Text('Share image from url'),
+                  onPressed: () async => await _shareImageFromUrl(),
+                ),
+                MaterialButton(
+                  child: Text('Share sound'),
+                  onPressed: () async => await _shareSound(),
+                ),
+              ],
+            )));
+  }
+
+  Future _shareText() async {
+    try {
+      Share.text('my text title',
+          'This is my text to share with other applications.', 'text&#47;plain');
+    } catch (e) {
+      print('error: $e');
+    }
+  }
+
+  Future _shareImage() async {
+    try {
+      final ByteData bytes = await rootBundle.load('assets&#47;image1.png');
+      await Share.fileFromMemory(
+          'esys image', 'esys.png', bytes.buffer.asUint8List(), 'image&#47;png',
+          text: 'My optional text.');
+    } catch (e) {
+      print('error: $e');
+    }
+  }
+
+  Future _shareImages() async {
+    try {
+      final ByteData bytes1 = await rootBundle.load('assets&#47;image1.png');
+      final ByteData bytes2 = await rootBundle.load('assets&#47;image2.png');
+
+      await Share.filesFromMemory(
+        'esys images',
+        {
+          'esys.png': bytes1.buffer.asUint8List(),
+          'bluedan.png': bytes2.buffer.asUint8List(),
+        },
+        {'image&#47;png'},
+      );
+    } catch (e) {
+      print('error: $e');
+    }
+  }
+
+  Future _shareCSV() async {
+    try {
+      final ByteData bytes = await rootBundle.load('assets&#47;addresses.csv');
+      await Share.fileFromMemory(
+          'addresses', 'addresses.csv', bytes.buffer.asUint8List(), 'text&#47;csv');
+    } catch (e) {
+      print('error: $e');
+    }
+  }
+
+  Future _shareMixed() async {
+    try {
+      final ByteData bytes1 = await rootBundle.load('assets&#47;image1.png');
+      final ByteData bytes2 = await rootBundle.load('assets&#47;image2.png');
+      final ByteData bytes3 = await rootBundle.load('assets&#47;addresses.csv');
+
+      await Share.filesFromMemory(
+          'esys images',
+          {
+            'esys.png': bytes1.buffer.asUint8List(),
+            'bluedan.png': bytes2.buffer.asUint8List(),
+            'addresses.csv': bytes3.buffer.asUint8List(),
+          },
+          {'*&#47;*'},
+          text: 'My optional text.');
+// ... (truncated)

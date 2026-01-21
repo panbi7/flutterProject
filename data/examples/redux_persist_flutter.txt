@@ -1,0 +1,107 @@
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_redux&#47;flutter_redux.dart';
+import 'package:redux&#47;redux.dart';
+import 'package:redux_persist&#47;redux_persist.dart';
+import 'package:redux_persist_flutter&#47;redux_persist_flutter.dart';
+
+void main() async {
+  &#47;&#47; Create Persistor
+  final persistor = Persistor(
+    storage: FlutterStorage(),
+    serializer: JsonSerializer(AppState.fromJson),
+  );
+
+  &#47;&#47; Load initial state
+  final initialState = await persistor.load();
+
+  final store = Store(
+    reducer,
+    initialState: initialState ?? AppState(),
+    middleware: [persistor.createMiddleware()],
+  );
+
+  runApp(App(
+    store: store,
+  ));
+}
+
+&#47;&#47; Redux
+class AppState {
+  final int counter;
+
+  AppState({this.counter = 0});
+
+  AppState copyWith({int counter}) =>
+      AppState(counter: counter ?? this.counter);
+
+  static AppState fromJson(dynamic json) =>
+      AppState(counter: json["counter"] as int);
+
+  dynamic toJson() => {'counter': counter};
+}
+
+class IncrementCounterAction {}
+
+AppState reducer(AppState state, Object action) {
+  if (action is IncrementCounterAction) {
+    &#47;&#47; Increment
+    return state.copyWith(counter: state.counter + 1);
+  }
+
+  return state;
+}
+
+&#47;&#47; App
+class App extends StatelessWidget {
+  final Store store;
+
+  const App({Key key, this.store}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; PersistorGaOuu te waits for state to be loaded before rendering
+    return StoreProvider(
+      store: store,
+      child: MaterialApp(title: 'Redux Persist Demo', home: HomePage()),
+    );
+  }
+}
+
+&#47;&#47; Counter example
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Redux Persist demo"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'You have pushed the button this many times:',
+            ),
+            StoreConnector(
+              converter: (store) => store.state.counter.toString(),
+              builder: (context, count) => Text(
+                    '$count',
+                    style: Theme.of(context).textTheme.display1,
+                  ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: StoreConnector(
+        &#47;&#47; Return a function to dispatch an increment action
+        converter: (store) => () => store.dispatch(IncrementCounterAction()),
+        builder: (_, increment) => FloatingActionButton(
+              onPressed: increment,
+              tooltip: 'Increment',
+              child: Icon(Icons.add),
+            ),
+      ),
+    );
+  }
+}

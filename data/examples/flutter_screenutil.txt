@@ -1,0 +1,17 @@
+import 'package:device_preview&#47;device_preview.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;widgets.dart';
+import 'src&#47;first_method.dart' as firstMethod;
+import 'src&#47;second_method.dart' as secondMethod;
+
+void main() {
+  const method = int.fromEnvironment('method', defaultValue: 1);
+  runApp(
+    DevicePreview(
+      enabled: kDebugMode && kIsWeb,
+      builder: (context) {
+        return method == 1 ? firstMethod.MyApp() : secondMethod.MyApp();
+      },
+    ),
+  );
+}

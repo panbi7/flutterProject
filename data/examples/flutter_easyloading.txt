@@ -1,0 +1,135 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter_easyloading&#47;flutter_easyloading.dart';
+
+import '.&#47;custom_animation.dart';
+
+import '.&#47;test.dart';
+
+void main() {
+  runApp(MyApp());
+  configLoading();
+}
+
+void configLoading() {
+  EasyLoading.instance
+    ..displayDuration = const Duration(milliseconds: 2000)
+    ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+    ..loadingStyle = EasyLoadingStyle.dark
+    ..indicatorSize = 45.0
+    ..radius = 10.0
+    ..progressColor = Colors.yellow
+    ..backgroundColor = Colors.green
+    ..indicatorColor = Colors.yellow
+    ..textColor = Colors.yellow
+    ..maskColor = Colors.blue.withOpacity(0.5)
+    ..userInteractions = true
+    ..dismissOnTap = false
+    ..customAnimation = CustomAnimation();
+}
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter EasyLoading',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Flutter EasyLoading'),
+      builder: EasyLoading.init(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, this.title}) : super(key: key);
+
+  final String? title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  Timer? _timer;
+  late double _progress;
+
+  @override
+  void initState() {
+    super.initState();
+    EasyLoading.addStatusCallback((status) {
+      print('EasyLoading Status $status');
+      if (status == EasyLoadingStatus.dismiss) {
+        _timer?.cancel();
+      }
+    });
+    EasyLoading.showSuccess('Use in initState');
+    &#47;&#47; EasyLoading.removeCallbacks();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title ?? ''),
+      ),
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              TextField(),
+              Wrap(
+                runAlignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  TextButton(
+                    child: Text('open test page'),
+                    onPressed: () {
+                      _timer?.cancel();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => TestPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  TextButton(
+                    child: Text('dismiss'),
+                    onPressed: () async {
+                      _timer?.cancel();
+                      await EasyLoading.dismiss();
+                      print('EasyLoading dismiss');
+                    },
+                  ),
+                  TextButton(
+                    child: Text('show'),
+                    onPressed: () async {
+                      _timer?.cancel();
+                      await EasyLoading.show(
+                        status: 'loading...',
+                        maskType: EasyLoadingMaskType.black,
+                      );
+                      print('EasyLoading show');
+                    },
+                  ),
+                  TextButton(
+                    child: Text('showToast'),
+                    onPressed: () {
+                      _timer?.cancel();
+                      EasyLoading.showToast(
+                        'Toast',
+                      );
+                    },
+                  ),
+                  TextButton(
+                    child: Text('showSuccess'),
+          
+// ... (truncated)

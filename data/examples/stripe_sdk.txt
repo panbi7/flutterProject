@@ -1,0 +1,102 @@
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:provider&#47;provider.dart';
+import 'package:stripe_sdk&#47;stripe_sdk.dart';
+import 'package:stripe_sdk_example&#47;ui&#47;intent_complete_screen.dart';
+
+import 'locator.dart';
+import 'network&#47;network_service.dart';
+import 'setup_intent_with_sca.dart';
+import 'ui&#47;edit_customer_screen.dart';
+import 'ui&#47;payment_methods_screen.dart';
+import 'ui&#47;payment_screen.dart';
+
+const _stripePublishableKey = 'pk_test_FlC2pf2JCTgKLcgG0aScSQmp00XqfTJL8s';
+const _returnUrl = 'stripesdk:&#47;&#47;demo.stripesdk.ezet.io';
+const _returnUrlWeb = 'http:&#47;&#47;demo.stripesdk.ezet.io';
+
+String getScaReturnUrl() {
+  return kIsWeb ? _returnUrlWeb : _returnUrl;
+}
+
+void main() async {
+  initializeLocator();
+  Stripe.init(_stripePublishableKey);
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    CustomerSession.initCustomerSession((version) => locator.get().getEphemeralKey(version));
+    final app = MaterialApp(
+      title: 'Stripe SDK Demo',
+      onUnknownRoute: (RouteSettings settings) {
+        final Uri? uri = Uri.tryParse(settings.name!);
+        if (uri == null &&
+            !uri!.queryParameters.containsKey('setup_intent') &&
+            !uri.queryParameters.containsKey('payment_intent')) {
+          return MaterialPageRoute(builder: (context) => const HomeScreen());
+        }
+        return MaterialPageRoute(builder: (context) => const IntentCompleteScreen());
+      },
+      routes: {
+        '&#47;': (context) => const HomeScreen(),
+        '&#47;3ds&#47;complete': (context) => const IntentCompleteScreen(),
+        '&#47;payments': (context) => const PaymentScreen()
+      },
+      initialRoute: '&#47;',
+      theme: ThemeData(visualDensity: VisualDensity.adaptivePlatformDensity),
+    );
+    return ChangeNotifierProvider(create: (_) => PaymentMethodStore(), child: app);
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Stripe SDK Demo'),
+      ),
+      body: ListView(children: [
+        Card(
+          child: ListTile(
+            title: const Text('User Details'),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const EditCustomerScreen())),
+          ),
+        ),
+        Card(
+          child: ListTile(
+            title: const Text('Payment Methods'),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) {
+              final paymentMethods = Provider.of(context, listen: false);
+              &#47;&#47; ignore: deprecated_member_use
+              return PaymentMethodsScreen(paymentMethodStore: paymentMethods);
+            })),
+          ),
+        ),
+        Card(
+          child: ListTile(
+            title: const Text('Add Stripe Test Card'),
+            onTap: () =>
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const SetupIntentWithScaScreen())),
+          ),
+        ),
+        Card(
+          child: ListTile(
+            title: const Text('Payments'),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PaymentScreen())),
+          ),
+        ),
+      ]),
+    );
+  }
+}

@@ -1,0 +1,75 @@
+&#47;&#47; Copyright 2013 The Flutter Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'dart:developer';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:http&#47;http.dart' as http;
+import 'package:vector_graphics&#47;vector_graphics.dart';
+import 'package:vector_graphics_compiler&#47;vector_graphics_compiler.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; The main example app widget.
+class MyApp extends StatelessWidget {
+  &#47;&#47;&#47; Creates a new [MyApp].
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Vector Graphics Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const Scaffold(
+        body: Center(
+          child: VectorGraphic(
+            loader: NetworkSvgLoader(
+              'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;f&#47;fd&#47;Ghostscript_Tiger.svg',
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47; A [BytesLoader] that converts a network URL into encoded SVG data.
+class NetworkSvgLoader extends BytesLoader {
+  &#47;&#47;&#47; Creates a [NetworkSvgLoader] that loads an SVG from [url].
+  const NetworkSvgLoader(this.url);
+
+  &#47;&#47;&#47; The SVG URL.
+  final String url;
+
+  @override
+  Future loadBytes(BuildContext? context) async {
+    return compute((String svgUrl) async {
+      final http.Response request = await http.get(Uri.parse(svgUrl));
+      final TimelineTask task = TimelineTask()..start('encodeSvg');
+      final Uint8List compiledBytes = encodeSvg(
+        xml: request.body,
+        debugName: svgUrl,
+        enableClippingOptimizer: false,
+        enableMaskingOptimizer: false,
+        enableOverdrawOptimizer: false,
+      );
+      task.finish();
+      &#47;&#47; sendAndExit will make sure this isn't copied.
+      return compiledBytes.buffer.asByteData();
+    }, url, debugLabel: 'Load Bytes');
+  }
+
+  @override
+  int get hashCode => url.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other is NetworkSvgLoader && other.url == url;
+  }
+}

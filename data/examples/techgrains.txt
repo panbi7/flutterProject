@@ -1,0 +1,118 @@
+import 'package:app&#47;theme&#47;app_theme.dart';
+import 'package:app&#47;view&#47;some_screen.dart';
+import 'package:app&#47;view&#47;view_constant.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:techgrains&#47;com&#47;techgrains&#47;common&#47;tg_log.dart';
+import 'package:techgrains&#47;com&#47;techgrains&#47;localization&#47;tg_locale.dart';
+import 'package:techgrains&#47;com&#47;techgrains&#47;localization&#47;tg_localizations_delegate.dart';
+import 'package:techgrains&#47;com&#47;techgrains&#47;singleton&#47;tg_session.dart';
+import 'package:techgrains&#47;com&#47;techgrains&#47;util&#47;tg_flavor.dart';
+import 'package:techgrains&#47;com&#47;techgrains&#47;view&#47;tg_view.dart';
+
+void main() => runApp(const TechgrainsExampleApp());
+
+class TechgrainsExampleApp extends StatefulWidget {
+  static _TechgrainsExampleAppState? _state;
+
+  const TechgrainsExampleApp({super.key});
+
+  @override
+  State createState() => _TechgrainsExampleAppState();
+
+  static void buildTheme(bool? flagDarkTheme, String textSize) async {
+    TGLog.d("TGPortalApp.buildTheme : flagDarkTheme = $flagDarkTheme");
+    _state?.buildTheme(flagDarkTheme);
+  }
+
+  static void setLocale(Locale locale) async {
+    TGLog.d("TGPortalApp.setLocale : $locale");
+    _state?.setLocale(locale);
+  }
+}
+
+class _TechgrainsExampleAppState extends State {
+  static String configFlavorsFile = "assets&#47;config&#47;flavors.json";
+
+  buildTheme(bool? flagDarkTheme) {
+    setState(() {
+      AppTheme.load(flagDarkTheme: flagDarkTheme!);
+    });
+  }
+
+  setLocale(Locale locale) {
+    setState(() {
+      TGLocale.currentLocale = locale;
+      TGLog.d("_TGPortalAppState.setLocale = ${TGLocale.currentLocale}");
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    TGLog.d("main.didChangeDependencies()");
+    super.didChangeDependencies();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47; Assign static reference
+    TechgrainsExampleApp._state = this;
+
+    TGLog.d("main.initState()");
+    _initFlavor();
+    _initLocale();
+  }
+
+  void _initFlavor() {
+    TGFlavor.init(configFlavorsFile);
+  }
+
+  void _initLocale() {
+    TGLocale.init(
+        defaultLocale: const Locale("en", "US"),
+        otherLocales: [const Locale("gu", "IN"), const Locale("hi", "IN")]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    TGLog.d("main.build");
+    TGLog.d("TGLocale.currentLocale = ${TGLocale.currentLocale}");
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+    ));
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
+    if (TGView.theme() == null) {
+      TGSession.getInstance().set("flagDarkTheme", true);
+      buildTheme(true);
+    }
+    return TGView.clearFocusGesture(context, buildMaterialApp());
+  }
+
+  MaterialApp buildMaterialApp() {
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: TGView.theme(),
+        supportedLocales: TGLocale.supportedLocales,
+        locale: TGLocale.currentLocale,
+        localizationsDelegates: const [TGLocalizationsDelegate()],
+        localeResolutionCallback: (locale, supportedLocales) =>
+            TGLocale.localeResolutionCallback(locale, supportedLocales),
+        initialRoute: routeSplash,
+        routes: {
+          routeSplash: (BuildContext context) => const SomeScreen(),
+          routeLogin: (BuildContext context) => const SomeScreen(),
+          routeRegister: (BuildContext context) => const SomeScreen(),
+          routeForgotPassword: (BuildContext context) => const SomeScreen(),
+          routeHome: (BuildContext context) => const SomeScreen(),
+          routeDashboard: (BuildContext context) => const SomeScreen(),
+          routeProfile: (BuildContext context) => const SomeScreen(),
+          routeChangePassword: (BuildContext context) => const SomeScreen(),
+        });
+  }
+}

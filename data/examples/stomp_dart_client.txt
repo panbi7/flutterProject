@@ -1,0 +1,40 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:stomp_dart_client&#47;stomp_dart_client.dart';
+
+void onConnect(StompFrame frame) {
+  stompClient.subscribe(
+    destination: '&#47;topic&#47;test&#47;subscription',
+    callback: (frame) {
+      List? result = json.decode(frame.body!);
+      print(result);
+    },
+  );
+
+  Timer.periodic(const Duration(seconds: 10), (_) {
+    stompClient.send(
+      destination: '&#47;app&#47;test&#47;endpoints',
+      body: json.encode({'a': 123}),
+    );
+  });
+}
+
+final stompClient = StompClient(
+  config: StompConfig(
+    url: 'ws:&#47;&#47;localhost:8080',
+    onConnect: onConnect,
+    beforeConnect: () async {
+      print('waiting to connect...');
+      await Future.delayed(const Duration(milliseconds: 200));
+      print('connecting...');
+    },
+    onWebSocketError: (dynamic error) => print(error.toString()),
+    stompConnectHeaders: {'Authorization': 'Bearer yourToken'},
+    webSocketConnectHeaders: {'Authorization': 'Bearer yourToken'},
+  ),
+);
+
+void main() {
+  stompClient.activate();
+}

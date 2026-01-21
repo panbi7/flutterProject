@@ -1,0 +1,146 @@
+&#47;&#47; Copyright 2013 The Flutter Authors
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+&#47;&#47;&#47; An example of using the plugin, controlling lifecycle and playback of the
+&#47;&#47;&#47; video.
+library;
+
+import 'package:flutter&#47;material.dart';
+import 'package:video_player&#47;video_player.dart';
+
+void main() {
+  runApp(MaterialApp(home: _App()));
+}
+
+class _App extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        key: const ValueKey('home_page'),
+        appBar: AppBar(
+          title: const Text('Video player example'),
+          actions: [
+            IconButton(
+              key: const ValueKey('push_tab'),
+              icon: const Icon(Icons.navigation),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => _PlayerVideoAndPopPage(),
+                  ),
+                );
+              },
+            ),
+          ],
+          bottom: const TabBar(
+            isScrollable: true,
+            tabs: [
+              Tab(icon: Icon(Icons.cloud), text: 'Remote'),
+              Tab(icon: Icon(Icons.insert_drive_file), text: 'Asset'),
+              Tab(icon: Icon(Icons.list), text: 'List example'),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _ViewTypeTabBar(
+              builder:
+                  (VideoViewType viewType) => _BumbleBeeRemoteVideo(viewType),
+            ),
+            _ViewTypeTabBar(
+              builder:
+                  (VideoViewType viewType) => _ButterFlyAssetVideo(viewType),
+            ),
+            _ViewTypeTabBar(
+              builder:
+                  (VideoViewType viewType) =>
+                      _ButterFlyAssetVideoInList(viewType),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ViewTypeTabBar extends StatefulWidget {
+  const _ViewTypeTabBar({required this.builder});
+
+  final Widget Function(VideoViewType) builder;
+
+  @override
+  State createState() => _ViewTypeTabBarState();
+}
+
+class _ViewTypeTabBarState extends State
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          tabs: const [
+            Tab(icon: Icon(Icons.texture), text: 'Texture view'),
+            Tab(icon: Icon(Icons.construction), text: 'Platform view'),
+          ],
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              widget.builder(VideoViewType.textureView),
+              widget.builder(VideoViewType.platformView),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ButterFlyAssetVideoInList extends StatelessWidget {
+  const _ButterFlyAssetVideoInList(this.viewType);
+
+  final VideoViewType viewType;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        const _ExampleCard(title: 'Item a'),
+        const _ExampleCard(title: 'Item b'),
+        const _ExampleCard(title: 'Item c'),
+        const _ExampleCard(title: 'Item d'),
+        const _ExampleCard(title: 'Item e'),
+        const _ExampleCard(title: 'Item f'),
+        const _ExampleCard(title: 'Item g'),
+        Card(
+          child: Column(
+            children: [
+              Column(
+                children: [
+                  const ListTile(
+                    leadin
+// ... (truncated)

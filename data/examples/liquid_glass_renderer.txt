@@ -1,0 +1,33 @@
+import 'dart:math';
+
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:leak_tracker&#47;leak_tracker.dart';
+import 'package:liquid_glass_renderer&#47;liquid_glass_renderer.dart';
+import 'package:liquid_glass_renderer_example&#47;basic_app.dart';
+
+void main() {
+  FlutterMemoryAllocations.instance.addListener(
+    (ObjectEvent event) => LeakTracking.dispatchObjectEvent(event.toMap()),
+  );
+  LeakTracking.start();
+  LeakTracking.phase = PhaseSettings(
+    leakDiagnosticConfig: LeakDiagnosticConfig(collectStackTraceOnStart: true),
+  );
+  LgrLogs.initAllLogs();
+  runApp(CupertinoApp(home: BasicApp()));
+}
+
+final settingsNotifier = ValueNotifier(
+  LiquidGlassSettings(
+    thickness: 20,
+    lightAngle: 0.5 * pi,
+    chromaticAberration: 1,
+  ),
+);
+
+final cornerRadiusNotifier = ValueNotifier(100);
+
+final glassColorNotifier = ValueNotifier(
+  const Color.fromARGB(0, 255, 255, 255),
+);

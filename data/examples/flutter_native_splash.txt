@@ -1,0 +1,102 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_native_splash&#47;flutter_native_splash.dart';
+
+void main() {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        &#47;&#47; This is the theme of your application.
+        &#47;&#47;
+        &#47;&#47; TRY THIS: Try running your application with "flutter run". You'll see
+        &#47;&#47; the application has a purple toolbar. Then, without quitting the app,
+        &#47;&#47; try changing the seedColor in the colorScheme below to Colors.green
+        &#47;&#47; and then invoke "hot reload" (save your changes or press the "hot
+        &#47;&#47; reload" button in a Flutter-supported IDE, or press "r" if you used
+        &#47;&#47; the command line to start the app).
+        &#47;&#47;
+        &#47;&#47; Notice that the counter didn't reset back to zero; the application
+        &#47;&#47; state is not lost during the reload. To reset the state, use hot
+        &#47;&#47; restart instead.
+        &#47;&#47;
+        &#47;&#47; This works for code too, not just values: Most code changes can be
+        &#47;&#47; tested with just a hot reload.
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  &#47;&#47; This widget is the home page of your application. It is stateful, meaning
+  &#47;&#47; that it has a State object (defined below) that contains fields that affect
+  &#47;&#47; how it looks.
+
+  &#47;&#47; This class is the configuration for the state. It holds the values (in this
+  &#47;&#47; case the title) provided by the parent (in this case the App widget) and
+  &#47;&#47; used by the build method of the State. Fields in a Widget subclass are
+  &#47;&#47; always marked "final".
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      &#47;&#47; This call to setState tells the Flutter framework that something has
+      &#47;&#47; changed in this State, which causes it to rerun the build method below
+      &#47;&#47; so that the display can reflect the updated values. If we changed
+      &#47;&#47; _counter without calling setState(), then the build method would not be
+      &#47;&#47; called again, and so nothing would appear to happen.
+      _counter++;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initialization();
+  }
+
+  void initialization() async {
+    &#47;&#47; This is where you can initialize the resources needed by your app while
+    &#47;&#47; the splash screen is displayed.  Remove the following example because
+    &#47;&#47; delaying the user experience is a bad design practice!
+    &#47;&#47; ignore_for_file: avoid_print
+    print('ready in 3...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 2...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 1...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('go!');
+    FlutterNativeSplash.remove();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; This method is rerun every time setState is called, for instance as done
+    &#47;&#47; by the _incrementCounter method above.
+    &#47;&#47;
+    &#47;&#47; The Flutter framework has been optimized to make rerunning build methods
+    &#47;&#47; fast, so that you can just rebuild anything that needs updating
+// ... (truncated)

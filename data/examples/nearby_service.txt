@@ -1,0 +1,131 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:nearby_service&#47;nearby_service.dart';
+
+&#47;&#47;&#47; All UI components and utilities are moved out of main
+&#47;&#47;&#47; to focus on the nearby_service plugin.
+&#47;&#47;&#47; If you are interested to see them,
+&#47;&#47;&#47; see https:&#47;&#47;github.com&#47;ksenia312&#47;nearby_service&#47;blob&#47;main&#47;example&#47;lib&#47;.
+import 'components&#47;connected_device_view.dart';
+import 'components&#47;files_messaging_view.dart';
+import 'components&#47;darwin_role_selector.dart';
+import 'components&#47;peer_widget.dart';
+import 'components&#47;text_messaging_view.dart';
+import 'utils&#47;app_snack_bar.dart';
+import 'utils&#47;file_saver.dart';
+
+&#47;&#47;&#47; Short example variant for pub.dev
+&#47;&#47;&#47; See the full example at
+&#47;&#47;&#47; https:&#47;&#47;github.com&#47;ksenia312&#47;nearby_service&#47;tree&#47;main&#47;example_full
+Future main() async {
+  runApp(const App());
+}
+
+&#47;&#47;&#47; Simplified application states, main 3:
+&#47;&#47;&#47; - Preparatory
+&#47;&#47;&#47; - Device search
+&#47;&#47;&#47; - Communicating with the connected device
+enum AppState { idle, discovering, connected }
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Nearby Service Example',
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Nearby Service Example')),
+        body: Container(
+          alignment: Alignment.topCenter,
+          padding: const EdgeInsets.all(20),
+          child: const AppBody(),
+        ),
+      ),
+    );
+  }
+}
+
+class AppBody extends StatefulWidget {
+  const AppBody({super.key});
+
+  @override
+  State createState() => _AppBodyState();
+}
+
+class _AppBodyState extends State {
+  &#47;&#47;&#47; Our service
+  late final _nearbyService = NearbyService.getInstance(
+    &#47;&#47;&#47; Define log level here
+    logLevel: NearbyServiceLogLevel.debug,
+  );
+
+  AppState _state = AppState.idle;
+
+  &#47;&#47;&#47; Browser OR Advertiser for IOS&#47;MacOS
+  bool _isDarwinBrowser = true;
+
+  &#47;&#47;&#47; List of discovered devices
+  List _peers = [];
+  StreamSubscription? _peersSubscription;
+  CommunicationChannelState _communicationChannelState =
+      CommunicationChannelState.notConnected;
+
+  &#47;&#47;&#47; Temporary solution to check the connection,
+  &#47;&#47;&#47; use [NearbyService.getConnectedDeviceStreamById] for this purpose
+  &#47;&#47;&#47; in your application
+  Timer? _connectionCheckTimer;
+  NearbyDevice? _connectedDevice;
+
+  @override
+  void initState() {
+    _initialize();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _peersSubscription?.cancel();
+    _connectionCheckTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_state == AppState.idle) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (Platform.isIOS || Platform.isMacOS)
+            DarwinRoleSelector(
+              isDarwinBrowser: _isDarwinBrowser,
+              onSelect: (value) => setState(() => _isDarwinBrowser = value),
+            ),
+          ElevatedButton(
+            onPressed: _startProcess,
+            child: const Text('Start'),
+          ),
+        ],
+      );
+    } else if (_state == AppState.discovering) {
+      return ListView(
+        children: [
+          if (Platform.isIOS || Platform.isMacOS)
+            Text('You are ${_isDarwinBrowser ? 'Browser' : 'Advertiser'}'),
+          if (_peers.isEmpty) const Text('Searching for peers...'),
+          ..._peers.map(
+            (e) => PeerWidget(
+              device: e,
+              isDarwinBrowser: _isDarwinBrowser,
+              onConnect: _connect,
+              communicationChannelState: _communicationChannelState,
+            ),
+          ),
+        ],
+      );
+    } else if (_state == AppState.connected) {
+      return SingleChildScrollView(
+
+// ... (truncated)

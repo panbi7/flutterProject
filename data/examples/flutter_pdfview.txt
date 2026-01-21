@@ -1,0 +1,123 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:flutter_pdfview&#47;flutter_pdfview.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String pathPDF = "";
+  String landscapePathPdf = "";
+  String remotePDFpath = "";
+  String corruptedPathPDF = "";
+
+  @override
+  void initState() {
+    super.initState();
+    fromAsset('assets&#47;corrupted.pdf', 'corrupted.pdf').then((f) {
+      setState(() {
+        corruptedPathPDF = f.path;
+      });
+    });
+    fromAsset('assets&#47;demo-link.pdf', 'demo.pdf').then((f) {
+      setState(() {
+        pathPDF = f.path;
+      });
+    });
+    fromAsset('assets&#47;demo-landscape.pdf', 'landscape.pdf').then((f) {
+      setState(() {
+        landscapePathPdf = f.path;
+      });
+    });
+
+    createFileOfPdfUrl().then((f) {
+      setState(() {
+        remotePDFpath = f.path;
+      });
+    });
+  }
+
+  Future createFileOfPdfUrl() async {
+    Completer completer = Completer();
+    print("Start download file from internet!");
+    try {
+      &#47;&#47; "https:&#47;&#47;berlin2017.droidcon.cod.newthinking.net&#47;sites&#47;global.droidcon.cod.newthinking.net&#47;files&#47;media&#47;documents&#47;Flutter%20-%2060FPS%20UI%20of%20the%20future%20%20-%20DroidconDE%2017.pdf";
+      &#47;&#47; final url = "https:&#47;&#47;pdfkit.org&#47;docs&#47;guide.pdf";
+      final url = "http:&#47;&#47;www.pdf995.com&#47;samples&#47;pdf.pdf";
+      final filename = url.substring(url.lastIndexOf("&#47;") + 1);
+      var request = await HttpClient().getUrl(Uri.parse(url));
+      var response = await request.close();
+      var bytes = await consolidateHttpClientResponseBytes(response);
+      var dir = await getApplicationDocumentsDirectory();
+      print("Download files");
+      print("${dir.path}&#47;$filename");
+      File file = File("${dir.path}&#47;$filename");
+
+      await file.writeAsBytes(bytes, flush: true);
+      completer.complete(file);
+    } catch (e) {
+      throw Exception('Error parsing asset file!');
+    }
+
+    return completer.future;
+  }
+
+  Future fromAsset(String asset, String filename) async {
+    &#47;&#47; To open from assets, you can copy them to the app storage folder, and the access them "locally"
+    Completer completer = Completer();
+
+    try {
+      var dir = await getApplicationDocumentsDirectory();
+      File file = File("${dir.path}&#47;$filename");
+      var data = await rootBundle.load(asset);
+      var bytes = data.buffer.asUint8List();
+      await file.writeAsBytes(bytes, flush: true);
+      completer.complete(file);
+    } catch (e) {
+      throw Exception('Error parsing asset file!');
+    }
+
+    return completer.future;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter PDF View',
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Plugin example app')),
+        body: Center(child: Builder(
+          builder: (BuildContext context) {
+            return Column(
+              children: [
+                TextButton(
+                  child: Text("Open PDF"),
+                  onPressed: () {
+                    if (pathPDF.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PDFScreen(path: pathPDF),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                TextButton(
+                  child: Text("Open Landscape PDF"),
+                  onPressed: () {
+                    if (landscapePathPdf.isNotEmpty) {
+                      Navigator.push(
+                        context,
+      
+// ... (truncated)

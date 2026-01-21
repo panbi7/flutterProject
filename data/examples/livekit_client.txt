@@ -1,0 +1,44 @@
+import 'package:flutter&#47;material.dart';
+import 'package:livekit_example&#47;theme.dart';
+import 'package:logging&#47;logging.dart';
+import 'package:intl&#47;intl.dart';
+import 'pages&#47;connect.dart';
+
+void main() async {
+  final format = DateFormat('HH:mm:ss');
+  &#47;&#47; configure logs for debugging
+  Logger.root.level = Level.FINEST;
+  Logger.root.onRecord.listen((record) {
+    print('${format.format(record.time)} [${record.level.name}]: ${record.message}');
+  });
+
+  WidgetsFlutterBinding.ensureInitialized();
+  &#47;*if (lkPlatformIsDesktop()) {
+    await FlutterWindowClose.setWindowShouldCloseHandler(() async {
+      await onWindowShouldClose?.call();
+      return true;
+    });
+  }*&#47;
+
+  &#47;&#47;&#47; for livestreaming app, you can initialize the bypassVoiceProcessing = true
+  &#47;&#47;&#47; here to get better audio quality
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; await LiveKitClient.initialize(
+  &#47;&#47;&#47;  bypassVoiceProcessing: lkPlatformIsMobile(),
+  &#47;&#47;&#47; );
+  runApp(const LiveKitExampleApp());
+}
+
+class LiveKitExampleApp extends StatelessWidget {
+  &#47;&#47;
+  const LiveKitExampleApp({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'LiveKit Flutter Example',
+        theme: LiveKitTheme().buildThemeData(context),
+        home: const ConnectPage(),
+      );
+}

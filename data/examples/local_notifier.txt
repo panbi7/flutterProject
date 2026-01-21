@@ -1,0 +1,41 @@
+import 'package:bot_toast&#47;bot_toast.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:local_notifier&#47;local_notifier.dart';
+import 'package:local_notifier_example&#47;pages&#47;home.dart';
+import 'package:window_manager&#47;window_manager.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
+
+  await localNotifier.setup(
+    appName: 'local_notifier_example',
+    shortcutPolicy: ShortcutPolicy.requireCreate,
+  );
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        primaryColor: const Color(0xff416ff4),
+        canvasColor: Colors.white,
+        scaffoldBackgroundColor: const Color(0xffF7F9FB),
+        dividerColor: Colors.grey.withOpacity(0.3),
+      ),
+      builder: BotToastInit(),
+      navigatorObservers: [BotToastNavigatorObserver()],
+      home: const HomePage(),
+    );
+  }
+}

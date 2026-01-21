@@ -1,0 +1,23 @@
+import 'dart:async';
+
+import 'package:alarm&#47;alarm.dart';
+import 'package:alarm_example&#47;screens&#47;home.dart';
+import 'package:alarm_example&#47;utils&#47;logging.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  setupLogging(showDebugLogs: true);
+
+  await Alarm.init();
+
+  runApp(
+    MaterialApp(
+      theme: ThemeData(useMaterial3: false),
+      home: const ExampleAlarmHomeScreen(),
+    ),
+  );
+}

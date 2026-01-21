@@ -1,0 +1,140 @@
+import 'package:apivideo_live_stream&#47;apivideo_live_stream.dart';
+import 'package:apivideo_live_stream_example&#47;settings_screen.dart';
+import 'package:apivideo_live_stream_example&#47;types&#47;params.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:wakelock_plus&#47;wakelock_plus.dart';
+
+import 'constants.dart';
+
+MaterialColor apiVideoOrange = const MaterialColor(0xFFFA5B30, const {
+  50: const Color(0xFFFBDDD4),
+  100: const Color(0xFFFFD6CB),
+  200: const Color(0xFFFFD1C5),
+  300: const Color(0xFFFFB39E),
+  400: const Color(0xFFFA5B30),
+  500: const Color(0xFFF8572A),
+  600: const Color(0xFFF64819),
+  700: const Color(0xFFEE4316),
+  800: const Color(0xFFEC3809),
+  900: const Color(0xFFE53101)
+});
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      home: LiveViewPage(),
+      theme: ThemeData(
+        primarySwatch: apiVideoOrange,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+    );
+  }
+}
+
+class LiveViewPage extends StatefulWidget {
+  const LiveViewPage({Key? key}) : super(key: key);
+
+  @override
+  _LiveViewPageState createState() => new _LiveViewPageState();
+}
+
+class _LiveViewPageState extends State
+    with WidgetsBindingObserver {
+  final ButtonStyle buttonStyle =
+      ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
+  Params config = Params();
+  late final ApiVideoLiveStreamController _controller;
+  bool _isStreaming = false;
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+
+    _controller = createLiveStreamController();
+
+    _controller.initialize().catchError((e) {
+      showInSnackBar(e.toString());
+    });
+    super.initState();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    &#47;&#47; App state changed before we got the chance to initialize.
+    if (!_controller.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive) {
+      _controller.stop();
+    } else if (state == AppLifecycleState.resumed) {
+      _controller.startPreview();
+    }
+  }
+
+  ApiVideoLiveStreamController createLiveStreamController() {
+    return ApiVideoLiveStreamController(
+        initialAudioConfig: config.audio,
+        initialVideoConfig: config.video,
+        onConnectionSuccess: () {
+          print('Connection succeeded');
+        },
+        onConnectionFailed: (error) {
+          print('Connection failed: $error');
+          _showDialog(context, 'Connection failed', '$error');
+          if (mounted) {
+            setIsStreaming(false);
+          }
+        },
+        onDisconnection: () {
+          showInSnackBar('Disconnected');
+          if (mounted) {
+            setIsStreaming(false);
+          }
+        },
+        onError: (error) {
+          &#47;&#47; Get error such as missing permission,...
+          _showDialog(context, 'Error', '$error');
+          if (mounted) {
+            setIsStreaming(false);
+          }
+        });
+  }
+
+  final GlobalKey _scaffoldKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: const Text('Live Stream Example'),
+          actions: [
+            PopupMenuButton(
+              onSelected: (choice) => _onMenuSelected(choice, context),
+              itemBuilder: (BuildContext context) {
+                return Constants.choices.map((String choice) {
+                  return PopupMenuItem(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            )
+          ],
+        ),
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    child: Padding(
+                      padding: c
+// ... (truncated)

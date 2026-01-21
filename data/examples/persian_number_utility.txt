@@ -1,0 +1,88 @@
+import 'package:flutter&#47;material.dart';
+import 'package:persian_number_utility&#47;persian_number_utility.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: NumToStr(),
+    );
+  }
+}
+
+class NumToStr extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    String number = "100092"; &#47;&#47;number here
+
+    return Scaffold(
+        body: new Center(
+            child: new Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        &#47;&#47;تبدیل عدد به حروف فارسی - convert number to persian (farsi) letter
+        Text(number.toWord()), &#47;&#47;صد هزار و نود و دو
+
+        &#47;&#47;تبدیل عدد به حروف انگلیسی - convert number to english letter
+        Text(number.toWord(
+            lang: NumStrLanguage.English)), &#47;&#47;one hundred thousand ninety two
+
+        &#47;&#47;رشته ورودی عددی هست یا نه - string is numeric or not
+        Text(number.isNumeric().toString()), &#47;&#47;true
+
+        &#47;&#47;جدا سازی سه رقمی ارقام با ویرگول - separate an integer by comma for every three digits
+        Text(number.seRagham()), &#47;&#47;100,092
+
+        &#47;&#47;جدا سازی سه رقمی ارقام با علامت انتخابی - separate an integer by custom character for every three digits
+        Text(number.seRagham(separator: ".")), &#47;&#47;100.092
+
+        &#47;&#47;تبدیل اعداد انگلیسی به فارسی - convert english digit to persian digit
+        Text(number.toPersianDigit()), &#47;&#47;123456789 to ۱۲۳۴۵۶۷۸۹
+
+        &#47;&#47;تبدیل اعداد فارسی یا عربی به انگلیسی - convert persian&#47;arabic digit to english digit
+        Text(number.toEnglishDigit()), &#47;&#47;۱۲۳۴۵۶۷۸۹ to 123456789
+
+        &#47;&#47;جدا سازی اعداد از رشته - extract number from string
+        Text("123456+.abc".extractNumber()), &#47;&#47;۱۲۳۴۵۶
+
+        &#47;&#47;جدا سازی اعداد از رشته - extract number from string
+        Text("number123456اب ج -"
+            .extractNumber(toDigit: NumStrLanguage.English)), &#47;&#47;123456
+
+        &#47;&#47;تبدیل تاریخ میلادی به تاریخ شمسی
+        Text(DateTime.now().toPersianDate()), &#47;&#47;۱۳۹۹&#47;۰۷&#47;۱۶
+
+        &#47;&#47;تبدیل تاریخ میلادی به تاریخ شمسی از متن
+        Text("2020-10-07T07:47:03.233Z".toPersianDigit()), &#47;&#47;۱۳۹۹&#47;۰۷&#47;۱۶
+
+        &#47;&#47;تبدیل تاریخ میلادی به متن تاریخ شمسی
+        Text(DateTime.now().toPersianDateStr(
+            strDay: true, strMonth: true)), &#47;&#47; شانزده مهر  ۱۳۹۹
+        Text(DateTime.now()
+            .toPersianDateStr(showDayStr: true)), &#47;&#47;چهارشنبه ۱۶ مهر  ۱۳۹۹
+
+        &#47;&#47;صحیح بودن کد ملی ایرانیان - Checking the validity of the Iranian National Code
+        Text('1234567890'.isValidIranianNationalCode().toString()), &#47;&#47; false
+
+        &#47;&#47;صحیح بودن شماره کارت بانکی - Bank number validation
+        Text('1232234543212345'.isValidBankCardNumber().toString()), &#47;&#47; false
+        &#47;&#47;صحیح بودن شماره شبا بانکی - sheba Bank number validation
+        Text('IR111111111111111111111111'.isValidBankShebaNumber().toString()), &#47;&#47; false
+
+        &#47;&#47;بررسی صحیح بودن شماره موبایل ایرانیان - Checking the validity of the Iranian mobile number
+        Text('12345678901'.isValidIranianMobileNumber().toString()), &#47;&#47; false
+        Text('09353391994'.isValidIranianMobileNumber().toString()), &#47;&#47; true
+        Text('+989353391994'.isValidIranianMobileNumber().toString()), &#47;&#47; true
+        Text('00989353391994'.isValidIranianMobileNumber().toString()), &#47;&#47; true
+
+        &#47;&#47;نمایش خلاصه وار تاریخ ورودی نسبت به تاریخ فعلی ؛ (اخت
+// ... (truncated)

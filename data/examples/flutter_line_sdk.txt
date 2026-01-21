@@ -1,0 +1,15 @@
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_line_sdk&#47;flutter_line_sdk.dart';
+
+import 'src&#47;app.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  LineSDK.instance.setup('1620019587').then((_) {
+    if (kDebugMode) {
+      print('LineSDK Prepared');
+    }
+  });
+  runApp(const App());
+}

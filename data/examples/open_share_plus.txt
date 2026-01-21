@@ -1,0 +1,62 @@
+import 'package:flutter&#47;material.dart';
+import 'package:open_share_plus&#47;open.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(title: const Text('open_share_plus')),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Open.browser(url: "https:&#47;&#47;datadirr.com");
+              },
+              child: const Text("Open Browser"),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Open.phone(phoneNumber: "+919876543210");
+              },
+              child: const Text("Open Phone Dial"),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Open.mail(
+                  toAddress: "datadirr@gmail.com",
+                  subject: "datadirr",
+                  body: "datadirr dev",
+                );
+              },
+              child: const Text("Send Mail"),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Open.whatsApp(whatsAppNumber: "919876543210", text: "datadirr");
+              },
+              child: const Text("Send WhatsApp"),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}

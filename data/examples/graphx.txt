@@ -1,0 +1,70 @@
+&#47;&#47; ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:flutter_svg&#47;flutter_svg.dart';
+
+import 'model.dart';
+import 'router.dart';
+import 'utils&#47;utils.dart';
+import 'widgets.dart';
+
+void main() {
+  &#47;&#47; doesn't work with surge.sh
+  &#47;&#47; usePathUrlStrategy();
+  runApp(
+    MaterialApp.router(
+      title: 'GraphX Gallery',
+      routerConfig: appRouter,
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        fontFamily: 'Roboto',
+        primaryColor: const Color(0xff241e30),
+        appBarTheme: const AppBarTheme(color: Color(0xff241e30), elevation: 0),
+      ),
+      &#47;&#47; home: const Home(),
+    ),
+  );
+}
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    Color menuColor = const Color.fromARGB(255, 255, 255, 255);
+    Color backgroundColor = const Color.fromARGB(255, 180, 180, 220);
+    Color logoColor = const Color.fromARGB(255, 108, 103, 255);
+    double gridHorizontalInset = 16;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: menuColor,
+        centerTitle: true,
+        title: SvgPicture.asset(
+          'assets&#47;graphx_logo.svg',
+          height: 20,
+        ),
+        actions: [
+          GitLink(
+            uri: Uri.parse('https:&#47;&#47;github.com&#47;roipeker&#47;graphx'),
+            color: logoColor,
+          ),
+          DartLink(
+            uri: Uri.parse('https:&#47;&#47;pub.dev&#47;packages&#47;graphx'),
+          ),
+        ],
+      ),
+      backgroundColor: backgroundColor,
+      body: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 200,
+          childAspectRatio: 3 &#47; 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        ),
+        padding:
+            EdgeInsets.symmetric(vertical: 8, horizontal: gridHorizontalInset),
+        itemCount: demos.length,
+        itemBuilder: (context, index) => GridItemCard(demo: demos[index]),
+      ),
+    );
+  }
+}

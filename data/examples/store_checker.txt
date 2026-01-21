@@ -1,0 +1,118 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+import 'package:store_checker&#47;store_checker.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String source = 'None';
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    Source installationSource;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    try {
+      &#47;&#47;get origin of installed application
+      installationSource = await StoreChecker.getSource;
+    } on PlatformException {
+      installationSource = Source.UNKNOWN;
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    &#47;&#47; Set source text state
+    setState(() {
+      switch (installationSource) {
+        case Source.IS_INSTALLED_FROM_PLAY_STORE:
+          &#47;&#47; Installed from Play Store
+          source = "Play Store";
+          break;
+        case Source.IS_INSTALLED_FROM_PLAY_PACKAGE_INSTALLER:
+          &#47;&#47; Installed apk from Google Package installer&#47; firebase app tester
+          source = "Google Package installer";
+          break;
+        case Source.IS_INSTALLED_FROM_RU_STORE:
+          &#47;&#47; Installed apk from RuStore
+          source = "RuStore";
+          break;
+        case Source.IS_INSTALLED_FROM_LOCAL_SOURCE:
+          &#47;&#47; Installed using adb commands or side loading or any cloud service
+          source = "Local Source";
+          break;
+        case Source.IS_INSTALLED_FROM_AMAZON_APP_STORE:
+          &#47;&#47; Installed from Amazon app store
+          source = "Amazon Store";
+          break;
+        case Source.IS_INSTALLED_FROM_HUAWEI_APP_GALLERY:
+          &#47;&#47; Installed from Huawei app store
+          source = "Huawei App Gallery";
+          break;
+        case Source.IS_INSTALLED_FROM_SAMSUNG_GALAXY_STORE:
+          &#47;&#47; Installed from Samsung app store
+          source = "Samsung Galaxy Store";
+          break;
+        case Source.IS_INSTALLED_FROM_SAMSUNG_SMART_SWITCH_MOBILE:
+          &#47;&#47; Installed from Samsung Smart Switch Mobile
+          source = "Samsung Smart Switch Mobile";
+          break;
+        case Source.IS_INSTALLED_FROM_XIAOMI_GET_APPS:
+          &#47;&#47; Installed from Xiaomi app store
+          source = "Xiaomi Get Apps";
+          break;
+        case Source.IS_INSTALLED_FROM_OPPO_APP_MARKET:
+          &#47;&#47; Installed from Oppo app store
+          source = "Oppo App Market";
+          break;
+        case Source.IS_INSTALLED_FROM_VIVO_APP_STORE:
+          &#47;&#47; Installed from Vivo app store
+          source = "Vivo App Store";
+          break;
+        case Source.IS_INSTALLED_FROM_OTHER_SOURCE:
+          &#47;&#47; Installed from other market store
+          source = "Other Source";
+          break;
+        case Source.IS_INSTALLED_FROM_APP_STORE:
+          &#47;&#47; Installed from iOS app store
+          source = "App Store";
+          break;
+        case Source.IS_INSTALLED_FROM_TEST_FLIGHT:
+          &#47;&#47; Installed from Test Flight
+          source = "Test Flight";
+          break;
+        case Source.UNKNOWN:
+          &#47;&#47; Installed from Unknown source
+          source = "Unknown Source";
+          break;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: Text('Installed from: $source\n'),
+       
+// ... (truncated)

@@ -1,0 +1,51 @@
+import 'package:rx_bloc&#47;rx_bloc.dart';
+import 'package:rx_bloc_test&#47;rx_bloc_test.dart';
+import 'package:rxdart&#47;rxdart.dart';
+import 'package:test&#47;test.dart';
+
+void main() {
+  group('CounterBloc tests', () {
+    rxBlocTest(
+      'Basic rxBlocTest',
+      build: () async => CounterBloc(),
+      state: (bloc) => bloc.count,
+      expect: [0],
+    );
+
+    rxBlocTest(
+      'Executing action',
+      build: () async => CounterBloc(),
+      state: (bloc) => bloc.count,
+      act: (bloc) async => bloc.increase(),
+      expect: [0, 1],
+    );
+
+    rxBlocTest(
+      'Skipping results (skips 0 and 1)',
+      build: () async => CounterBloc(),
+      state: (bloc) => bloc.count,
+      act: (bloc) async {
+        bloc
+          ..decrease()
+          ..decrease();
+      },
+      skip: 2,
+      expect: [-2],
+    );
+  });
+}
+
+class CounterBloc extends RxBlocBase implements RxBlocTypeBase {
+  final _loadingCount = BehaviorSubject.seeded(0);
+
+  Stream get count => _loadingCount.stream;
+
+  void increase() => _loadingCount.sink.add(_loadingCount.value + 1);
+  void decrease() => _loadingCount.sink.add(_loadingCount.value - 1);
+
+  @override
+  void dispose() {
+    _loadingCount.close();
+    return super.dispose();
+  }
+}

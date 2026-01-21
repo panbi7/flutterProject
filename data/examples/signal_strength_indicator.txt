@@ -1,0 +1,120 @@
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:signal_strength_indicator&#47;signal_strength_indicator.dart';
+
+void main() => runApp(const App());
+
+class App extends StatelessWidget {
+  const App({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Signal strength indicator example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  double _signalStrength = 0.0;
+
+  void _changeValue(double value) {
+    setState(() {
+      _signalStrength = value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Signal strength indicator example'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SignalStrengthIndicator.bars(value: _signalStrength, size: 20),
+                SignalStrengthIndicator.bars(value: _signalStrength, size: 30),
+                SignalStrengthIndicator.bars(value: _signalStrength, size: 40),
+                SignalStrengthIndicator.bars(value: _signalStrength, size: 50),
+                SignalStrengthIndicator.bars(value: _signalStrength, size: 70),
+              ],
+            ),
+            const SizedBox(height: 50),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SignalStrengthIndicator.bars(
+                  value: _signalStrength,
+                  size: 50,
+                  barCount: 4,
+                  activeColor: Colors.blue,
+                  inactiveColor: Colors.blue[100],
+                ),
+                SignalStrengthIndicator.bars(
+                  value: _signalStrength,
+                  size: 50,
+                  barCount: 4,
+                  spacing: 0.5,
+                ),
+                SignalStrengthIndicator.bars(
+                  value: _signalStrength,
+                  size: 50,
+                  barCount: 4,
+                  radius: const Radius.circular(20.0),
+                ),
+                SignalStrengthIndicator.bars(
+                  value: _signalStrength,
+                  &#47;&#47; ignore: prefer_const_literals_to_create_immutables
+                  levels: {
+                    0.25: Colors.red,
+                    0.50: Colors.yellow,
+                    0.75: Colors.green,
+                  },
+                  &#47;&#47; radius: Radius.circular(20.0),
+                  size: 50,
+                ),
+                SignalStrengthIndicator.bars(
+                  value: _signalStrength,
+                  size: 50,
+                  barCount: 5,
+                ),
+              ],
+            ),
+            const SizedBox(height: 50),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SignalStrengthIndicator.bars(
+                  value: _signalStrength,
+                  size: 50,
+                  barCount: 4,
+                  bevelled: true,
+                  activeColor: Colors.blue,
+                  inactiveColor: Colors.blue[100],
+                ),
+                SignalStrengthIndicator.bars(
+                  value: _signalStrength,
+                  size: 50,
+                  barCount: 4,
+       
+// ... (truncated)

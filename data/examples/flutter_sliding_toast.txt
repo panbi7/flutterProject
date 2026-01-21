@@ -1,0 +1,122 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_sliding_toast&#47;flutter_sliding_toast.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool colorChanged = false;
+  Color color = Colors.deepPurple;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Sliding Toast Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: color),
+        appBarTheme: AppBarTheme(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+        ),
+        useMaterial3: true,
+      ),
+      home: MyHomePage(changeColor: changeColor),
+    );
+  }
+
+  changeColor() => setState(() {
+    colorChanged ? color = Colors.deepPurple : color = Colors.green;
+    colorChanged = !colorChanged;
+  });
+}
+
+class MyHomePage extends StatefulWidget {
+  final VoidCallback changeColor;
+  const MyHomePage({super.key, required this.changeColor});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47;&#47; Setup overlay state when the UI build is finished.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      InteractiveToast.initializeOverlayState(Overlay.of(context));
+      &#47;&#47; Or setup context
+      &#47;&#47; InteractiveToast.setupContext(context);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text("Sliding & Popup Toast"),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(width: double.maxFinite),
+              ElevatedButton(
+                onPressed: () {
+                  InteractiveToast.slide(
+                    context: context,
+                    leading: _leadingWidget(),
+                    title: const Text(
+                      "Hi there! I'm a simple toast 😎."
+                      " Dismiss me by sliding downward.",
+                    ),
+                    trailing: _trailingWidget(),
+                    toastStyle: const ToastStyle(titleLeadingGap: 10),
+                    toastSetting: const SlidingToastSetting(
+                      animationDuration: Duration(seconds: 1),
+                      displayDuration: Duration(seconds: 2),
+                      toastAlignment: Alignment.bottomCenter,
+                    ),
+                  );
+                },
+                child: _textWidget("Toast from bottom center"),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  InteractiveToast.slide(
+                    context: context,
+                    title: const Text(
+                      "Hi there! I'm a glassy toast 🦄."
+                      "Dismiss me by sliding upward.",
+                    ),
+                    trailing: _trailingWidget(),
+                    toastSetting: const SlidingToastSetting(
+                      animationDuration: Duration(seconds: 1),
+                      displayDuration: Duration(seconds: 2),
+                      toastStartPosition: ToastPosition.top,
+                      toastAlignment: Alignment.topCenter,
+                      progressBarHeight: 4,
+                    ),
+                    toastStyle: const ToastStyle(
+                      glassBlur: 4,
+                      backgroundColorOpacity: .3,
+                    ),
+                  );
+                },
+                child: _tex
+// ... (truncated)

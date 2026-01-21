@@ -1,0 +1,80 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_datawedge&#47;flutter_datawedge.dart';
+import 'package:flutter_datawedge_example&#47;button_tab_view.dart';
+
+import 'log_tab_view.dart';
+
+void main() {
+  runApp(
+    MaterialApp(
+      title: 'Flutter DataWedge Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State {
+  late FlutterDataWedge fdw;
+  Future? initScannerResult;
+
+  @override
+  void initState() {
+    super.initState();
+    initScannerResult = initScanner();
+  }
+
+  Future initScanner() async {
+    if (Platform.isAndroid) {
+      fdw = FlutterDataWedge();
+      await fdw.initialize();
+      await fdw.createDefaultProfile(profileName: 'Example app profile');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: initScannerResult,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          return DefaultTabController(
+            length: 2,
+            child: Scaffold(
+              appBar: AppBar(
+                title: const Text('Flutter DataWedge Example'),
+                bottom: TabBar(
+                  tabs: [
+                    Tab(text: 'Scan'),
+                    Tab(text: 'Event Log'),
+                  ],
+                ),
+              ),
+              body: TabBarView(
+                children: [
+                  ButtonTabView(fdw),
+                  LogTabView(fdw),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+}

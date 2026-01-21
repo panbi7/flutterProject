@@ -1,0 +1,155 @@
+import 'package:flutter&#47;material.dart';
+import 'package:unico_check&#47;unico_check.dart';
+import 'config.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'unico check',
+      theme: ThemeData(
+        primaryColor: const Color(0xFF0B38E7),
+      ),
+      home: const MyHomePage(title: 'unico | check'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  MyHomePageState createState() => MyHomePageState();
+}
+
+class MyHomePageState extends State
+    implements UnicoListener, UnicoSelfie, UnicoDocument {
+  late UnicoCheckBuilder _unicoCheck;
+  late UnicoCheckCameraOpener _opener;
+
+  void _showAlertDialog(String content, {String? title}) {
+    Future.microtask(() {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(title ?? "Debug"),
+            content: Text(content),
+            actions: [
+              TextButton(
+                child: const Text("OK"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  final _theme = UnicoTheme(
+      colorSilhouetteSuccess: "#4ca832",
+      colorSilhouetteError: "#fcdb03",
+      colorTextMessage: '#000000',
+      colorBackground: "#3295a8",
+      colorProgressBar: "#4ca832",
+      colorCancelButtonIcon: "#4ca832");
+
+  @override
+  void initState() {
+    super.initState();
+    initUnicoCamera();
+    configUnicoCamera();
+  }
+
+  void initUnicoCamera() {
+    _unicoCheck = UnicoCheck(
+        listener: this,
+        unicoConfigIos: configIos,
+        unicoConfigAndroid: configAndroid);
+  }
+
+  void configUnicoCamera() {
+    _unicoCheck
+        .setTheme(unicoTheme: _theme)
+        .setTimeoutSession(timeoutSession: 55)
+        .setEnvironment(unicoEnvironment: UnicoEnvironment.UAT);
+  }
+
+  &#47;&#47;&#47; Unico callbacks
+  @override
+  void onErrorUnico(UnicoError error) {
+    _showAlertDialog(
+        'onErrorUnico: code=${error.code} description=${error.description}');
+  }
+
+  @override
+  void onUserClosedCameraManually() {
+    _showAlertDialog('onUserClosedCameraManually');
+  }
+
+  @override
+  void onSystemChangedTypeCameraTimeoutFaceInference() {
+    _showAlertDialog('onSystemChangedTypeCameraTimeoutFaceInference');
+  }
+
+  @override
+  void onSystemClosedCameraTimeoutSession() {
+    _showAlertDialog('onSystemClosedCameraTimeoutSession');
+  }
+
+  &#47;&#47;&#47; Selfie callbacks
+  @override
+  void onSuccessSelfie(ResultCamera result) {
+    _showAlertDialog('onSuccessSelfie: base64 length=${result.base64?.length}; encrypted length=${result.encrypted?.length}');
+  }
+
+  @override
+  void onErrorSelfie(UnicoError error) {
+    _showAlertDialog(
+        'onErrorSelfie: code=${error.code} description=${error.description}');
+  }
+
+  &#47;&#47;&#47; Document callbacks
+  @override
+  void onSuccessDocument(ResultCamera resultCamera) {
+    _showAlertDialog(
+        'onSuccessDocument: base64 length=${resultCamera.base64?.length}; encrypted length=${resultCamera.encrypted?.length}');
+  }
+
+  @override
+  void onErrorDocument(UnicoError error) {
+    _showAlertDialog(
+        'onErrorDocument: code=${error.code} description=${error.description}');
+  }
+
+  void setCameraSmart() {
+    _opener = _unicoCheck
+        .setAutoCapture(autoCapture: true)
+        .setSmartFrame(smartFrame: true)
+        .build();
+  }
+
+  void setCameraNormal() {
+    _opener = _unicoCheck
+        .setAutoCapture(autoCapture: false)
+        .setSmartFrame(smartFrame: false)
+        .build();
+  }
+
+  void setCameraSmartWithButton() {
+    _opener = _unicoCheck
+        .setAutoCapture(autoCapture: false)
+        .setSmartFrame(sm
+// ... (truncated)

@@ -1,0 +1,56 @@
+import 'package:flutter&#47;material.dart';
+import 'package:iconify_flutter_plus&#47;iconify_flutter_plus.dart';
+import 'package:iconify_flutter_plus&#47;icons&#47;zondicons.dart'; &#47;&#47; for Non Colorful Icons
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: GridView.builder(
+          itemCount: Zondicons.list.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 6),
+          itemBuilder: (context, index) {
+            return FractionallySizedBox(
+              heightFactor: .5,
+              widthFactor: .5,
+              child: Iconify(
+                Zondicons.iconsList[index],
+                size: 25,
+              ),
+            );
+          }),
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+    );
+  }
+}

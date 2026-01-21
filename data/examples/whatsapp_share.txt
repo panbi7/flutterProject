@@ -1,0 +1,121 @@
+import 'dart:async';
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:whatsapp_share&#47;whatsapp_share.dart';
+import 'package:image_picker&#47;image_picker.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:screenshot&#47;screenshot.dart';
+
+void main() => runApp(MyApp());
+
+&#47;&#47; ignore: must_be_immutable
+class MyApp extends StatelessWidget {
+  final _controller = ScreenshotController();
+  File? _image;
+
+  MyApp({super.key});
+
+  Future share() async {
+    await WhatsappShare.share(
+      text: 'Example share text',
+      linkUrl: 'https:&#47;&#47;flutter.dev&#47;',
+      phone: '911234567890',
+    );
+  }
+
+  Future shareFile() async {
+    await getImage();
+    Directory? directory;
+    if (Platform.isAndroid) {
+      directory = await getExternalStorageDirectory();
+    } else {
+      directory = await getApplicationDocumentsDirectory();
+    }
+    debugPrint('${directory?.path} &#47; ${_image?.path}');
+
+    await WhatsappShare.shareFile(
+      phone: '911234567890',
+      filePath: ["${_image?.path}"],
+    );
+  }
+
+  Future isInstalled() async {
+    final val = await WhatsappShare.isInstalled(package: Package.whatsapp);
+    debugPrint('Whatsapp is installed: $val');
+  }
+
+  Future shareScreenShot() async {
+    Directory? directory;
+    if (Platform.isAndroid) {
+      directory = await getExternalStorageDirectory();
+    } else {
+      directory = await getApplicationDocumentsDirectory();
+    }
+    final String localPath =
+        '${directory?.path}&#47;${DateTime.now().millisecondsSinceEpoch}.png';
+
+    await _controller.captureAndSave(localPath);
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    await WhatsappShare.shareFile(
+      phone: '911234567890',
+      filePath: [localPath],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Whatsapp Share'),
+        ),
+        body: Center(
+          child: Screenshot(
+            controller: _controller,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: share,
+                  child: const Text('Share text and link'),
+                ),
+                ElevatedButton(
+                  onPressed: shareFile,
+                  child: const Text('Share Image'),
+                ),
+                ElevatedButton(
+                  onPressed: shareScreenShot,
+                  child: const Text('Share screenshot'),
+                ),
+                ElevatedButton(
+                  onPressed: isInstalled,
+                  child: const Text('is Installed'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  &#47;&#47;&#47;Pick Image From gallery using image_picker plugin
+  Future getImage() async {
+    try {
+      XFile? pickedFile =
+          &#47;&#47; ignore: deprecated_member_use
+          await ImagePicker().pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      } else {}
+    } catch (er) {
+      log(er.toString());
+    }
+  }
+}

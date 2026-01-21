@@ -1,0 +1,6 @@
+import 'package:remove_unused_localizations&#47;remove_unused_localizations.dart';
+
+void main() {
+  &#47;&#47; Running the localization cleaner function
+  runLocalizationCleaner();
+}

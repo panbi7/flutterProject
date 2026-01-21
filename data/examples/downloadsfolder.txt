@@ -1,0 +1,144 @@
+import 'dart:io';
+
+import 'package:file_picker&#47;file_picker.dart';
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+import 'package:downloadsfolder&#47;downloadsfolder.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+
+void main() {
+  runApp(const MyExample());
+}
+
+class MyExample extends StatelessWidget {
+  const MyExample({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: MyApp(),
+    );
+  }
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String? _downloadsfolderPath;
+  File? _pickedFile;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Plugin example app'),
+      ),
+      body: Column(
+        children: [
+          ElevatedButton(
+            onPressed: _getDownloadPath,
+            child: const Center(
+              child: Text('Get Download Path'),
+            ),
+          ),
+          if (_downloadsfolderPath != null)
+            Center(
+              child: Text('Downloads Folder Path: $_downloadsfolderPath\n'),
+            ),
+          ElevatedButton(
+            onPressed: _pickAFile,
+            child: const Center(
+              child: Text('Pick a File'),
+            ),
+          ),
+          if (_pickedFile != null)
+            Center(
+              child: Text('Picked File Path: ${_pickedFile!.path}\n'),
+            ),
+          if (_pickedFile != null)
+            ElevatedButton(
+              onPressed: _saveFile,
+              child: const Center(
+                child: Text('Save Picked File into Downloads Folder'),
+              ),
+            ),
+          ElevatedButton(
+            onPressed: _openDownloadFolder,
+            child: const Center(
+              child: Text('Show Download Folder'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future _getDownloadPath() async {
+    Directory downloadsfolderPath;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    &#47;&#47; We also handle the message potentially returning null.
+    try {
+      downloadsfolderPath = await getDownloadDirectory();
+      &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+      &#47;&#47; message was in flight, we want to discard the reply rather than calling
+      &#47;&#47; setState to update our non-existent appearance.
+      if (!mounted) return;
+
+      setState(() {
+        _downloadsfolderPath = downloadsfolderPath.path;
+      });
+    } on PlatformException {
+      if (!mounted) return;
+      setState(() {
+        _downloadsfolderPath = 'Failed to get folder path.';
+      });
+    }
+  }
+
+  Future _pickAFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (!mounted) return;
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      setState(() {
+        _pickedFile = file;
+      });
+    } else {
+      ScaffoldMessenger.of(this.context).showSnackBar(
+        const SnackBar(
+          content: Text('No File Has been selected'),
+        ),
+      );
+    }
+  }
+
+  Future _saveFile() async {
+    bool storagePermissionGranted = true;
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      storagePermissionGranted = await Permission.storage.isGranted;
+
+      if (!storagePermissionGranted) {
+        &#47;&#47; Request storage permission
+        final status = await Permission.storage.request();
+        storagePermissionGranted = status.isGranted;
+      }
+    }
+
+    if (!storagePermissionGranted) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(this.context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to copy file. Storage permission is required.'),
+ 
+// ... (truncated)

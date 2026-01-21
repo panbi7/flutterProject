@@ -1,0 +1,7 @@
+...
+
+# get tf lite binaries
+install(
+  FILES ${PROJECT_BUILD_DIR}/../blobs/libtensorflowlite_c-linux.so
+  DESTINATION ${INSTALL_BUNDLE_DATA_DIR}/../blobs/
+)

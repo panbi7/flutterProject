@@ -1,0 +1,133 @@
+import 'dart:async';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:wifi_scan&#47;wifi_scan.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; Example app for wifi_scan plugin.
+class MyApp extends StatefulWidget {
+  &#47;&#47;&#47; Default constructor for [MyApp] widget.
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  List accessPoints = [];
+  StreamSubscription>? subscription;
+  bool shouldCheckCan = true;
+
+  bool get isStreaming => subscription != null;
+
+  Future _startScan(BuildContext context) async {
+    &#47;&#47; check if "can" startScan
+    if (shouldCheckCan) {
+      &#47;&#47; check if can-startScan
+      final can = await WiFiScan.instance.canStartScan();
+      &#47;&#47; if can-not, then show error
+      if (can != CanStartScan.yes) {
+        if (context.mounted) kShowSnackBar(context, "Cannot start scan: $can");
+        return;
+      }
+    }
+
+    &#47;&#47; call startScan API
+    final result = await WiFiScan.instance.startScan();
+    if (context.mounted) kShowSnackBar(context, "startScan: $result");
+    &#47;&#47; reset access points.
+    setState(() => accessPoints = []);
+  }
+
+  Future _canGetScannedResults(BuildContext context) async {
+    if (shouldCheckCan) {
+      &#47;&#47; check if can-getScannedResults
+      final can = await WiFiScan.instance.canGetScannedResults();
+      &#47;&#47; if can-not, then show error
+      if (can != CanGetScannedResults.yes) {
+        if (context.mounted) {
+          kShowSnackBar(context, "Cannot get scanned results: $can");
+        }
+        accessPoints = [];
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Future _getScannedResults(BuildContext context) async {
+    if (await _canGetScannedResults(context)) {
+      &#47;&#47; get scanned results
+      final results = await WiFiScan.instance.getScannedResults();
+      setState(() => accessPoints = results);
+    }
+  }
+
+  Future _startListeningToScanResults(BuildContext context) async {
+    if (await _canGetScannedResults(context)) {
+      subscription = WiFiScan.instance.onScannedResultsAvailable
+          .listen((result) => setState(() => accessPoints = result));
+    }
+  }
+
+  void _stopListeningToScanResults() {
+    subscription?.cancel();
+    setState(() => subscription = null);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    &#47;&#47; stop subscription for scanned results
+    _stopListeningToScanResults();
+  }
+
+  &#47;&#47; build toggle with label
+  Widget _buildToggle({
+    String? label,
+    bool value = false,
+    ValueChanged? onChanged,
+    Color? activeColor,
+  }) =>
+      Row(
+        children: [
+          if (label != null) Text(label),
+          Switch(value: value, onChanged: onChanged, activeColor: activeColor),
+        ],
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+          actions: [
+            _buildToggle(
+                label: "Check can?",
+                value: shouldCheckCan,
+                onChanged: (v) => setState(() => shouldCheckCan = v),
+                activeColor: Colors.purple)
+          ],
+        ),
+        body: Builder(
+          builder: (context) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.perm_scan_wifi),
+                      label: const Text('SCAN'),
+                      onPressed: () async => _startScan(context),
+                    ),
+                   
+// ... (truncated)

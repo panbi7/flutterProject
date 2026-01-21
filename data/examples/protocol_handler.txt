@@ -1,0 +1,53 @@
+import 'package:bot_toast&#47;bot_toast.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:protocol_handler&#47;protocol_handler.dart';
+import 'package:protocol_handler_example&#47;pages&#47;home.dart';
+import 'package:uni_platform&#47;uni_platform.dart';
+import 'package:window_manager&#47;window_manager.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await UniPlatform.call>(
+    desktop: () async {
+      await windowManager.ensureInitialized();
+      const windowOptions = WindowOptions(
+        size: Size(1024, 768),
+        center: true,
+      );
+      windowManager.waitUntilReadyToShow(
+        windowOptions,
+        () {
+          windowManager.show();
+        },
+      );
+      &#47;&#47; Register a custom protocol
+      await protocolHandler.register('myprotocol');
+    },
+    otherwise: () => Future.value(),
+  );
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        primaryColor: const Color(0xff416ff4),
+        canvasColor: Colors.white,
+        scaffoldBackgroundColor: const Color(0xffF7F9FB),
+        dividerColor: Colors.grey.withOpacity(0.3),
+      ),
+      builder: BotToastInit(),
+      navigatorObservers: [BotToastNavigatorObserver()],
+      home: const HomePage(),
+    );
+  }
+}

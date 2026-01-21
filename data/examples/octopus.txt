@@ -1,0 +1,58 @@
+import 'dart:async';
+
+import 'package:example&#47;src&#47;common&#47;util&#47;error_util.dart';
+import 'package:example&#47;src&#47;common&#47;widget&#47;app.dart' deferred as app;
+import 'package:example&#47;src&#47;common&#47;widget&#47;app_error.dart' deferred as app_error;
+import 'package:example&#47;src&#47;feature&#47;initialization&#47;data&#47;initialization.dart'
+    deferred as initialization;
+import 'package:example&#47;src&#47;feature&#47;initialization&#47;widget&#47;inherited_dependencies.dart'
+    deferred as inherited_dependencies;
+import 'package:flutter&#47;widgets.dart';
+import 'package:l&#47;l.dart';
+
+void main() => l.capture(
+      () => runZonedGuarded(
+        () async {
+          &#47;&#47; Splash screen
+          final initializationProgress =
+              ValueNotifier(
+                  (progress: 0, message: ''));
+          &#47;* runApp(SplashScreen(progress: initializationProgress)); *&#47;
+          await initialization.loadLibrary();
+          await inherited_dependencies.loadLibrary();
+          await app.loadLibrary();
+          initialization
+              .$initializeApp(
+                onProgress: (progress, message) => initializationProgress
+                    .value = (progress: progress, message: message),
+                onSuccess: (dependencies) => runApp(
+                  inherited_dependencies.InheritedDependencies(
+                    dependencies: dependencies,
+                    child: app.App(),
+                  ),
+                ),
+                onError: (error, stackTrace) async {
+                  await app_error.loadLibrary();
+                  runApp(app_error.AppError(error: error));
+                  ErrorUtil.logError(error, stackTrace).ignore();
+                },
+              )
+              .ignore();
+        },
+        l.e,
+      ),
+      const LogOptions(
+        handlePrint: true,
+        messageFormatting: _messageFormatting,
+        outputInRelease: false,
+        printColors: true,
+      ),
+    );
+
+&#47;&#47;&#47; Formats the log message.
+Object _messageFormatting(Object message, LogLevel logLevel, DateTime now) =>
+    '${_timeFormat(now)} | $message';
+
+&#47;&#47;&#47; Formats the time.
+String _timeFormat(DateTime time) =>
+    '${time.hour}:${time.minute.toString().padLeft(2, '0')}';

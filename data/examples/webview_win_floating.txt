@@ -1,0 +1,131 @@
+import 'package:desktop_multi_window&#47;desktop_multi_window.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:webview_flutter&#47;webview_flutter.dart';
+import 'package:webview_win_floating&#47;webview_win_floating.dart';
+
+&#47;&#47;typedef WebViewController = WinWebViewController;
+&#47;&#47;typedef WebViewWidget = WinWebViewWidget;
+&#47;&#47;typedef NavigationDelegate = WinNavigationDelegate;
+
+Future main(List args) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
+}
+
+Future createNewWindow() async {
+  final controller = await WindowController.create(
+    const WindowConfiguration(
+      hiddenAtLaunch: true,
+      arguments: '',
+    ),
+  );
+
+  await controller.show();
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  Widget buildMultiple() {
+    return const Row(
+      textDirection: TextDirection.ltr,
+      children: [
+        Expanded(child: MyWebViewTab(url: "https:&#47;&#47;badssl.com")),
+        &#47;&#47;Expanded(child: MyWebViewTab(url: "https:&#47;&#47;www.youtube.com")),
+        &#47;&#47;Expanded(child: MyWebViewTab(url: "https:&#47;&#47;www.bennish.net&#47;web-notifications.html")),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47;return const MyWebViewTab(url: "https:&#47;&#47;www.youtube.com");
+    return buildMultiple();
+  }
+}
+
+class MyWebViewTab extends StatefulWidget {
+  final String? url;
+  const MyWebViewTab({Key? key, this.url}) : super(key: key);
+
+  @override
+  State createState() => _MyWebViewTabState();
+}
+
+class _MyWebViewTabState extends State {
+  void cancelNavigate() {
+    if (controller is WinWebViewController) {
+      (controller as WinWebViewController).cancelNavigate();
+    }
+  }
+
+  void openDevTools() {
+    if (controller is WinWebViewController) {
+      (controller as WinWebViewController).openDevTools();
+    }
+  }
+
+  final mIsLoadingWeb = ValueNotifier(false);
+  final mTitle = ValueNotifier("Untitled");
+  final urlController = TextEditingController();
+
+  final String? cacheDir = "d:\\cache_web\\";
+  late final params =
+      WindowsWebViewControllerCreationParams(userDataFolder: cacheDir);
+
+  late final controller = WebViewController.fromPlatformCreationParams(params,
+      onPermissionRequest: (request) {
+    if (request.platform is WinWebViewPermissionRequest) {
+      var req = request.platform as WinWebViewPermissionRequest;
+      req.grant();
+    } else {
+      request.deny();
+    }
+  });
+
+  @override
+  void initState() {
+    super.initState();
+    controller.setJavaScriptMode(JavaScriptMode.unrestricted);
+    controller.setBackgroundColor(Colors.cyanAccent);
+
+    controller.setNavigationDelegate(NavigationDelegate(
+      &#47;*
+      onNavigationRequest: (request) {
+        if (request.url.startsWith("https:&#47;&#47;www.google.com")) {
+          print("[dart] allow url: ${request.url}");
+          return NavigationDecision.navigate;
+        } else {
+          print("prevent user navigate out of google website: ${request.url}");
+          return NavigationDecision.prevent;
+        }
+      },
+      *&#47;
+      onUrlChange: (change) {
+        urlController.text = change.url ?? "";
+      },
+      onPageStarted: (url) {
+        mIsLoadingWeb.value = true;
+        print("onPageStarted: $url");
+      },
+      onPageFinished: (url) {
+        mIsLoadingWeb.value = false;
+        print("onPageFinished: $url");
+      },
+      onHttpError: (error) {
+        int httpCode = error.response!.statusCode;
+        String url = error.response!.uri.toString();
+        print("onHttpError: code=$httpCode, url : $url");
+      },
+      onSslAuthError: (error) {
+        if (error is WinSslAuthError) {
+          print("onSslAuthError: ${(error as WinSslAuthError).url}");
+        } else {
+          print("onSslAuthError: unknown url}");
+        }
+        error.cancel();
+      },
+      onWebResourceError: (error) {
+        mIsLoadingWeb.value = false;
+        print("onWebResourceError: ${error.
+// ... (truncated)

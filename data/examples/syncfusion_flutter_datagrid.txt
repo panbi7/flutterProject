@@ -1,0 +1,129 @@
+import 'package:flutter&#47;material.dart';
+import 'package:syncfusion_flutter_datagrid&#47;datagrid.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+&#47;&#47;&#47; The application that contains datagrid on it.
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Syncfusion DataGrid Demo',
+      theme: ThemeData(useMaterial3: false),
+      home: MyHomePage(),
+    );
+  }
+}
+
+&#47;&#47;&#47; The home page of the application which hosts the datagrid.
+class MyHomePage extends StatefulWidget {
+  &#47;&#47;&#47; Creates the home page.
+  MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  List employees = [];
+  late EmployeeDataSource employeeDataSource;
+
+  @override
+  void initState() {
+    super.initState();
+    employees = getEmployeeData();
+    employeeDataSource = EmployeeDataSource(employeeData: employees);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Syncfusion Flutter DataGrid')),
+      body: SfDataGrid(
+        source: employeeDataSource,
+        columnWidthMode: ColumnWidthMode.fill,
+        columns: [
+          GridColumn(
+            columnName: 'id',
+            label: Container(
+              padding: EdgeInsets.all(16.0),
+              alignment: Alignment.center,
+              child: Text('ID'),
+            ),
+          ),
+          GridColumn(
+            columnName: 'name',
+            label: Container(
+              padding: EdgeInsets.all(8.0),
+              alignment: Alignment.center,
+              child: Text('Name'),
+            ),
+          ),
+          GridColumn(
+            columnName: 'designation',
+            label: Container(
+              padding: EdgeInsets.all(8.0),
+              alignment: Alignment.center,
+              child: Text('Designation', overflow: TextOverflow.ellipsis),
+            ),
+          ),
+          GridColumn(
+            columnName: 'salary',
+            label: Container(
+              padding: EdgeInsets.all(8.0),
+              alignment: Alignment.center,
+              child: Text('Salary'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List getEmployeeData() {
+    return [
+      Employee(10001, 'James', 'Project Lead', 20000),
+      Employee(10002, 'Kathryn', 'Manager', 30000),
+      Employee(10003, 'Lara', 'Developer', 15000),
+      Employee(10004, 'Michael', 'Designer', 15000),
+      Employee(10005, 'Martin', 'Developer', 15000),
+      Employee(10006, 'Newberry', 'Developer', 15000),
+      Employee(10007, 'Balnc', 'Developer', 15000),
+      Employee(10008, 'Perry', 'Developer', 15000),
+      Employee(10009, 'Gable', 'Developer', 15000),
+      Employee(10010, 'Grimes', 'Developer', 15000),
+    ];
+  }
+}
+
+&#47;&#47;&#47; Custom business object class which contains properties to hold the detailed
+&#47;&#47;&#47; information about the employee which will be rendered in datagrid.
+class Employee {
+  &#47;&#47;&#47; Creates the employee class with required details.
+  Employee(this.id, this.name, this.designation, this.salary);
+
+  &#47;&#47;&#47; Id of an employee.
+  final int id;
+
+  &#47;&#47;&#47; Name of an employee.
+  final String name;
+
+  &#47;&#47;&#47; Designation of an employee.
+  final String designation;
+
+  &#47;&#47;&#47; Salary of an employee.
+  final int salary;
+}
+
+&#47;&#47;&#47; An object to set the employee collection data source to the datagrid. This
+&#47;&#47;&#47; is used to map the employee data to the datagrid widget.
+class EmployeeDataSource extends DataGridSource {
+  &#47;&#47;&#47; Creates the employee data source class with required details.
+  EmployeeDataSource({required List employeeData}) {
+    _employeeData =
+        employeeData
+            .map(
+              (e) => DataG
+// ... (truncated)

@@ -1,0 +1,142 @@
+import 'package:flutter&#47;material.dart';
+import 'package:dynamic_tabbar&#47;dynamic_tabbar.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Dynamic TabBar Demo',
+      theme: ThemeData(
+        useMaterial3: true,
+      ),
+      home: const MyHomePage(title: 'Example for Dynamic TabBar'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  bool isScrollable = false;
+  bool showNextIcon = true;
+  bool showBackIcon = true;
+
+  &#47;&#47; Leading icon
+  Widget? leading;
+
+  &#47;&#47; Trailing icon
+  Widget? trailing;
+
+  &#47;&#47; Sample data for tabs
+  List tabs = [
+    TabData(
+      index: 1,
+      title: const Tab(
+        child: Text('Tab 1'),
+      ),
+      content: const Center(child: Text('Content for Tab 1')),
+    ),
+    TabData(
+      index: 2,
+      title: const Tab(
+        child: Text('Tab 2'),
+      ),
+      content: const Center(child: Text('Content for Tab 2')),
+    ),
+    &#47;&#47; Add more tabs as needed
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Wrap(
+              direction: Axis.horizontal,
+              alignment: WrapAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: addTab,
+                  child: const Text('Add Tab'),
+                ),
+                const SizedBox(width: 12),
+                OutlinedButton(
+                  onPressed: () => removeTab(tabs.length - 1),
+                  child: const Text('Remove Last Tab'),
+                ),
+                const SizedBox(width: 16),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('isScrollable'),
+                    Switch.adaptive(
+                      value: isScrollable,
+                      onChanged: (bool val) {
+                        setState(() {
+                          isScrollable = !isScrollable;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 16),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('showBackIcon'),
+                    Switch.adaptive(
+                      value: showBackIcon,
+                      onChanged: (bool val) {
+                        setState(() {
+                          showBackIcon = !showBackIcon;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 16),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('showNextIcon'),
+                    Switch.adaptive(
+                      value: showNextIcon,
+                      onChanged: (bool val) {
+                        setState(() {
+                          showNextIcon = !showNextIcon;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 22),
+                ElevatedButton(
+                  onPressed: addLeadingWidget,
+                  child: const Text('Add Leading Widget'),
+                ),
+                const SizedBo
+// ... (truncated)

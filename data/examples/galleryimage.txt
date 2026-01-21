@@ -1,0 +1,65 @@
+import 'package:flutter&#47;material.dart';
+import 'package:galleryimage&#47;galleryimage.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Gallery Image Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const MyHomePage(title: 'Gallery Image Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  final String title;
+
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Tap to show image"),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: GalleryImage(
+                  numOfShowImages: 6,
+                  imageUrls: const [
+                    "https:&#47;&#47;cosmosmagazine.com&#47;wp-content&#47;uploads&#47;2020&#47;02&#47;191010_nature.jpg",
+                    "https:&#47;&#47;scx2.b-cdn.net&#47;gfx&#47;news&#47;hires&#47;2019&#47;2-nature.jpg",
+                    "https:&#47;&#47;wallpapers.com&#47;images&#47;featured&#47;2ygv7ssy2k0lxlzu.jpg",
+                    "https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;7&#47;77&#47;Big_Nature_%28155420955%29.jpeg",
+                    "https:&#47;&#47;www.rd.com&#47;wp-content&#47;uploads&#47;2020&#47;04&#47;GettyImages-1093840488-5-scaled.jpg",
+                    "https:&#47;&#47;media.cntraveller.com&#47;photos&#47;611bf0b8f6bd8f17556db5e4&#47;1:1&#47;w_2000,h_2000,c_limit&#47;gettyimages-1146431497.jpg",
+                    "https:&#47;&#47;img.freepik.com&#47;premium-photo&#47;fantastic-view-kirkjufellsfoss-waterfall-near-kirkjufell-mountain-sunset_761071-868.jpg",
+                    "https:&#47;&#47;www.travelandleisure.com&#47;thmb&#47;KLPvXakEKLGE5AY2jVyovl3Md1k=&#47;1500x0&#47;filters:no_upscale():max_bytes(150000):strip_icc()&#47;iceland-BEAUTCONT1021-b1aeafa7ac2847a484cbca48d3172b6c.jpg",
+                    "https:&#47;&#47;w0.peakpx.com&#47;wallpaper&#47;265&#47;481&#47;HD-wallpaper-nature.jpg",
+                    "https:&#47;&#47;e0.pxfuel.com&#47;wallpapers&#47;163&#47;906&#47;desktop-wallpaper-beautiful-nature-with-girl-beautiful-girl-with-nature-and-moon-high-resolution-beautiful.jpg",
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

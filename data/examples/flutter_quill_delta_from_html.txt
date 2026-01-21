@@ -1,0 +1,48 @@
+, : Bold text 
+        , : Italic text
+        , : Underlined text
+        , : Strikethrough text
+        : Superscript text
+        : Subscript text
+
+    
+         to : Headings of various levels
+
+    
+        : Unordered lists
+        : Ordered lists
+        : List items
+        : Check lists 
+        : Another alternative to make a check lists
+
+    
+        : Hyperlinks with support for the href attribute
+
+    
+        : Images with support for the src, align, and styles
+
+    
+        : HTML tag containers
+        
+    
+        : HTML tag for Tables (basic support) 
+        
+    
+        : Videos with support for the src
+
+    
+        : Block quotations
+
+    
+        , : Code blocks
+
+    
+        : Paragraph style alignment
+        : Paragraph alignment
+        : Paragraph direction 
+
+    
+        : Inline attributes
+    
+    
+        : Custom html

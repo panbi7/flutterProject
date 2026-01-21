@@ -1,0 +1,134 @@
+import 'package:direct_select_flutter&#47;direct_select_container.dart';
+import 'package:direct_select_flutter&#47;direct_select_item.dart';
+import 'package:direct_select_flutter&#47;direct_select_list.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+List _meals = [
+  "Breakfast1",
+  "Breakfast2",
+  "Lunch1",
+  "Lunch2",
+  "Dinner1",
+  "Dinner2",
+];
+
+class _MyHomePageState extends State {
+  List _food = ["Chicken", "Pork", "Vegetables", "Cheese", "Bread"];
+
+  List _foodVariants = [
+    "Chicken grilled",
+    "Pork grilled",
+    "Vegetables as is",
+    "Cheese as is",
+    "Bread tasty"
+  ];
+
+  List _portionSize = [
+    "Small portion",
+    "Medium portion",
+    "Large portion",
+    "Huge portion"
+  ];
+
+  List _numbers = ["1.0", "2.0", "3.0", "4.0", "5.0", "6.0", "7.0"];
+
+  int selectedFoodVariants = 0;
+  int selectedPortionCounts = 0;
+  int selectedPortionSize = 0;
+
+  DirectSelectItem getDropDownMenuItem(String value) {
+    return DirectSelectItem(
+        itemHeight: 56,
+        value: value,
+        itemBuilder: (context, value) {
+          return Text(value);
+        });
+  }
+
+  _getDslDecoration() {
+    return BoxDecoration(
+      border: BorderDirectional(
+        bottom: BorderSide(width: 1, color: Colors.black12),
+        top: BorderSide(width: 1, color: Colors.black12),
+      ),
+    );
+  }
+
+  final GlobalKey scaffoldKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    final appBar = PreferredSize(
+        child: Container(
+          decoration: BoxDecoration(
+              color: Color.fromRGBO(246, 247, 249, 1),
+              border: BorderDirectional(
+                  bottom: BorderSide(width: 1, color: Colors.black12))),
+          child: Padding(
+              padding: EdgeInsets.only(left: 16, bottom: 24),
+              child: Column(
+                  verticalDirection: VerticalDirection.up,
+                  children: [
+                    Container(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text("Add Food",
+                            style: TextStyle(
+                                fontSize: 26,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold))),
+                    Container(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text("Journal",
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.black38,
+                                fontWeight: FontWeight.bold)))
+                  ])),
+        ),
+        preferredSize: Size.fromHeight(90));
+
+    return Scaffold(
+      appBar: appBar,
+      key: scaffoldKey,
+      body: DirectSelectContainer(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              verticalDirection: VerticalDirection.down,
+              children: [
+                SizedBox(height: 20.0),
+                Container(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    alignment: AlignmentDirectional.centerStart,
+                    margin: EdgeInsets.only(left: 4),
+                    child: Column(
+                      children: [
+                        Text(_foodVariants[selectedFoodVariants],
+                            style: TextStyle
+// ... (truncated)

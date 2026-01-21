@@ -1,0 +1,124 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:example&#47;code_block.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_confetti&#47;flutter_confetti.dart';
+import 'package:syntax_highlight&#47;syntax_highlight.dart';
+import 'package:google_fonts&#47;google_fonts.dart';
+
+&#47;&#47; late final Highlighter _dartLightHighlighter;
+late final Highlighter _dartDarkHighlighter;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+&#47;&#47; Initialize the highlighter.
+  await Highlighter.initialize([
+    'dart',
+  ]);
+
+  &#47;&#47; Load the default light theme and create a highlighter.
+  &#47;&#47; var lightTheme = await HighlighterTheme.loadLightTheme();
+  &#47;&#47; _dartLightHighlighter = Highlighter(
+  &#47;&#47;   language: 'dart',
+  &#47;&#47;   theme: lightTheme,
+  &#47;&#47; );
+
+  &#47;&#47; Load the default dark theme and create a highlighter.
+  var darkTheme = await HighlighterTheme.loadDarkTheme();
+  _dartDarkHighlighter = Highlighter(
+    language: 'dart',
+    theme: darkTheme,
+  );
+
+  runApp(const MainApp());
+}
+
+class MainApp extends StatefulWidget {
+  const MainApp({super.key});
+
+  @override
+  State createState() => _MainAppState();
+}
+
+class _MainAppState extends State {
+  final controller = ConfettiController();
+  List killableControllerList = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(useMaterial3: true),
+      themeMode: ThemeMode.dark,
+      home: Scaffold(
+        appBar: AppBar(title: const Text('🎉 Flutter Confetti🎉 ')),
+        body: Builder(builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.all(12),
+            child: GridView.extent(
+              maxCrossAxisExtent: 500,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              children: [
+                CodeBlock(
+                  buttonText: 'Basic Cannon',
+                  highlighter: _dartDarkHighlighter,
+                  onTap: () {
+                    &#47;&#47;&#47;BEGIN
+                    Confetti.launch(
+                      context,
+                      options: const ConfettiOptions(
+                          particleCount: 100, spread: 70, y: 0.6),
+                    );
+
+                    &#47;&#47;&#47;END
+                  },
+                ),
+                CodeBlock(
+                  buttonText: 'Random Direction',
+                  highlighter: _dartDarkHighlighter,
+                  onTap: () {
+                    &#47;&#47;&#47;BEGIN
+                    double randomInRange(double min, double max) {
+                      return min + Random().nextDouble() * (max - min);
+                    }
+
+                    Confetti.launch(
+                      context,
+                      options: ConfettiOptions(
+                          angle: randomInRange(55, 125),
+                          spread: randomInRange(50, 70),
+                          particleCount: randomInRange(50, 100).toInt(),
+                          y: 0.6),
+                    );
+
+                    &#47;&#47;&#47;END
+                  },
+                ),
+                CodeBlock(
+                  buttonText: 'Fireworks',
+                  highlighter: _dartDarkHighlighter,
+                  onTap: () {
+                    &#47;&#47;&#47;BEGIN
+                    double randomInRange(double min, double max) {
+                      return min + Random().nextDouble() * (max - min);
+                    }
+
+                    int total = 60;
+                    int progress = 0;
+
+                    Timer.periodic(const Duration(milliseconds: 250), (timer) {
+                      progress++;
+
+                      if (progress >= total) {
+                        timer.cancel();
+                        return;
+                      }
+
+                      int count = ((1 - progress &#47; total) * 50).toInt();
+
+                      Confetti.launch(
+                        context,
+           
+// ... (truncated)

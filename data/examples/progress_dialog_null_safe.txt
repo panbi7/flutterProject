@@ -1,0 +1,111 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:progress_dialog_null_safe&#47;progress_dialog_null_safe.dart';
+
+late ProgressDialog pr;
+
+void main() {
+  runApp(const MaterialApp(
+    home: MyApp(),
+  ));
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  double percentage = 0.0;
+
+  @override
+  Widget build(context) {
+&#47;&#47;    pr = new ProgressDialog(context,
+&#47;&#47;        type: ProgressDialogType.Normal, isDismissible: false);
+&#47;&#47;    pr = new ProgressDialog(context, type: ProgressDialogType.Download);
+
+&#47;&#47; Custom body test
+    pr = ProgressDialog(
+      context,
+      type: ProgressDialogType.download,
+      textDirection: TextDirection.rtl,
+      isDismissible: true,
+&#47;&#47;      customBody: LinearProgressIndicator(
+&#47;&#47;        valueColor: AlwaysStoppedAnimation(Colors.blueAccent),
+&#47;&#47;        backgroundColor: Colors.white,
+&#47;&#47;      ),
+    );
+
+    pr.style(
+&#47;&#47;      message: 'Downloading file...',
+      widgetAboveTheDialog: const Text('meow'),
+      message:
+          'Lets dump some huge text into the progress dialog and check whether it can handle the huge text. If it works then not you or me, flutter is awesome',
+      borderRadius: 10.0,
+      backgroundColor: Colors.white,
+      elevation: 10.0,
+      insetAnimCurve: Curves.easeInOut,
+      progress: 0.0,
+      progressWidgetAlignment: Alignment.center,
+      maxProgress: 100.0,
+      progressTextStyle: const TextStyle(
+          color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+      messageTextStyle: const TextStyle(
+          color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600),
+    );
+
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.all(Colors.blue),
+            ),
+            onPressed: () async {
+              await pr.show();
+
+              Future.delayed(const Duration(seconds: 2)).then((onValue) {
+                percentage = percentage + 30.0;
+                print(percentage);
+
+                pr.update(
+                  progress: percentage,
+                  message: "Please wait...",
+                  progressWidget: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      child: const CircularProgressIndicator()),
+                  maxProgress: 100.0,
+                  progressTextStyle: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.w400),
+                  messageTextStyle: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 19.0,
+                      fontWeight: FontWeight.w600),
+                );
+
+                Future.delayed(const Duration(seconds: 2)).then((value) {
+                  percentage = percentage + 30.0;
+                  pr.update(
+                      progress: percentage, message: "Few more seconds...");
+                  print(percentage);
+                  Future.delayed(const Duration(seconds: 2)).then((value) {
+                    percentage = percentage + 30.0;
+                    pr.update(progress: percentage, message: "Almost done...");
+                    print(percentage);
+
+                    Future.delayed(const Duration(seconds: 2)).then((value) {
+                      pr.hide().whenComplete(() {
+                        print(pr.isShowing());
+                      });
+                      percentage = 0.0;
+                    });
+                  });
+                });
+              });
+
+              Future.delayed(const Duration(seconds: 10)).then((onValue) {
+                print("PR statu
+// ... (truncated)

@@ -1,0 +1,12 @@
+@override
+Widget build(BuildContext context) {
+  return FlutterMap(
+    options: MapOptions(),
+    children: [
+      TileLayer(
+        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      ),
+      const MapCompass.cupertino(),
+    ],
+  );
+}

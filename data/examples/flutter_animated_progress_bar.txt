@@ -1,0 +1,8 @@
+import 'package:example&#47;animated_progress_bar_example.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  &#47;&#47; debugRepaintRainbowEnabled = true;
+
+  runApp(const AnimatedProgressBarExample());
+}

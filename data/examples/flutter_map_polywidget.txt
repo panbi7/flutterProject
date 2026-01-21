@@ -1,0 +1,116 @@
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_map&#47;flutter_map.dart';
+import 'package:flutter_map_polywidget&#47;flutter_map_polywidget.dart';
+import 'package:latlong2&#47;latlong.dart';
+
+class PolyWidgetExample extends StatefulWidget {
+  const PolyWidgetExample({super.key});
+
+  @override
+  State createState() => _PolyWidgetExampleState();
+}
+
+class _PolyWidgetExampleState extends State
+    with SingleTickerProviderStateMixin {
+  late MapController mapController;
+  late AnimationController animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    mapController = MapController();
+
+    animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 15),
+    );
+
+    var zoomAnimation = TweenSequence(
+      [
+        TweenSequenceItem(
+          tween: Tween(begin: 16.5, end: 18)
+              .chain(CurveTween(curve: Curves.easeInOutSine)),
+          weight: 1,
+        ),
+        TweenSequenceItem(
+          tween: Tween(begin: 18, end: 16.5)
+              .chain(CurveTween(curve: Curves.easeInOutSine)),
+          weight: 1,
+        ),
+      ],
+    ).animate(animationController);
+
+    var rotationAnimation =
+        Tween(begin: 0, end: 360).animate(animationController);
+
+    animationController
+      ..addListener(() {
+        mapController.moveAndRotate(
+          const LatLng(50.934798, 6.875384),
+          zoomAnimation.value,
+          rotationAnimation.value,
+        );
+      })
+      ..repeat(min: 0, max: 1);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: FlutterMap(
+          mapController: mapController,
+          options: MapOptions(
+            initialCenter: const LatLng(50.934798, 6.875384),
+            onTap: (tapPosition, point) {
+              if (kDebugMode) {
+                print(point);
+              }
+            },
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: "https:&#47;&#47;tile.openstreetmap.org&#47;{z}&#47;{x}&#47;{y}.png",
+              subdomains: const ["a", "b", "c"],
+            ),
+            PolyWidgetLayer(
+              polyWidgets: [
+                const PolyWidget(
+                  center: LatLng(50.933465, 6.875109),
+                  widthInMeters: 120,
+                  heightInMeters: 165,
+                  angle: 8,
+                  child: _Content("Stadium", "full rotation"),
+                ),
+                const PolyWidget(
+                  center: LatLng(50.936158, 6.87445),
+                  widthInMeters: 100,
+                  heightInMeters: 135,
+                  angle: 8,
+                  forceOrientation: Orientation.landscape,
+                  child: _Content("West", "only landscape"),
+                ),
+                PolyWidget.threePoints(
+                  pointA: const LatLng(50.936614, 6.876283),
+                  pointB: const LatLng(50.936498, 6.877663),
+                  approxPointC: const LatLng(50.935312, 6.877419),
+                  noRotation: true,
+                  child: const _Content("East", "no rotation"),
+                ),
+                const PolyWidget(
+                  center: LatLng(50.936253, 6.872112),
+                  widthInMeters: 50,
+                  heightInMeters: 100,
+                  angle: 8,
+                  forceOrientation: Orientation.landscape,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.elliptical(50, 50)),
+                      gradient: LinearGradient(
+                        colors: [
+                          Color.fromRGBO(230, 0, 0, 1),
+                          Color.fromRGBO(255, 142, 0, 1),
+                          Color.fromRGBO(255, 239, 0, 1),
+               
+// ... (truncated)

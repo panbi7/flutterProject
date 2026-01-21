@@ -1,0 +1,126 @@
+import 'dart:async';
+
+import 'package:flutter&#47;gestures.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_taggable&#47;flutter_taggable.dart';
+
+class Taggable {
+  const Taggable({required this.id, required this.name, required this.icon});
+
+  final String id;
+  final String name;
+  final IconData icon;
+}
+
+class User extends Taggable {
+  const User(
+      {required super.id, required super.name, super.icon = Icons.person});
+}
+
+class Topic extends Taggable {
+  const Topic(
+      {required super.id, required super.name, super.icon = Icons.topic});
+}
+
+&#47;&#47;&#47; A list of users to search from.
+const users = [
+  User(id: 'aliceUniqueId', name: 'Alice'),
+  User(id: 'otherAliceUniqueId', name: 'Alice', icon: Icons.person_outline),
+  User(id: 'bobUniqueId', name: 'Bob'),
+  User(id: 'charLieUniqueId', name: 'Charlie'),
+  User(id: 'carolUniqueId', name: 'Carol'),
+  User(id: 'hawkingUniqueId', name: 'Stephen Hawking'),
+];
+
+&#47;&#47;&#47; A list of topics to search from.
+const topics = [
+  Topic(id: 'myDartId', name: 'Dart'),
+  Topic(id: 'myFlutterId', name: 'Flutter'),
+  Topic(id: 'myPubId', name: 'Pub'),
+];
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Scaffold(body: HomePage()),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  &#47;&#47;&#47; The [LayerLink] is used to link the [CompositedTransformTarget] and
+  &#47;&#47;&#47; [CompositedTransformFollower] widgets required to show the overlay.
+  final _layerLink = LayerLink();
+
+  &#47;&#47;&#47; The [_formKey] is used to get the [RenderBox] of the [Form] widget to
+  &#47;&#47;&#47; position the overlay.
+  final _formKey = GlobalKey();
+
+  &#47;&#47;&#47; The [_focusNode] is used to focus the [TextField] when the overlay is
+  &#47;&#47;&#47; closed.
+  late FocusNode _focusNode;
+
+  &#47;&#47;&#47; A list of comments made using the [TagTextEditingController].
+  final List> comments = [];
+
+  &#47;&#47;&#47; The [TagTextEditingController] is used to control the [TextField] and
+  &#47;&#47;&#47; handle the tagging logic.
+  late final TagTextEditingController _controller;
+
+  &#47;&#47;&#47; The [_overlayEntry] is used to show the overlay with the list of
+  &#47;&#47;&#47; taggables.
+  OverlayEntry? _overlayEntry;
+
+  &#47;&#47;&#47; The [backendFormat] is used to display the backend format of the text
+  String backendFormat = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+
+    &#47;&#47; Initialize the [TagTextEditingController] with the required parameters.
+    _controller = TagTextEditingController(
+      searchTaggables: searchTaggables,
+      buildTaggables: buildTaggables,
+      toFrontendConverter: (taggable) => taggable.name,
+      toBackendConverter: (taggable) => taggable.id,
+      textStyleBuilder: textStyleBuilder,
+      tagStyles: const [TagStyle(prefix: '@'), TagStyle(prefix: '#')],
+    );
+
+    &#47;&#47; Add a listener to update the [backendFormat] when the text changes.
+    _controller.addListener(
+        () => setState(() => backendFormat = _controller.textInBackendFormat));
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _controller.dispose();
+    _overlayEntry?.remove();
+    super.dispose();
+  }
+
+  TextStyle? textStyleBuilder(
+      BuildContext context, String prefix, Taggable taggable) {
+    &#47;&#47; if (taggable.id == 'hawkingUniqueId') {
+    &#47;&#47;   return const TextStyle(
+    &#47;&#47;     color: Colors.red,
+    &#47;&#47;     decoration: TextDecoration.underline,
+    &#47;&#47;     fontWeight: FontWeight.bold,
+    &#47;&#47;
+// ... (truncated)

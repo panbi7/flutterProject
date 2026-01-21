@@ -1,0 +1,69 @@
+&#47;*
+ * This file is a part of the Yandex Advertising Network
+ *
+ * Version for Flutter (C) 2023 YANDEX
+ *
+ * You may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at https:&#47;&#47;legal.yandex.com&#47;partner_ch&#47;
+ *&#47;
+
+import 'package:flutter&#47;material.dart';
+import 'package:yandex_mobileads_sample&#47;pages&#47;app_open_ad_page.dart';
+import 'package:yandex_mobileads_sample&#47;policies&#47;policies_page.dart';
+
+import 'pages&#47;banner_ad_page.dart';
+import 'pages&#47;home_page.dart';
+import 'pages&#47;interstitial_ad_page.dart';
+import 'pages&#47;rewarded_ad_page.dart';
+
+void main() => runApp(const YandexMobileAdsApp());
+
+class YandexMobileAdsApp extends StatelessWidget {
+  static const colorSchemeSeed = Colors.green;
+  static const inputDecorationTheme = InputDecorationTheme(
+    border: OutlineInputBorder(),
+  );
+  static const listTileTheme = ListTileThemeData(
+    horizontalTitleGap: 12.0,
+  );
+
+  const YandexMobileAdsApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Yandex Mobile Ads',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: colorSchemeSeed,
+        inputDecorationTheme: inputDecorationTheme,
+        listTileTheme: listTileTheme,
+      ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorSchemeSeed: colorSchemeSeed,
+        inputDecorationTheme: inputDecorationTheme,
+        listTileTheme: listTileTheme,
+      ),
+      routes: {
+        '&#47;': (context) => const HomePage(),
+        '&#47;app_open': (context) => const AppOpenAdPage(),
+        '&#47;banner_sticky': (context) {
+          return const BannerAdPage(
+            title: 'Sticky banner ad',
+            isSticky: true,
+          );
+        },
+        '&#47;banner_inline': (context) {
+          return const BannerAdPage(
+            title: 'Inline banner ad',
+          );
+        },
+        '&#47;interstitial': (context) => const InterstitialAdPage(),
+        '&#47;rewarded': (context) => const RewardedAdPage(),
+        '&#47;policies': (context) => const PoliciesPage(),
+      },
+    );
+  }
+}

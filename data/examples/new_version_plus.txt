@@ -1,0 +1,129 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_html&#47;flutter_html.dart';
+import 'package:new_version_plus&#47;new_version_plus.dart';
+import 'package:new_version_plus&#47;strategies&#47;api_version_source.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'New Version Plus Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  String release = "";
+  String statusMessage = "Select a method to check for updates";
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("New Version Plus Example"),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                statusMessage,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Traditional App Store Check",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => _basicStatusCheck(),
+                child: const Text("Basic Check (Auto Dialog)"),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => _advancedStatusCheck(),
+                child: const Text("Advanced Check (Custom Dialog)"),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => _testDialog(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                ),
+                child: const Text("Test Dialog (Force Show)"),
+              ),
+              const SizedBox(height: 30),
+              const Text(
+                "Relva API Integration (Beta)",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => _relvaApiCheck(),
+                child: const Text("Relva API Check (Modern Dialog)"),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => _relvaApiManualCheck(),
+                child: const Text("Relva API Manual Check"),
+              ),
+              const SizedBox(height: 20),
+              if (release.isNotEmpty) ...[
+                const Divider(),
+                const Text(
+                  "Release Notes:",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Html(data: release),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  &#47;&#47;&#47; Basic status check using traditional App Store method
+  &#47;&#47;&#47; Shows automatic platform-specific dialog
+  Future _basicStatusCheck() async {
+    setState(() {
+      statusMessage = "Checking for updates (Basic).
+// ... (truncated)

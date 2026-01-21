@@ -1,0 +1,7 @@
+import 'package:llama_cpp_dart/src/llama_cpp.dart';
+
+void main() {
+  final lib = llama_cpp(DynamicLibrary.open("libllama.dylib"));
+  // Initialize model, context, and sampling parameters
+  // See examples/low_level.dart for complete example
+}

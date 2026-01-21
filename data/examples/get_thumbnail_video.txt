@@ -1,0 +1,150 @@
+import 'dart:async';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:get_thumbnail_video&#47;index.dart';
+import 'package:get_thumbnail_video&#47;video_thumbnail.dart';
+import 'package:image_picker&#47;image_picker.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: DemoHome(),
+    );
+  }
+}
+
+class ThumbnailRequest {
+  const ThumbnailRequest({
+    required this.video,
+    required this.thumbnailPath,
+    required this.imageFormat,
+    required this.maxHeight,
+    required this.maxWidth,
+    required this.timeMs,
+    required this.quality,
+    required this.attachHeaders,
+  });
+
+  final String video;
+  final String? thumbnailPath;
+  final ImageFormat imageFormat;
+  final int maxHeight;
+  final int maxWidth;
+  final int timeMs;
+  final int quality;
+  final bool attachHeaders;
+}
+
+class ThumbnailResult {
+  const ThumbnailResult({
+    required this.image,
+    required this.dataSize,
+    required this.height,
+    required this.width,
+  });
+
+  final Image image;
+  final int dataSize;
+  final int height;
+  final int width;
+}
+
+Future genThumbnail(ThumbnailRequest r) async {
+  Uint8List bytes;
+  final completer = Completer();
+  if (r.thumbnailPath != null) {
+    final thumbnailFile = await VideoThumbnail.thumbnailFile(
+      video: r.video,
+      headers: r.attachHeaders
+          ? const {
+              'USERHEADER1': 'user defined header1',
+              'USERHEADER2': 'user defined header2',
+            }
+          : null,
+      thumbnailPath: r.thumbnailPath,
+      imageFormat: r.imageFormat,
+      maxHeight: r.maxHeight,
+      maxWidth: r.maxWidth,
+      timeMs: r.timeMs,
+      quality: r.quality,
+    );
+
+    debugPrint('thumbnail file is located: $thumbnailFile');
+
+    bytes = await thumbnailFile.readAsBytes();
+  } else {
+    bytes = await VideoThumbnail.thumbnailData(
+      video: r.video,
+      headers: r.attachHeaders
+          ? const {
+              'USERHEADER1': 'user defined header1',
+              'USERHEADER2': 'user defined header2',
+            }
+          : null,
+      imageFormat: r.imageFormat,
+      maxHeight: r.maxHeight,
+      maxWidth: r.maxWidth,
+      timeMs: r.timeMs,
+      quality: r.quality,
+    );
+  }
+
+  final imageDataSize = bytes.length;
+  debugPrint('image size: $imageDataSize');
+
+  final image = Image.memory(bytes);
+  image.image.resolve(ImageConfiguration.empty).addListener(
+        ImageStreamListener(
+          (ImageInfo info, bool _) {
+            completer.complete(
+              ThumbnailResult(
+                image: image,
+                dataSize: imageDataSize,
+                height: info.image.height,
+                width: info.image.width,
+              ),
+            );
+          },
+          onError: completer.completeError,
+        ),
+      );
+  return completer.future;
+}
+
+class GenThumbnailImage extends StatefulWidget {
+  const GenThumbnailImage({
+    Key? key,
+    required this.thumbnailRequest,
+  }) : super(key: key);
+  final ThumbnailRequest thumbnailRequest;
+
+  @override
+  State createState() => _GenThumbnailImageState();
+}
+
+class _GenThumbnailImageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: genThumbnail(widget.thumbnailRequest),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData) {
+          final data = snapshot.data!;
+          final image = data.image;
+          final width = data.width;
+          final height = data.height;
+          final dataSize = data.dataSize;
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(
+                child: Text(
+                  "Image ${widget.thumbnailRequest.thumbnailPath == 
+// ... (truncated)

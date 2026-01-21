@@ -1,0 +1,142 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:rflutter_alert&#47;rflutter_alert.dart';
+
+void main() => runApp(RatelApp());
+
+class RatelApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('RFlutter Alert by Ratel'),
+        ),
+        body: PopupDialog(),
+      ),
+    );
+  }
+}
+
+class PopupDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              child: Text('Basic Alert'),
+              onPressed: () => _onBasicAlertPressed(context),
+            ),
+            ElevatedButton(
+              child: Text('Basic Waiting Alert'),
+              onPressed: () => _onBasicWaitingAlertPressed(context),
+            ),
+            ElevatedButton(
+              child: Text('Custom Animation Alert'),
+              onPressed: () => _onCustomAnimationAlertPressed(context),
+            ),
+            ElevatedButton(
+              child: Text('Alert with Button'),
+              onPressed: () => _onAlertButtonPressed(context),
+            ),
+            ElevatedButton(
+              child: Text('Alert with Buttons'),
+              onPressed: () => _onAlertButtonsPressed(context),
+            ),
+            ElevatedButton(
+              child: Text('Alert with Style'),
+              onPressed: () => _onAlertWithStylePressed(context),
+            ),
+            ElevatedButton(
+              child: Text('Alert with Custom Image'),
+              onPressed: () => _onAlertWithCustomImagePressed(context),
+            ),
+            ElevatedButton(
+              child: Text('Alert with Custom Content'),
+              onPressed: () => _onAlertWithCustomContentPressed(context),
+            ),
+            ElevatedButton(
+              child: Text('Alert with&#47;without Root navigator'),
+              onPressed: () => _onAlertWithRootNavigator(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+&#47;&#47; The easiest way for creating RFlutter Alert
+  _onBasicAlertPressed(context) {
+    Alert(
+      context: context,
+      title: "RFLUTTER ALERT",
+      desc: "Flutter is more awesome with RFlutter Alert.",
+    ).show();
+  }
+
+  &#47;&#47; Code will continue after alert is closed.
+  _onBasicWaitingAlertPressed(context) async {
+    await Alert(
+      context: context,
+      title: "RFLUTTER ALERT",
+      desc: "Flutter is more awesome with RFlutter Alert.",
+    ).show();
+
+    &#47;&#47; Code will continue after alert is closed.
+    debugPrint("Alert closed now.");
+  }
+
+&#47;&#47;Custom animation alert
+  _onCustomAnimationAlertPressed(context) {
+    Alert(
+      context: context,
+      title: "RFLUTTER ALERT",
+      desc: "Flutter is more awesome with RFlutter Alert.",
+      alertAnimation: fadeAlertAnimation,
+    ).show();
+  }
+
+  Widget fadeAlertAnimation(
+    BuildContext context,
+    Animation animation,
+    Animation secondaryAnimation,
+    Widget child,
+  ) {
+    return Align(
+      child: FadeTransition(
+        opacity: animation,
+        child: child,
+      ),
+    );
+  }
+
+&#47;&#47; Alert with single button.
+  _onAlertButtonPressed(context) {
+    Alert(
+      context: context,
+      type: AlertType.error,
+      title: "RFLUTTER ALERT",
+      desc: "Flutter is more awesome with RFlutter Alert.",
+      buttons: [
+        DialogButton(
+          child: Text(
+            "COOL",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          onPressed: () => _onCustomAnimationAlertPressed(context),
+          width: 120,
+        )
+      ],
+    ).show();
+  }
+
+&#47;&#47; Alert with multiple and custom buttons
+  _onAlertButtonsPressed(context) {
+    Alert(
+      context: context,
+      type: Alert
+// ... (truncated)

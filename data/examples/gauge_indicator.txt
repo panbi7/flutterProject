@@ -1,0 +1,26 @@
+import 'package:example&#47;pages&#47;radial_gauge_example_page.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Radial gauge',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        tabBarTheme: const TabBarTheme(
+          labelColor: Colors.black,
+        ),
+      ),
+      home: const Scaffold(
+        body: RadialGaugeExamplePage(),
+      ),
+    );
+  }
+}

@@ -1,0 +1,121 @@
+import 'dart:async';
+import 'package:google_maps_flutter&#47;google_maps_flutter.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:map_picker&#47;map_picker.dart';
+import 'package:geocoding&#47;geocoding.dart';
+import 'package:flutter_svg&#47;flutter_svg.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final _controller = Completer();
+  MapPickerController mapPickerController = MapPickerController();
+
+  CameraPosition cameraPosition = const CameraPosition(
+    target: LatLng(41.311158, 69.279737),
+    zoom: 14.4746,
+  );
+
+  var textController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          MapPicker(
+            &#47;&#47; pass icon widget
+            iconWidget: SvgPicture.asset(
+              "assets&#47;location_icon.svg",
+              height: 60,
+            ),
+            &#47;&#47;add map picker controller
+            mapPickerController: mapPickerController,
+            child: GoogleMap(
+              myLocationEnabled: true,
+              zoomControlsEnabled: false,
+              &#47;&#47; hide location button
+              myLocationButtonEnabled: false,
+              mapType: MapType.normal,
+              &#47;&#47;  camera position
+              initialCameraPosition: cameraPosition,
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+              onCameraMoveStarted: () {
+                &#47;&#47; notify map is moving
+                mapPickerController.mapMoving!();
+                textController.text = "checking ...";
+              },
+              onCameraMove: (cameraPosition) {
+                this.cameraPosition = cameraPosition;
+              },
+              onCameraIdle: () async {
+                &#47;&#47; notify map stopped moving
+                mapPickerController.mapFinishedMoving!();
+                &#47;&#47;get address name from camera position
+                List placemarks = await placemarkFromCoordinates(
+                  cameraPosition.target.latitude,
+                  cameraPosition.target.longitude,
+                );
+
+                &#47;&#47; update the ui with the address
+                textController.text =
+                    '${placemarks.first.name}, ${placemarks.first.administrativeArea}, ${placemarks.first.country}';
+              },
+            ),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).viewPadding.top + 20,
+            width: MediaQuery.of(context).size.width - 50,
+            height: 50,
+            child: TextFormField(
+              maxLines: 3,
+              textAlign: TextAlign.center,
+              readOnly: true,
+              decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.zero, border: InputBorder.none),
+              controller: textController,
+            ),
+          ),
+          Positioned(
+            bottom: 24,
+            left: 24,
+            right: 24,
+            child: SizedBox(
+              height: 50,
+              child: TextButton(
+                child: const Text(
+                  "Submit",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontStyle: FontStyle.normal,
+                    color: Color(0xFFFFFFFF),
+                    fontSize: 19,
+                    &#47;&#47; height: 19&#47;19,
+                  ),
+                ),
+              
+// ... (truncated)

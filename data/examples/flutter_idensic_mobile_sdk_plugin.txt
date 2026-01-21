@@ -1,0 +1,125 @@
+import 'dart:async';
+import 'package:flutter&#47;material.dart';
+
+import 'package:flutter_idensic_mobile_sdk_plugin&#47;flutter_idensic_mobile_sdk_plugin.dart';
+import 'dart:developer' as D;
+
+SNSMobileSDK? snsMobileSDK;
+
+void launchSDK() async {
+  &#47;&#47;
+  &#47;&#47; From your backend get an access token for the applicant to be verified.
+  &#47;&#47; The token must be generated with `levelName` and `userId`,
+  &#47;&#47; where `levelName` is the name of a level configured in your dashboard.
+  &#47;&#47;
+  &#47;&#47; The sdk will work in the production or in the sandbox environment
+  &#47;&#47; depend on which one the `accessToken` has been generated on.
+  &#47;&#47;
+  final String accessToken = "your access token";
+
+  &#47;&#47; The access token has a limited lifespan and when it's expired, you must provide another one.
+  &#47;&#47; So be prepared to get a new token from your backend.
+  &#47;&#47;
+  final onTokenExpiration = () async {
+    D.log('_onTokenExpiration');
+    &#47;&#47; call your backend to fetch a new access token (this is just an example)
+    return Future.delayed(Duration(seconds: 2), () => accessToken);
+  };
+
+  final builder = SNSMobileSDK.init(accessToken, onTokenExpiration);
+
+  setupOptionalHandlers(builder);
+  setupTheme(builder);
+
+  snsMobileSDK = builder
+    .withLocale(Locale("en")) &#47;&#47; https:&#47;&#47;api.flutter.dev&#47;flutter&#47;dart-ui&#47;Locale-class.html
+    .withDebug(false) &#47;&#47; set debug mode if required
+    .build();
+
+  final result = await snsMobileSDK!.launch();
+
+  D.log("Completed with result: $result");
+}
+
+void setupOptionalHandlers(SNSMobileSDKBuilder builder) {
+
+  if (useApplicantConf) {
+    builder.withApplicantConf({
+      "email": "test@test.com",
+      "phone": "123456789"
+    });
+  }
+
+  if (usePreferredDocumentDefinitions) {
+    builder.withPreferredDocumentDefinitions({
+      "IDENTITY": {
+        "idDocType": "PASSPORT",
+        "country": "USA"
+      },
+      "IDENTITY2": {
+          "idDocType": "DRIVERS",
+          "country": "FRA"
+      }
+    });
+  }
+
+  if (useDisableAnalytics) {
+    builder.withAnalyticsEnabled(false);
+  }
+
+  if (useCustomStrings) {
+    builder.withStrings({
+      "sns_general_poweredBy": "Custom watermark"
+    });
+  }
+
+  if (useDisableAutoCloseOnApprove) {
+    builder.withAutoCloseOnApprove(0);
+  }
+
+  final SNSStatusChangedHandler onStatusChanged = (SNSMobileSDKStatus newStatus, SNSMobileSDKStatus prevStatus) {
+    D.log('onStatusChanged: $prevStatus -> $newStatus');
+
+    &#47;&#47; just to show how dismiss() method works
+    if (useDismissTimer && prevStatus == SNSMobileSDKStatus.Ready) {
+      new Timer(Duration(seconds: 10), () {
+        snsMobileSDK?.dismiss();
+      });
+    }
+  };
+
+  final SNSEventHandler onEvent = (SNSMobileSDKEvent event) {
+    D.log("onEvent: $event");
+  };
+
+  builder.withHandlers(
+    onStatusChanged: onStatusChanged,
+    onEvent: onEvent
+  );
+
+  void onLog(SNSLogLevel level, String message) {
+    D.log('onLog: \'$level\' - $message');
+  }
+
+  builder.withLogHandler(onLog);
+}
+
+void setupTheme(SNSMobileSDKBuilder builder) {
+
+  if (!useCustomTheme) {
+    return;
+  }
+
+  builder.withTheme({
+          "universal": {
+              "fonts": {
+                  "assets": [ &#47;&#47; refers to the ttf&#47;otf files (ios needs them to register fonts before they could be used)
+                      {"name": "Scriptina", "file": "assets&#47;fonts&#47;SCRIPTIN.ttf"},
+                      {"name": "Caslon Antique", "file": "assets&#47;fonts&#47;Caslon Antique.ttf"},
+                      {"name": "Requiem", "file": "assets&#47;fonts&#47;Requiem.ttf"},
+                      {"name": "DAGGERSQUARE", "file": "assets&#47;fonts&#47;DAGGERSQUARE.otf"},
+                      {"name": "Plasma Drip (BRK)", "file": "assets&#47;fonts&#47;plasdrip.ttf"}
+                  ],
+                  "headline1": {
+                      "name": "Scriptina", &#47;&#47; use ttf's `Full Name` or the name of any system font installed, or omit the key 
+// ... (truncated)

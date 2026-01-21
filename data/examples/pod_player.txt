@@ -1,0 +1,105 @@
+import 'package:example&#47;screens&#47;from_asset.dart';
+import 'package:example&#47;screens&#47;from_network.dart';
+import 'package:example&#47;screens&#47;from_network_urls.dart';
+import 'package:example&#47;screens&#47;from_vimeo_private_id.dart';
+import 'package:example&#47;screens&#47;from_youtube.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:pod_player&#47;pod_player.dart';
+
+import 'screens&#47;cutom_video_controllers.dart';
+import 'screens&#47;from_vimeo_id.dart';
+
+void main() {
+  PodVideoPlayer.enableLogs = true;
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      routes: {
+        '&#47;fromVimeoId': (context) => const PlayVideoFromVimeoId(),
+        '&#47;fromVimeoPrivateId': (context) => const PlayVideoFromVimeoPrivateId(),
+        '&#47;fromYoutube': (context) => const PlayVideoFromYoutube(),
+        '&#47;fromAsset': (context) => const PlayVideoFromAsset(),
+        '&#47;fromNetwork': (context) => const PlayVideoFromNetwork(),
+        '&#47;fromNetworkQualityUrls': (context) =>
+            const PlayVideoFromNetworkQualityUrls(),
+        '&#47;customVideo': (context) => const CustomVideoControlls(),
+      },
+      home: const MainPage(),
+    );
+  }
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MainPageState();
+}
+
+class _MainPageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            &#47;&#47; _button('Play video from File'),
+            _button(
+              'Play video from Network',
+              onPressed: () => Navigator.of(context).pushNamed('&#47;fromNetwork'),
+            ),
+            _button(
+              'Play video from Youtube',
+              onPressed: () => Navigator.of(context).pushNamed('&#47;fromYoutube'),
+            ),
+            _button(
+              'Play video from Network quality urls',
+              onPressed: () =>
+                  Navigator.of(context).pushNamed('&#47;fromNetworkQualityUrls'),
+            ),
+            _button(
+              'Play video from Asset (with custom labels)',
+              onPressed: () => Navigator.of(context).pushNamed('&#47;fromAsset'),
+            ),
+            _button(
+              'Play video from Vimeo',
+              onPressed: () => Navigator.of(context).pushNamed('&#47;fromVimeoId'),
+            ),
+            _button(
+              'Play private video from Vimeo',
+              onPressed: () =>
+                  Navigator.of(context).pushNamed('&#47;fromVimeoPrivateId'),
+            ),
+            _button(
+              'Custom Video player',
+              onPressed: () => Navigator.of(context).pushNamed('&#47;customVideo'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _button(String text, {void Function()? onPressed}) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: OutlinedButton(
+          onPressed: onPressed ?? () {},
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ),
+    );
+  }
+}

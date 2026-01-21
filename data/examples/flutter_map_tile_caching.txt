@@ -1,0 +1,124 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_map_tile_caching&#47;flutter_map_tile_caching.dart';
+import 'package:google_fonts&#47;google_fonts.dart';
+import 'package:provider&#47;provider.dart';
+import 'package:shared_preferences&#47;shared_preferences.dart';
+
+import 'src&#47;screens&#47;export&#47;export.dart';
+import 'src&#47;screens&#47;import&#47;import.dart';
+import 'src&#47;screens&#47;initialisation_error&#47;initialisation_error.dart';
+import 'src&#47;screens&#47;main&#47;main.dart';
+import 'src&#47;screens&#47;store_editor&#47;store_editor.dart';
+import 'src&#47;shared&#47;misc&#47;shared_preferences.dart';
+import 'src&#47;shared&#47;state&#47;download_configuration_provider.dart';
+import 'src&#47;shared&#47;state&#47;download_provider.dart';
+import 'src&#47;shared&#47;state&#47;general_provider.dart';
+import 'src&#47;shared&#47;state&#47;recoverable_regions_provider.dart';
+import 'src&#47;shared&#47;state&#47;region_selection_provider.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  sharedPrefs = await SharedPreferences.getInstance();
+
+  Object? initErr;
+  try {
+    await FMTCObjectBoxBackend().initialise();
+    &#47;&#47; We don't know what errors will be thrown, we want to handle them all
+    &#47;&#47; later
+    &#47;&#47; ignore: avoid_catches_without_on_clauses
+  } catch (err) {
+    initErr = err;
+  }
+
+  runApp(_AppContainer(initialisationError: initErr));
+}
+
+class _AppContainer extends StatelessWidget {
+  const _AppContainer({
+    required this.initialisationError,
+  });
+
+  final Object? initialisationError;
+
+  static final _routes = {
+    MainScreen.route: (
+      std: (BuildContext context) => const MainScreen(),
+      custom: null,
+    ),
+    StoreEditorPopup.route: (
+      std: null,
+      custom: (context, settings) => MaterialPageRoute(
+            builder: (context) => const StoreEditorPopup(),
+            settings: settings,
+            fullscreenDialog: true,
+          ),
+    ),
+    ImportPopup.route: (
+      std: null,
+      custom: (context, settings) => MaterialPageRoute(
+            builder: (context) => const ImportPopup(),
+            settings: settings,
+            fullscreenDialog: true,
+          ),
+    ),
+    ExportPopup.route: (
+      std: null,
+      custom: (context, settings) => MaterialPageRoute(
+            builder: (context) => const ExportPopup(),
+            settings: settings,
+            fullscreenDialog: true,
+          ),
+    ),
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = ThemeData(
+      brightness: Brightness.light,
+      useMaterial3: true,
+      textTheme: GoogleFonts.ubuntuTextTheme(ThemeData.light().textTheme),
+      colorSchemeSeed: Colors.green,
+      switchTheme: SwitchThemeData(
+        thumbIcon: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? const Icon(Icons.check)
+              : null,
+        ),
+      ),
+    );
+
+    if (initialisationError case final err?) {
+      return MaterialApp(
+        title: 'FMTC Demo (Initialisation Error)',
+        theme: themeData,
+        home: InitialisationError(err: err),
+      );
+    }
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => GeneralProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => RegionSelectionProvider(),
+          lazy: true,
+        ),
+        ChangeNotifierProvider(
+          create: (_) => DownloadConfigurationProvider(),
+          lazy: true,
+        ),
+        ChangeNotifierProvider(
+          create: (_) => DownloadingProvider(),
+          lazy: true,
+        ),
+        ChangeNotifierProvider(
+          create: (_) => RecoverableRegionsProvider(),
+          lazy: true,
+        ),
+      ],
+      child: MaterialApp(
+        title: 'FMTC Demo',
+        restorationScopeId:
+// ... (truncated)

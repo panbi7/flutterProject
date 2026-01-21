@@ -1,0 +1,129 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_tex_js&#47;flutter_tex_js.dart';
+import 'package:flutter_tex_js_example&#47;comparison&#47;comparison.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Flutter TeX JS Example')),
+        body: const _EditableExample(),
+        floatingActionButton: const _LaunchComparisonButton(),
+      ),
+    );
+  }
+}
+
+class _EditableExample extends StatefulWidget {
+  const _EditableExample({Key? key}) : super(key: key);
+
+  @override
+  _EditableExampleState createState() => _EditableExampleState();
+}
+
+class _EditableExampleState extends State {
+  late TextEditingController _textEditingController;
+  late bool _displayMode;
+  late double _fontSize;
+  late Alignment _alignment;
+
+  @override
+  void initState() {
+    super.initState();
+    _textEditingController = TextEditingController(
+      text: r'a=\pm\sqrt{b^2+c^2} \int_\infty^\beta d\gamma',
+    );
+    _displayMode = true;
+    _alignment = Alignment.center;
+  }
+
+  @override
+  void didChangeDependencies() {
+    _fontSize = DefaultTextStyle.of(context).style.fontSize!;
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: ListView(
+          children: [
+            TextField(controller: _textEditingController),
+            const SizedBox(height: 8),
+            _DisplayModeListTile(
+              value: _displayMode,
+              onChanged: (value) => setState(() => _displayMode = value),
+            ),
+            _FontSizeListTile(
+              value: _fontSize,
+              onChanged: (value) => setState(() => _fontSize = value),
+            ),
+            _AlignmentListTile(
+              onChanged: (value) => setState(() => _alignment = value),
+            ),
+            const SizedBox(height: 8),
+            ValueListenableBuilder(
+              valueListenable: _textEditingController,
+              builder: (context, value, child) {
+                return AnimatedAlign(
+                  duration: const Duration(seconds: 1),
+                  alignment: _alignment,
+                  child: ColoredBox(
+                    color: Colors.amber,
+                    child: TexImage(
+                      value.text,
+                      displayMode: _displayMode,
+                      fontSize: _fontSize,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+            const Center(child: Text('Horizontal scroll')),
+            const SizedBox(height: 8),
+            ValueListenableBuilder(
+              valueListenable: _textEditingController,
+              builder: (context, value, child) => SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: TexImage(
+                  [value.text, value.text, value.text].join(' '),
+                  displayMode: _displayMode,
+                  fontSize: _fontSize,
+                ),
+              ),
+            ),
+            const Center(
+              child: Text(
+                'fin',
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Center(child: Text('Long text')),
+            const SizedBox(height: 8),
+            const _LongTextExample(),
+            const SizedBox(height: 24),
+            const Center(child: Text('Environments')),
+            const SizedBox(height: 8),
+            const _EnvironmentsExample(),
+          ],
+        ),
+      ),
+ 
+// ... (truncated)

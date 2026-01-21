@@ -1,0 +1,66 @@
+&#47;&#47; ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:example&#47;pages&#47;masked_text_sample.dart';
+import 'package:example&#47;pages&#47;money_masked_text_sample.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Masked Text Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: const MyHomePage(title: 'Extended Masked Text Demo'),
+      );
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({
+    required this.title,
+    super.key,
+  });
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const MaskedTextSample(),
+                  ),
+                ),
+                child: const Text('Masked Controller'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => MoneyMaskedTextSample(),
+                  ),
+                ),
+                child: const Text('Money Masked Controller'),
+              )
+            ],
+          ),
+        ),
+      );
+}

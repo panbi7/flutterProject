@@ -1,0 +1,145 @@
+import 'dart:io';
+
+import 'package:docx_file_viewer&#47;docx_file_viewer.dart';
+import 'package:file_picker&#47;file_picker.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+void main() {
+  runApp(const DocxViewerExampleApp());
+}
+
+class DocxViewerExampleApp extends StatelessWidget {
+  const DocxViewerExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'DOCX Viewer Example',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData.dark(useMaterial3: true),
+      home: const HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State {
+  File? _selectedFile;
+  Uint8List? _demoBytes;
+  bool _enableZoom = true;
+  bool _darkMode = false;
+  final bool _isLoading = false;
+  String? _errorMessage;
+
+  &#47;&#47; Search state
+  late DocxSearchController _searchController;
+  final TextEditingController _searchTextController = TextEditingController();
+  bool _isSearchActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = DocxSearchController();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    _searchTextController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    &#47;&#47; Rebuild to update match counts
+    if (mounted) setState(() {});
+  }
+
+  Future _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['docx'],
+    );
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        _selectedFile = File(result.files.single.path!);
+        _demoBytes = null;
+        _errorMessage = null;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: _buildBody(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _pickFile,
+        child: const Icon(Icons.folder_open),
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    if (_isSearchActive) {
+      return AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            setState(() {
+              _isSearchActive = false;
+              _searchController.clear();
+              _searchTextController.clear();
+            });
+          },
+        ),
+        title: TextField(
+          controller: _searchTextController,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: 'Search text...',
+            border: InputBorder.none,
+          ),
+          onSubmitted: (value) => _searchController.search(value),
+          onChanged: (value) => _searchController.search(value),
+          textInputAction: TextInputAction.search,
+        ),
+        actions: [
+          &#47;&#47; Match Counter
+          if (_searchController.matchCount > 0)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  '${_searchController.currentMatchIndex + 1}&#47;${_searchController.matchCount}',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          &#47;&#47; Navigation Buttons
+          IconButton(
+            icon: const Icon(Icons.expand_less),
+            onPressed: _searchController.previousMatch,
+            tooltip: 'Previous',
+          ),
+          IconButton(
+            icon: const Icon(Icons.expand_more),
+            onPressed: _searchController.nextMatch,
+            tooltip: 'Next',
+          ),
+        ],
+      )
+// ... (truncated)

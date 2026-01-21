@@ -1,0 +1,92 @@
+import 'package:catcher_2&#47;catcher_2.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:sentry&#47;sentry.dart';
+
+void main() {
+  &#47;&#47;&#47;Configure your debug options (settings used in development mode)
+  final debugOptions = Catcher2Options(
+    &#47;&#47;&#47;Show information about caught error in dialog
+    DialogReportMode(),
+    [
+      &#47;&#47;&#47;Send logs to HTTP server
+      HttpHandler(
+        HttpRequestType.post,
+        Uri.parse('https:&#47;&#47;jsonplaceholder.typicode.com&#47;posts'),
+        printLogs: true,
+      ),
+
+      &#47;&#47;&#47;Print logs in console
+      ConsoleHandler(),
+    ],
+  );
+
+  &#47;&#47;&#47;Configure your production options (settings used in release mode)
+  final releaseOptions = Catcher2Options(
+    &#47;&#47;&#47;Show new page with information about caught error
+    PageReportMode(),
+    [
+      &#47;&#47;&#47;Send logs to Sentry
+      SentryHandler(
+        SentryClient(
+          SentryOptions(dsn: ''),
+        ),
+      ),
+
+      &#47;&#47;&#47;Print logs in console
+      ConsoleHandler(),
+    ],
+  );
+
+  &#47;&#47;&#47;Start Catcher and then start App. Now Catcher will guard and report any
+  &#47;&#47;&#47;error to your configured services!
+  Catcher2(
+    runAppFunction: () {
+      runApp(const MyApp());
+    },
+    ensureInitialized: true,
+    debugConfig: debugOptions,
+    releaseConfig: releaseOptions,
+  );
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        &#47;&#47;&#47;Last step: add navigator key of Catcher here, so Catcher can show
+        &#47;&#47;&#47;page and dialog!
+        navigatorKey: Catcher2.navigatorKey,
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('Catcher example'),
+          ),
+          body: const ChildWidget(),
+        ),
+      );
+}
+
+class ChildWidget extends StatelessWidget {
+  const ChildWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) => TextButton(
+        onPressed: generateError,
+        child: const Text('Generate error'),
+      );
+
+  &#47;&#47;&#47;Simply just trigger some error.
+  Future generateError() async {
+    Catcher2.sendTestException();
+  }
+}

@@ -1,0 +1,130 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_foreground_task&#47;flutter_foreground_task.dart';
+
+void main() {
+  &#47;&#47; Initialize port for communication between TaskHandler and UI.
+  FlutterForegroundTask.initCommunicationPort();
+  runApp(const ExampleApp());
+}
+
+&#47;&#47; The callback function should always be a top-level or static function.
+@pragma('vm:entry-point')
+void startCallback() {
+  FlutterForegroundTask.setTaskHandler(MyTaskHandler());
+}
+
+class MyTaskHandler extends TaskHandler {
+  static const String incrementCountCommand = 'incrementCount';
+
+  int _count = 0;
+
+  void _incrementCount() {
+    _count++;
+
+    &#47;&#47; Update notification content.
+    FlutterForegroundTask.updateService(
+      notificationTitle: 'Hello MyTaskHandler :)',
+      notificationText: 'count: $_count',
+    );
+
+    &#47;&#47; Send data to main isolate.
+    FlutterForegroundTask.sendDataToMain(_count);
+  }
+
+  &#47;&#47; Called when the task is started.
+  @override
+  Future onStart(DateTime timestamp, TaskStarter starter) async {
+    print('onStart(starter: ${starter.name})');
+    _incrementCount();
+  }
+
+  &#47;&#47; Called based on the eventAction set in ForegroundTaskOptions.
+  @override
+  void onRepeatEvent(DateTime timestamp) {
+    _incrementCount();
+  }
+
+  &#47;&#47; Called when the task is destroyed.
+  @override
+  Future onDestroy(DateTime timestamp, bool isTimeout) async {
+    print('onDestroy(isTimeout: $isTimeout)');
+  }
+
+  &#47;&#47; Called when data is sent using `FlutterForegroundTask.sendDataToTask`.
+  @override
+  void onReceiveData(Object data) {
+    print('onReceiveData: $data');
+    if (data == incrementCountCommand) {
+      _incrementCount();
+    }
+  }
+
+  &#47;&#47; Called when the notification button is pressed.
+  @override
+  void onNotificationButtonPressed(String id) {
+    print('onNotificationButtonPressed: $id');
+  }
+
+  &#47;&#47; Called when the notification itself is pressed.
+  @override
+  void onNotificationPressed() {
+    print('onNotificationPressed');
+  }
+
+  &#47;&#47; Called when the notification itself is dismissed.
+  @override
+  void onNotificationDismissed() {
+    print('onNotificationDismissed');
+  }
+}
+
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      routes: {
+        '&#47;': (context) => const ExamplePage(),
+        '&#47;second': (context) => const SecondPage(),
+      },
+      initialRoute: '&#47;',
+    );
+  }
+}
+
+class ExamplePage extends StatefulWidget {
+  const ExamplePage({super.key});
+
+  @override
+  State createState() => _ExamplePageState();
+}
+
+class _ExamplePageState extends State {
+  final ValueNotifier _taskDataListenable = ValueNotifier(null);
+
+  Future _requestPermissions() async {
+    &#47;&#47; Android 13+, you need to allow notification permission to display foreground service notification.
+    &#47;&#47;
+    &#47;&#47; iOS: If you need notification, ask for permission.
+    final NotificationPermission notificationPermission =
+        await FlutterForegroundTask.checkNotificationPermission();
+    if (notificationPermission != NotificationPermission.granted) {
+      await FlutterForegroundTask.requestNotificationPermission();
+    }
+
+    if (Platform.isAndroid) {
+      &#47;&#47; Android 12+, there are restrictions on starting a foreground service.
+      &#47;&#47;
+      &#47;&#47; To restart the service on device reboot or unexpected problem, you need to allow below permission.
+      if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
+        &#47;&#47; This function requires `android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` permission.
+        await FlutterForegroundTask.requestIgnoreBatteryOptimization();
+      }
+
+      &#47;&#47; Use this utility only if you provide services that require long-term survival,
+      &#47;&#47; such as exact alarm service, healthcare service, or Bluetooth communicati
+// ... (truncated)

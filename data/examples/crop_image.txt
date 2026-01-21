@@ -1,0 +1,133 @@
+import 'package:crop_image&#47;crop_image.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Crop Image Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const MyHomePage(title: 'Crop Image Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  final String title;
+
+  const MyHomePage({super.key, required this.title});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final controller = CropController(
+    aspectRatio: 0.7,
+    defaultCrop: const Rect.fromLTRB(0.1, 0.1, 0.9, 0.9),
+  );
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: Center(
+          child: CropImage(
+            controller: controller,
+            image: Image.asset('assets&#47;08272011229.jpg'),
+            paddingSize: 25.0,
+            alwaysMove: true,
+            maximumImageSize: 500,
+          ),
+        ),
+        bottomNavigationBar: _buildButtons(),
+      );
+
+  Widget _buildButtons() => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              controller.rotation = CropRotation.up;
+              controller.crop = const Rect.fromLTRB(0.1, 0.1, 0.9, 0.9);
+              controller.aspectRatio = 1.0;
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.aspect_ratio),
+            onPressed: _aspectRatios,
+          ),
+          IconButton(
+            icon: const Icon(Icons.rotate_90_degrees_ccw_outlined),
+            onPressed: _rotateLeft,
+          ),
+          IconButton(
+            icon: const Icon(Icons.rotate_90_degrees_cw_outlined),
+            onPressed: _rotateRight,
+          ),
+          TextButton(
+            onPressed: _finished,
+            child: const Text('Done'),
+          ),
+        ],
+      );
+
+  Future _aspectRatios() async {
+    final value = await showDialog(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: const Text('Select aspect ratio'),
+          children: [
+            &#47;&#47; special case: no aspect ratio
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, -1.0),
+              child: const Text('free'),
+            ),
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, 1.0),
+              child: const Text('square'),
+            ),
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, 2.0),
+              child: const Text('2:1'),
+            ),
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, 1 &#47; 2),
+              child: const Text('1:2'),
+            ),
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, 4.0 &#47; 3.0),
+              child: const Text('4:3'),
+            ),
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, 16.0 &#47; 9.0),
+              child: const Text('16:9'),
+            ),
+          ],
+        );
+      },
+    );
+    if (value != null) {
+      controller.aspectRatio = value == -1 ? null : value;
+      controller.crop = const Rect.fromLTRB(0.1, 0.1, 0.9, 0.9);
+    }
+  }
+
+  Future _rotateLeft() async => controller.rotateLeft();
+
+  Future _rotateRight() async => controller.rotateRight();
+
+  Future _finished() async {
+    final image = await controller.croppedImage();
+    if (mounted)
+      await showDialog(
+        context: contex
+// ... (truncated)

@@ -1,0 +1,54 @@
+import 'package:flutter&#47;material.dart';
+import 'package:gap&#47;gap.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Gap Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+&#47;&#47;&#47; A widget.
+class HomePage extends StatelessWidget {
+  &#47;&#47;&#47; Creates a [HomePage].
+  const HomePage({
+   super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+             Gap.expand(20, color: Colors.red),
+             Gap(80),
+             Gap.expand(20, color: Colors.red),
+             MaxGap(2000),
+             Gap.expand(20, color: Colors.red),
+            Row(
+              children:  [
+                Gap(20, color: Colors.green, crossAxisExtent: 20),
+                Gap(50),
+                Gap(20, color: Colors.green, crossAxisExtent: 20),
+              ],
+            ),
+             Gap.expand(200, color: Colors.blue),
+          ],
+        ),
+      ),
+    );
+  }
+}

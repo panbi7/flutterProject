@@ -1,0 +1,48 @@
+import 'package:flutter&#47;material.dart';
+import 'package:superellipse_shape&#47;superellipse_shape.dart';
+
+void main() => runApp(ExampleApp());
+
+class ExampleApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: SuperellipseCard(
+            child: Padding(
+              padding: EdgeInsets.all(18.0),
+              child: Text('This is a nice, rounded card.'),
+            ), &#47;&#47; Padding
+          ), &#47;&#47; SuperellipseCard
+        ), &#47;&#47; Center
+      ), &#47;&#47; Scaffold
+    ); &#47;&#47; MaterialApp
+  }
+}
+
+class SuperellipseCard extends StatelessWidget {
+  SuperellipseCard({
+    this.color = Colors.white,
+    this.elevation = 1.0,
+    this.child
+  });
+
+  final Color color;
+  final double elevation;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      clipBehavior: Clip.antiAlias,
+      shape: SuperellipseShape(
+        borderRadius: BorderRadius.circular(28.0),
+      ), &#47;&#47; SuperellipseShape
+      color: color,
+      shadowColor: Colors.black38,
+      elevation: elevation,
+      child: child,
+    ); &#47;&#47; Material
+  }
+}

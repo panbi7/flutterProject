@@ -1,0 +1,120 @@
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+&#47;&#47; FOR MORE EXAMPLES, VISIT THE GITHUB REPOSITORY AT:
+&#47;&#47;
+&#47;&#47;  https:&#47;&#47;github.com&#47;ryanheise&#47;audio_service
+&#47;&#47;
+&#47;&#47; This example implements a minimal audio handler that renders the current
+&#47;&#47; media item and playback state to the system notification and responds to 4
+&#47;&#47; media actions:
+&#47;&#47;
+&#47;&#47; - play
+&#47;&#47; - pause
+&#47;&#47; - seek
+&#47;&#47; - stop
+&#47;&#47;
+&#47;&#47; To run this example, use:
+&#47;&#47;
+&#47;&#47; flutter run
+
+import 'dart:async';
+
+import 'package:audio_service&#47;audio_service.dart';
+import 'package:audio_service_example&#47;common.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:just_audio&#47;just_audio.dart';
+import 'package:rxdart&#47;rxdart.dart';
+
+&#47;&#47; You might want to provide this using dependency injection rather than a
+&#47;&#47; global variable.
+late AudioHandler _audioHandler;
+
+Future main() async {
+  _audioHandler = await AudioService.init(
+    builder: () => AudioPlayerHandler(),
+    config: const AudioServiceConfig(
+      androidNotificationChannelId: 'com.ryanheise.myapp.channel.audio',
+      androidNotificationChannelName: 'Audio playback',
+      androidNotificationOngoing: true,
+    ),
+  );
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Audio Service Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const MainScreen(),
+    );
+  }
+}
+
+class MainScreen extends StatelessWidget {
+  const MainScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Audio Service Demo'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            &#47;&#47; Show media item title
+            StreamBuilder(
+              stream: _audioHandler.mediaItem,
+              builder: (context, snapshot) {
+                final mediaItem = snapshot.data;
+                return Text(mediaItem?.title ?? '');
+              },
+            ),
+            &#47;&#47; Play&#47;pause&#47;stop buttons.
+            StreamBuilder(
+              stream: _audioHandler.playbackState
+                  .map((state) => state.playing)
+                  .distinct(),
+              builder: (context, snapshot) {
+                final playing = snapshot.data ?? false;
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _button(Icons.fast_rewind, _audioHandler.rewind),
+                    if (playing)
+                      _button(Icons.pause, _audioHandler.pause)
+                    else
+                      _button(Icons.play_arrow, _audioHandler.play),
+                    _button(Icons.stop, _audioHandler.stop),
+                    _button(Icons.fast_forward, _audioHandler.fastForward),
+                  ],
+                );
+              },
+            ),
+            &#47;&#47; A seek bar.
+            StreamBuilder(
+              stream: _mediaStateStream,
+              builder: (context, snapshot) {
+                final mediaState = snapshot.data;
+                return SeekBar(
+                  duration: mediaState?.mediaItem?.duration ?? Duration.zero,
+                  position: mediaState?.position ?? Duration.zero,
+                  onChangeEnd: (newPosition) {
+                    _audioHandler.seek(newPosition);
+                  },
+                );
+              },
+            ),
+            &#47;&#47; Display the processing state.
+            StreamBuilder(
+              stream: _audioHandler.playbackState
+                  .map((state) => state.processingState)
+                  .distinct(),
+              builder: (co
+// ... (truncated)

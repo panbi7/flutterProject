@@ -1,0 +1,117 @@
+import 'dart:developer';
+
+import 'package:dash_bubble&#47;dash_bubble.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'snackbars.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const primaryColor = Color(0xFF04599c);
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Dash Bubble Playground',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          background: primaryColor,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: Colors.white,
+            foregroundColor: primaryColor,
+            minimumSize: const Size.fromHeight(50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ),
+      home: const HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        title: const Text('Dash Bubble Playground'),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () => _requestOverlayPermission(context),
+                child: const Text('Request Overlay Permission'),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => _hasOverlayPermission(context),
+                child: const Text('Has Overlay Permission?'),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => _requestPostNotificationsPermission(context),
+                child: const Text('Request Post Notifications Permission'),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => _hasPostNotificationsPermission(context),
+                child: const Text('Has Post Notifications Permission?'),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => _isRunning(context),
+                child: const Text('Is Running?'),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  _startBubble(
+                    context,
+                    bubbleOptions: BubbleOptions(
+                      &#47;&#47; notificationIcon: 'github_bubble',
+                      bubbleIcon: 'github_bubble',
+                      &#47;&#47; closeIcon: 'github_bubble',
+                      startLocationX: 0,
+                      startLocationY: 100,
+                      bubbleSize: 60,
+                      opacity: 1,
+                      enableClose: true,
+                      closeBehavior: CloseBehavior.following,
+                      distanceToClose: 100,
+                      enableAnimateToEdge: true,
+                      enableBottomShadow: true,
+                      keepAliveWhenAp
+// ... (truncated)

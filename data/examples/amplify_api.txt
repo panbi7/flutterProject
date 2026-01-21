@@ -1,0 +1,127 @@
+&#47;&#47; Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+&#47;&#47; SPDX-License-Identifier: Apache-2.0
+
+import 'dart:convert';
+
+import 'package:amplify_api&#47;amplify_api.dart';
+import 'package:amplify_api_example&#47;amplify_outputs.dart';
+import 'package:amplify_api_example&#47;graphql_api_view.dart';
+import 'package:amplify_api_example&#47;models&#47;ModelProvider.dart';
+import 'package:amplify_api_example&#47;rest_api_view.dart';
+import 'package:amplify_auth_cognito&#47;amplify_auth_cognito.dart';
+import 'package:amplify_authenticator&#47;amplify_authenticator.dart';
+import 'package:amplify_flutter&#47;amplify_flutter.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool _isAmplifyConfigured = false;
+  bool _showRestApiView = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _configureAmplify();
+  }
+
+  void _configureAmplify() async {
+    final authPlugin = AmplifyAuthCognito(
+      &#47;&#47; FIXME: In your app, make sure to remove this line and set up
+      &#47;&#47;&#47; Keychain Sharing in Xcode as described in the docs:
+      &#47;&#47;&#47; https:&#47;&#47;docs.amplify.aws&#47;lib&#47;project-setup&#47;platform-setup&#47;q&#47;platform&#47;flutter&#47;#enable-keychain
+      secureStorageFactory: AmplifySecureStorage.factoryFrom(
+        macOSOptions:
+            &#47;&#47; ignore: invalid_use_of_visible_for_testing_member
+            MacOSSecureStorageOptions(useDataProtection: false),
+      ),
+    );
+    await Amplify.addPlugins([
+      authPlugin,
+      &#47;&#47; FIXME: In your app, make sure to run `amplify codegen models` to generate
+      &#47;&#47; the models and provider
+      AmplifyAPI(
+        options: APIPluginOptions(
+          modelProvider: ModelProvider.instance,
+          subscriptionOptions: const GraphQLSubscriptionOptions(
+            pollInterval: Duration(seconds: 10),
+            retryOptions: RetryOptions(),
+          ),
+        ),
+      ),
+    ]);
+
+    try {
+      &#47;&#47; get custom rest api config from amplifyoutputs.dart
+      final json = jsonDecode(amplifyConfig);
+      &#47;&#47; ignore: avoid_dynamic_calls
+      json['rest_api'] = {'multiAuthRest': json['custom']['multiAuthRest']};
+      final configString = jsonEncode(json);
+
+      await Amplify.configure(configString);
+    } on AmplifyAlreadyConfiguredException {
+      print(
+        'Amplify was already configured. Looks like app restarted on android.',
+      );
+    }
+    setState(() {
+      _isAmplifyConfigured = true;
+    });
+
+    Amplify.Hub.listen(HubChannel.Api, (ApiHubEvent event) {
+      if (event is SubscriptionHubEvent) {
+        safePrint(event);
+      }
+    });
+  }
+
+  void _onRestApiViewButtonClick() {
+    setState(() {
+      _showRestApiView = true;
+    });
+  }
+
+  void _onGraphQlApiViewButtonClick() {
+    setState(() {
+      _showRestApiView = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Authenticator(
+      child: MaterialApp(
+        theme: ThemeData.light(useMaterial3: true),
+        darkTheme: ThemeData.dark(useMaterial3: true),
+        builder: Authenticator.builder(),
+        home: Scaffold(
+          appBar: AppBar(
+            title: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: _onRestApiViewButtonClick,
+                    child: const Text('Rest API'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _onGraphQlApiViewButtonClick,
+                    child: const Text('GraphQL API'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(10),
+            child: _showRestApiV
+// ... (truncated)

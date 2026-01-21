@@ -1,0 +1,149 @@
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:vdocipher_flutter&#47;vdocipher_flutter.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.blue.shade700, &#47;&#47; status bar color
+    ));
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const MyHome(),
+      navigatorObservers: [
+        VdoPlayerController.navigatorObserver('&#47;player&#47;(.*)')
+      ],
+      theme: ThemeData(
+          primaryColor: Colors.blue,
+          textTheme: const TextTheme(bodyLarge: TextStyle(fontSize: 14.0))),
+    );
+  }
+}
+
+class MyHome extends StatefulWidget {
+  const MyHome({Key? key}) : super(key: key);
+
+  @override
+  MyHomeState createState() => MyHomeState();
+}
+
+class MyHomeState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('VdoCipher Example'),
+          centerTitle: true,
+        ),
+        body: const VdoPlaybackView(
+          controls: true,
+        ));
+  }
+}
+
+const EmbedInfo sample_1 = EmbedInfo.streaming(
+    otp: '20150519versASE31ba8fc50a0ac49b8e74b9c40f49e099755cd36dc8adccaa3',
+    playbackInfo:
+        'eyJ2aWRlb0lkIjoiM2YyOWI1NDM0YTVjNjE1Y2RhMThiMTZhNjIzMmZkNzUifQ==');
+
+class VdoPlaybackView extends StatefulWidget {
+  final bool controls;
+
+  const VdoPlaybackView({Key? key, this.controls = true}) : super(key: key);
+
+  @override
+  VdoPlaybackViewState createState() => VdoPlaybackViewState();
+}
+
+class VdoPlaybackViewState extends State {
+  VdoPlayerController? _controller;
+  VdoPlayerValue? vdoPlayerValue;
+  final double aspectRatio = 16 &#47; 9;
+  final ValueNotifier _isFullScreen = ValueNotifier(false);
+  Duration? duration;
+
+  @override
+  Widget build(BuildContext context) {
+    String? mediaId = ModalRoute.of(context)?.settings.arguments as String?;
+    EmbedInfo embedInfo = sample_1;
+    if (mediaId != null && mediaId.isNotEmpty) {
+      embedInfo = EmbedInfo.offline(mediaId: mediaId);
+    }
+    return Scaffold(
+        body: SafeArea(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: _getPlayerWidth(),
+              height: _getPlayerHeight(),
+              child: VdoPlayer(
+                embedInfo: embedInfo,
+                aspectRatio: aspectRatio,
+                onError: _onVdoError,
+                onFullscreenChange: _onFullscreenChange,
+                onPlayerCreated: _onPlayerCreated,
+                controls: widget.controls,
+                onPictureInPictureModeChanged: _onPictureInPictureModeChanged,
+              ),
+            )
+          ],
+        ),
+      ]),
+    ));
+  }
+
+  _onVdoError(VdoError vdoError) {
+    if (kDebugMode) {
+      print("Oops, the system encountered a problem: ${vdoError.message}");
+    }
+  }
+
+  _onPlayerCreated(VdoPlayerController? controller) {
+    setState(() {
+      _controller = controller;
+      _onEventChange(_controller);
+    });
+  }
+
+  _onPictureInPictureModeChanged(bool isInPictureInPictureMode) {}
+
+  _onEventChange(VdoPlayerController? controller) {
+    controller?.addListener(() {
+      setState(() {
+        vdoPlayerValue = controller.value;
+      });
+    });
+  }
+
+  _onFullscreenChange(isFullscreen) {
+    setState(() {
+      _isFullScreen.value = isFullscreen;
+    });
+  }
+
+  _getPlayerWidth() {
+    return kIsWeb ? 800 : MediaQuery.of(context).size.width;
+  }
+
+  _getPlayerHeight() {
+    return kIsWeb
+        ? 550
+        : _isFullScreen.value
+            ? MediaQuery.of(context).size.height
+            : _getHeightForWid
+// ... (truncated)

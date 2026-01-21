@@ -1,0 +1,24 @@
+import 'package:example&#47;examples&#47;common_example&#47;example.dart';
+import 'package:flutter&#47;material.dart';
+import 'routes.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'GroupButton Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      routes: Routes.appRoutes,
+      home: CommonExample(),
+    );
+  }
+}

@@ -1,0 +1,97 @@
+&#47;&#47;&#47; Usage examples:
+&#47;&#47;&#47;
+&#47;&#47;&#47; For more examples refer to https:&#47;&#47;github.com&#47;ganeshrvel&#47;pub-rules&#47;blob&#47;master&#47;README.md
+
+import 'package:rules&#47;rules.dart';
+import 'package:rules&#47;src&#47;helpers&#47;logging.dart';
+
+void rule() {
+  const textFieldValue = 'abc@xyz';
+
+  final rule = Rule(
+    textFieldValue,
+    name: 'Text field',
+    isRequired: true,
+    isEmail: true,
+  );
+
+  log(rule.error);
+  &#47;&#47; output: 'Text field is not a valid email address'
+  log(rule.hasError);
+  &#47;&#47; output: true
+
+  if (rule.hasError) {
+    &#47;&#47; some action on error
+  } else {
+    &#47;&#47; Some action on success
+  }
+}
+
+void groupRule() {
+  const textFieldValue1 = ''; &#47;&#47; or const textFieldValue = null;
+  const textFieldValue2 = '';
+
+  final rule1 = Rule(
+    textFieldValue1,
+    name: 'Text field 1',
+    isRequired: true,
+  );
+
+  final rule2 = Rule(
+    textFieldValue2,
+    name: 'Text field 2',
+    isEmail: true,
+  );
+
+  final groupRule = GroupRule(
+    [rule1, rule2], &#47;&#47; value; List of Rule
+    name:
+        'Group name', &#47;&#47; placeholder value which will be used while displaying errors
+  );
+
+  log(groupRule.error);
+  &#47;&#47; output: 'Text field 1 is required'
+  log(groupRule.hasError);
+  &#47;&#47; output: true
+}
+
+void combinedRule() {
+  const textFieldValue1 = '';
+  const textFieldValue2 = 'abc@xyz.com';
+
+  final rule1 = Rule(
+    textFieldValue1,
+    name: 'Text field 1',
+  ); &#47;&#47; Validation OK
+  final rule2 = Rule(
+    textFieldValue2,
+    name: 'Text field 2',
+    isEmail: true,
+  ); &#47;&#47; Validation OK
+  final groupRule = GroupRule([rule1, rule2],
+      name: 'Group name', requiredAll: true); &#47;&#47; Validation FAILED
+
+  const textFieldValue3 = '';
+  final rule3 = Rule(
+    textFieldValue3,
+    name: 'Text field 3',
+    isRequired: true,
+  ); &#47;&#47; Validation FAILED
+
+  final combinedRule = CombinedRule(
+    rules: [rule3],
+    groupRules: [groupRule],
+  );
+
+  log(combinedRule.errorList);
+  &#47;&#47; output: ['Text field 3 is required', 'All fields are mandatory in Group name']
+
+  log(combinedRule.hasError);
+  &#47;&#47; output: true
+
+  if (combinedRule.hasError) {
+    &#47;&#47; some action on error
+  } else {
+    &#47;&#47; Some action on success
+  }
+}

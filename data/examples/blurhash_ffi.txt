@@ -1,0 +1,105 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:blurhash_ffi&#47;blurhash_ffi.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  Future? blurHashResult;
+  int selectedImage = -1;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Blurhash FFI Example'),
+        ),
+        body: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [1, 2, 3].map((e) {
+                    var assetName = e == 1
+                        ? 'assets&#47;images&#47;$e.jpg'
+                        : 'assets&#47;images&#47;$e.png';
+                    return MaterialButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () async {
+                        blurHashResult = BlurhashFFI.encode(
+                          AssetImage(assetName),
+                        );
+                        setState(() {
+                          selectedImage = e;
+                        });
+                      },
+                      child: ImageSelect(
+                        imageProvider: AssetImage(assetName),
+                        isSelected: selectedImage == e,
+                      ),
+                    );
+                  }).toList(),
+                ),
+                if (blurHashResult != null)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: FutureBuilder(
+                      future: blurHashResult,
+                      builder: (context, snapshot) => snapshot.hasData
+                          ? Text('blurhash: ${snapshot.data}')
+                          : const CircularProgressIndicator(),
+                    ),
+                  ),
+                if (blurHashResult != null)
+                  Align(
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      height: 120,
+                      width: 120,
+                      child: FutureBuilder(
+                          future: blurHashResult,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return BlurhashFfi(
+                                hash: snapshot.data!,
+                                decodingWidth: 120,
+                                decodingHeight: 120,
+                                imageFit: BoxFit.cover,
+                                color: Colors.grey,
+                                onReady: () => debugPrint('Blurhash ready'),
+                                onDisplayed: () =>
+                                    debugPrint('Blurhash displayed'),
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                        color: Colors.red,
+                                        child: const Center(
+                                            child: Text('Error',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 20,
+                                                    fontWeight:
+                                                        FontWeight.bold)))),
+                              );
+                            }
+                            return const Center(
+                              child:
+// ... (truncated)

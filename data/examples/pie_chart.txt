@@ -1,0 +1,147 @@
+import 'dart:math' as math;
+
+import 'package:flutter&#47;material.dart';
+import 'package:pie_chart&#47;pie_chart.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Pie Chart Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blueGrey,
+      ),
+      darkTheme: ThemeData(
+        primarySwatch: Colors.blueGrey,
+        brightness: Brightness.dark,
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+enum LegendShape { circle, rectangle }
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  HomePageState createState() => HomePageState();
+}
+
+class HomePageState extends State {
+  final dataMap = {
+    "Flutter": 5,
+    "React": 3,
+    "Xamarin": 2,
+    "Ionic": 2,
+  };
+
+  final legendLabels = {
+    "Flutter": "Flutter legend",
+    "React": "React legend",
+    "Xamarin": "Xamarin legend",
+    "Ionic": "Ionic legend",
+  };
+
+  final colorList = [
+    const Color(0xfffdcb6e),
+    const Color(0xff0984e3),
+    const Color(0xfffd79a8),
+    const Color(0xffe17055),
+    const Color(0xff6c5ce7),
+  ];
+
+  final gradientList = >[
+    [
+      const Color.fromRGBO(223, 250, 92, 1),
+      const Color.fromRGBO(129, 250, 112, 1),
+    ],
+    [
+      const Color.fromRGBO(129, 182, 205, 1),
+      const Color.fromRGBO(91, 253, 199, 1),
+    ],
+    [
+      const Color.fromRGBO(175, 63, 62, 1.0),
+      const Color.fromRGBO(254, 154, 92, 1),
+    ]
+  ];
+  ChartType? _chartType = ChartType.disc;
+  bool _showCenterText = true;
+  bool _showCenterWidget = true;
+  double? _ringStrokeWidth = 32;
+  double? _chartLegendSpacing = 32;
+
+  bool _showLegendsInRow = false;
+  bool _showLegends = true;
+  bool _showLegendLabel = false;
+
+  bool _showChartValueBackground = true;
+  bool _showChartValues = true;
+  bool _showChartValuesInPercentage = false;
+  bool _showChartValuesOutside = false;
+
+  bool _showGradientColors = false;
+
+  LegendShape? _legendShape = LegendShape.circle;
+  LegendPosition? _legendPosition = LegendPosition.right;
+
+  int key = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final chart = PieChart(
+      key: ValueKey(key),
+      dataMap: dataMap,
+      animationDuration: const Duration(milliseconds: 800),
+      chartLegendSpacing: _chartLegendSpacing!,
+      chartRadius: math.min(MediaQuery.of(context).size.width &#47; 3.2, 300),
+      colorList: colorList,
+      initialAngleInDegree: 0,
+      chartType: _chartType!,
+      centerText: _showCenterText ? "HYBRID" : null,
+      centerWidget: _showCenterWidget
+          ? Container(color: Colors.red, child: const Text("Center"))
+          : null,
+      legendLabels: _showLegendLabel ? legendLabels : {},
+      legendOptions: LegendOptions(
+        showLegendsInRow: _showLegendsInRow,
+        legendPosition: _legendPosition!,
+        showLegends: _showLegends,
+        legendShape: _legendShape == LegendShape.circle
+            ? BoxShape.circle
+            : BoxShape.rectangle,
+        legendTextStyle: const TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      chartValuesOptions: ChartValuesOptions(
+        showChartValueBackground: _showChartValueBackground,
+        showChartValues: _showChartValues,
+        showChartValuesInPercentage: _showChartValuesInPercentage,
+        showChartValuesOutside: _showChartValuesOutside,
+      ),
+      ringStrokeWidth: _ringStrokeWidth!,
+      emptyColor: Colors.grey,
+      gradientList: _showGradientColors ? gradientList : null,
+      emptyColorGradient: const [
+        Color(0xff6c5ce7),
+        Colors.blue,
+      ],
+      baseChartColor: Colors.transparent,
+    );
+    final settings = SingleChildScrollView(
+      child: Card(
+        margin: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            SwitchListTile(
+              value: _showGrad
+// ... (truncated)

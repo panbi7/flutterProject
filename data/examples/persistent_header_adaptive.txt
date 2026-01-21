@@ -1,0 +1,60 @@
+import 'package:example&#47;header.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:persistent_header_adaptive&#47;persistent_header_adaptive.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const Homepage(),
+    );
+  }
+}
+
+class Homepage extends StatefulWidget {
+  const Homepage({super.key});
+
+  @override
+  State createState() => _HomepageState();
+}
+
+class _HomepageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            const AdaptiveHeightSliverPersistentHeader(
+              initialHeight: 20,
+              floating: true,
+              child: Header(),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => Card(
+                  margin: const EdgeInsets.all(20),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text('card $index'),
+                  ),
+                ),
+                childCount: 100,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

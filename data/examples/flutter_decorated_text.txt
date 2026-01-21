@@ -1,0 +1,134 @@
+import 'package:cached_network_image&#47;cached_network_image.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_decorated_text&#47;flutter_decorated_text.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Decorated text example',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const ExampleScreen(),
+    );
+  }
+}
+
+class ExampleScreen extends StatefulWidget {
+  const ExampleScreen({super.key});
+
+  @override
+  State createState() => _ExampleScreenState();
+}
+
+class _ExampleScreenState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  String sanitizeUrl(String url) {
+    if (!url.startsWith("http:&#47;&#47;") && !url.startsWith("https:&#47;&#47;")) {
+      url = "https:&#47;&#47;$url";
+    }
+    if (url.endsWith(".")) {
+      url = url.substring(0, url.length - 1);
+    }
+    if (url.endsWith("&#47;")) {
+      url = url.substring(0, url.length - 1);
+    }
+    return url;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Decorated text example"),
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(40.0),
+        children: [
+          Text(
+            "Match text beteen tags",
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          DecoratedText(
+            selectable: true,
+            text:
+                "Like between brackets {this is an example} or html tags this is a paragraph and you can remove the matching characters *between astericks*",
+            rules: [
+              DecoratorRule.between(
+                start: "{",
+                end: "}",
+                style: const TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
+              DecoratorRule.between(
+                start: "",
+                end: "",
+                style: const TextStyle(
+                  color: Colors.green,
+                ),
+              ),
+              DecoratorRule.between(
+                start: "*",
+                end: "*",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+                removeMatchingCharacters: true,
+              ),
+            ],
+          ),
+          const Divider(),
+          Text(
+            "Match text starting with",
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          DecoratedText(
+            text: "Like twitter accounts @gabdsg or hashtags #decoratedtext",
+            rules: [
+              DecoratorRule.startsWith(
+                text: "@",
+                onTap: (match) {
+                  debugPrint(match);
+                },
+                style: const TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
+              DecoratorRule.startsWith(
+                text: "#",
+                onTap: (match) {
+                  debugPrint(match);
+                },
+                style: const TextStyle(
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+          const Divider(),
+          Text(
+            "Match specific words",
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          DecoratedText(
+            text:
+                "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+            rules: [
+              DecoratorRule.words(
+                words: ["lorem ipsum", "industry", 
+// ... (truncated)

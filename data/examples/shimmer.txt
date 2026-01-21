@@ -1,0 +1,161 @@
+import 'package:flutter&#47;material.dart';
+import 'package:shimmer&#47;shimmer.dart';
+
+import 'placeholders.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Shimmer',
+      routes: {
+        'loading': (_) => const LoadingListPage(),
+        'slide': (_) => SlideToUnlockPage(),
+      },
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Shimmer'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Column(
+          children: [
+            ListTile(
+              title: const Text('Loading List'),
+              onTap: () => Navigator.of(context).pushNamed('loading'),
+            ),
+            ListTile(
+              title: const Text('Slide To Unlock'),
+              onTap: () => Navigator.of(context).pushNamed('slide'),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class LoadingListPage extends StatefulWidget {
+  const LoadingListPage({super.key});
+
+  @override
+  State createState() => _LoadingListPageState();
+}
+
+class _LoadingListPageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Loading List'),
+      ),
+      body: Shimmer.fromColors(
+          baseColor: Colors.grey.shade300,
+          highlightColor: Colors.grey.shade100,
+          enabled: true,
+          child: const SingleChildScrollView(
+            physics: NeverScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                BannerPlaceholder(),
+                TitlePlaceholder(width: double.infinity),
+                SizedBox(height: 16.0),
+                ContentPlaceholder(
+                  lineType: ContentLineType.threeLines,
+                ),
+                SizedBox(height: 16.0),
+                TitlePlaceholder(width: 200.0),
+                SizedBox(height: 16.0),
+                ContentPlaceholder(
+                  lineType: ContentLineType.twoLines,
+                ),
+                SizedBox(height: 16.0),
+                TitlePlaceholder(width: 200.0),
+                SizedBox(height: 16.0),
+                ContentPlaceholder(
+                  lineType: ContentLineType.twoLines,
+                ),
+              ],
+            ),
+          )),
+    );
+  }
+}
+
+class SlideToUnlockPage extends StatelessWidget {
+  final List days = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+  ];
+  final List months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  SlideToUnlockPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final DateTime time = DateTime.now();
+    final int hour = time.hour;
+    final int minute = time.minute;
+    final int day = time.weekday;
+    final int month = time.month;
+    final int dayInMonth = time.day;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Slide To Unlock'),
+      ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets&#47;images&#47;background.jpg',
+            fit: BoxFit.cover,
+          ),
+          Positioned(
+            top: 48.0,
+            right: 0.0,
+            left: 0.0,
+            child: Center(
+              child: Col
+// ... (truncated)

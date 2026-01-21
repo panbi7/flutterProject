@@ -1,0 +1,26 @@
+abstract class SamplePluginPlatform extends PlatformInterface {
+  SamplePluginPlatform() : super(token: _token);
+
+  static final Object _token = Object();
+
+  // A plugin can have a default implementation, as shown here, or `instance`
+  // can be nullable, and the default instance can be null.
+  static SamplePluginPlatform _instance = SamplePluginDefault();
+
+  static SamplePluginPlatform get instance => _instance;
+
+  /// Platform-specific implementations should set this to their own
+  /// platform-specific class that extends [SamplePluginPlatform] when they
+  /// register themselves.
+  static set instance(SamplePluginPlatform instance) {
+    PlatformInterface.verify(instance, _token);
+    _instance = instance;
+  }
+
+  // Methods for the plugin's platform interface would go here, often with
+  // implementations that throw UnimplementedError.
+}
+
+class SamplePluginDefault extends SamplePluginPlatform {
+  // A default real implementation of the platform interface would go here.
+}

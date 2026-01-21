@@ -1,0 +1,138 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:spell_check_on_client&#47;spell_check_on_client.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Spell check',
+        theme: ThemeData.dark(),
+        home: const LanguageSelection(),
+      );
+}
+
+class LanguageSelection extends StatefulWidget {
+  const LanguageSelection({
+    super.key,
+  });
+
+  @override
+  State createState() => _LanguageSelectionState();
+}
+
+class _LanguageSelectionState extends State {
+  final Map languages = {
+    'English': 'en',
+    'Portuguese': 'pt',
+    'Español': 'es',
+    'Italiano': 'it',
+    'Deutsch': 'de',
+    'Français': 'fr',
+    'Norsk': 'no', &#47;&#47; Norwegian
+    'Svenska': 'sv', &#47;&#47; Swedish
+    'Amharic': 'am',
+    'Arabic': 'ar',
+    'Chinese': 'zh',
+    'Japanese': 'ja'
+  };
+
+  String language = 'English';
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+      appBar: AppBar(
+        title: const Text('Spell check'),
+        actions: [
+          DropdownButton(
+            value: language,
+            icon: const Icon(Icons.arrow_drop_down),
+            underline: Container(height: 0, color: Colors.transparent),
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                setState(() {
+                  language = newValue;
+                });
+              }
+            },
+            items: languages.keys
+                .map>(
+                    (String language) => DropdownMenuItem(
+                          value: language,
+                          child: Text(language),
+                        ))
+                .toList(),
+          ),
+          const SizedBox(
+            width: 10,
+          )
+        ],
+      ),
+      body: SpellCheckExample(
+        language: languages[language]!,
+        key: UniqueKey(),
+      ));
+}
+
+class SpellCheckExample extends StatefulWidget {
+  final String language;
+
+  const SpellCheckExample({
+    required this.language,
+    super.key,
+  });
+
+  @override
+  State createState() => _SpellCheckExampleState();
+}
+
+class _SpellCheckExampleState extends State {
+  final TextEditingController suggestionController = TextEditingController();
+  String didYouMean = '';
+  SpellCheck spellCheck = SpellCheck.fromWordsList(['cat', 'bat', 'hat']);
+  TextEditingController controller = TextEditingController();
+  TextEditingController logController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    initSpellCheck();
+  }
+
+  @override
+  Widget build(BuildContext context) => SingleChildScrollView(
+        child: Container(
+          margin: const EdgeInsets.all(10),
+          child: Column(
+            children: [
+              TextFormField(
+                maxLines: 4,
+                controller: controller,
+                decoration: InputDecoration(
+                    focusColor: Theme.of(context).textTheme.bodyLarge!.color,
+                    contentPadding: const EdgeInsets.all(10),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary)),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .color!))),
+              ),
+              MaterialButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 10,
+                col
+// ... (truncated)

@@ -1,0 +1,132 @@
+import "dart:developer";
+
+import "package:flutter&#47;material.dart";
+import "package:m3_carousel&#47;m3_carousel.dart";
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MaterialApp(home: MyApp()));
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final List> images = [
+      {"image": "assets&#47;i1.png", "title": "Android"},
+      {"image": "assets&#47;i2.png", "title": "IOS"},
+      {"image": "assets&#47;i3.png", "title": "Windows"},
+      {"image": "assets&#47;i4.png", "title": "Mac"},
+      {"image": "assets&#47;i5.png", "title": "Linux"},
+      {"image": "assets&#47;i6.png", "title": "Others"},
+    ];
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text("Material Design 3 Carousel"),
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Column(
+                children: [
+                  const LabelWidget(
+                    text: "Hero layout",
+                  ),
+                  LayoutWidget(
+                    child: M3Carousel(
+                      type: CarouselType.hero,
+                      heroAlignment: HeroAlignment.center,
+                      onTap: (int tapIndex) => log(tapIndex.toString()),
+                      children: images
+                          .asMap()
+                          .entries
+                          .map((listItem) => ImageElement(
+                                listValue: listItem.value,
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Column(
+                children: [
+                  const LabelWidget(
+                    text: "Contained layout",
+                  ),
+                  LayoutWidget(
+                      child: M3Carousel(
+                    type: CarouselType.contained,
+                    onTap: (int tapIndex) => log(tapIndex.toString()),
+                    children: List.generate(10, (int index) {
+                      return ColoredBox(
+                        color: Colors.primaries[index % Colors.primaries.length]
+                            .withValues(alpha: 0.8),
+                        child: const SizedBox.expand(),
+                      );
+                    }),
+                  )),
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Column(
+                children: [
+                  const LabelWidget(
+                    text: "Uncontained layout",
+                  ),
+                  LayoutWidget(
+                      isExpanded: true,
+                      child: M3Carousel(
+                        type: CarouselType.uncontained,
+                        freeScroll: false,
+                        onTap: (int tapIndex) => log(tapIndex.toString()),
+                        children: List.generate(10, (int index) {
+                          return ContainedLayoutCard(
+                              index: index, label: "Show $index");
+                        }),
+                      )),
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+            ],
+          ),
+        ));
+  }
+}
+
+class LabelWidget extends StatelessWidget {
+  final String text;
+
+  const LabelWidget({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding:
+          const EdgeInsetsDirectional.only(top: 8.0, start: 12.0, end: 4.0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 15),
+        ),
+      ),
+    );
+  }
+}
+
+class LayoutWidget extends StatelessWidget {
+  final bool isExpanded;
+  final Widget child;
+
+
+// ... (truncated)

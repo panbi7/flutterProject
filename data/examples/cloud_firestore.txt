@@ -1,0 +1,120 @@
+&#47;&#47; Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
+&#47;&#47; for details. All rights reserved. Use of this source code is governed by a
+&#47;&#47; BSD-style license that can be found in the LICENSE file.
+
+import 'dart:async';
+
+import 'package:cloud_firestore&#47;cloud_firestore.dart';
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:http&#47;http.dart' as http;
+
+import 'firebase_options.dart';
+
+&#47;&#47;&#47; Requires that a Firestore emulator is running locally.
+&#47;&#47;&#47; See https:&#47;&#47;firebase.google.com&#47;docs&#47;firestore&#47;quickstart#optional_prototype_and_test_with
+bool shouldUseFirestoreEmulator = true;
+
+Future loadBundleSetup(int number) async {
+  &#47;&#47; endpoint serves a bundle with 3 documents each containing
+  &#47;&#47; a 'number' property that increments in value 1-3.
+  final url =
+      Uri.https('api.rnfirebase.io', '&#47;firestore&#47;e2e-tests&#47;bundle-$number');
+  final response = await http.get(url);
+  String string = response.body;
+  return Uint8List.fromList(string.codeUnits);
+}
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+  );
+  if (shouldUseFirestoreEmulator) {
+    FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+  }
+
+  runApp(FirestoreExampleApp());
+}
+
+&#47;&#47;&#47; A reference to the list of movies.
+&#47;&#47;&#47; We are using `withConverter` to ensure that interactions with the collection
+&#47;&#47;&#47; are type-safe.
+final moviesRef = FirebaseFirestore.instance
+    .collection('firestore-example-app')
+    .withConverter(
+      fromFirestore: (snapshots, _) => Movie.fromJson(snapshots.data()!),
+      toFirestore: (movie, _) => movie.toJson(),
+    );
+
+&#47;&#47;&#47; The different ways that we can filter&#47;sort movies.
+enum MovieQuery {
+  year,
+  likesAsc,
+  likesDesc,
+  rated,
+  sciFi,
+  fantasy,
+}
+
+extension on Query {
+  &#47;&#47;&#47; Create a firebase query from a [MovieQuery]
+  Query queryBy(MovieQuery query) {
+    return switch (query) {
+      MovieQuery.fantasy => where('genre', arrayContainsAny: ['fantasy']),
+      MovieQuery.sciFi => where('genre', arrayContainsAny: ['sci-fi']),
+      MovieQuery.likesAsc ||
+      MovieQuery.likesDesc =>
+        orderBy('likes', descending: query == MovieQuery.likesDesc),
+      MovieQuery.year => orderBy('year', descending: true),
+      MovieQuery.rated => orderBy('rated', descending: true)
+    };
+  }
+}
+
+&#47;&#47;&#47; The entry point of the application.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Returns a [MaterialApp].
+class FirestoreExampleApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Firestore Example App',
+      theme: ThemeData.dark(),
+      home: const Scaffold(
+        body: Center(child: FilmList()),
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47; Holds all example app films
+class FilmList extends StatefulWidget {
+  const FilmList({Key? key}) : super(key: key);
+
+  @override
+  _FilmListState createState() => _FilmListState();
+}
+
+class _FilmListState extends State {
+  MovieQuery query = MovieQuery.year;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('Firestore Example: Movies'),
+
+            &#47;&#47; This is a example use for 'snapshots in sync'.
+            &#47;&#47; The view reflects the time of the last Firestore sync; which happens any time a field is updated.
+            StreamBuilder(
+              stream: FirebaseFirestore.instance.snapshotsInSync(),
+              builder: (context, _) {
+           
+// ... (truncated)

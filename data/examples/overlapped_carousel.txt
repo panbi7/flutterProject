@@ -1,0 +1,77 @@
+import 'dart:math';
+
+import 'package:overlapped_carousel&#47;overlapped_carousel.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Overlapped Carousel',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: MyHomePage(title: 'Overlapped Carousel'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, this.title}) : super(key: key);
+
+  final String? title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  &#47;&#47;Generate a list of widgets. You can use another way
+  List widgets = List.generate(
+    10,
+    (index) => ClipRRect(
+      borderRadius: const BorderRadius.all(
+        Radius.circular(5.0),
+      ),
+      child: Image.asset(
+        'assets&#47;images&#47;$index.jpg', &#47;&#47;Images stored in assets folder
+        fit: BoxFit.fill,
+      ),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    var screenWidth = MediaQuery.of(context).size.width;
+    var screenHeight = MediaQuery.of(context).size.height;
+    return Scaffold(
+      backgroundColor: Colors.blue,
+      &#47;&#47;Wrap with Center to place the carousel center of the screen
+      body: Center(
+        &#47;&#47;Wrap the OverlappedCarousel widget with SizedBox to fix a height. No need to specify width.
+        child: SizedBox(
+          height: min(screenWidth &#47; 3.3 * (16 &#47; 9), screenHeight * .9),
+          child: OverlappedCarousel(
+            widgets: widgets, &#47;&#47;List of widgets
+            currentIndex: 2,
+            onClicked: (index) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("You clicked at $index"),
+                ),
+              );
+            },
+            obscure: 0.4,
+            skewAngle: 0.1,
+          ),
+        ),
+      ),
+    );
+  }
+}

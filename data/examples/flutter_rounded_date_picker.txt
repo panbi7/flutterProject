@@ -1,0 +1,36 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+import 'package:flutter_rounded_date_picker_example&#47;home.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        DefaultCupertinoLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      locale: Locale('en', 'US'),
+      supportedLocales: [
+        const Locale('en', 'US'), &#47;&#47; English
+        const Locale('th', 'TH'), &#47;&#47; Thai
+      ],
+      home: Home(),
+    );
+  }
+}

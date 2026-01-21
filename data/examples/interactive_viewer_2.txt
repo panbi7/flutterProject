@@ -1,0 +1,124 @@
+import 'package:flutter&#47;material.dart';
+import 'package:interactive_viewer_2&#47;interactive_viewer_2.dart';
+import 'presentations&#47;grid_presentation.dart' as grid_demo;
+import 'presentations&#47;logo_presentation.dart' as logo_demo;
+import 'presentations&#47;image_presentation.dart' as image_demo;
+import 'package:flutter&#47;services.dart';
+import 'package:syntax_highlight&#47;syntax_highlight.dart' as sh;
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'InteractiveViewer2 Showcase',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+      ),
+      home: const ViewerDemoPage(),
+    );
+  }
+}
+
+enum PresentationMode { grid, logo, image }
+
+enum ViewerImplementation { interactiveViewer2, interactiveViewer }
+
+class ViewerDemoPage extends StatefulWidget {
+  const ViewerDemoPage({super.key});
+
+  @override
+  State createState() => _ViewerDemoPageState();
+}
+
+class _ViewerDemoPageState extends State {
+  final TransformationController _tc = TransformationController();
+
+  bool _showScrollbars = true;
+  bool _allowNonCovering = true;
+  bool _panEnabled = true;
+  bool _scaleEnabled = true;
+  bool _doubleTapToZoom = true;
+  bool _noMouseDragScroll = true;
+  bool _constrained = false;
+
+  double _minScale = 0.2;
+  double _maxScale = 3.0;
+  double _scaleFactor = 200.0;
+
+  PanAxis _panAxis = PanAxis.free;
+  HorizontalNonCoveringZoomAlign _hAlign =
+      HorizontalNonCoveringZoomAlign.middle;
+  VerticalNonCoveringZoomAlign _vAlign = VerticalNonCoveringZoomAlign.middle;
+  DoubleTapZoomOutBehaviour _doubleTapBehaviour =
+      DoubleTapZoomOutBehaviour.zoomOutToMinScale;
+
+  PresentationMode _mode = PresentationMode.grid; &#47;&#47; default
+  ViewerImplementation _viewer = ViewerImplementation.interactiveViewer2;
+
+  @override
+  void dispose() {
+    _tc.dispose();
+    super.dispose();
+  }
+
+  void _reset() {
+    setState(() {
+      _tc.value = Matrix4.identity();
+    });
+  }
+
+  void _showCodeDialog() {
+    final code = _buildViewerCodeSnippet(_mode);
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) {
+        final size = MediaQuery.of(ctx).size;
+        final dialogWidth = (size.width * 0.9).clamp(600.0, 1200.0);
+        final dialogHeight = (size.height * 0.85).clamp(400.0, 900.0);
+        final viewerTitle = _viewer == ViewerImplementation.interactiveViewer2
+            ? 'InteractiveViewer2'
+            : 'InteractiveViewer';
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 24,
+          ),
+          child: Material(
+            color: DialogTheme.of(ctx).backgroundColor,
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: SizedBox(
+              width: dialogWidth,
+              height: dialogHeight,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    color: Theme.of(ctx).colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.5),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.code),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '$viewerTitle code (based on current settings)',
+                            style: const TextStyle(fontWeight: FontWeight.w6
+// ... (truncated)

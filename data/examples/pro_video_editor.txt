@@ -1,0 +1,116 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:media_kit&#47;media_kit.dart';
+import 'package:pro_video_editor&#47;pro_video_editor.dart';
+import 'package:pro_video_editor_example&#47;features&#47;editor&#47;pages&#47;video_editor_basic_example_page.dart';
+import 'package:pro_video_editor_example&#47;features&#47;editor&#47;pages&#47;video_editor_grounded_example_page.dart';
+
+import 'features&#47;audio&#47;audio_extract_example_page.dart';
+import 'features&#47;metadata&#47;video_metadata_example_page.dart';
+import 'features&#47;render&#47;video_renderer_page.dart';
+import 'features&#47;thumbnail&#47;thumbnail_example_page.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
+
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; The root widget of the application.
+&#47;&#47;&#47;
+&#47;&#47;&#47; This widget sets up the app's state and initial configuration.
+&#47;&#47;&#47; It is typically used to initialize themes, routes, and global settings.
+class MyApp extends StatelessWidget {
+  &#47;&#47;&#47; Creates the root [MyApp] widget.
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: const HomePage(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue.shade800,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+      ),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+&#47;&#47;&#47; The main landing page of the application.
+&#47;&#47;&#47;
+&#47;&#47;&#47; This widget serves as the entry point after launching the app,
+&#47;&#47;&#47; typically containing the primary UI or navigation structure.
+class HomePage extends StatefulWidget {
+  &#47;&#47;&#47; Creates the [HomePage] widget.
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  String _platformVersion = 'Unknown';
+  final List _exampleList = [
+    _ExampleListItem(
+      icon: Icons.info_outline,
+      title: 'Video-Metadata',
+      pageBuilder: () => const VideoMetadataExamplePage(),
+    ),
+    _ExampleListItem(
+      icon: Icons.image_outlined,
+      title: 'Thumbnails',
+      pageBuilder: () => const ThumbnailExamplePage(),
+    ),
+    _ExampleListItem(
+      icon: Icons.audiotrack,
+      title: 'Audio Extraction',
+      pageBuilder: () => const AudioExtractExamplePage(),
+    ),
+    _ExampleListItem(
+      icon: Icons.developer_board_outlined,
+      title: 'Video-Renderer',
+      pageBuilder: () => const VideoRendererPage(),
+    ),
+    _ExampleListItem(
+      icon: Icons.edit,
+      title: 'Video-Editor',
+      pageBuilder: () => const VideoEditorBasicExamplePage(),
+    ),
+    _ExampleListItem(
+      icon: Icons.grass_outlined,
+      title: 'Video-Editor Grounded-Design',
+      pageBuilder: () => const VideoEditorGroundedExamplePage(),
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    String platformVersion;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    &#47;&#47; We also handle the message potentially returning null.
+    try {
+      platformVersion = await ProVideoEditor.instance.getPlatformVersion() ??
+          'Unknown platform version';
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _platformVersion 
+// ... (truncated)

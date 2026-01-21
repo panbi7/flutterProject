@@ -1,0 +1,42 @@
+import 'package:flutter&#47;material.dart';
+import 'package:substring_highlight&#47;substring_highlight.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(new MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      home: Scaffold(
+          body: Center(
+              child: SubstringHighlight(
+                  caseSensitive: false,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+
+                  &#47;&#47; term: 'light',
+                  &#47;&#47; terms: ['i', ' ', 'TH', ''],
+                  &#47;&#47; terms: ['Rush Rules!', ' ', 'TH', ''],
+                  &#47;&#47; terms: ['a', 'and', 'in', 'o', 'the', 'we'],
+                  terms: ['a', 'e'],
+                  &#47;&#47; terms: ['abc', 'def'],
+
+                  &#47;&#47;PUBLIC-DOMAIN
+                  &#47;&#47; text:
+                  &#47;&#47;     'We shall not flag nor fail. We shall go on to the end. We shall fight in France and on the seas and oceans; we shall fight with growing confidence and growing strength in the air. We shall defend our island whatever the cost may be; we shall fight on beaches, landing grounds, in fields, in streets and on the hills. We shall never surrender…carry on the struggle, until, in God\'s good time, the New World, with all it power and might, steps forth to the rescue and the liberation of the Old',
+                  &#47;&#47; text: 'This highlights all the th\'s',
+                  &#47;&#47; text: 'abc def',
+                  text: 'a@e;a_e  aa ee! e!',
+                  &#47;&#47; text: 'ee e!',
+                  textAlign: TextAlign.right,
+                  textStyle: TextStyle(
+                    &#47;&#47; non-highlight style
+                    color: Colors.grey,
+                  ),
+                  words: true))),
+    );
+  }
+}

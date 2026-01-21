@@ -1,0 +1,108 @@
+import 'dart:async';
+
+import 'package:audioplayers&#47;audioplayers.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:gap&#47;gap.dart';
+import 'package:waveform_flutter&#47;waveform_flutter.dart';
+import 'package:waveform_recorder&#47;waveform_recorder.dart';
+
+import 'platform_helper&#47;platform_helper.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => const MaterialApp(home: HomePage());
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  final _textController = TextEditingController();
+  final _waveController = WaveformRecorderController();
+  final _amplitudes = List.empty(growable: true);
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    _waveController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('WaveForm Example')),
+        body: ListenableBuilder(
+          listenable: _waveController,
+          builder: (context, _) => Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: _waveController.isRecording
+                            ? WaveformRecorder(
+                                height: 48,
+                                controller: _waveController,
+                                onRecordingStopped: _onRecordingStopped,
+                              )
+                            : TextField(
+                                controller: _textController,
+                                maxLines: 1,
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                    const Gap(8),
+                    if (_waveController.isRecording)
+                      IconButton(
+                        tooltip: _waveController.isPaused
+                            ? 'Resume Recording'
+                            : 'Pause Recording',
+                        icon: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _waveController.isPaused
+                                ? Colors.purple
+                                : Colors.orange,
+                          ),
+                          child: Center(
+                            child: Icon(
+                              _waveController.isPaused
+                                  ? Icons.fiber_manual_record
+                                  : Icons.pause,
+                              size: 20,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        onPressed: _togglePauseRecording,
+                      ),
+                    if (_waveController.isRecording)
+                      IconButton(
+                        tooltip: 'Cancel Recording',
+                        icon: Container(
+                          width: 32,
+                          height: 32,
+                          decora
+// ... (truncated)

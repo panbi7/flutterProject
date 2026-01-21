@@ -1,0 +1,134 @@
+import 'package:flutter&#47;gestures.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:readmore&#47;readmore.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primaryColor: const Color(0xFF02BB9F),
+        primaryColorDark: const Color(0xFF167F67),
+      ),
+      title: 'Read More Text',
+      home: const DemoApp(),
+    );
+  }
+}
+
+class DemoApp extends StatefulWidget {
+  const DemoApp({super.key});
+
+  @override
+  State createState() => _DemoAppState();
+}
+
+class _DemoAppState extends State {
+  final isCollapsed = ValueNotifier(false);
+
+  &#47;&#47; K: UID, V: Username
+  final userMap = {
+    123: 'Android',
+    456: 'iOS',
+  };
+
+  var _trimMode = TrimMode.Line;
+  int _trimLines = 3;
+  int _trimLength = 240;
+
+  void _incrementTrimLines() => setState(() => _trimLines++);
+
+  void _decrementTrimLines() =>
+      setState(() => _trimLines = _trimLines > 1 ? _trimLines - 1 : 1);
+
+  void _incrementTrimLength() => setState(() => _trimLength++);
+
+  void _decrementTrimLength() =>
+      setState(() => _trimLength = _trimLength > 1 ? _trimLength - 1 : 1);
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    isCollapsed.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Read More Text'),
+      ),
+      body: DefaultTextStyle.merge(
+        style: const TextStyle(fontSize: 14),
+        child: DraggableDivider(
+          child: SingleChildScrollView(
+            child: _buildContent(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Column _buildContent() {
+    return Column(
+      children: [
+        _buildSettings(),
+        Padding(
+          key: const Key('showMore'),
+          padding: const EdgeInsets.all(16),
+          child: ReadMoreText(
+            'Flutter is Google’s mobile UI open source framework to build high-quality native (super fast) interfaces for iOS and Android apps with the unified codebase.',
+            trimMode: _trimMode,
+            trimLines: _trimLines,
+            trimLength: _trimLength,
+            preDataText: 'AMANDA',
+            preDataTextStyle: const TextStyle(fontWeight: FontWeight.w500),
+            style: const TextStyle(color: Colors.black),
+            colorClickableText: Colors.pink,
+            trimCollapsedText: '...Show more',
+            trimExpandedText: ' show less',
+          ),
+        ),
+        const Divider(
+          color: Color(0xFF167F67),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: ReadMoreText(
+            'Flutter(https:&#47;&#47;flutter.dev&#47;) has its own UI components, along with an engine to render them on both the  and  platforms  http:&#47;&#47;google.com #read_more. Most of those UI components, right out of the box, conform to the guidelines of #Material Design.',
+            trimMode: _trimMode,
+            trimLines: _trimLines,
+            trimLength: _trimLength,
+            style: const TextStyle(color: Colors.black),
+            colorClickableText: Colors.pink,
+            trimCollapsedText: '...Expand',
+            trimExpandedText: ' Collapse ',
+            annotations: [
+              &#47;&#47; URL
+              Annotation(
+                regExp: RegExp(
+                  r'(?:(?:https?|ftp):&#47;&#47;)?[\w&#47;\-?=%.]+\.[\w&#47;\-?=%.]+',
+                ),
+                spanBuilder: ({
+                  required String text,
+                  TextStyle? textStyle,
+                }) {
+                  return TextSpan(
+                    text: text,
+                    style: (textStyle ?? const TextStyle()).copyWith(
+                   
+// ... (truncated)

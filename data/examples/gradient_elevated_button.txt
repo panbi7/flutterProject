@@ -1,0 +1,125 @@
+import 'package:flutter&#47;material.dart';
+import 'package:gradient_elevated_button&#47;gradient_elevated_button.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; Setup GradientButtonThemeData for simplify the code
+    return GradientButtonThemeData(
+      data: GradientElevatedButton.styleFrom(
+        backgroundGradient: const LinearGradient(
+          colors: [Colors.blue, Colors.green],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        foregroundColor: Colors.black,
+      ),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Gradient Elevated Button',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          colorScheme: const ColorScheme.light(
+              primary: Color(0xED1313F1),
+              secondary: Color.fromARGB(255, 0, 175, 173)),
+        ),
+        home: const MyHomePage(),
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({
+    super.key,
+  });
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Gradient Elevated Button'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Sample(
+              title: "USE from `GradientButtonThemeData`",
+              child: GradientElevatedButton(
+                onPressed: () {},
+                child:
+                    const Text("This is Gradient Elevated Button From Theme"),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Sample(
+              title: "USE `GradientElevatedButton.styleFrom`",
+              child: GradientElevatedButton(
+                iconAlignment: IconAlignment.start,
+                onPressed: () {},
+                style: GradientElevatedButton.styleFrom(
+                  backgroundGradient: const LinearGradient(
+                    colors: [
+                      Color(0xFFF84040),
+                      Color(0xFF73A331),
+                    ],
+                    begin: Alignment.centerRight,
+                    end: Alignment.centerLeft,
+                  ),
+                  iconColor: Colors.white,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text(
+                    "This is GradientElevatedButton using styleFrom"),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Sample(
+              title: "USE `GradientElevatedButton.icon`",
+              child: GradientElevatedButton.icon(
+                iconAlignment: IconAlignment.start,
+                onPressed: () {},
+                style: GradientElevatedButton.styleFrom(
+                  shadowColor: Colors.blue,
+                  backgroundGradient: const LinearGradient(
+                    colors: [
+                      Color(0xFFF84040),
+                      Color(0xFF73A331),
+                    ],
+                    begin: Alignment.centerRight,
+                    end: Alignment.centerLeft,
+                  ),
+                  iconColor: Colors.white,
+                  foregroundColor: Colors.white,
+                ),
+                icon: Icon(Icons.add),
+                label: Text("Add"),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Sample(
+              title: "USE disabled `GradientElevatedButton`",
+              child: GradientElevatedButton(
+                onPressed: null,
+                style: GradientElevatedButton.styleFrom(
+                  shadowColor: Colors.red,
+                  disabledBackgroundGradien
+// ... (truncated)

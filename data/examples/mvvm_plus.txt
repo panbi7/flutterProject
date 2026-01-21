@@ -1,0 +1,147 @@
+import 'dart:async';
+
+import 'package:bilocator&#47;bilocator.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:mvvm_plus&#47;mvvm_plus.dart';
+
+void main() => runApp(myApp());
+
+Widget myApp() =>
+    const MaterialApp(debugShowCheckedModeBanner: false, home: Home());
+
+&#47;&#47;&#47; Counter model that extends [Model]. (Observers listen to class.)
+class CounterModel extends Model {
+  int count = 0;
+  void incrementCount() {
+    count++;
+    notifyListeners();
+  }
+}
+
+&#47;&#47;&#47; Counter model that does not extend [Model]. (Observers listen to member values.)
+class Counter {
+  late final count = Property(0);
+}
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47;&#47; Add a class and a model to the global registry
+    return Bilocators(
+        key: const ValueKey('Bilocators'), &#47;&#47; (builder: () => Counter()),
+          BilocatorDelegate(builder: () => CounterModel()),
+        ],
+
+        &#47;&#47;&#47; For demo purposes, also add a class and model to the widget tree.
+        child: Bilocator(
+            location: Location.tree,
+            builder: () => CounterModel(),
+            child: Bilocator(
+              location: Location.tree,
+              builder: () => Counter(),
+              child: const _GridOfCounters(),
+            )));
+  }
+}
+
+&#47;&#47;&#47; Demonstrates [StatefulWidget] and [State] classes for comparison to [ViewWidget] and [ViewModel].
+class StatefulAndStateWidget extends StatefulWidget {
+  const StatefulAndStateWidget({super.key});
+
+  @override
+  State createState() => _StatefulAndStateWidgetState();
+}
+
+class _StatefulAndStateWidgetState extends State {
+  int count = 0;
+  incrementCount() {
+    setState(() {
+      count++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text('StatefulWidget&#47;State'),
+        Text('$count'),
+        const SizedBox(height: 10),
+        Fab(onPressed: incrementCount),
+      ],
+    );
+  }
+}
+
+&#47;&#47;&#47; Demonstrates the [ViewWidget], [ViewModel] classes and the [buildView] function.
+class MyViewWidget extends ViewWidget {
+  MyViewWidget({super.key}) : super(builder: () => ViewWidgetViewModel());
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text('ViewWidget&#47;ViewModel'),
+        Text('${viewModel.count}'),
+        const SizedBox(height: 10),
+        Fab(onPressed: viewModel.incrementCount),
+      ],
+    );
+  }
+}
+
+class ViewWidgetViewModel extends ViewModel {
+  int count = 0;
+  incrementCount() {
+    count++;
+    buildView();
+  }
+}
+
+&#47;&#47;&#47; Demonstrates the [buildView] function.
+class PropertyWidget extends ViewWidget {
+  PropertyWidget({super.key}) : super(builder: () => PropertyWidgetViewModel());
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text('Property'),
+        Text('${viewModel.count.value}'),
+        const SizedBox(height: 10),
+        Fab(onPressed: () => viewModel.count.value++),
+      ],
+    );
+  }
+}
+
+class PropertyWidgetViewModel extends ViewModel {
+  &#47;&#47;&#47; The below lines are identical
+  &#47;&#47; late final count = ValueNotifier(0)..addListener(buildView);
+  &#47;&#47; late final count = Property(0)..addListener(buildView);
+  late final count = createProperty(0);
+}
+
+&#47;&#47;&#47; Demonstrates [get] and [listenTo] for a [Property]
+class GetListenToWidget extends StatelessViewWidget {
+  GetListenToWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text('get&#47;listenTo Property'),
+        Text('${listenTo(notifier: get().count).value}'),
+        const SizedBox(height: 10),
+        Fab(onPressed: () => get().count.value++),
+      ],
+    );
+  }
+}
+
+&#47;&#47;&#47; Demonstrates [get] and [listenTo] for a [Model]
+class ModelWidget extends StatelessViewWidget {
+  ModelWidget({super.
+// ... (truncated)

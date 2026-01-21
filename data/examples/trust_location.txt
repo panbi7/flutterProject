@@ -1,0 +1,72 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+import 'package:trust_location&#47;trust_location.dart';
+
+import 'package:location_permissions&#47;location_permissions.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String? _latitude;
+  String? _longitude;
+  bool? _isMockLocation;
+
+  &#47;&#47;&#47; initialize state.
+  @override
+  void initState() {
+    super.initState();
+    requestLocationPermission();
+    &#47;&#47; input seconds into parameter for getting location with repeating by timer.
+    &#47;&#47; this example set to 5 seconds.
+    TrustLocation.start(5);
+    getLocation();
+  }
+
+  &#47;&#47;&#47; get location method, use a try&#47;catch PlatformException.
+  Future getLocation() async {
+    try {
+      TrustLocation.onChange.listen((values) => setState(() {
+            _latitude = values.latitude;
+            _longitude = values.longitude;
+            _isMockLocation = values.isMockLocation;
+          }));
+    } on PlatformException catch (e) {
+      print('PlatformException $e');
+    }
+  }
+
+  &#47;&#47;&#47; request location permission at runtime.
+  void requestLocationPermission() async {
+    PermissionStatus permission =
+        await LocationPermissions().requestPermissions();
+    print('permissions: $permission');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Trust Location Plugin'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Center(
+              child: Column(
+            children: [
+              Text('Mock Location: $_isMockLocation'),
+              Text('Latitude: $_latitude, Longitude: $_longitude'),
+            ],
+          )),
+        ),
+      ),
+    );
+  }
+}

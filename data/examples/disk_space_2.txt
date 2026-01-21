@@ -1,0 +1,79 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+import 'package:disk_space_2&#47;disk_space_2.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _platformVersion = 'Unknown';
+  double _totalDiskSpace = 0.0;
+  double _freeDiskSpace = 0.0;
+  &#47;&#47; double _freeDiskSpaceForPath = 0.0;
+
+  final _diskSpacePlugin = DiskSpace();
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    String platformVersion;
+    double totalDiskSpace;
+    double freeDiskSpace;
+    &#47;&#47; double freeDiskSpaceForPath;
+
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    &#47;&#47; We also handle the message potentially returning null.
+    try {
+      platformVersion = await _diskSpacePlugin.getPlatformVersion() ?? 'Unknown platform version';
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+
+    totalDiskSpace = await DiskSpace.getTotalDiskSpace ?? 0.0;
+    freeDiskSpace = await DiskSpace.getFreeDiskSpace ?? 0.0;
+
+    if (!mounted) return;
+
+    setState(() {
+      _platformVersion = platformVersion;
+      _totalDiskSpace = totalDiskSpace;
+      _freeDiskSpace = freeDiskSpace;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: Column(
+            children: [
+              Text('Running on: $_platformVersion'),
+              Text('Total disk space: $_totalDiskSpace mb'),
+              Text('Free disk space: $_freeDiskSpace mb'),
+              Text('Free disk space: ${_freeDiskSpace &#47; 1000} GB'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

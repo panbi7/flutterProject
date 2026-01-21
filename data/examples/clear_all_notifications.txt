@@ -1,0 +1,39 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:clear_all_notifications&#47;clear_all_notifications.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+    initClearNotificationsState();
+  }
+
+  Future initClearNotificationsState() async {
+    ClearAllNotifications.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Clear all notifications plugin'),
+        ),
+        body: Center(
+          child: Text('Simple plugin to clear all active notifications'),
+        ),
+      ),
+    );
+  }
+}

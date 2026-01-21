@@ -1,0 +1,130 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_svg&#47;flutter_svg.dart';
+import 'package:hux&#47;hux.dart';
+
+import 'components&#47;breadcrumbs_section.dart';
+import 'components&#47;command_section.dart';
+import 'components&#47;tabs_section.dart';
+import 'components&#47;otp_section.dart';
+import 'components&#47;progress_section.dart';
+import 'components&#47;bottom_sheet_section.dart';
+import 'components&#47;buttons_section.dart';
+import 'components&#47;date_picker_section.dart';
+import 'components&#47;tooltip_section.dart';
+import 'components&#47;dialog_section.dart';
+import 'components&#47;dropdown_section.dart';
+import 'components&#47;pagination_section.dart';
+import 'components&#47;input_section.dart';
+import 'components&#47;cards_section.dart';
+import 'components&#47;charts_section.dart';
+import 'components&#47;context_menu_section.dart';
+import 'components&#47;checkboxes_section.dart';
+import 'components&#47;radio_buttons_section.dart';
+import 'components&#47;toggle_switches_section.dart';
+import 'components&#47;slider_section.dart';
+import 'components&#47;toggle_buttons_section.dart';
+import 'components&#47;badges_section.dart';
+import 'components&#47;snackbars_section.dart';
+import 'components&#47;avatars_section.dart';
+import 'components&#47;loading_section.dart';
+import 'config&#47;navigation_items.dart';
+import 'config&#47;global_commands.dart';
+import 'widgets&#47;sidebar_header.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  void _toggleTheme() {
+    setState(() {
+      _themeMode =
+          _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return HuxCommandShortcuts.wrapper(
+      commands: GlobalCommands.getCommands(
+        context,
+        _toggleTheme,
+        () => GlobalCommands.showSettingsBottomSheet(context),
+        () => GlobalCommands.showActionSheet(context),
+      ),
+      onCommandSelected: (command) {
+        command.onExecute();
+      },
+      child: MaterialApp(
+        title: 'Hux UI Demo',
+        theme: HuxTheme.lightTheme,
+        darkTheme: HuxTheme.darkTheme,
+        themeMode: _themeMode,
+        home: MyHomePage(
+          themeMode: _themeMode,
+          onThemeToggle: _toggleTheme,
+        ),
+        debugShowCheckedModeBanner: false,
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  final ThemeMode themeMode;
+  final VoidCallback onThemeToggle;
+
+  const MyHomePage({
+    super.key,
+    required this.themeMode,
+    required this.onThemeToggle,
+  });
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final _formKey = GlobalKey();
+  final _scrollController = ScrollController();
+  final _scaffoldKey = GlobalKey();
+  bool _isLoading = false;
+
+  &#47;&#47; Theme state
+  String _selectedTheme = 'default';
+  Color _currentPrimaryColor(BuildContext context) =>
+      _selectedTheme == 'default'
+          ? HuxTokens.primary(context)
+          : HuxColors.getPresetColor(_selectedTheme);
+
+  &#47;&#47; Global keys for each section
+  final _buttonsKey = GlobalKey();
+  final _textFieldsKey = GlobalKey();
+  final _cardsKey = GlobalKey();
+  final _chartsKey = GlobalKey();
+  final _loadingKey = GlobalKey();
+  final _contextMenuKey = GlobalKey();
+  final _checkboxesKey = GlobalKey();
+  final _radioButtonsKey = GlobalKey();
+  final _toggleSwitchesKey = GlobalKey();
+  final _sliderKey = GlobalKey();
+  final _progressKey = GlobalKey();
+  final _toggleButtonsKey = GlobalKey();
+  final _badgesKey = GlobalKey();
+  final _indicatorsKey = GlobalKey();
+  final _displayKey = GlobalKey();
+  final _datePickerNavKey = GlobalKey();
+  final _tooltipKey = GlobalKey();
+  final _dialogKey = GlobalKey();
+  final _bottomSheetKey = GlobalKey();
+  final _d
+// ... (truncated)

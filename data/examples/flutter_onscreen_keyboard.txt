@@ -1,0 +1,134 @@
+import 'dart:developer';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_onscreen_keyboard&#47;flutter_onscreen_keyboard.dart';
+
+void main() {
+  runApp(const App());
+}
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      &#47;&#47; use OnscreenKeyboard.builder on MaterialApp.builder
+      builder: OnscreenKeyboard.builder(
+        width: (context) => MediaQuery.sizeOf(context).width &#47; 2,
+        &#47;&#47; ...more options
+      ),
+
+      &#47;&#47; or
+
+      &#47;&#47; builder: (context, child) {
+      &#47;&#47;   &#47;&#47; your other codes
+      &#47;&#47;   &#47;&#47; child = ...;
+
+      &#47;&#47;   &#47;&#47; wrap with OnscreenKeyboard
+      &#47;&#47;   return OnscreenKeyboard(child: child!);
+      &#47;&#47; },
+      home: const HomeScreen(),
+      theme: ThemeData(
+        inputDecorationTheme: InputDecorationTheme(
+          border: const OutlineInputBorder(),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              width: 2,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State {
+  late final keyboard = OnscreenKeyboard.of(context);
+
+  final _formFieldKey = GlobalKey>();
+
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47; listener for raw keyboard events
+    keyboard.addRawKeyDownListener(_listener);
+  }
+
+  @override
+  void dispose() {
+    keyboard.removeRawKeyDownListener(_listener);
+    super.dispose();
+  }
+
+  void _listener(OnscreenKeyboardKey key) {
+    switch (key) {
+      case TextKey(:final primary): &#47;&#47; a text key: "a", "b", "4", etc.
+        log('key: "$primary"');
+      case ActionKey(:final name): &#47;&#47; a action key: "shift", "backspace", etc.
+        log('action: $name');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Center(
+            child: SizedBox(
+              width: 300,
+              child: Column(
+                spacing: 20,
+                children: [
+                  const SizedBox(height: 10),
+                  TextButton(
+                    onPressed: () {
+                      &#47;&#47; open the keyboard from anywhere using
+                      OnscreenKeyboard.of(context).open();
+                    },
+                    child: const Text('Open Keyboard'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      &#47;&#47; close the keyboard from anywhere using
+                      OnscreenKeyboard.of(context).close();
+                    },
+                    child: const Text('Close Keyboard'),
+                  ),
+
+                  &#47;&#47; TextField that opens the keyboard on focus
+                  const OnscreenKeyboardTextField(
+                    &#47;&#47; enableOnscreenKeyboard: false,
+                    decoration: InputDecoration(
+                      labelText: 'Name',
+                    ),
+                  ),
+
+                  &#47;&#47; you can disable the keyboard if you want
+                  const OnscreenKeyboardTextField(
+                    enableOnscreenKeyboard: false,
+                    decoration: InputDecoration(
+                      labelText: 'Email (normal keyboard)',
+                    ),
+                  ),
+
+                  &#47;&#47; a multiline TextField
+                  const OnscreenKeyboardTextField(
+                    decoration: InputDecoration(
+                      labelText: 'Address',
+                    ),
+                    maxLines: null,
+                  ),
+
+                  &#47;&#47; form field
+                  OnscreenKeyboardTex
+// ... (truncated)

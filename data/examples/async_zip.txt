@@ -1,0 +1,114 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:async_zip&#47;async_zip.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:path&#47;path.dart' as path;
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Asynchronous Zip example'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                child: Text('Create Zip file'),
+                onPressed: () => _createZipFile(),
+              ),
+              ElevatedButton(
+                child: Text('Read Zip file'),
+                onPressed: () => _readZipFile(),
+              ),
+              ElevatedButton(
+                child: Text('Extract Zip file'),
+                onPressed: () => _extractZipFile(),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Text('Take note of logging output in the console'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _readZipFile() async {
+    &#47;&#47; Save bundled asset Zip file to temporary directory in order to read
+    &#47;&#47; it from there. This is just for illustration purposes.
+    final tempDir = Directory.systemTemp;
+    final archiveData = await rootBundle.load('assets&#47;archive.zip');
+    final archiveFile = File(path.join(tempDir.path, 'archive.zip'));
+    await archiveFile.writeAsBytes(archiveData.buffer.asUint8List());
+
+    &#47;&#47; Read the Zip file synchronously
+    final reader = ZipFileReaderSync();
+    print('Reading synchronously from Zip file ${archiveFile.path}');
+    try {
+      reader.open(archiveFile);
+
+      for (final entry in reader.entries()) {
+        print('${entry.name} ${entry.size} ${entry.isDir ? 'DIR' : 'FILE'}');
+      }
+
+      final imageFile = File(path.join(tempDir.path, 'image.jpg'));
+      reader.readToFile('butterfly.jpg', imageFile);
+
+      final jsonData = reader.read('data&#47;person.json');
+      print(utf8.decode(jsonData));
+    } on ZipException catch (ex) {
+      print('An error ocurred while reading from the Zip file: ${ex.message}');
+    } finally {
+      reader.close();
+    }
+
+    &#47;&#47; Read the Zip file asynchronously
+    final asyncReader = ZipFileReader();
+    print('Reading asynchronously from Zip file ${archiveFile.path}');
+    try {
+      await asyncReader.open(archiveFile);
+
+      for (final entry in await asyncReader.entries()) {
+        print('${entry.name} ${entry.size} ${entry.isDir ? 'DIR' : 'FILE'}');
+      }
+
+      final imageFile = File(path.join(tempDir.path, 'image.jpg'));
+      await asyncReader.readToFile('butterfly.jpg', imageFile);
+
+      final jsonData = await asyncReader.read('data&#47;person.json');
+      print(utf8.decode(jsonData));
+    } on ZipException catch (ex) {
+      print('An error occurred while reading from the Zip file: ${ex.message}');
+    } finally {
+      await asyncReader.close();
+    }
+  }
+
+  void _createZipFile() async {
+    &#47;&#47; Save bundled files to temporary directory in order to write
+    &#47;&#47; them to the Zip file. This is just for illustration purposes.
+    final tempDir = Directory.systemTemp;
+    final archiveFile = File(path.join(tempDir.path, 'create-archive-sync.zip'));
+    final butterflyData = await rootBundle.load('assets&#47;butterfly.jpg');
+    final butterflyFile = File(path.join(tempDir.path, 'image.jpg'));
+    await butterflyFile.writeAsBytes(butterflyData.buffer.asUint8List());
+    final jsonData = await rootBundle.load('assets&#47;person.json');
+  
+// ... (truncated)

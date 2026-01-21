@@ -1,0 +1,109 @@
+import 'dart:async';
+import 'package:bugsnag_flutter_dart_io_http_client&#47;bugsnag_flutter_dart_io_http_client.dart' as dart_io;
+import 'package:bugsnag_http_client&#47;bugsnag_http_client.dart' as http;
+import 'package:bugsnag_example&#47;native_crashes.dart';
+import 'package:bugsnag_flutter&#47;bugsnag_flutter.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() async {
+  http.addSubscriber(bugsnag.networkInstrumentation);
+  dart_io.addSubscriber(bugsnag.networkInstrumentation);
+  await bugsnag.start(
+    &#47;&#47; Find your API key in the settings menu of your Bugsnag dashboard
+    apiKey: 'add_your_api_key_here',
+    &#47;&#47; Specify in-project packages if you have multiple or are splitting debug info in your build (--split-debug-info)
+    projectPackages: const BugsnagProjectPackages.only({'bugsnag_example'}),
+    &#47;&#47; onError callbacks can be used to modify or reject certain events
+    onError: [
+      (event) {
+        if (event.unhandled) {
+          &#47;&#47; Metadata can be added on a per-event basis
+          event.addMetadata('info', const {'hint': 'Example'});
+        }
+        &#47;&#47; Return `true` to allow or `false` to prevent sending the event.
+        return true;
+      }
+    ],
+  );
+  runApp(const ExampleApp());
+}
+
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorObservers: [BugsnagNavigatorObserver()],
+      initialRoute: '&#47;',
+      routes: {
+        '&#47;': (context) => const ExampleHomeScreen(),
+        '&#47;native-crashes': (context) => const NativeCrashesScreen(),
+      },
+    );
+  }
+}
+
+class ExampleHomeScreen extends StatelessWidget {
+  const ExampleHomeScreen({Key? key}) : super(key: key);
+
+  &#47;&#47; Unhandled exceptions will automatically be detected and reported.
+  &#47;&#47; They are displayed with an 'Error' severity on the dashboard.
+  void _unhandledFlutterError() async {
+    throw Exception('Unhandled Exception');
+  }
+
+  &#47;&#47; Exceptions thrown asynchronously are also automatically reported.
+  void _asyncUnhandledFlutterError() async {
+    await Future.delayed(const Duration(milliseconds: 1));
+    throw Exception('Async Exception on Timer');
+  }
+
+  &#47;&#47; Handled exceptions can be manually reported to Bugsnag using notify().
+  &#47;&#47; These will have a 'Warning' severity on the dashboard.
+  void _handledException() async {
+    try {
+      throw Exception('handled exception');
+    } catch (e, stack) {
+      await bugsnag.notify(e, stack);
+    }
+  }
+
+  &#47;&#47; Use leaveBreadcrumb() to log potentially useful events in order to
+  &#47;&#47; understand what happened in your app before each error.
+  void _leaveBreadcrumb() async =>
+      bugsnag.leaveBreadcrumb('This is a custom breadcrumb',
+          &#47;&#47; Additional data can be attached to breadcrumbs as metadata
+          metadata: {'from': 'a', 'to': 'z'});
+
+  &#47;&#47; Use the bugsnag_flutter_http package to automatically capture breadcrumbs
+  &#47;&#47; for network requests:
+  &#47;&#47;   import 'package:bugsnag_flutter_http&#47;bugsnag_flutter_http.dart' as http;
+  void _networkSuccess() async => http.get(Uri.parse('https:&#47;&#47;example.com'));
+
+  void _networkFailure() async =>
+      http.post(Uri.parse('https:&#47;&#47;example.com&#47;invalid'));
+
+  void _networkError() async =>
+      http.get(Uri.parse('https:&#47;&#47;example.invalid')).ignore();
+
+  void _networkDartIoHttpClient() async {
+    var client = dart_io.HttpClient();
+    try {
+      final request = await client.getUrl(Uri.parse('https:&#47;&#47;example.com'));
+      await request.close();
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Bugsnag example app'),
+      ),
+      body: Center(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 
+// ... (truncated)

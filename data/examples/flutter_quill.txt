@@ -1,0 +1,121 @@
+import 'dart:convert';
+import 'dart:io' as io show Directory, File;
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_quill&#47;flutter_quill.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+import 'package:flutter_quill_example&#47;quill_delta_sample.dart';
+import 'package:flutter_quill_extensions&#47;flutter_quill_extensions.dart';
+import 'package:path&#47;path.dart' as path;
+
+void main() => runApp(const MainApp());
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.light(useMaterial3: true),
+      darkTheme: ThemeData.dark(useMaterial3: true),
+      themeMode: ThemeMode.system,
+      home: HomePage(),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        FlutterQuillLocalizations.delegate,
+      ],
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  final QuillController _controller = () {
+    return QuillController.basic(
+        config: QuillControllerConfig(
+      clipboardConfig: QuillClipboardConfig(
+        enableExternalRichPaste: true,
+        onImagePaste: (imageBytes) async {
+          if (kIsWeb) {
+            &#47;&#47; Dart IO is unsupported on the web.
+            return null;
+          }
+          &#47;&#47; Save the image somewhere and return the image URL that will be
+          &#47;&#47; stored in the Quill Delta JSON (the document).
+          final newFileName =
+              'image-file-${DateTime.now().toIso8601String()}.png';
+          final newPath = path.join(
+            io.Directory.systemTemp.path,
+            newFileName,
+          );
+          final file = await io.File(
+            newPath,
+          ).writeAsBytes(imageBytes, flush: true);
+          return file.path;
+        },
+      ),
+    ));
+  }();
+  final FocusNode _editorFocusNode = FocusNode();
+  final ScrollController _editorScrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47; Load document
+    _controller.document = Document.fromJson(kQuillDefaultSample);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Flutter Quill Example'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.output),
+            tooltip: 'Print Delta JSON to log',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content:
+                      Text('The JSON Delta has been printed to the console.')));
+              debugPrint(jsonEncode(_controller.document.toDelta().toJson()));
+            },
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            QuillSimpleToolbar(
+              controller: _controller,
+              config: QuillSimpleToolbarConfig(
+                embedButtons: FlutterQuillEmbeds.toolbarButtons(),
+                showClipboardPaste: true,
+                customButtons: [
+                  QuillToolbarCustomButtonOptions(
+                    icon: const Icon(Icons.add_alarm_rounded),
+                    onPressed: () {
+                      _controller.document.insert(
+                        _controller.selection.extentOffset,
+                        TimeStampEmbed(
+                          DateTime.now().toString(),
+                        ),
+                      );
+
+                      _controller.updateSelection(
+                        TextSelection.collapsed(
+                          offset: _controller.selection.extentOffset + 1,
+                        ),
+    
+// ... (truncated)

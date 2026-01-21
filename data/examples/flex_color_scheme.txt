@@ -1,0 +1,68 @@
+import 'package:flex_color_scheme&#47;flex_color_scheme.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:google_fonts&#47;google_fonts.dart';
+
+import 'shared&#47;const&#47;app.dart';
+import 'shared&#47;widgets&#47;examples&#47;responsive_scaffold.dart';
+import 'shared&#47;widgets&#47;examples&#47;show_color_scheme_colors.dart';
+import 'shared&#47;widgets&#47;examples&#47;show_sub_pages.dart';
+import 'shared&#47;widgets&#47;examples&#47;show_sub_theme_colors.dart';
+import 'shared&#47;widgets&#47;examples&#47;show_theme_data_colors.dart';
+import 'shared&#47;widgets&#47;universal&#47;responsive_center.dart';
+import 'shared&#47;widgets&#47;universal&#47;showcase_material.dart';
+import 'shared&#47;widgets&#47;universal&#47;theme_mode_switch.dart';
+
+&#47;&#47;&#47; DEFAULT EXAMPLE - Hot Reload Playground
+&#47;&#47;&#47;
+&#47;&#47;&#47; This example shows how you can define custom colors, use [FlexColorScheme]
+&#47;&#47;&#47; to theme your app with them, or use a predefined theme.
+&#47;&#47;&#47;
+&#47;&#47;&#47; It offers a playground you can use to experiment with all its
+&#47;&#47;&#47; theming properties and optional opinionated sub-theming.
+&#47;&#47;&#47;
+&#47;&#47;&#47; It also demonstrates how to use a [GoogleFonts] based font as the default
+&#47;&#47;&#47; font for your app theme, and how to customize the used [TextTheme].
+&#47;&#47;&#47;
+&#47;&#47;&#47; To learn more about how to use [FlexColorScheme] and all its features,
+&#47;&#47;&#47; please go through the five tutorial examples in the readme documentation.
+void main() => runApp(const DemoApp());
+
+&#47;&#47; This default example contains a long list of const and final property values
+&#47;&#47; that are just passed in to the corresponding properties in
+&#47;&#47; FlexThemeData.light() and FlexThemeData.dark() convenience extension on
+&#47;&#47; ThemeData to FlexColorScheme.light().toTheme and
+&#47;&#47; FlexColorScheme.dark().toTheme.
+&#47;&#47;
+&#47;&#47; The purpose is to provide an easy to use in-code based playground that
+&#47;&#47; you can experiment with and use as a quick starter template to start using
+&#47;&#47; FlexColorScheme to make beautiful Flutter themes for your applications.
+&#47;&#47; It is also a code and comment based quick guide for developers that
+&#47;&#47; don't read long documentation.
+&#47;&#47;
+&#47;&#47; This setup is convenient since you can edit the values for both the light
+&#47;&#47; and dark theme mode via shared property values and observe the changes
+&#47;&#47; in the built app using hot reload.
+&#47;&#47;
+&#47;&#47; In a real app you might tuck away your color definitions and FlexColorScheme
+&#47;&#47; settings in a static class with const and final values, and static functions
+&#47;&#47; as required. The other tutorials show examples of this as well.
+&#47;&#47;
+&#47;&#47; To learn more about using FlexColorScheme, it is recommended to go through
+&#47;&#47; the step-by-step tutorial that uses examples 1 to 5 that explain and
+&#47;&#47; demonstrate the features with increasing complexity. Example 5 represents
+&#47;&#47; the full bonanza where pretty much everything can be changed dynamically
+&#47;&#47; while running the app. It doubles as the web online Themes Playground app
+&#47;&#47; that can also generate FlexColorScheme setup code for the theme you have
+&#47;&#47; configured. Using it and studying the setup code it generates is another
+&#47;&#47; quick way to learn about the different APIs and features it provides.
+
+&#47;&#47; For our custom color scheme we define primary and secondary colors,
+&#47;&#47; but no container or other colors.
+final FlexSchemeColor _schemeLight = FlexSchemeColor.from(
+  primary: const Color(0xFF00296B),
+  &#47;&#47; If you do not want to define secondary, primaryVariant and
+  &#47;&#47; secondaryVariant, error and appBar colors you do not have to,
+  &#47;&#47; they will get defined automatically whe
+// ... (truncated)

@@ -1,0 +1,120 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_map&#47;flutter_map.dart';
+import 'package:flutter_map_animations&#47;flutter_map_animations.dart';
+import 'package:flutter_map_cancellable_tile_provider&#47;flutter_map_cancellable_tile_provider.dart';
+import 'package:latlong2&#47;latlong.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State with TickerProviderStateMixin {
+  static const _useTransformerId = 'useTransformerId';
+
+  final markers = ValueNotifier>([]);
+  final center = const LatLng(51.509364, -0.128928);
+
+  bool _useTransformer = true;
+  int _lastMovedToMarkerIndex = -1;
+
+  late final _animatedMapController = AnimatedMapController(vsync: this);
+
+  @override
+  void dispose() {
+    markers.dispose();
+    _animatedMapController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: ValueListenableBuilder>(
+        valueListenable: markers,
+        builder: (context, markers, _) {
+          return FlutterMap(
+            mapController: _animatedMapController.mapController,
+            options: MapOptions(
+              initialCenter: center,
+              onTap: (_, point) => _addMarker(point),
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https:&#47;&#47;tile.openstreetmap.org&#47;{z}&#47;{x}&#47;{y}.png',
+                userAgentPackageName: 'com.example.app',
+                tileUpdateTransformer: _animatedMoveTileUpdateTransformer,
+                tileProvider: CancellableNetworkTileProvider(),
+              ),
+              AnimatedMarkerLayer(markers: markers),
+            ],
+          );
+        },
+      ),
+      floatingActionButton: SeparatedColumn(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        separator: const SizedBox(height: 8),
+        children: [
+          FloatingActionButton(
+            onPressed: () => _animatedMapController.animatedRotateFrom(
+              90,
+              customId: _useTransformer ? _useTransformerId : null,
+            ),
+            tooltip: 'Rotate 90°',
+            child: const Icon(Icons.rotate_right),
+          ),
+          FloatingActionButton(
+            onPressed: () => _animatedMapController.animatedRotateFrom(
+              -90,
+              customId: _useTransformer ? _useTransformerId : null,
+            ),
+            tooltip: 'Rotate -90°',
+            child: const Icon(Icons.rotate_left),
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              markers.value = [];
+              _animatedMapController.animateTo(
+                dest: center,
+                rotation: 0,
+                customId: _useTransformer ? _useTransformerId : null,
+              );
+            },
+            tooltip: 'Clear modifications',
+            child: const Icon(Icons.clear_all),
+          ),
+          FloatingActionButton(
+            onPressed: () => _animatedMapController.animatedZoomIn(
+              customId: _useTransformer ? _useTransformerId : null,
+            ),
+            tooltip: 'Zoom in',
+            child: const Icon(Icons.zoom_in),
+          ),
+          FloatingActionButton(
+            onPressed: () => _animatedMapController.animatedZoomOut(
+              customId: _useTransformer ? _useTransformerId : null,
+            ),
+            tooltip: 'Zoom out',
+            child: const Icon(Icons.zoom_out),
+          ),
+          FloatingActionButton(
+            tooltip: 'Center on markers'
+// ... (truncated)

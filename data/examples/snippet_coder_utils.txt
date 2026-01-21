@@ -1,0 +1,2 @@
+dependencies:
+  snippetcoder_utils: ^1.0.13

@@ -1,0 +1,146 @@
+import 'dart:async';
+import 'package:flutter&#47;material.dart';
+import 'dart:math' as math;
+
+import 'package:flutter_analog_clock&#47;flutter_analog_clock.dart';
+
+void main() => runApp(const ExampleApp());
+
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        useMaterial3: true,
+      ),
+      home: const AnalogClockDemo(),
+    );
+  }
+}
+
+class AnalogClockDemo extends StatefulWidget {
+  const AnalogClockDemo({super.key});
+
+  @override
+  State createState() => _AnalogClockDemoState();
+}
+
+class _AnalogClockDemoState extends State {
+  static const List hourNumberTemplate1 = [
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
+    '11',
+    '12'
+  ];
+  static const List hourNumberTemplate2 = [
+    'I',
+    'II',
+    'III',
+    'IV',
+    'V',
+    'VI',
+    'VII',
+    'VIII',
+    'IX',
+    'X',
+    'XI',
+    'XII'
+  ];
+  static const List hourNumberTemplate3 = [
+    '',
+    '',
+    '3',
+    '',
+    '',
+    '6',
+    '',
+    '',
+    '9',
+    '',
+    '',
+    '12'
+  ];
+  Color? _dialColor = Colors.white;
+  Color? _dialBorderColor = Colors.black;
+  double? _dialBorderWidthFactor = 0.1;
+  Color? _markingColor = Colors.black;
+  double? _markingRadiusFactor;
+  double? _markingWidthFactor;
+  List _hourNumbers = hourNumberTemplate1;
+  Color? _hourNumberColor = Colors.black;
+  double? _hourNumberSizeFactor;
+  double? _hourNumberRadiusFactor;
+  Color? _hourHandColor = Colors.black;
+  Color? _minuteHandColor = Colors.black;
+  Color? _secondHandColor = Colors.black;
+  Color? _centerPointColor = Colors.black;
+  double? _hourHandWidthFactor;
+  double? _hourHandLengthFactor;
+  double? _minuteHandWidthFactor;
+  double? _minuteHandLengthFactor;
+  double? _secondHandWidthFactor;
+  double? _secondHandLengthFactor;
+  double? _centerPointWidthFactor;
+  final math.Random _random = math.Random();
+  final GlobalKey _analogClockKey = GlobalKey();
+  static const List colors = [
+    Colors.black,
+    Colors.white,
+    Colors.red,
+    Colors.green,
+    Colors.blue,
+    Colors.teal,
+    Colors.purple,
+    Colors.pink,
+    Colors.orange,
+    Colors.lime,
+    Colors.indigo,
+    Colors.brown,
+    Colors.cyan,
+    Colors.yellow,
+    Colors.amber,
+  ];
+  SettingGroup _selectedSettingGroup = SettingGroup.values[0];
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              color: Colors.grey.shade300,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: AnalogClock(
+                  key: _analogClockKey,
+                  dateTime: DateTime.now(),
+                  isKeepTime: true,
+                  dialColor: _dialColor,
+                  dialBorderColor: _dialBorderColor,
+                  dialBorderWidthFactor: _dialBorderWidthFactor,
+                  markingColor: _markingColor,
+                  markingRadiusFactor: _markingRadiusFactor,
+                  markingWidthFactor: _markingWidthFactor,
+                  hourNumberColor: _hourNumberColor,
+                  hourNumbers: _hourNumbers,
+                  hourNumberSizeFactor: _hourNumberSizeFactor,
+                  hourNumberRadiusFactor: _hourNumberRadiusFactor,
+                  hourHandColor: _hourHandColor,
+                  hourHandWidthFactor: _hourHandWidthFactor,
+                  hourHandLengthFactor: _hourHandLengthFactor,
+                  minuteHandColor: _minuteHandColor,
+                  minuteHandWidthFactor: _minuteHandWidthFactor,
+                  minuteHandLengthFactor: _minuteHandLengthFactor,
+                  secondHandColor: _secondHandColor,
+                  secondHandWidthFactor: _secon
+// ... (truncated)

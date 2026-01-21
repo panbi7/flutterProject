@@ -1,0 +1,134 @@
+import 'package:flutter&#47;material.dart';
+import 'package:slack_logger&#47;slack_logger.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    SlackLogger(webhookUrl: "[Add Your Web Hook Url]");
+
+    return MaterialApp(
+      title: 'Slack Logger Example',
+      theme: ThemeData(
+        primarySwatch: Colors.deepPurple,
+      ),
+      home: const MyHomePage(title: 'Slack Logger Example'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int _counter = 0;
+  final SlackLogger _slack = SlackLogger.instance;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+    &#47;&#47; send message to slack
+    _slack.send(
+      "Count $_counter Added",
+    );
+  }
+
+  &#47;&#47;&#47; send image to slack
+  void _sendThisImage() {
+    _slack.sendImage(
+      imageUrl: "https:&#47;&#47;dipenmaharjan.com.np&#47;assets&#47;png&#47;Thumbnail.png",
+      imageAltText: "Dipen Maharjan",
+    );
+  }
+
+  &#47;&#47; send attachment message
+  void _sendAttachmentMessage() {
+    _slack.sendTextAsAttachment(message: "Hi", color: "#ff0000");
+  }
+
+  &#47;&#47; send attachment with markdown list
+  void _sendAttachmentMarkdown() {
+    _slack.sendMarkdownAsAttachment(
+      markdownMessageList: [
+        "_Forbidden Error_",
+        "*BOLD ERROR*",
+        "~Strike~",
+        '`lib&#47;example&#47;example.dart`'
+      ],
+      color: "#FF0000",
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'You have pushed the button this many times:',
+            ),
+            Text(
+              '$_counter',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            Image.network(
+                "https:&#47;&#47;dipenmaharjan.com.np&#47;assets&#47;png&#47;Thumbnail.png"),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: _sendThisImage,
+              child: const Text("Send This Image"),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: _sendAttachmentMessage,
+              child: const Text("Send Error Attachment Message"),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: _sendAttachmentMessage,
+              child: const Text("Send Error Attachment Markdown"),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: _sendAttachmentMarkdown,
+              child: const Text("Send Error Attachment Markdown"),
+            )
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}

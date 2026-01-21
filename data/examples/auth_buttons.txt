@@ -1,0 +1,126 @@
+&#47;&#47; Copyright (c) 2021 Talat El Beick. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'package:auth_buttons&#47;auth_buttons.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const _MyApp());
+}
+
+class _MyApp extends StatefulWidget {
+  const _MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool isLoading = false;
+  bool darkMode = false;
+
+  AuthButtonType? buttonType;
+  AuthIconType? iconType;
+
+  ThemeMode get themeMode => darkMode ? ThemeMode.dark : ThemeMode.light;
+
+  @override
+  Widget build(BuildContext context) {
+    const String appName = 'Auth Buttons Example';
+    return MaterialApp(
+      title: appName,
+      themeMode: themeMode,
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text(appName),
+          actions: [
+            Switch(
+              value: darkMode,
+              onChanged: (value) {
+                setState(() {
+                  darkMode = value;
+                });
+              },
+            ),
+          ],
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              _chooseButtonType(),
+              _chooseIconType(),
+              const SizedBox(height: 24),
+              GoogleAuthButton(
+                onPressed: () {
+                  &#47;&#47; your implementation
+                  setState(() {
+                    isLoading = !isLoading;
+                  });
+                },
+                themeMode: themeMode,
+                isLoading: isLoading,
+                style: AuthButtonStyle(
+                  buttonType: buttonType,
+                  iconType: iconType,
+                  margin: const EdgeInsets.only(bottom: 18),
+                ),
+              ),
+              AuthButtonGroup(
+                style: AuthButtonStyle(
+                  width: 185,
+                  height: 38,
+                  progressIndicatorType: AuthIndicatorType.linear,
+                  buttonType: buttonType,
+                ),
+                buttons: [
+                  GoogleAuthButton(
+                    onPressed: () {
+                      &#47;&#47; your implementation
+                      setState(() {
+                        isLoading = !isLoading;
+                      });
+                    },
+                    themeMode: themeMode,
+                    isLoading: isLoading,
+                    style: AuthButtonStyle(
+                      buttonType: buttonType,
+                      iconType: iconType,
+                    ),
+                  ),
+                  AppleAuthButton(
+                    onPressed: () {},
+                    themeMode: themeMode,
+                    isLoading: isLoading,
+                    style: AuthButtonStyle(
+                      buttonType: buttonType,
+                      iconType: iconType,
+                    ),
+                  ),
+                  FacebookAuthButton(
+                    onPressed: () {},
+                    themeMode: themeMode,
+                    isLoading: isLoading,
+                    style: AuthButtonStyle(
+                      buttonType: buttonType,
+                      iconType: iconType,
+                    ),
+                  ),
+                  GithubAuthButton(
+                    onPressed: () {},
+                    themeMode: themeMode,
+                    isLoading: isLoading,
+                    style: AuthButtonStyle(
+                      buttonType: buttonType,
+                      iconType: iconType,
+                    ),
+                  ),
+                  MicrosoftAuthButton(
+                    onPressed: () {},
+                    themeMode: themeMode,
+                    isLoading: isLoading,
+                    style: AuthButtonStyle(
+
+// ... (truncated)

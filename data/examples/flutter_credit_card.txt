@@ -1,0 +1,112 @@
+import 'package:example&#47;app_colors.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_credit_card&#47;flutter_credit_card.dart';
+
+void main() => runApp(const MySample());
+
+class MySample extends StatefulWidget {
+  const MySample({super.key});
+
+  @override
+  State createState() => MySampleState();
+}
+
+class MySampleState extends State {
+  bool isLightTheme = false;
+  String cardNumber = '';
+  String expiryDate = '';
+  String cardHolderName = '';
+  String cvvCode = '';
+  bool isCvvFocused = false;
+  bool useGlassMorphism = false;
+  bool useBackgroundImage = false;
+  bool useFloatingAnimation = true;
+  final OutlineInputBorder border = OutlineInputBorder(
+    borderSide: BorderSide(
+      color: Colors.grey.withOpacity(0.7),
+      width: 2.0,
+    ),
+  );
+  final GlobalKey formKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      isLightTheme ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+    );
+    return MaterialApp(
+      title: 'Flutter Credit Card View Demo',
+      debugShowCheckedModeBanner: false,
+      themeMode: isLightTheme ? ThemeMode.light : ThemeMode.dark,
+      theme: ThemeData(
+        textTheme: const TextTheme(
+          &#47;&#47; Text style for text fields' input.
+          titleMedium: TextStyle(color: Colors.black, fontSize: 18),
+        ),
+        colorScheme: ColorScheme.fromSeed(
+          brightness: Brightness.light,
+          seedColor: Colors.white,
+          background: Colors.black,
+          &#47;&#47; Defines colors like cursor color of the text fields.
+          primary: Colors.black,
+        ),
+        &#47;&#47; Decoration theme for the text fields.
+        inputDecorationTheme: InputDecorationTheme(
+          hintStyle: const TextStyle(color: Colors.black),
+          labelStyle: const TextStyle(color: Colors.black),
+          focusedBorder: border,
+          enabledBorder: border,
+        ),
+      ),
+      darkTheme: ThemeData(
+        textTheme: const TextTheme(
+          &#47;&#47; Text style for text fields' input.
+          titleMedium: TextStyle(color: Colors.white, fontSize: 18),
+        ),
+        colorScheme: ColorScheme.fromSeed(
+          brightness: Brightness.dark,
+          seedColor: Colors.black,
+          background: Colors.white,
+          &#47;&#47; Defines colors like cursor color of the text fields.
+          primary: Colors.white,
+        ),
+        &#47;&#47; Decoration theme for the text fields.
+        inputDecorationTheme: InputDecorationTheme(
+          hintStyle: const TextStyle(color: Colors.white),
+          labelStyle: const TextStyle(color: Colors.white),
+          focusedBorder: border,
+          enabledBorder: border,
+        ),
+      ),
+      home: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: Builder(
+          builder: (BuildContext context) {
+            return Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: ExactAssetImage(
+                    isLightTheme ? 'assets&#47;bg-light.png' : 'assets&#47;bg-dark.png',
+                  ),
+                  fit: BoxFit.fill,
+                ),
+              ),
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: () => setState(() {
+                        isLightTheme = !isLightTheme;
+                      }),
+                      icon: Icon(
+                        isLightTheme ? Icons.light_mode : Icons.dark_mode,
+                      ),
+                    ),
+                    CreditCardWidget(
+                      enableFloatingCard: useFloatingAnimation,
+                      glassmorphismConfig: _getGlassmorphismConfig(),
+                      cardNumber: cardNumber,
+                      expiryDate: expiryDate,
+// ... (truncated)

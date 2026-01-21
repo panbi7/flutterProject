@@ -1,0 +1,126 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_logs&#47;flutter_logs.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  var _tag = "MyApp";
+  var _myLogFileName = "MyLogFile";
+  var toggle = false;
+  var logStatus = '';
+  static Completer _completer = new Completer();
+
+  @override
+  void initState() {
+    super.initState();
+    setUpLogs();
+  }
+
+  void setUpLogs() async {
+    await FlutterLogs.initLogs(
+        logLevelsEnabled: [
+          LogLevel.INFO,
+          LogLevel.WARNING,
+          LogLevel.ERROR,
+          LogLevel.SEVERE
+        ],
+        timeStampFormat: TimeStampFormat.TIME_FORMAT_READABLE,
+        directoryStructure: DirectoryStructure.FOR_DATE,
+        logTypesEnabled: [_myLogFileName],
+        logFileExtension: LogFileExtension.LOG,
+        logsWriteDirectoryName: "MyLogs",
+        logsExportDirectoryName: "MyLogs&#47;Exported",
+        debugFileOperations: true,
+        isDebuggable: true,
+        enabled: true);
+
+    &#47;&#47; [IMPORTANT] The first log line must never be called before 'FlutterLogs.initLogs'
+    FlutterLogs.logInfo(_tag, "setUpLogs", "setUpLogs: Setting up logs..");
+
+    &#47;&#47; Logs Exported Callback
+    FlutterLogs.channel.setMethodCallHandler((call) async {
+      if (call.method == 'logsExported') {
+        &#47;&#47; Contains file name of zip
+        FlutterLogs.logInfo(
+            _tag, "setUpLogs", "logsExported: ${call.arguments.toString()}");
+
+        setLogsStatus(
+            status: "logsExported: ${call.arguments.toString()}", append: true);
+
+        &#47;&#47; Notify Future with value
+        _completer.complete(call.arguments.toString());
+      } else if (call.method == 'logsPrinted') {
+        FlutterLogs.logInfo(
+            _tag, "setUpLogs", "logsPrinted: ${call.arguments.toString()}");
+
+        setLogsStatus(
+            status: "logsPrinted: ${call.arguments.toString()}", append: true);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Flutter Logs'),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Center(
+                    child: Text(
+                  logStatus,
+                  maxLines: 10,
+                )),
+                SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    logData(isException: false);
+                  },
+                  child: Text('Log Something', style: TextStyle(fontSize: 20)),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    logData(isException: true);
+                  },
+                  child: Text('Log Exception', style: TextStyle(fontSize: 20)),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    logToFile();
+                  },
+                  child: Text('Log To File', style: TextStyle(fontSize: 20)),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    printAllLogs();
+                  },
+                  child: Text('Print All Logs', style: TextStyle(fontSize: 20)),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    &#47;&#47; Export and then get File Reference
+                    await exportAllLogs().then((value) async {
+                      Directory? externalDirectory;
+
+           
+// ... (truncated)

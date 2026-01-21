@@ -1,0 +1,135 @@
+import 'package:common_utils&#47;common_utils.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:sp_util&#47;sp_util.dart';
+
+import 'example2.dart';
+import 'models.dart';
+
+&#47;&#47;&#47; Example One.
+&#47;&#47;&#47; await sp initialization to complete before running the app.
+&#47;&#47;&#47; sp init time release about 30ms，debug about 100ms.(Test on Android.)
+&#47;&#47;  int old = DateTime.now().millisecondsSinceEpoch;
+&#47;&#47;  await SpUtil.getInstance();
+&#47;&#47;  int now = DateTime.now().millisecondsSinceEpoch;
+&#47;&#47;  LogUtil.e('sp init time: ${now - old}');
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SpUtil.getInstance();
+  runApp(MyApp());
+}
+
+&#47;&#47;&#47; Example Two.
+void main2() {
+  runApp(MyApp2());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int _counter = 0;
+  String spLastCounter = 'last_counter';
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+      SpUtil.putInt(spLastCounter, _counter);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47;&#47; use sp.
+    _counter = SpUtil.getInt(spLastCounter, defValue: 0)!;
+
+    test();
+&#47;&#47;    &#47;&#47;&#47; examples
+&#47;&#47;    SpUtil.putString("username", "sky24");
+&#47;&#47;    String? userName = SpUtil.getString("username", defValue: "");
+&#47;&#47;    LogUtil.e("userName: $userName");
+&#47;&#47;
+&#47;&#47;    SpUtil.putString("username1", "sky24 1");
+&#47;&#47;    String? userName1 = SpUtil.getString("username1", defValue: "");
+&#47;&#47;    LogUtil.e("userName1: $userName1");
+
+    &#47;&#47;&#47; save object example.
+    &#47;&#47;&#47; 存储实体对象示例。
+    City city = City(name: "成都市");
+    SpUtil.putObject("loc_city", city);
+
+    City? hisCity = SpUtil.getObj(
+        "loc_city", (v) => City.fromJson(v as Map));
+    LogUtil.e("City: " + (hisCity == null ? "null" : hisCity.toString()));
+
+    &#47;&#47;&#47; save object list example.
+    &#47;&#47;&#47; 存储实体对象list示例。
+    List list = [];
+    list.add(City(name: "成都市"));
+    list.add(City(name: "北京市"));
+    SpUtil.putObjectList("loc_city_list", list);
+
+    List? dataList = SpUtil.getObjList(
+        "loc_city_list", (v) => City.fromJson(v as Map));
+    LogUtil.e("CityList: " + (dataList == null ? "null" : dataList.toString()));
+  }
+
+  void test() async {
+    &#47;&#47;&#47; examples
+    await SpUtil.putString("username", "sky24");
+    String? userName = SpUtil.getString("username", defValue: "");
+    LogUtil.e("userName: $userName");
+
+    await SpUtil.putString("username1", "sky24 1");
+    String? userName1 = SpUtil.getString("username1", defValue: "");
+    LogUtil.e("userName1: $userName1");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'You have pushed the button this many times:',
+            ),
+            Text(
+              '$_counter',
+              style: Theme.of(context).textTheme.headline4,
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: Icon(Icons.add),
+      ),
+ 
+// ... (truncated)

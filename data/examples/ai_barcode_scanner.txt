@@ -1,0 +1,119 @@
+&#47;&#47; example&#47;lib&#47;main.dart
+import 'package:ai_barcode_scanner&#47;ai_barcode_scanner.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  String _barcode = 'Tap a scan option below';
+
+  &#47;&#47;&#47; Helper method to push the scanner screen and handle the result.
+  Future _navigateToScanner(Widget scanner) async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => scanner,
+      ),
+    );
+
+    &#47;&#47; Update the UI with the scanned barcode if the result is not null.
+    if (result != null && result is String) {
+      setState(() {
+        _barcode = result;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('AI Barcode Scanner Demo'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            &#47;&#47; Display area for the latest scanned barcode result.
+            Expanded(
+              child: Card(
+                color: Colors.grey.shade200,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      _barcode,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            &#47;&#47; List of buttons to open the scanner with different configurations.
+            Expanded(
+              flex: 2,
+              child: ListView(
+                children: [
+                  _buildDemoButton(
+                    title: "Default Scanner",
+                    subtitle: "Opens the scanner with default settings.",
+                    scanner: AiBarcodeScanner(
+                      &#47;&#47; The onDetect callback is only called when a barcode is scanned and validated.
+                      onDetect: (BarcodeCapture capture) {
+                        &#47;&#47;&#47; Do something with the barcode
+                      },
+                    ),
+                  ),
+                  _buildDemoButton(
+                    title: "Scan with Validator",
+                    subtitle: "Only accepts barcodes containing 'pub.dev'.",
+                    scanner: AiBarcodeScanner(
+                      controller: MobileScannerController(
+                        detectionSpeed: DetectionSpeed.noDuplicates,
+                      ),
+                      &#47;&#47; Validator to check if the barcode contains a specific string.
+                      validator: (value) {
+                        return value.barcodes.first.rawValue
+                                ?.contains('pub.dev') ??
+                            false;
+                      },
+                      onDetect: (BarcodeCapture capture) {
+                        &#47;&#47;&#47; Do something with the barcode
+                        &#47;&#47;&#47;
+                        if (mounted) {
+                          Navigator.pop(
+                              context, capture.barcodes.firstOrNull?.rawValue);
+                        }
+                      },
+                    ),
+                  ),
+                  _buildDemoButton(
+                    title: 
+// ... (truncated)

@@ -1,0 +1,87 @@
+import 'package:cached_memory_image&#47;cached_memory_image.dart';
+import 'package:cached_memory_image_example&#47;card_image_widget.dart';
+import 'package:cached_memory_image_example&#47;image_data.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:transparent_image&#47;transparent_image.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Cached Memory Image'),
+        ),
+        body: ListView(
+          children: [
+            CardImageWidget(
+              title: 'With Base64',
+              child: CachedMemoryImage(
+                uniqueKey: 'app:&#47;&#47;image&#47;1',
+                errorWidget: const Text('Error'),
+                base64: ImageData.base64,
+                placeholder: const CircularProgressIndicator(),
+              ),
+            ),
+            CardImageWidget(
+              title: 'With Bytes',
+              child: CachedMemoryImage(
+                uniqueKey: 'app:&#47;&#47;image&#47;4',
+                errorWidget: const Text('Error'),
+                bytes: ImageData.bytes,
+                placeholder: const CircularProgressIndicator(),
+              ),
+            ),
+            CardImageWidget(
+              title: 'With Bytes Provider',
+              child: FadeInImage(
+                placeholder: CachedMemoryImagePlaceholderProvider(
+                  bytes: kTransparentImage,
+                ),
+                image: CachedMemoryImageProvider(
+                  'app:&#47;&#47;image&#47;5',
+                  bytes: ImageData.bytes,
+                ),
+              ),
+            ),
+            CardImageWidget(
+              title: 'With Base64 Provider',
+              child: FadeInImage(
+                placeholder: CachedMemoryImagePlaceholderProvider(
+                  bytes: kTransparentImage,
+                ),
+                image: CachedMemoryImageProvider(
+                  'app:&#47;&#47;image&#47;6',
+                  base64: ImageData.base64,
+                ),
+              ),
+            ),
+            CardImageWidget(
+              title: 'With Cache Provider',
+              child: FadeInImage(
+                placeholder: CachedMemoryImagePlaceholderProvider(
+                  bytes: kTransparentImage,
+                ),
+                image: CachedMemoryImageProvider(
+                  'app:&#47;&#47;image&#47;6',
+                  cached: CachedImage.readOnly,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

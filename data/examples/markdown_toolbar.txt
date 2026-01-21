@@ -1,0 +1,97 @@
+import 'package:flutter&#47;material.dart';
+import 'package:markdown_toolbar&#47;markdown_toolbar.dart';
+
+void main() {
+  runApp(const MyHomePage());
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final TextEditingController _controller = TextEditingController();
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    _controller.addListener(() => setState(() {}));
+    _focusNode = FocusNode();
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Markdown Toolbar Example'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            &#47;&#47; Change the toolbar alignment
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              MarkdownToolbar(
+                &#47;&#47; If you set useIncludedTextField to true, remove
+                &#47;&#47; a) the controller and focusNode fields below and
+                &#47;&#47; b) the TextField outside below widget
+                useIncludedTextField: false,
+                controller: _controller,
+                focusNode: _focusNode,
+
+                &#47;&#47; Uncomment some of the options below to observe the changes. This list is not exhaustive
+
+                &#47;&#47; collapsable: true,
+                &#47;&#47; alignCollapseButtonEnd: true,
+                &#47;&#47; backgroundColor: Colors.lightBlue,
+                &#47;&#47; dropdownTextColor: Colors.red,
+                &#47;&#47; iconColor: Colors.white,
+                &#47;&#47; iconSize: 30,
+                &#47;&#47; borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+                &#47;&#47; width: 70,
+                &#47;&#47; height: 50,
+                &#47;&#47; spacing: 16.0,
+                &#47;&#47; runSpacing: 12.0,
+                &#47;&#47; alignment: WrapAlignment.start,
+                &#47;&#47; italicCharacter: '_',
+                &#47;&#47; bulletedListCharacter: '*',
+                &#47;&#47; horizontalRuleCharacter: '***',
+                &#47;&#47; hideImage: true,
+                &#47;&#47; hideCode: true,
+                &#47;&#47; linkTooltip: 'Add a link',
+              ),
+              const Divider(),
+              TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                minLines: 5,
+                maxLines: null,
+                decoration: const InputDecoration(
+                  hintText: 'Placeholder text',
+                  labelText: 'Label text',
+                  border: OutlineInputBorder(),
+                  enabledBorder: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

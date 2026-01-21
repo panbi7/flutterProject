@@ -1,0 +1,127 @@
+import 'package:flutter&#47;material.dart';
+import 'package:textuality&#47;textuality.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Textuality Package Preview',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: TextualityExample(),
+    );
+  }
+}
+
+class TextualityExample extends StatefulWidget {
+  const TextualityExample({super.key});
+
+  @override
+  State createState() => _TextualityExampleState();
+}
+
+class _TextualityExampleState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(
+          'Textuality Package Preview',
+          style: TextStyle(color: Colors.black),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
+        child: Center(
+          child: Column(
+            children: [
+              &#47;&#47; Gradient Text
+              GradientText(
+                text: 'Gradient Text',
+                giveGradient: [Colors.blue, Colors.green],
+                style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+              &#47;&#47; Stroke Text
+              StrokeText(
+                text: 'Stroke Text',
+                strokeColor: Colors.red,
+                strokeWidth: 8.0,
+                style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.purpleAccent),
+              ),
+              SizedBox(height: 20),
+              &#47;&#47; Neon Text
+              NeonText(
+                text: 'Neon Effect Text',
+                glowColor: Colors.cyan,
+                blurRadius: 20.0,
+                style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue),
+              ),
+              SizedBox(height: 20),
+              &#47;&#47; Text Chips
+              ChipText(
+                text: 'Text Chip',
+                chipColor: Colors.blueAccent,
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+              SizedBox(height: 20),
+              &#47;&#47; Shadow Text
+              ShadowText(
+                  text: 'Shadow Effect Text',
+                  shadows: [
+                    Shadow(
+                      blurRadius: 5.0,
+                      color: Colors.amber,
+                      offset: Offset(5, 5),
+                    ),
+                  ],
+                  style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)),
+              SizedBox(height: 20),
+              ShadowText.simple(
+                text: 'Simple Shadow Effect Text',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+                shadowColor: Colors.red,
+                shadowBlurRadius: 8.0,
+                shadowOffset: Offset(3, 3),
+              ),
+              SizedBox(height: 20),
+              &#47;&#47; Multi-Color Text
+              MultiColorText(
+                spans: [
+                  TextSpan(
+                    text: 'Multi',
+                    style: TextStyle(color: Colors.blue, fontSize: 40),
+                  ),
+                  TextSpan(
+                    text: 'Color ',
+                    style: TextStyle(color: Colors.green, fontSize: 40),
+                  ),
+                  TextSpan(
+                    text: 'Text',
+                    style: TextStyle(color: Colors.red, fontSize: 40),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+   
+// ... (truncated)

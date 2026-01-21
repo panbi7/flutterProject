@@ -1,0 +1,121 @@
+import 'package:flutter&#47;material.dart';
+import 'package:css_filter&#47;css_filter.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'CSS Filter Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+double width = 360.0;
+
+Widget pic(name) {
+  int i = 0;
+
+  return Container(
+      padding:
+          const EdgeInsets.only(top: 10.0, right: 0.0, bottom: 10.0, left: 0.0),
+      child: Stack(
+        children: [
+          Positioned(
+              child: Image(
+            image: const NetworkImage(
+                'https:&#47;&#47;static.iofod.com&#47;common&#47;buildings&#47;1621839293951_castle_1280x852.jpg'),
+            width: width &#47; 2.5,
+          )),
+          ...(name ?? '').split(',').map((str) {
+            double top = i * 30.0;
+
+            i++;
+
+            return Positioned(
+                top: top,
+                child: Container(
+                    decoration: const BoxDecoration(
+                        color: Color.fromARGB(151, 61, 61, 61)),
+                    padding: const EdgeInsets.all(6.0),
+                    child: Text(str,
+                        style: const TextStyle(
+                            fontSize: 12.0,
+                            color: Color.fromARGB(255, 251, 255, 9)))));
+          }).toList(),
+        ],
+      ));
+}
+
+Widget customPreset({required Widget child}) {
+  return CSSFilter.apply(
+      child: child,
+      value: CSSFilterMatrix().sepia(0.5).hueRotate(-30.0).saturate(1.4));
+}
+
+class _MyHomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    width = MediaQuery.of(context).size.width;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: CSSFilter.blur(
+              value: 0.0,
+              child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  width: MediaQuery.of(context).size.width,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceEvenly,
+                    runAlignment: WrapAlignment.spaceEvenly,
+                    children: [
+                      pic('Original image'),
+
+                      CSSFilter.contrast(
+                          child: pic('contrast(1.3)'), value: 1.3),
+                      CSSFilter.grayscale(
+                          child: pic('grayscale(0.5)'), value: 0.5),
+                      CSSFilter.sepia(child: pic('sepia(0.5)'), value: 0.5),
+                      CSSFilter.hueRotate(
+                          child: pic('hueRotate(60.0)'), value: 60.0),
+                      CSSFilter.brightness(
+                          child: pic('brightness(1.3)'), value: 1.3),
+                      CSSFilter.saturate(
+                          child: pic('saturate(2.0)'), value: 2.0),
+                      CSSFilter.invert(child: pic('invert(0.9)'), value: 0.9),
+
+                      ClipRect(
+                        child:
+                            CSSFilter.blur(child: pic('blur(1.5)'), value: 1.5),
+                      ),
+
+                      CSSFilter.opacity(child: pic('opacity(0.5)'), value: 0.5),
+
+                      CSSFilter.apply(
+                          child: pic('contrast(1.5),sepia(0.2)'),
+                          value: CSSFilterMatrix().contrast(1.3).sepia(0.2)),
+                      CSSFilter.apply(
+                          child: pic('h
+// ... (truncated)

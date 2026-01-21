@@ -1,0 +1,132 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:math';
+
+import 'package:bitsdojo_window&#47;bitsdojo_window.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_acrylic&#47;flutter_acrylic.dart';
+import 'package:flutter_acrylic&#47;widgets&#47;visual_effect_subview_container&#47;visual_effect_subview_container.dart';
+import 'package:flutter_acrylic_example&#47;widgets&#47;macos_action_menu&#47;macos_action_menu.dart';
+import 'package:flutter_acrylic_example&#47;widgets&#47;sidebar_frame&#47;sidebar_frame.dart';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Window.initialize();
+  if (Platform.isWindows) {
+    await Window.hideWindowControls();
+  }
+  runApp(MyApp());
+  if (Platform.isWindows) {
+    doWhenWindowReady(() {
+      appWindow
+        ..minSize = Size(640, 360)
+        ..size = Size(720, 540)
+        ..alignment = Alignment.center
+        ..show();
+    });
+  }
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        splashFactory: InkRipple.splashFactory,
+      ),
+      darkTheme: ThemeData.dark().copyWith(
+        splashFactory: InkRipple.splashFactory,
+      ),
+      themeMode: ThemeMode.dark,
+      home: MyAppBody(),
+    );
+  }
+}
+
+enum InterfaceBrightness {
+  light,
+  dark,
+  auto,
+}
+
+extension InterfaceBrightnessExtension on InterfaceBrightness {
+  bool getIsDark(BuildContext? context) {
+    if (this == InterfaceBrightness.light) return false;
+    if (this == InterfaceBrightness.auto) {
+      if (context == null) return true;
+
+      return MediaQuery.of(context).platformBrightness == Brightness.dark;
+    }
+
+    return true;
+  }
+
+  Color getForegroundColor(BuildContext? context) {
+    return getIsDark(context) ? Colors.white : Colors.black;
+  }
+}
+
+class MyAppBody extends StatefulWidget {
+  MyAppBody({Key? key}) : super(key: key);
+
+  @override
+  MyAppBodyState createState() => MyAppBodyState();
+}
+
+class MyAppBodyState extends State {
+  WindowEffect effect = WindowEffect.transparent;
+  Color color = Platform.isWindows ? Color(0xCC222222) : Colors.transparent;
+  InterfaceBrightness brightness =
+      Platform.isMacOS ? InterfaceBrightness.auto : InterfaceBrightness.dark;
+  MacOSBlurViewState macOSBlurViewState =
+      MacOSBlurViewState.followsWindowActiveState;
+
+  @override
+  void initState() {
+    super.initState();
+    this.setWindowEffect(this.effect);
+  }
+
+  void setWindowEffect(WindowEffect? value) {
+    Window.setEffect(
+      effect: value!,
+      color: this.color,
+      dark: brightness == InterfaceBrightness.dark,
+    );
+    if (Platform.isMacOS) {
+      if (brightness != InterfaceBrightness.auto) {
+        Window.overrideMacOSBrightness(
+          dark: brightness == InterfaceBrightness.dark,
+        );
+      }
+    }
+    this.setState(() => this.effect = value);
+  }
+
+  void setBrightness(InterfaceBrightness brightness) {
+    this.brightness = brightness;
+    if (this.brightness == InterfaceBrightness.dark) {
+      color = Platform.isWindows ? Color(0xCC222222) : Colors.transparent;
+    } else {
+      color = Platform.isWindows ? Color(0x22DDDDDD) : Colors.transparent;
+    }
+    this.setWindowEffect(this.effect);
+  }
+
+  &#47;&#47;&#47; Lets the madness begin! (macOS only.)
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; This method plays a silly little effect that is achieved using visual
+  &#47;&#47;&#47; effect subviews. It is designed to showcase a low-level approach to using
+  &#47;&#47;&#47; visual effect subviews without relying on the
+  &#47;&#47;&#47; [VisualEffectSubviewContainer] widget.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; In most cases, using the container widget is preferable, though, due to
+  &#47;&#47;&#47; its ease of use.
+  void letTheMadnessBegin() async {
+    final random = Random();
+    final windowWidth = MediaQuery.of(context).size.width;
+    final windowHeight = MediaQ
+// ... (truncated)

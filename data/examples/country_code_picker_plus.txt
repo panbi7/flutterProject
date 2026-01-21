@@ -1,0 +1,135 @@
+import 'package:country_code_picker_plus&#47;country_code_picker_plus.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+
+void main() {
+  runApp(const AppWrapper());
+}
+
+List list = const [
+  Locale('af'), &#47;&#47; Afrikaans
+  Locale('am'), &#47;&#47; Amharic
+  Locale('ar'), &#47;&#47; Arabic
+  Locale('az'), &#47;&#47; Azerbaijani
+  Locale('be'), &#47;&#47; Belarusian
+  Locale('bg'), &#47;&#47; Bulgarian
+  Locale('bn'), &#47;&#47; Bengali
+  Locale('bs'), &#47;&#47; Bosnian
+  Locale('ca'), &#47;&#47; Catalan
+  Locale('cs'), &#47;&#47; Czech
+  Locale('da'), &#47;&#47; Danish
+  Locale('de'), &#47;&#47; German
+  Locale('el'), &#47;&#47; Greek
+  Locale('en'), &#47;&#47; English
+  Locale('es'), &#47;&#47; Spanish
+  Locale('et'), &#47;&#47; Estonian
+  Locale('fa'), &#47;&#47; Persian
+  Locale('fi'), &#47;&#47; Finnish
+  Locale('fr'), &#47;&#47; French
+  Locale('gl'), &#47;&#47; Galician
+  Locale('ha'), &#47;&#47; Hausa
+  Locale('he'), &#47;&#47; Hebrew
+  Locale('hi'), &#47;&#47; Hindi
+  Locale('hr'), &#47;&#47; Croatian
+  Locale('hu'), &#47;&#47; Hungarian
+  Locale('hy'), &#47;&#47; Armenian
+  Locale('id'), &#47;&#47; Indonesian
+  Locale('is'), &#47;&#47; Icelandic
+  Locale('it'), &#47;&#47; Italian
+  Locale('ja'), &#47;&#47; Japanese
+  Locale('ka'), &#47;&#47; Georgian
+  Locale('kk'), &#47;&#47; Kazakh
+  Locale('km'), &#47;&#47; Khmer
+  Locale('ko'), &#47;&#47; Korean
+  Locale('ku'), &#47;&#47; Kurdish
+  Locale('ky'), &#47;&#47; Kyrgyz
+  Locale('lt'), &#47;&#47; Lithuanian
+  Locale('lv'), &#47;&#47; Latvian
+  Locale('mk'), &#47;&#47; Macedonian
+  Locale('ml'), &#47;&#47; Malayalam
+  Locale('mn'), &#47;&#47; Mongolian
+  Locale('ms'), &#47;&#47; Malay
+  Locale('nb'), &#47;&#47; Norwegian Bokmål
+  Locale('nl'), &#47;&#47; Dutch
+  Locale('nn'), &#47;&#47; Norwegian Nynorsk
+  Locale('no'), &#47;&#47; Norwegian
+  Locale('pl'), &#47;&#47; Polish
+  Locale('ps'), &#47;&#47; Pashto
+  Locale('pt'), &#47;&#47; Portuguese
+  Locale('ro'), &#47;&#47; Romanian
+  Locale('ru'), &#47;&#47; Russian
+  Locale('sd'), &#47;&#47; Sindhi
+  Locale('sk'), &#47;&#47; Slovak
+  Locale('sl'), &#47;&#47; Slovenian
+  Locale('so'), &#47;&#47; Somali
+  Locale('sq'), &#47;&#47; Albanian
+  Locale('sr'), &#47;&#47; Serbian
+  Locale('sv'), &#47;&#47; Swedish
+  Locale('ta'), &#47;&#47; Tamil
+  Locale('tg'), &#47;&#47; Tajik
+  Locale('th'), &#47;&#47; Thai
+  Locale('tk'), &#47;&#47; Turkmen
+  Locale('tr'), &#47;&#47; Turkish
+  Locale('tt'), &#47;&#47; Tatar
+  Locale('uk'), &#47;&#47; Ukrainian
+  Locale('ug'), &#47;&#47; Uyghur
+  Locale('ur'), &#47;&#47; Urdu
+  Locale('uz'), &#47;&#47; Uzbek
+  Locale('vi'), &#47;&#47; Vietnamese
+  Locale('zh'), &#47;&#47; Chinese
+];
+
+&#47;&#47; Wrapper widget to manage app state
+class AppWrapper extends StatefulWidget {
+  const AppWrapper({super.key});
+
+  &#47;&#47; Static method to access the state
+  static AppWrapperState of(BuildContext context) {
+    return context.findAncestorStateOfType()!;
+  }
+
+  @override
+  State createState() => AppWrapperState();
+}
+
+class AppWrapperState extends State {
+  Locale _locale = const Locale('en');
+
+  &#47;&#47; Method to change the locale
+  void setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MyApp(locale: _locale);
+  }
+}
+
+&#47;&#47; Main app widget
+class MyApp extends StatelessWidget {
+  final Locale locale;
+
+  const MyApp({
+    super.key,
+    required this.locale,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Country Picker Demo',
+      locale: locale,
+      &#47;&#47; Use the passed locale
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+      ),
+      localizationsDelegates: const [
+        &#47;&#47; Required material delegates
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizati
+// ... (truncated)

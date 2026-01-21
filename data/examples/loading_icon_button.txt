@@ -1,0 +1,115 @@
+import 'package:flutter&#47;material.dart';
+import 'package:loading_icon_button&#47;loading_icon_button.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Loading Icon Button Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const LoadingButtonDemo(),
+    );
+  }
+}
+
+class LoadingButtonDemo extends StatefulWidget {
+  const LoadingButtonDemo({Key? key}) : super(key: key);
+
+  @override
+  _LoadingButtonDemoState createState() => _LoadingButtonDemoState();
+}
+
+class _LoadingButtonDemoState extends State {
+  &#47;&#47; Progress tracking for the upload simulation
+  double _uploadProgress = 0.0;
+  bool _isUploading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Loading Icon Button Demo'),
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            &#47;&#47; 1. AutoLoadingButton (Material Design)
+            _buildSectionHeader('1. AutoLoadingButton (Material)'),
+            ElevatedAutoLoadingButton(
+              onPressed: () => _simulateAutoOperation(),
+              child: const Text('Auto Loading Button'),
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(Colors.purple),
+                foregroundColor: WidgetStateProperty.all(Colors.white),
+                shape: WidgetStateProperty.all(RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                )),
+                elevation: WidgetStateProperty.all(4),
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            &#47;&#47; 2. Material LoadingButton with Builder Pattern
+            _buildSectionHeader('2. Material LoadingButton (Builder)'),
+            LoadingButtonBuilder.filled()
+                .onPressed(() => _simulateUpload())
+                .child(const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.cloud_upload),
+                    SizedBox(width: 8),
+                    Text('Upload File'),
+                  ],
+                ))
+                .style(LoadingButtonStyle(
+                  backgroundColor: Colors.indigo,
+                  foregroundColor: Colors.white,
+                  loadingBackgroundColor: Colors.indigo.shade300,
+                  successBackgroundColor: Colors.green,
+                  errorBackgroundColor: Colors.red,
+                  borderRadius: 8,
+                  elevation: 2,
+                ))
+                .loadingText('Uploading...')
+                .successText('Uploaded!')
+                .errorText('Failed!')
+                .build(),
+            const SizedBox(height: 30),
+
+            &#47;&#47; 3. Elevated LoadingButton
+            _buildSectionHeader('3. Elevated LoadingButton'),
+            LoadingButton(
+              type: ButtonType.elevated,
+              onPressed: () => _simulateLogin(),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.login),
+                  SizedBox(width: 8),
+                  Text('Login'),
+                ],
+              ),
+              style: const LoadingButtonStyle(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                borderRadius: 8,
+              ),
+              loadingText: 'Logging in...',
+              successText: 'Welcome!',
+              errorText: 'Login failed',
+              onError: (error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+        
+// ... (truncated)

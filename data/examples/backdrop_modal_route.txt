@@ -1,0 +1,113 @@
+import 'package:backdrop_modal_route&#47;backdrop_modal_route.dart';
+import 'package:example&#47;custom_backdrop_modal_route.dart';
+import 'package:example&#47;stateful_backdrop_overlay_content.dart';
+import 'package:example&#47;stateless_backdrop_overlay_content.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Backdrop Modal Route Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        textButtonTheme: TextButtonThemeData(
+          style: ButtonStyle(
+            foregroundColor: MaterialStateProperty.all(Colors.black),
+          ),
+        ),
+      ),
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  &#47;&#47; could be anything other than string,
+  &#47;&#47; depends on your BackdropModalRoute return type
+  String? backdropResult = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Backdrop Modal Route'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: Text('Return Data : $backdropResult'),
+              ),
+              Expanded(
+                child: ListView(
+                  children: [
+                    &#47;&#47; stateless default
+                    Container(
+                      child: TextButton(
+                        child: Text(
+                          "Default Backdrop (Stateless) \n (String Return)",
+                          textAlign: TextAlign.center,
+                        ),
+                        onPressed: () async {
+                          handleStatelessBackdropContent(context);
+                        },
+                      ),
+                    ),
+
+                    &#47;&#47; stateful default
+                    Container(
+                      child: TextButton(
+                        child: Text(
+                          "Default Backdrop (Stateful) \n (Int Return)",
+                          textAlign: TextAlign.center,
+                        ),
+                        onPressed: () async {
+                          handleStatefulBackdropContent(context);
+                        },
+                      ),
+                    ),
+
+                    &#47;&#47; customized
+                    Container(
+                      child: TextButton(
+                        child: Text(
+                          "Inline Customized Default Backdrop \n (Void Return)",
+                          textAlign: TextAlign.center,
+                        ),
+                        onPressed: () =>
+                            handleCustomizedBackdropContent(context),
+                      ),
+                    ),
+
+                    &#47;&#47; custom&#47;single purpose extended from base
+                    Container(
+                      child: TextButton(
+                        child: Text(
+                          "Custom&#47;Single purpose backdrop modal route extended from base",
+                          textAlign: TextAlign.center,
+                        ),
+                        onPressed: () =>
+                            handleCustomBackdropModalRoute(context),
+                      ),
+                    ),
+       
+// ... (truncated)

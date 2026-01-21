@@ -1,0 +1,120 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_xlider&#47;flutter_xlider.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        &#47;&#47;
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Xlider Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, this.title}) : super(key: key);
+
+  final String? title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  double _lowerValue = 50;
+  double _upperValue = 180;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title!),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              &#47;&#47; width: 100,
+              &#47;&#47; height: 50,
+              padding: EdgeInsets.all(50),
+              child: FlutterSlider(
+                values: [0],
+                max: 100,
+                min: 0,
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 50, left: 50, right: 50),
+              alignment: Alignment.centerLeft,
+              child: FlutterSlider(
+                values: [60, 160],
+&#47;&#47;              ignoreSteps: [
+&#47;&#47;                FlutterSliderIgnoreSteps(from: 120, to: 150),
+&#47;&#47;                FlutterSliderIgnoreSteps(from: 160, to: 190),
+&#47;&#47;              ],
+                max: 200,
+                min: 50,
+                maximumDistance: 300,
+                rangeSlider: true,
+                rtl: true,
+                handlerAnimation: FlutterSliderHandlerAnimation(
+                    curve: Curves.elasticOut,
+                    reverseCurve: null,
+                    duration: Duration(milliseconds: 700),
+                    scale: 1.4),
+                onDragging: (handlerIndex, lowerValue, upperValue) {
+                  setState(() {
+                    _lowerValue = lowerValue;
+                    _upperValue = upperValue;
+                  });
+                },
+              ),
+            ),
+            Container(
+                margin: EdgeInsets.only(top: 50, left: 20, right: 20),
+                alignment: Alignment.centerLeft,
+                child: FlutterSlider(
+                  values: [1000, 15000],
+                  rangeSlider: true,
+&#47;&#47;rtl: true,
+                  ignoreSteps: [
+                    FlutterSliderIgnoreSteps(from: 8000, to: 12000),
+                    FlutterSliderIgnoreSteps(from: 18000, to: 22000),
+                  ],
+                  max: 25000,
+                  min: 0,
+                  step: FlutterSliderStep(step: 100),
+
+                  jump: true,
+
+                  trackBar: FlutterSliderTrackBar(
+                    activeTrackBarHeight: 5,
+                  ),
+                  tooltip: FlutterSliderTooltip(
+                    textStyle: TextStyle(fontSize: 17, color: Colors.lightBlue),
+                  ),
+                  handler: FlutterSliderHandler(
+                    decoration: BoxDecoration(),
+                    child: Material(
+                      type: MaterialType.canvas,
+                      color: Colors.orange,
+                      elevation: 10,
+                      child: Container(
+                          padding: EdgeInsets.all(5),
+                          child: Icon(
+                            Icons.adjust,
+                            size: 25,
+                          )),
+                    ),
+                  ),
+                  rightHandler: FlutterSliderHandler(
+                    child: Icon(
+                      Icons.chevron_left,
+                  
+// ... (truncated)

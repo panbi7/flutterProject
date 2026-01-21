@@ -1,0 +1,118 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_bottom_drawer&#47;flutter_bottom_drawer.dart';
+import 'package:flutter_naver_map&#47;flutter_naver_map.dart';
+import 'package:flutter_naver_map_example&#47;design&#47;custom_widget.dart';
+import 'package:flutter_naver_map_example&#47;pages&#47;others&#47;example_page_data.dart';
+import 'package:flutter_naver_map_example&#47;pages&#47;others&#47;routes.dart';
+import 'package:flutter_naver_map_example&#47;util&#47;example_location_tracker.dart';
+import 'package:flutter_naver_map_example&#47;util&#47;overlay_portal_util.dart';
+import 'package:get_it&#47;get_it.dart';
+import 'package:go_router&#47;go_router.dart';
+import 'design&#47;theme.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await FlutterNaverMap().init(
+      clientId: 'dzx1zs89q6',
+      onAuthFailed: (ex) {
+        switch (ex) {
+          case NQuotaExceededException(:final message):
+            print("사용량 초과 (message: $message)");
+            break;
+          case NUnauthorizedClientException() ||
+                NClientUnspecifiedException() ||
+                NAnotherAuthFailedException():
+            print("인증 실패: $ex");
+            break;
+        }
+      });
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        routerConfig: goRouter,
+        theme: ExampleAppTheme.lightThemeData,
+        darkTheme: ExampleAppTheme.darkThemeData);
+  }
+}
+
+class FNMapPage extends StatefulWidget {
+  final Widget bottomSheetPage;
+  final Stream pageObserveStream;
+  final Stream sharedMapViewOptionChangeStream;
+
+  const FNMapPage({
+    Key? key,
+    required this.bottomSheetPage,
+    required this.pageObserveStream,
+    required this.sharedMapViewOptionChangeStream,
+  }) : super(key: key);
+
+  @override
+  State createState() => _FNMapPageState();
+}
+
+class _FNMapPageState extends State {
+  late NaverMapController mapController;
+  final _onCameraChangeStreamController =
+      StreamController.broadcast();
+  final _mapKey = UniqueKey();
+
+  Widget mapWidget(BuildContext context, NaverMapViewOptions options) {
+    final safeArea = MediaQuery.paddingOf(context);
+    final mapPadding =
+        EdgeInsets.only(top: safeArea.top, bottom: _drawerHandleHeight);
+    return NaverMap(
+      key: _mapKey,
+      options: options.copyWith(contentPadding: mapPadding),
+      clusterOptions: NaverMapClusteringOptions(
+          mergeStrategy: const NClusterMergeStrategy(
+            willMergedScreenDistance: {
+              NaverMapClusteringOptions.defaultClusteringZoomRange: 35,
+            },
+          ),
+          clusterMarkerBuilder: (info, clusterMarker) {
+            print("[flutter] clusterMarkerBuilder: $info");
+            if (clusterIcon != null) clusterMarker.setIcon(clusterIcon!);
+            clusterMarker.setIsFlat(true);
+            clusterMarker.setCaption(NOverlayCaption(
+                text: info.size.toString(),
+                color: Colors.white,
+                haloColor: Colors.blueAccent));
+          }),
+      onMapReady: onMapReady,
+      onMapLoaded: onMapLoaded,
+      onMapTapped: onMapTapped,
+      onMapLongTapped: onMapLongTapped,
+      onSymbolTapped: onSymbolTapped,
+      onCameraChange: onCameraChange,
+      onCameraIdle: onCameraIdle,
+      onSelectedIndoorChanged: onSelectedIndoorChanged,
+      onCustomStyleLoaded: onCustomStyleLoaded,
+      onCustomStyleLoadFailed: onCustomStyleLoadFailed,
+    );
+  }
+
+  &#47;* ----- Events ----- *&#47;
+
+  void onMapReady(NaverMapController controller) {
+    mapController = controller;
+    GetIt.I.registerSingleton(controller);
+    &#47;&#47; controller.setMyLocationTracker(NExampleMyLocationTracker());
+  }
+
+  void onMapLoaded() {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text("onMapLoaded"),
+   
+// ... (truncated)

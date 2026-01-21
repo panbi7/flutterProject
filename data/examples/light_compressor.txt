@@ -1,0 +1,109 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:file_picker&#47;file_picker.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:light_compressor&#47;light_compressor.dart';
+import 'package:light_compressor_example&#47;utils&#47;file_utils.dart';
+import 'package:light_compressor_example&#47;video_player.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+&#47;&#47;&#47; A widget that uses LightCompressor library to compress videos
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late String _desFile;
+  String? _displayedFile;
+  late int _duration;
+  String? _failureMessage;
+  String? _filePath;
+  bool _isVideoCompressed = false;
+
+  final LightCompressor _lightCompressor = LightCompressor();
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        theme: ThemeData(
+          primaryColor: const Color(0xFF344772),
+          primaryColorDark: const Color(0xFF002046),
+        ),
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('Compressor Sample'),
+            actions: [
+              TextButton(
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+                onPressed: () => _lightCompressor.cancelCompression(),
+              )
+            ],
+          ),
+          body: Container(
+            margin: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_filePath != null)
+                  Text(
+                    'Original size: ${_getVideoSize(file: File(_filePath!))}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                const SizedBox(height: 8),
+                if (_isVideoCompressed)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Size after compression: ${_getVideoSize(file: File(_desFile))}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Duration: $_duration seconds',
+                        style: const TextStyle(fontSize: 16, color: Colors.red),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 16),
+                Visibility(
+                  visible: !_isVideoCompressed,
+                  child: StreamBuilder(
+                    stream: _lightCompressor.onProgressUpdated,
+                    builder: (BuildContext context,
+                        AsyncSnapshot snapshot) {
+                      if (snapshot.data != null && snapshot.data > 0) {
+                        return Column(
+                          children: [
+                            LinearProgressIndicator(
+                              minHeight: 8,
+                              value: snapshot.data &#47; 100,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '${snapshot.data.toStringAsFixed(0)}%',
+                              style: const TextStyle(fontSize: 20),
+                            )
+                          ],
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 24),
+                if (_displayedFile != null)
+                  Builder(
+                    builder: (BuildContext context) => Container(
+                      alignment: Alignment.center,
+                      child: OutlinedButton(
+                          onPressed: () => Navigator.push(
+                    
+// ... (truncated)

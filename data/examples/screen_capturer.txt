@@ -1,0 +1,25 @@
+import 'package:flutter&#47;material.dart';
+import 'package:screen_capturer_example&#47;pages&#47;home.dart';
+import 'package:screen_capturer_example&#47;utils&#47;default_shell_executor.dart';
+import 'package:shell_executor&#47;shell_executor.dart';
+
+void main() {
+  ShellExecutor.global = DefaultShellExecutor();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: HomePage(),
+    );
+  }
+}

@@ -1,0 +1,136 @@
+import 'dart:convert';
+import 'dart:math' as math;
+
+import 'package:example&#47;albums.dart';
+import 'package:figma_squircle&#47;figma_squircle.dart';
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_map&#47;flutter_map.dart';
+import 'package:palette_generator&#47;palette_generator.dart';
+import 'package:progressive_blur&#47;progressive_blur.dart';
+
+Future main() async {
+  await ProgressiveBlurWidget.precache();
+  runApp(const App());
+}
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoApp(
+      debugShowCheckedModeBanner: false,
+      theme: MaterialBasedCupertinoThemeData(
+        materialTheme: ThemeData.from(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            brightness: Brightness.light,
+          ),
+        ),
+      ),
+      home: const MainPage(),
+    );
+  }
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  State createState() => _MainPageState();
+}
+
+class _MainPageState extends State {
+  var _displayIndex = 0;
+  final _albums = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAlbums();
+  }
+
+  void _loadAlbums() {
+    final json = jsonDecode(data) as List;
+    for (final album in json) {
+      final albumMap = album as Map;
+      _albums.add((
+        albumMap['image'] as String,
+        albumMap['url'] as String,
+        albumMap['name'] as String,
+        albumMap['artist'] as String,
+      ));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final child = switch (_displayIndex) {
+      0 => CustomScrollView(
+          slivers: [
+            const CupertinoSliverNavigationBar(
+              largeTitle: Text('Music'),
+              border: Border(),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.all(16.0),
+              sliver: SliverLayoutBuilder(
+                builder: (context, constraints) {
+                  const preferredItemSize = 160.0;
+                  final crossAxisCount = math.max(
+                    1,
+                    (constraints.crossAxisExtent &#47; preferredItemSize).floor(),
+                  );
+
+                  return SliverGrid.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      mainAxisSpacing: 16.0,
+                      crossAxisSpacing: 16.0,
+                      childAspectRatio: 1.0,
+                    ),
+                    itemCount: _albums.length,
+                    itemBuilder: (context, index) {
+                      final album = _albums[index];
+
+                      return _AlbumCard(
+                        key: ValueKey(album.$1),
+                        imageUrl: album.$1,
+                        redirectUrl: album.$2,
+                        title: album.$3,
+                        artist: album.$4,
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      1 => FlutterMap(
+          children: [
+            ProgressiveBlurWidget(
+              sigma: 16.0,
+              linearGradientBlur: const LinearGradientBlur(
+                values: [1, 0],
+                stops: [0, 0.125],
+                start: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              child: TileLayer(
+                urlTemplate: 'https:&#47;&#47;tile.openstreetmap.org&#47;{z}&#47;{x}&#47;{y}.png',
+                userAgentPackageName: 'com.kekland.progressive_blur_example',
+              ),
+            ),
+          ],
+        ),
+      _ => throw Exception('Invalid index'),
+    };
+
+    return Scaffold(
+      bottomNavigationBar: CupertinoTabBar(
+        currentIndex: _displayIndex,
+        onTap: (index) => setState(() => _displayIndex = index),
+        ico
+// ... (truncated)

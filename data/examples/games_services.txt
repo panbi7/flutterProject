@@ -1,0 +1,93 @@
+import 'dart:convert';
+
+import 'package:flutter&#47;material.dart';
+import 'package:games_services&#47;games_services.dart';
+
+void main() => runApp(const App());
+
+class App extends StatefulWidget {
+  const App({Key? key}) : super(key: key);
+
+  @override
+  AppState createState() => AppState();
+}
+
+class AppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.black,
+        )),
+      ),
+      home: Scaffold(
+          appBar: AppBar(
+            title: const Text('Games Services plugin example'),
+          ),
+          body: StreamBuilder(
+              stream: GameAuth.player,
+              builder: (context, snapshot) {
+                final player = snapshot.data;
+                return SingleChildScrollView(
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Image.asset(
+                            "assets&#47;logo.png",
+                            width: 200,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: player == null
+                              ? ElevatedButton(
+                                  onPressed: _signIn,
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize: const Size(150, 40),
+                                    backgroundColor: Colors.black,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('Sign In'),
+                                )
+                              : Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        if (player.iconImage != null)
+                                          CircleAvatar(
+                                            foregroundImage: MemoryImage(
+                                              base64Decode(player.iconImage!),
+                                            ),
+                                          )
+                                        else
+                                          CircleAvatar(
+                                            child: Text(player.displayName[0]),
+                                          ),
+                                        const SizedBox(width: 16.0),
+                                        Expanded(
+                                          child: Text(
+                                              'playerID: ${player.playerID}\n'
+                                              'displayName: ${player.displayName}'),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16.0),
+                                    Theme(
+                                      data: ThemeData(
+                                        elevatedButtonTheme:
+                                            ElevatedButtonThemeData(
+                                          style: ElevatedButton.styleFrom(
+                                            minimumSize: const Size(150, 40),
+                                            backgroundColor: Colors.black,
+                                            f
+// ... (truncated)

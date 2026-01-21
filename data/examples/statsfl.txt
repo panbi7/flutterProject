@@ -1,0 +1,65 @@
+import 'package:flutter&#47;material.dart';
+import 'package:statsfl&#47;statsfl.dart';
+
+void main() {
+  &#47;&#47;Enable this to measure your repaint regions
+  &#47;&#47;debugRepaintRainbowEnabled = true;
+  runApp(Padding(
+    padding: const EdgeInsets.only(top: 40),
+    child: StatsFl(
+      isEnabled: true,
+      align: Alignment.topRight,
+      height: 20,
+      child: MaterialApp(debugShowCheckedModeBanner: false, home: Scaffold(body: MyApp())),
+    ),
+  ));
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    int boxCount = 10;
+    List boxes = List.generate(
+      boxCount,
+      (index) => ShadowBox(),
+    ).toList();
+
+    return Stack(
+      children: [
+        &#47;&#47;&#47; Test 2nd level of nesting
+        StatsFl(
+            isEnabled: true,
+            maxFps: 90,
+            width: 200,
+            height: 30,
+            align: Alignment.topLeft,
+            child: Center(child: ListView(children: boxes))),
+
+        Center(child: IconButton(onPressed: () {}, icon: Icon(Icons.height))),
+
+        &#47;&#47;&#47; Test floating version with no child
+        Positioned.fill(child: Align(alignment: Alignment.bottomCenter, child: StatsFl())),
+      ],
+    );
+  }
+}
+
+class ShadowBox extends StatelessWidget {
+  const ShadowBox({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 20),
+      height: 50,
+      decoration: BoxDecoration(color: Colors.white, boxShadow: [
+        BoxShadow(spreadRadius: 4, blurRadius: 4, color: Colors.redAccent.withOpacity(.2)),
+      ]),
+      child: Container(
+        width: double.infinity,
+        alignment: Alignment.center,
+        child: SizedBox.fromSize(size: Size(20, 20), child: CircularProgressIndicator()),
+      ),
+    );
+  }
+}

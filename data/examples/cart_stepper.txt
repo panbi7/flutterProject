@@ -1,0 +1,124 @@
+import 'package:flutter&#47;material.dart';
+
+import 'package:cart_stepper&#47;cart_stepper.dart';
+import 'package:intl&#47;intl.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(
+        title: "Cart Stepper View",
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int _counterInit = 0;
+  int _counter = 1;
+  int _counterLimit = 1;
+
+  double _dCounter = 0.01;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: ListView(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Text('普通调用:'),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CartStepperInt(
+                          style: CartStepperStyle.fromTheme(
+                            Theme.of(context),
+                            radius: Radius.zero,
+                          ),
+                          elevation: 7,
+                          value: _counterInit,
+                          didChangeCount: (count) {
+                            setState(() {
+                              _counterInit = count;
+                            });
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CartStepperDouble(
+                          value: _dCounter,
+                          stepper: 0.01,
+                          format: NumberFormat('##0.00'),
+                          didChangeCount: (count) {
+                            setState(() {
+                              _dCounter = (count * 100).round() &#47; 100;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 25),
+                          child: Text('纵向:'),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CartStepperInt(
+                              value: _counter,
+                              axis: Axis.vertical,
+                              didChangeCount: (count) {
+                                setState(() {
+                                  _counter = count;
+                                });
+                              },
+              
+// ... (truncated)

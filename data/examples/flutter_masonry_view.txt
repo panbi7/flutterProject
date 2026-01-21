@@ -1,0 +1,57 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_masonry_view&#47;flutter_masonry_view.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        fontFamily: 'Futura',
+        primarySwatch: Colors.teal,
+      ),
+      home: Home(),
+    );
+  }
+}
+
+class Home extends StatelessWidget {
+  Home({Key? key}) : super(key: key);
+
+  final _items = [
+    'assets&#47;images&#47;1.jpeg',
+    'assets&#47;images&#47;2.jpeg',
+    'assets&#47;images&#47;3.jpeg',
+    'assets&#47;images&#47;4.jpeg',
+    'assets&#47;images&#47;5.jpeg',
+    'assets&#47;images&#47;6.jpeg',
+    'assets&#47;images&#47;7.jpeg',
+    'assets&#47;images&#47;8.jpeg',
+    'assets&#47;images&#47;9.jpg',
+    'assets&#47;images&#47;10.jpg',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flutter Masonry View'),
+      ),
+      body: SingleChildScrollView(
+        child: MasonryView(
+          listOfItem: _items,
+          numberOfColumn: 2,
+          itemBuilder: (item) {
+            return Image.asset(item);
+          },
+        ),
+      ),
+    );
+  }
+}

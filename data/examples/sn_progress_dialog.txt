@@ -1,0 +1,134 @@
+import 'package:flutter&#47;material.dart';
+import 'package:sn_progress_dialog&#47;sn_progress_dialog.dart';
+
+void main() {
+  runApp(MyExample());
+}
+
+class MyExample extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Home(),
+    );
+  }
+}
+
+class Home extends StatelessWidget {
+  _normalProgress(context) async {
+    &#47;&#47;&#47; Create progress dialog
+    ProgressDialog pd = ProgressDialog(context: context);
+
+    &#47;&#47;&#47; Set options
+    &#47;&#47;&#47; Max and msg required
+    pd.show(
+      max: 100,
+      msg: 'File Downloading...',
+      progressBgColor: Colors.transparent,
+      cancel: Cancel(
+        cancelClicked: () {
+          &#47;&#47;&#47; ex: cancel the download
+        },
+      ),
+    );
+    for (int i = 0; i <= 100; i++) {
+      &#47;&#47;&#47; You don't need to update state, just pass the value.
+      pd.update(value: i);
+      i++;
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+  }
+
+  &#47;&#47;&#47; Shows a progress dialog with a determinate progress bar.
+  _valuableProgress(context) async {
+    ProgressDialog pd = ProgressDialog(context: context);
+
+    pd.show(
+      max: 100,
+      msg: 'File Downloading...',
+      progressType: ProgressType.valuable,
+    );
+    for (int i = 0; i <= 100; i++) {
+      pd.update(value: i);
+      i++;
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+  }
+
+  &#47;&#47;&#47; Shows a progress dialog that starts with a preparation message,
+  &#47;&#47;&#47; then switches to a downloading message.
+  _preparingProgress(context) async {
+    ProgressDialog pd = ProgressDialog(context: context);
+
+    pd.show(
+      max: 100,
+      msg: 'Preparing Download...',
+      progressType: ProgressType.determinate,
+    );
+
+    await Future.delayed(Duration(milliseconds: 3000));
+    for (int i = 0; i <= 100; i++) {
+      pd.update(value: i, msg: 'File Downloading...');
+      i++;
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+  }
+
+  &#47;&#47;&#47; Shows a customizable progress dialog with a dark theme.
+  _customProgress(context) async {
+    ProgressDialog pd = ProgressDialog(context: context);
+    pd.show(
+        max: 100,
+        msg: 'Preparing Download...',
+        progressType: ProgressType.determinate,
+        backgroundColor: Color(0xff212121),
+        progressValueColor: Color(0xff3550B4),
+        progressBgColor: Colors.white70,
+        msgColor: Colors.white,
+        valueColor: Colors.white);
+    await Future.delayed(Duration(milliseconds: 3000));
+    for (int i = 0; i <= 100; i++) {
+      pd.update(value: i, msg: 'File Downloading...');
+      i++;
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+  }
+
+  &#47;&#47;&#47; Shows a progress dialog that completes with a custom completion widget.
+  _completedProgress(context) async {
+    ProgressDialog pd = ProgressDialog(context: context);
+    pd.show(
+      max: 100,
+      msg: 'File Downloading...',
+      completed: Completed(),
+      &#47;&#47; Completed values can be customized
+      &#47;&#47; Completed(completedMsg: "Downloading Done !", completedImage: AssetImage("images&#47;completed.png"), completionDelay: 2500,),
+      progressBgColor: Colors.transparent,
+    );
+    for (int i = 0; i <= 100; i++) {
+      pd.update(value: i);
+      i++;
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+  }
+
+  &#47;&#47;&#47; Shows a message-only progress dialog without a progress bar.
+  _onlyMessageProgress(context) async {
+    ProgressDialog pd = ProgressDialog(context: context);
+    pd.show(
+      barrierDismissible: true,
+      msg: "Please waiting...",
+      hideValue: true,
+    );
+
+    await Future.delayed(Duration(milliseconds: 1000));
+    pd.update(msg: "Almost done...");
+
+    await Future.delayed(Duration(milliseconds: 1000));
+    pd.close();
+  }
+
+  &#47;&#47;&#47; Shows a message-only progress dialog that completes automatically.
+  _onlyMessageWithCompletionProgress(context) async {
+    ProgressDialo
+// ... (truncated)

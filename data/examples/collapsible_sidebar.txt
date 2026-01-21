@@ -1,0 +1,114 @@
+import 'dart:math' as math show pi;
+
+import 'package:collapsible_sidebar&#47;collapsible_sidebar.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Sidebar ui',
+      home: Scaffold(
+        body: SidebarPage(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: const Text('Yay! Button Pressed!')));
+          },
+          backgroundColor: Colors.green,
+          child: const Icon(Icons.navigation),
+        ),
+      ),
+    );
+  }
+}
+
+class SidebarPage extends StatefulWidget {
+  @override
+  _SidebarPageState createState() => _SidebarPageState();
+}
+
+class _SidebarPageState extends State {
+  late List _items;
+  late String _headline;
+  AssetImage _avatarImg = AssetImage('assets&#47;man.png');
+
+  @override
+  void initState() {
+    super.initState();
+    _items = _generateItems;
+    _headline = _items.firstWhere((item) => item.isSelected).text;
+  }
+
+  List get _generateItems {
+    return [
+      CollapsibleItem(
+          text: 'Dashboard',
+          icon: Icons.assessment,
+          onPressed: () => setState(() => _headline = 'DashBoard'),
+          onHold: () => ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: const Text("Dashboard"))),
+          isSelected: true,
+          subItems: [
+            CollapsibleItem(
+              text: 'Menu',
+              icon: Icons.menu_book,
+              onPressed: () => setState(() => _headline = 'Menu'),
+              onHold: () => ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: const Text("Menu"))),
+              isSelected: true,
+            ),
+            CollapsibleItem(
+                text: 'Shop',
+                iconImage: AssetImage("assets&#47;shop_icon.png"),
+                icon: Icons.ac_unit,
+                onPressed: () => setState(() => _headline = 'Shop'),
+                onHold: () => ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: const Text("Shop"))),
+                isSelected: true,
+                subItems: [
+                  CollapsibleItem(
+                    text: 'Cart',
+                    icon: Icons.shopping_cart,
+                    onPressed: () => setState(() => _headline = 'Cart'),
+                    onHold: () => ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: const Text("Cart"))),
+                    isSelected: true,
+                  )
+                ]),
+          ]),
+      CollapsibleItem(
+        text: 'Search',
+        icon: Icons.search,
+        onPressed: () => setState(() => _headline = 'Search'),
+        onHold: () => ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: const Text("Search"))),
+      ),
+      CollapsibleItem(
+        text: 'Notifications',
+        icon: Icons.notifications,
+        onPressed: () => setState(() => _headline = 'Notifications'),
+        onHold: () => ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: const Text("Notifications"))),
+      ),
+      CollapsibleItem(
+        text: 'Settings',
+        icon: Icons.settings,
+        onPressed: () => setState(() => _headline = 'Settings'),
+        onHold: () => ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: const Text("Settings"))),
+      ),
+      CollapsibleItem(
+        text: 'Alarm',
+        icon: Icons.access_alarm,
+        onPressed: () => setState(() => _headline = 'Alarm'),
+        onHold: () => ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: const Text("Alarm"))),
+      ),
+      CollapsibleItem(
+        text: 'Eco',
+  
+// ... (truncated)

@@ -1,0 +1,62 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_osm_plugin&#47;flutter_osm_plugin.dart';
+import 'package:flutter_osm_plugin_example&#47;src&#47;home&#47;main_example.dart';
+import 'package:flutter_osm_plugin_example&#47;src&#47;search_example.dart';
+import 'package:flutter_osm_plugin_example&#47;src&#47;simple_example_hook.dart';
+import 'package:flutter_web_plugins&#47;flutter_web_plugins.dart'
+    show usePathUrlStrategy;
+
+import 'src&#47;home&#47;home_example.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  usePathUrlStrategy();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.light(useMaterial3: true),
+      initialRoute: "&#47;home",
+      routes: {
+        "&#47;home": (context) => const MainPageExample(),
+        "&#47;simple": (context) => Scaffold(
+          appBar: AppBar(title: const Text('simple')),
+          body: OSMViewer(
+            controller: SimpleMapController(
+              initPosition: GeoPoint(
+                latitude: 47.4358055,
+                longitude: 8.4737324,
+              ),
+              markerHome: const MarkerIcon(icon: Icon(Icons.home)),
+            ),
+            zoomOption: const ZoomOption(initZoom: 16, minZoomLevel: 11),
+          ),
+        ),
+        "&#47;old-home": (context) => const OldMainExample(),
+        "&#47;hook": (context) => const SimpleHookExample(),
+        &#47;&#47;"&#47;adv-home": (ctx) => AdvandedMainExample(),
+        &#47;&#47; "&#47;nav": (ctx) => MyHomeNavigationPage(
+        &#47;&#47;       map: Container(),
+        &#47;&#47; ),
+        "&#47;second": (context) => Scaffold(
+          body: Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, "&#47;old-home");
+              },
+              child: const Text("another page"),
+            ),
+          ),
+        ),
+        "&#47;picker-result": (context) => const LocationAppExample(),
+        "&#47;search": (context) => const SearchPage(),
+      },
+    );
+  }
+}

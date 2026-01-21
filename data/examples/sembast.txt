@@ -1,0 +1,31 @@
+&#47;&#47; basically same as the io runner but with extra output
+import 'dart:async';
+
+import 'package:path&#47;path.dart';
+import 'package:sembast&#47;sembast_io.dart';
+
+Future main() async {
+  final db = await databaseFactoryIo.openDatabase(
+    join('.dart_tool', 'sembast', 'example', 'record_demo.db'),
+  );
+  var store = intMapStoreFactory.store('my_store');
+
+  var key = await store.add(db, {'name': 'ugly'});
+  var record =
+      await (store.record(key).getSnapshot(db)
+          as FutureOr>>);
+  record =
+      (await store.find(
+            db,
+            finder: Finder(filter: Filter.byKey(record.key)),
+          )).first
+          as RecordSnapshot>;
+  print(record);
+  var records =
+      (await (store.find(
+            db,
+            finder: Finder(filter: Filter.matches('name', '^ugly')),
+          )
+          as FutureOr>>>));
+  print(records);
+}

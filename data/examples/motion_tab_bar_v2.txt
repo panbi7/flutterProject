@@ -1,0 +1,126 @@
+import 'package:flutter&#47;material.dart';
+import 'package:motion_tab_bar_v2&#47;motion-tab-bar.dart';
+import 'package:motion_tab_bar_v2&#47;motion-badge.widget.dart';
+import 'package:motion_tab_bar_v2&#47;motion-tab-controller.dart';
+import 'package:flutter_svg&#47;flutter_svg.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Motion Tab Bar v2 Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Motion Tab Bar v2 Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, this.title});
+
+  final String? title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State with TickerProviderStateMixin {
+  &#47;&#47; TabController? _tabController;
+  MotionTabBarController? _motionTabBarController;
+
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47;&#47;&#47; Use normal tab controller
+    &#47;&#47; _tabController = TabController(
+    &#47;&#47;   initialIndex: 1,
+    &#47;&#47;   length: 4,
+    &#47;&#47;   vsync: this,
+    &#47;&#47; );
+
+    &#47;&#47;&#47;&#47; use "MotionTabBarController" to replace with "TabController", if you need to programmatically change the tab
+    _motionTabBarController = MotionTabBarController(
+      initialIndex: 1,
+      length: 4,
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _motionTabBarController!.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title!),
+        backgroundColor: Colors.orange,
+      ),
+      bottomNavigationBar: MotionTabBar(
+        controller: _motionTabBarController, &#47;&#47; ADD THIS if you need to change your tab programmatically
+        initialSelectedTab: "Home",
+        useSafeArea: true, &#47;&#47; default: true, apply safe area wrapper
+        labelAlwaysVisible: true, &#47;&#47; default: false, set to "true" if you need to always show labels
+        labels: const ["Dashboard", "Home", "Profile", "Settings"],
+
+        &#47;&#47;&#47;&#47; use default icon (with IconData)
+        &#47;&#47; icons: const [
+        &#47;&#47;   Icons.dashboard,
+        &#47;&#47;   Icons.home,
+        &#47;&#47;   Icons.people_alt,
+        &#47;&#47;   Icons.settings,
+        &#47;&#47; ],
+
+        &#47;&#47; use custom widget as display Icon
+        iconWidgets: [
+          _generateCustomIcon(
+              ''),
+          _generateCustomIcon(
+              ''),
+          _generateCustomIcon(
+              ''),
+          _generateCustomIcon(
+              ''),
+        ],
+
+        &#47;&#47; optional badges, length must be same with labels
+        badges: [
+          &#47;&#47; Default Motion Badge Widget
+          const MotionBadgeWidget(
+            text: '99+',
+            textColor: Colors.white, &#47;&#47; optional, default to Colors.white
+            color: Colors.blue, &#47;&#47; optional, default to Colors.red
+            size: 18, &#47;&#47; optional, default to 18
+          ),
+
+          &#47;&#47; custom badge Widget
+          Container(
+            color: Colors.black,
+            padding: const EdgeInsets.all(2),
+            child: const Text(
+              '48',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
+
+          &#47;&#47; allow null
+          null,
+
+          &#47;&#47; Default Motion Badge Widget with indicator only
+          const MotionBadgeWidget(
+            isIndicator: true,
+            color: Colors.blue, &#47;&#47; optional, default to Colors.re
+// ... (truncated)

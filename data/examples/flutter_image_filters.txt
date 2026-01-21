@@ -1,0 +1,39 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_image_filters&#47;flutter_image_filters.dart';
+
+class PreviewPage extends StatefulWidget {
+  const PreviewPage({super.key});
+
+  @override
+  State createState() => _PreviewPageState();
+}
+
+class _PreviewPageState extends State {
+  late TextureSource texture;
+  late BrightnessShaderConfiguration configuration;
+  bool textureLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    configuration = BrightnessShaderConfiguration();
+    configuration.brightness = 0.5;
+    TextureSource.fromAsset('demo.jpeg')
+        .then((value) => texture = value)
+        .whenComplete(
+          () => setState(() {
+            textureLoaded = true;
+          }),
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return textureLoaded
+        ? ImageShaderPreview(
+            texture: texture,
+            configuration: configuration,
+          )
+        : const Offstage();
+  }
+}

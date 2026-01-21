@@ -1,0 +1,145 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:zendesk_messaging&#47;zendesk_messaging.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Zendesk Messaging Example',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+      home: const ZendeskMessagingDemo(),
+    );
+  }
+}
+
+class ZendeskMessagingDemo extends StatefulWidget {
+  const ZendeskMessagingDemo({super.key});
+
+  @override
+  State createState() => _ZendeskMessagingDemoState();
+}
+
+class _ZendeskMessagingDemoState extends State {
+  &#47;&#47; Replace with your actual channel keys
+  static const String androidChannelKey = '';
+  static const String iosChannelKey = '';
+
+  final List _logs = [];
+  StreamSubscription? _eventSubscription;
+  StreamSubscription? _unreadCountSubscription;
+
+  bool _isInitialized = false;
+  bool _isLoggedIn = false;
+  int _unreadMessageCount = 0;
+  ZendeskConnectionStatus _connectionStatus = ZendeskConnectionStatus.unknown;
+  ZendeskUser? _currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkInitializationStatus();
+  }
+
+  @override
+  void dispose() {
+    _eventSubscription?.cancel();
+    _unreadCountSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _log(String message) {
+    setState(() {
+      final timestamp = DateTime.now().toString().substring(11, 19);
+      _logs.insert(0, '[$timestamp] $message');
+      if (_logs.length > 100) _logs.removeLast();
+    });
+  }
+
+  Future _checkInitializationStatus() async {
+    final isInitialized = await ZendeskMessaging.isInitialized();
+    final isLoggedIn = await ZendeskMessaging.isLoggedIn();
+    setState(() {
+      _isInitialized = isInitialized;
+      _isLoggedIn = isLoggedIn;
+    });
+    if (isInitialized) {
+      _log('SDK already initialized');
+      _setupEventListeners();
+    }
+  }
+
+  &#47;&#47; ========== Initialization ==========
+
+  Future _initialize() async {
+    _log('Initializing SDK...');
+    try {
+      await ZendeskMessaging.initialize(
+        androidChannelKey: androidChannelKey,
+        iosChannelKey: iosChannelKey,
+      );
+      setState(() => _isInitialized = true);
+      _log('SDK initialized successfully');
+      _setupEventListeners();
+    } catch (e) {
+      _log('Initialize failed: $e');
+    }
+  }
+
+  Future _invalidate() async {
+    _log('Invalidating SDK...');
+    try {
+      await ZendeskMessaging.invalidate();
+      _eventSubscription?.cancel();
+      _unreadCountSubscription?.cancel();
+      setState(() {
+        _isInitialized = false;
+        _isLoggedIn = false;
+        _currentUser = null;
+        _unreadMessageCount = 0;
+        _connectionStatus = ZendeskConnectionStatus.unknown;
+      });
+      _log('SDK invalidated');
+    } catch (e) {
+      _log('Invalidate failed: $e');
+    }
+  }
+
+  &#47;&#47; ========== Event Listeners ==========
+
+  void _setupEventListeners() {
+    &#47;&#47; Listen to all events via the unified event stream
+    _eventSubscription?.cancel();
+    _eventSubscription = ZendeskMessaging.eventStream.listen(_handleEvent);
+    _log('Event listener setup complete');
+
+    &#47;&#47; Also listen to unread count stream for backwards compatibility demo
+    _unreadCountSubscription?.cancel();
+    _unreadCountSubscription =
+        ZendeskMessaging.unreadMessagesCountStream.listen((count) {
+      setState(() => _unreadMessageCount = count);
+    });
+
+    &#47;&#47; Start listening for unread messages
+    ZendeskMessaging.listenUnreadMessages();
+  }
+
+  void _handleEvent(ZendeskEvent event) {
+    &#47;&#47; Use Dart 3 pattern matching with sealed classes
+    final message = switch (event) {
+      UnreadMessageCountChanged(
+        :final totalUnreadCount,
+        :final conversationId
+      ) =>
+        'Unread count: $totalUnreadCount${conversationId != null ? ' (conversa
+// ... (truncated)

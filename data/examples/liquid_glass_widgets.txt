@@ -1,0 +1,121 @@
+import 'package:liquid_glass_widgets&#47;liquid_glass_widgets.dart';
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:liquid_glass_widgets_example&#47;constants&#47;glass_settings.dart';
+import 'package:liquid_glass_widgets_example&#47;pages&#47;containers_page.dart';
+import 'package:liquid_glass_widgets_example&#47;pages&#47;input_page.dart';
+import 'package:liquid_glass_widgets_example&#47;pages&#47;interactive_page.dart';
+import 'package:liquid_glass_widgets_example&#47;pages&#47;overlays_page.dart';
+import 'package:liquid_glass_widgets_example&#47;pages&#47;surfaces_page.dart';
+
+void main() async {
+  &#47;&#47; Ensure Flutter bindings are initialized before loading shaders
+  WidgetsFlutterBinding.ensureInitialized();
+
+  &#47;&#47; Initializes the Liquid Glass library.
+  await LiquidGlassWidgets.initialize();
+
+  runApp(const AppleLiquidGlassShowcaseApp());
+}
+
+class AppleLiquidGlassShowcaseApp extends StatelessWidget {
+  const AppleLiquidGlassShowcaseApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Apple Liquid Glass Showcase',
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        useMaterial3: true,
+        colorScheme: ColorScheme.dark(
+          primary: Colors.blue,
+          surface: Colors.black,
+        ),
+      ),
+      home: const ShowcaseHomePage(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class ShowcaseHomePage extends StatefulWidget {
+  const ShowcaseHomePage({super.key});
+
+  @override
+  State createState() => _ShowcaseHomePageState();
+}
+
+class _ShowcaseHomePageState extends State {
+  int _selectedIndex = 0;
+
+  final List _pages = const [
+    HomePage(),
+    ContainersPage(),
+    InteractivePage(),
+    OverlaysPage(),
+    SurfacesPage(),
+    InputPage(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return LiquidGlassScope.stack(
+      background: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets&#47;wallpaper_dark.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+      ),
+      content: Positioned.fill(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          extendBody: true,
+          body: _pages[_selectedIndex],
+          bottomNavigationBar: GlassBottomBar(
+            quality: GlassQuality.premium,
+            indicatorColor: Colors.black26,
+            glassSettings: RecommendedGlassSettings.bottomBar,
+            &#47;&#47; unselectedIconColor: Colors.red,
+            &#47;&#47; barBorderRadius: 20,
+            tabs: [
+              GlassBottomBarTab(
+                label: 'Home',
+                icon: CupertinoIcons.home,
+                selectedIcon: CupertinoIcons.house_fill,
+              ),
+              GlassBottomBarTab(
+                label: 'Containers',
+                icon: CupertinoIcons.square_stack_3d_up,
+                selectedIcon: CupertinoIcons.square_stack_3d_up_fill,
+              ),
+              GlassBottomBarTab(
+                label: 'Interactive',
+                icon: CupertinoIcons.hand_point_right,
+                selectedIcon: CupertinoIcons.hand_point_right_fill,
+              ),
+              GlassBottomBarTab(
+                label: 'Overlays',
+                icon: CupertinoIcons.square_stack,
+                selectedIcon: CupertinoIcons.square_stack_fill,
+              ),
+              GlassBottomBarTab(
+                label: 'Surfaces',
+                icon: CupertinoIcons.rectangle_3_offgrid,
+                selectedIcon: CupertinoIcons.rectangle_3_offgrid_fill,
+              ),
+              GlassBottomBarTab(
+                label: 'Input',
+                icon: CupertinoIcons.keyboard,
+              ),
+            ],
+            selectedIndex: _selectedIndex,
+            onTabSelected: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+ 
+// ... (truncated)

@@ -1,0 +1,122 @@
+import 'package:example&#47;src&#47;data&#47;icon_detail.dart';
+import 'package:example&#47;src&#47;data&#47;icons.dart';
+import 'package:example&#47;widget&#47;icon_item.dart';
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:iconly&#47;iconly.dart';
+
+void main() {
+  runApp(const IconlyExampleApp());
+}
+
+class IconlyExampleApp extends StatelessWidget {
+  const IconlyExampleApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Iconly Example',
+      theme: ThemeData(
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xff4e54c8),
+          primaryVariant: Color(0xff8f94fb),
+        ),
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  IconlyDetail? _selectedIcon;
+
+  String _searchText = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final lightData = _filterIcons(lightIcons);
+    final boldData = _filterIcons(boldIcons);
+    final brokenData = _filterIcons(brokenIcons);
+
+    return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          if (_selectedIcon == null) {
+            ScaffoldMessenger.of(context)
+              ..clearSnackBars()
+              ..showSnackBar(
+                const SnackBar(
+                  content: Text('Select an Icon first. then you can copy it to clipboard'),
+                ),
+              );
+          } else {
+            final clipboardValue = '${_selectedIcon!.type}.${_selectedIcon!.title}';
+            Clipboard.setData(
+              ClipboardData(text: clipboardValue),
+            );
+            ScaffoldMessenger.of(context)
+              ..clearSnackBars()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text('Icon Has been copied to clipboard: $clipboardValue'),
+                ),
+              );
+          }
+        },
+        label: Row(
+          children: const [
+            Icon(IconlyBroken.paper_plus),
+            SizedBox(width: 4),
+            Text('Copy'),
+          ],
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              expandedHeight: 230,
+              pinned: false,
+              automaticallyImplyLeading: true,
+              flexibleSpace: FlexibleSpaceBar(
+                centerTitle: true,
+                collapseMode: CollapseMode.parallax,
+                titlePadding: const EdgeInsets.all(16),
+                background: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.asset('assets&#47;image&#47;banner.png'),
+                ),
+              ),
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(48),
+                child: CupertinoSearchTextField(
+                  onChanged: (value) {
+                    setState(() {
+                      _searchText = value;
+                    });
+                  },
+                ),
+              ),
+            ),
+            if (lightData.isNotEmpty) ...[
+              const SliverPadding(
+                padding: EdgeInsets.only(top: 24.0),
+                sliver: SliverToBoxAdapter(child: SectionTitle(title: 'Light')),
+              ),
+              IconSliverGrid(
+                iconDetails: lightData,
+                selectedIcon: _selectedIcon,
+                onTap: (tappedIcon) {
+                  setState((
+// ... (truncated)

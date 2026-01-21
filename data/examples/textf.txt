@@ -1,0 +1,107 @@
+&#47;&#47; Textf Feature Showcase - A comprehensive code reference
+&#47;&#47; This file demonstrates all Textf features with concise comments.
+&#47;&#47; This file is a code reference, not UI showcase.
+
+&#47;&#47; ignore_for_file: no-magic-number
+
+import 'package:flutter&#47;material.dart';
+import 'package:textf&#47;textf.dart';
+&#47;&#47; import 'package:url_launcher&#47;url_launcher.dart'; &#47;&#47; Uncomment for real URL handling
+
+void main() => runApp(const TextfShowcaseApp());
+
+class TextfShowcaseApp extends StatelessWidget {
+  const TextfShowcaseApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Textf Feature Showcase',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData.dark(useMaterial3: true),
+      themeMode: ThemeMode.light,
+      home: const ShowcaseScreen(),
+    );
+  }
+}
+
+class ShowcaseScreen extends StatelessWidget {
+  const ShowcaseScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Textf Features')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            &#47;&#47; ─────────────────────────────────────────────────────────────
+            &#47;&#47; SECTION 1: Basic Formatting
+            &#47;&#47; ─────────────────────────────────────────────────────────────
+            _sectionHeader('1. Basic Formatting'),
+
+            &#47;&#47; Bold: Use ** or __
+            const Textf('This is **bold** text.'),
+            const Textf('This is also __bold__ text.'),
+
+            &#47;&#47; Italic: Use * or _
+            const Textf('This is *italic* text.'),
+            const Textf('This is also _italic_ text.'),
+
+            &#47;&#47; Bold + Italic: Use *** or ___
+            const Textf('This is ***bold and italic*** text.'),
+            const Textf('This is also ___bold and italic___ text.'),
+
+            &#47;&#47; Strikethrough: Use ~~
+            const Textf('This is ~~strikethrough~~ text.'),
+
+            &#47;&#47; Underline: Use ++
+            const Textf('This is ++underlined++ text.'),
+
+            &#47;&#47; Highlight: Use ==
+            const Textf('This is ==highlighted== text.'),
+
+            &#47;&#47; Inline code: Use `
+            const Textf('Run `flutter pub get` to install.'),
+
+            &#47;&#47; Combined in one line
+            const Textf(
+              '**Bold**, *italic*, ~~strike~~, ++underline++, ==highlight==, `code`.',
+            ),
+
+            const SizedBox(height: 24),
+
+            &#47;&#47; ─────────────────────────────────────────────────────────────
+            &#47;&#47; SECTION 2: Superscript & Subscript
+            &#47;&#47; ─────────────────────────────────────────────────────────────
+            _sectionHeader('2. Superscript & Subscript'),
+
+            &#47;&#47; Superscript: Use ^
+            const Textf('Einstein: E = mc^2^'),
+            const Textf('Footnote reference^1^'),
+            const Textf('x^2^ + y^2^ = z^2^'),
+
+            &#47;&#47; Subscript: Use ~
+            const Textf('Water: H~2~O'),
+            const Textf('Carbon dioxide: CO~2~'),
+            const Textf('Glucose: C~6~H~12~O~6~'),
+
+            &#47;&#47; Combined with other formatting
+            const Textf('The **first** derivative: f^*prime*^(x)'),
+            const Textf('*Important*: H~2~O is **essential**'),
+
+            const SizedBox(height: 24),
+
+            &#47;&#47; ─────────────────────────────────────────────────────────────
+            &#47;&#47; SECTION 3: Links
+            &#47;&#47; ─────────────────────────────────────────────────────────────
+            _sectionHeader('3. Links'),
+
+            &#47;&#47; Basic link syntax: [display text](url)
+            const Textf('Visit [Flutter](https:&#47;&#47;flutter
+// ... (truncated)

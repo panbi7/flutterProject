@@ -1,0 +1,81 @@
+import 'package:flutter&#47;widgets.dart';
+import 'package:update_available&#47;update_available.dart';
+
+import 'shared&#47;button.dart';
+import 'shared&#47;colors.dart';
+
+void main() {
+  runApp(const UpdateAvailableExample());
+}
+
+class UpdateAvailableExample extends StatefulWidget {
+  const UpdateAvailableExample({super.key});
+
+  @override
+  State createState() => _UpdateAvailableExampleState();
+}
+
+class _UpdateAvailableExampleState extends State {
+  String text = 'Is there any update?';
+
+  @override
+  Widget build(BuildContext context) {
+    return WidgetsApp(
+      color: green,
+      pageRouteBuilder: (RouteSettings settings, WidgetBuilder builder) {
+        return PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return builder(context);
+          },
+        );
+      },
+      home: Container(
+        padding: const EdgeInsets.all(24.0),
+        color: green,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              text,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            Button(
+              onTap: _onTap,
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  'Check for update!',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future _onTap() async {
+    setState(() {
+      text = 'Checking...';
+    });
+
+    final availability = await getUpdateAvailability();
+
+    setState(() {
+      text = switch (availability) {
+        UpdateAvailable() => "There's an update available!",
+        NoUpdateAvailable() => "There's no update available!",
+        UnknownAvailability() =>
+          "Sorry, couldn't determine if there is or not an available update!",
+      };
+    });
+  }
+}

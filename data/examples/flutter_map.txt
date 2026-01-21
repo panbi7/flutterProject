@@ -1,0 +1,73 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_map_example&#47;pages&#47;abort_obsolete_requests.dart';
+import 'package:flutter_map_example&#47;pages&#47;animated_map_controller.dart';
+import 'package:flutter_map_example&#47;pages&#47;bundled_offline_map.dart';
+import 'package:flutter_map_example&#47;pages&#47;circle.dart';
+import 'package:flutter_map_example&#47;pages&#47;debouncing_tile_update_transformer.dart';
+import 'package:flutter_map_example&#47;pages&#47;epsg3996_crs.dart';
+import 'package:flutter_map_example&#47;pages&#47;epsg4326_crs.dart';
+import 'package:flutter_map_example&#47;pages&#47;fallback_url_page.dart';
+import 'package:flutter_map_example&#47;pages&#47;home.dart';
+import 'package:flutter_map_example&#47;pages&#47;interactive_test_page.dart';
+import 'package:flutter_map_example&#47;pages&#47;latlng_to_screen_point.dart';
+import 'package:flutter_map_example&#47;pages&#47;many_circles.dart';
+import 'package:flutter_map_example&#47;pages&#47;many_markers.dart';
+import 'package:flutter_map_example&#47;pages&#47;map_controller.dart';
+import 'package:flutter_map_example&#47;pages&#47;map_inside_listview.dart';
+import 'package:flutter_map_example&#47;pages&#47;markers.dart';
+import 'package:flutter_map_example&#47;pages&#47;overlay_image.dart';
+import 'package:flutter_map_example&#47;pages&#47;plugin_zoombuttons.dart';
+import 'package:flutter_map_example&#47;pages&#47;polygon.dart';
+import 'package:flutter_map_example&#47;pages&#47;polygon_perf_stress.dart';
+import 'package:flutter_map_example&#47;pages&#47;polyline.dart';
+import 'package:flutter_map_example&#47;pages&#47;polyline_perf_stress.dart';
+import 'package:flutter_map_example&#47;pages&#47;repeated_worlds.dart';
+import 'package:flutter_map_example&#47;pages&#47;reset_tile_layer.dart';
+import 'package:flutter_map_example&#47;pages&#47;retina.dart';
+import 'package:flutter_map_example&#47;pages&#47;scalebar.dart';
+import 'package:flutter_map_example&#47;pages&#47;screen_point_to_latlng.dart';
+import 'package:flutter_map_example&#47;pages&#47;secondary_tap.dart';
+import 'package:flutter_map_example&#47;pages&#47;single_world_polys.dart';
+import 'package:flutter_map_example&#47;pages&#47;sliding_map.dart';
+import 'package:flutter_map_example&#47;pages&#47;tile_builder.dart';
+import 'package:flutter_map_example&#47;pages&#47;tile_loading_error_handle.dart';
+import 'package:flutter_map_example&#47;pages&#47;wms_tile_layer.dart';
+import 'package:flutter_web_plugins&#47;url_strategy.dart';
+
+void main() {
+  usePathUrlStrategy();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'flutter_map Demo',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: const Color(0xFF8dea88),
+      ),
+      home: const HomePage(),
+      routes: {
+        AbortObsoleteRequestsPage.route: (context) =>
+            const AbortObsoleteRequestsPage(),
+        PolylinePage.route: (context) => const PolylinePage(),
+        SingleWorldPolysPage.route: (context) => const SingleWorldPolysPage(),
+        PolylinePerfStressPage.route: (context) =>
+            const PolylinePerfStressPage(),
+        MapControllerPage.route: (context) => const MapControllerPage(),
+        AnimatedMapControllerPage.route: (context) =>
+            const AnimatedMapControllerPage(),
+        MarkerPage.route: (context) => const MarkerPage(),
+        ScaleBarPage.route: (context) => const ScaleBarPage(),
+        PluginZoomButtons.route: (context) => const PluginZoomButtons(),
+        BundledOfflineMapPage.route: (context) => const BundledOfflineMapPage(),
+        ManyCirclesPage.route: (context) => const ManyCirclesPage(),
+        CirclePage.route: (context) => const CirclePage(),
+        OverlayImagePage.route: (context) => const OverlayImagePage(),
+        PolygonPage.route: (context) => const PolygonPage(),
+        RepeatedWorldsPage.route:
+// ... (truncated)

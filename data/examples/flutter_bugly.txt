@@ -1,0 +1,84 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_bugly&#47;flutter_bugly.dart';
+
+void main() {
+  runZonedGuarded(() {
+    WidgetsFlutterBinding.ensureInitialized();
+    runApp(MyApp());
+  }, (exception, stackTrace) {
+    FlutterBugly.uploadException(
+      type: exception.runtimeType.toString(),
+      message: exception.toString(),
+      detail: stackTrace.toString(),
+    );
+  });
+  &#47;&#47; FlutterBugly.postCatchedException(() {
+  &#47;&#47;   WidgetsFlutterBinding.ensureInitialized();
+  &#47;&#47;   runApp(MyApp());
+  &#47;&#47; },debugUpload: true);
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(home: HomePage());
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  String _platformVersion = 'Unknown';
+
+  @override
+  void initState() {
+    super.initState();
+    FlutterBugly.init(
+      androidAppId: "af161f0da4",
+      iOSAppId: "your app id",
+      ohosAppId: "your ohos app id",
+      deviceId: "your ohos device id",
+      appKey: "your ohos bugly app key",
+    ).then((_result) {
+      setState(() {
+        _platformVersion = _result.message;
+        print(_result.appId);
+      });
+    });
+    FlutterBugly.setUserId("user id");
+    FlutterBugly.putUserData(key: "key", value: "value");
+    int tag = 9527;
+    FlutterBugly.setUserTag(tag);
+    FlutterBugly.setAppVersion('app version');
+    &#47;&#47; autoCheckUpgrade 为 true 时，可以不用调用
+    &#47;&#47; if (mounted) _checkUpgrade();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Plugin example app')),
+      body: GestureDetector(
+        onTap: () {
+          FlutterBugly.log(tag: "11111", message: "22222",level:LogLevel.INFO);
+          throw FlutterError('test exception');
+        },
+        child: Center(
+          child: Text('init result: $_platformVersion\n'),
+        ),
+      ),
+    );
+  }
+}

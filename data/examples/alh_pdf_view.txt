@@ -1,0 +1,127 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:alh_pdf_view_example&#47;pdf_screen.dart';
+import 'package:alh_pdf_view_example&#47;refresh_bytes_example.dart';
+import 'package:alh_pdf_view_example&#47;refresh_path_example.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+void main() => runApp(
+      const MaterialApp(
+        title: 'Alh PDF View',
+        home: MyApp(),
+      ),
+    );
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String smallPdfPath = '';
+  String linkPdfPath = '';
+
+  Uint8List smallPdfBytes = Uint8List(0);
+  Uint8List linkPdfBytes = Uint8List(0);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final pdfFile = await fromAsset('assets&#47;sample.pdf', 'sample.pdf');
+      final linkPdfFile = await fromAsset(
+        'assets&#47;sampleWithLink.pdf',
+        'sampleWithLink.pdf',
+      );
+      setState(
+        () {
+          smallPdfPath = pdfFile.path;
+          smallPdfBytes = pdfFile.readAsBytesSync();
+          linkPdfPath = linkPdfFile.path;
+          linkPdfBytes = linkPdfFile.readAsBytesSync();
+        },
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Plugin example app')),
+      body: Center(
+        child: Builder(
+          builder: (BuildContext context) {
+            return Column(
+              children: [
+                _getButtonWithPushExample(
+                  title: 'Open small PDF with path',
+                  widgetToPush: PDFScreen(path: smallPdfPath),
+                ),
+                _getButtonWithPushExample(
+                  title: 'Open small PDF with bytes',
+                  widgetToPush: PDFScreen(bytes: smallPdfBytes),
+                ),
+                _getButtonWithPushExample(
+                  title: 'Refresh bytes and all others example',
+                  widgetToPush: RefreshBytesExample(
+                    bytes: smallPdfBytes,
+                    updatedBytes: linkPdfBytes,
+                  ),
+                ),
+                _getButtonWithPushExample(
+                  title: 'Refresh path example',
+                  widgetToPush: RefreshPathExample(
+                    path: smallPdfPath,
+                    updatedPath: linkPdfPath,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _getButtonWithPushExample({
+    required String title,
+    required Widget widgetToPush,
+  }) {
+    return ElevatedButton(
+      onPressed: () {
+        unawaited(
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => widgetToPush,
+            ),
+          ),
+        );
+      },
+      child: Text(title),
+    );
+  }
+
+  Future fromAsset(String asset, String filename) async {
+    &#47;&#47; To open from assets, you can copy them to the app storage folder, and the access them "locally"
+    final Completer completer = Completer();
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final File file = File('${dir.path}&#47;$filename');
+      final data = await rootBundle.load(asset);
+      final bytes = data.buffer.asUint8List();
+      await file.writeAsBytes(bytes, flush: true);
+      completer.complete(file);
+    } catch (e) {
+      throw Exception('Error parsing asset file!\n$e');
+    }
+
+    return completer.future;
+  }
+}

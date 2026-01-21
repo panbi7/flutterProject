@@ -1,0 +1,114 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+import 'dart:isolate';
+import 'dart:math' as math;
+import 'dart:convert';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+import 'package:collection&#47;collection.dart';
+import 'package:legacy_gantt_chart&#47;legacy_gantt_chart.dart';
+import 'package:intl&#47;intl.dart';
+import 'package:legacy_tree_grid&#47;legacy_tree_grid.dart';
+import 'package:provider&#47;provider.dart';
+import 'package:legacy_context_menu&#47;legacy_context_menu.dart';
+import 'package:legacy_timeline_scrubber&#47;legacy_timeline_scrubber.dart' as scrubber;
+import 'ui&#47;widgets&#47;dashboard_header.dart';
+import 'ui&#47;widgets&#47;custom_header_painter.dart';
+import 'ui&#47;widgets&#47;dependency_dialog.dart';
+import 'view_models&#47;gantt_view_model.dart';
+import 'ui&#47;dialogs&#47;create_task_dialog.dart';
+
+import 'platform&#47;platform_init.dart'
+    if (dart.library.io) 'platform&#47;platform_init_io.dart'
+    if (dart.library.html) 'platform&#47;platform_init_web.dart';
+import 'package:csv&#47;csv.dart';
+import 'package:file_selector&#47;file_selector.dart';
+import 'package:flutter&#47;foundation.dart'; &#47;&#47; For compute
+import 'ui&#47;dialogs&#47;csv_import_dialog.dart';
+import 'utils&#47;csv_importer.dart';
+import 'data&#47;local&#47;local_gantt_repository.dart'; &#47;&#47; For LocalResource
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializePlatform();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Legacy Gantt Chart Example',
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', 'US'),
+          Locale('fr', 'FR'),
+          Locale('de', 'DE'),
+          Locale('ja', 'JP'),
+        ],
+        theme: ThemeData.from(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            brightness: Brightness.light,
+          ),
+        ),
+        &#47;&#47; The Gantt chart supports dark mode out of the box.
+        darkTheme: ThemeData.from(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark),
+        ),
+        themeMode: ThemeMode.system,
+        home: const GanttView(),
+      );
+}
+
+class GanttView extends StatefulWidget {
+  const GanttView({super.key});
+
+  @override
+  State createState() => _GanttViewState();
+}
+
+class _GanttViewState extends State {
+  late final GanttViewModel _viewModel;
+  bool _isPanelVisible = true;
+  TimelineAxisFormat _selectedAxisFormat = TimelineAxisFormat.auto;
+  String _selectedLocale = 'en_US';
+  bool _showCursors = true;
+  bool _showNowLine = false;
+  bool _showSlack = false;
+  Timer? _bulkUpdateTimer;
+  int _bulkUpdateCount = 0;
+  OverlayEntry? _tooltipOverlay;
+
+  late final TextEditingController _uriController;
+  late final TextEditingController _tenantIdController;
+  late final TextEditingController _usernameController;
+  late final TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = GanttViewModel(initialLocale: _selectedLocale, useLocalDatabase: true);
+    _uriController = TextEditingController(text: 'https:&#47;&#47;api.gantt-sync.com');
+    _tenantIdController = TextEditingController(text: 'legacy');
+    _usernameController = TextEditingController(text: 'patrick');
+    _passwordController = TextEditingController(text: 'password');
+  }
+
+  @override
+  void dispose() {
+    _viewModel.dispose();
+    _uriController.dispose();
+    _tenantIdController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  &#47;&#47;&#47; Builds a [LegacyGant
+// ... (truncated)

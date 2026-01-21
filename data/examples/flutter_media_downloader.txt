@@ -1,0 +1,42 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_media_downloader&#47;flutter_media_downloader.dart';
+
+void main() {
+  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final _flutterMediaDownloaderPlugin = MediaDownload();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: ElevatedButton(
+              onPressed: () async {
+                _flutterMediaDownloaderPlugin.downloadMedia(context,
+                    'https:&#47;&#47;www.kasandbox.org&#47;programming-images&#47;avatars&#47;spunky-sam-green.png');
+              },
+              child: const Text('Media Download')),
+        ),
+      ),
+    );
+  }
+}

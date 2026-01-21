@@ -1,0 +1,139 @@
+import 'dart:io';
+
+import 'package:audio_waveforms&#47;audio_waveforms.dart';
+import 'package:audio_waveforms_example&#47;chat_bubble.dart';
+import 'package:file_picker&#47;file_picker.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: 'Audio Waveforms',
+      debugShowCheckedModeBanner: false,
+      home: Home(),
+    );
+  }
+}
+
+class Home extends StatefulWidget {
+  const Home({super.key});
+
+  @override
+  State createState() => _HomeState();
+}
+
+class _HomeState extends State {
+  late final RecorderController recorderController;
+  final List assetPaths = const [
+    'assets&#47;audios&#47;audio1.mp3',
+    'assets&#47;audios&#47;audio2.mp3',
+    'assets&#47;audios&#47;audio3.mp3',
+    'assets&#47;audios&#47;audio4.mp3',
+  ];
+
+  final paths = [];
+  bool isRecording = false;
+  bool isRecordingCompleted = false;
+  bool isLoading = true;
+  late Directory appDirectory;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future _init() async {
+    recorderController = RecorderController();
+    appDirectory = await getApplicationDocumentsDirectory();
+    for (final path in assetPaths) {
+      final fileName = path.split('&#47;').last;
+      final file = File('${appDirectory.path}&#47;$fileName');
+      final byteData = await rootBundle.load(path);
+      final bytes = byteData.buffer.asUint8List();
+      await file.writeAsBytes((bytes));
+      paths.add(file.path);
+    }
+    isLoading = false;
+    setState(() {});
+  }
+
+  void _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null && result.files.isNotEmpty) {
+      paths.add(result.files.first.path!);
+      setState(() {});
+    } else {
+      debugPrint("File not picked");
+    }
+  }
+
+  @override
+  void dispose() {
+    recorderController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF252331),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF252331),
+        elevation: 1,
+        centerTitle: true,
+        shadowColor: Colors.grey,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets&#47;images&#47;logo.png',
+              scale: 1.5,
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'Simform',
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : SafeArea(
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: paths.length,
+                      itemBuilder: (_, index) {
+                        return WaveBubble(
+                          path: paths[index],
+                          isSender: index.isOdd,
+                          width: MediaQuery.of(context).size.width &#47; 2,
+                        );
+                      },
+                    ),
+                  ),
+                  SafeArea(
+                    child: Row(
+                      children: [
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: isRecording
+                              ? AudioWaveforms(
+                                  enableGesture: true,
+                                  size: Size(
+                                      MediaQuery.of(context).size.width &#47; 2,
+   
+// ... (truncated)

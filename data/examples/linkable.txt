@@ -1,0 +1,27 @@
+import 'package:flutter&#47;material.dart';
+import 'package:linkable&#47;linkable.dart';
+
+void main() => runApp(new LinkableExample());
+
+class LinkableExample extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Linkable example',
+      home: Scaffold(
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Center(
+              child: Linkable(
+                text:
+                    "Hi!\nI'm Anup.\n\nYou can email me at 1anuppanwar@gmail.com.\nOr just whatsapp me @ +91-8968894728.\n\nFor more info visit: \ngithub.com&#47;anupkumarpanwar \nor\nhttps:&#47;&#47;www.linkedin.com&#47;in&#47;anupkumarpanwar&#47;",
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

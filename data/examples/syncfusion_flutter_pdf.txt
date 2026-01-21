@@ -1,0 +1,120 @@
+import 'package:flutter&#47;material.dart';
+&#47;&#47; ignore: depend_on_referenced_packages
+import 'package:intl&#47;intl.dart';
+import 'package:syncfusion_flutter_pdf&#47;pdf.dart';
+
+&#47;&#47;Local imports
+import 'save_file_mobile.dart' if (dart.library.html) 'save_file_web.dart';
+
+void main() {
+  runApp(const CreatePdfWidget());
+}
+
+&#47;&#47;&#47; Represents the PDF widget class.
+class CreatePdfWidget extends StatelessWidget {
+  const CreatePdfWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(home: CreatePdfStatefulWidget());
+  }
+}
+
+&#47;&#47;&#47; Represents the PDF stateful widget class.
+class CreatePdfStatefulWidget extends StatefulWidget {
+  &#47;&#47;&#47; Initalize the instance of the [CreatePdfStatefulWidget] class.
+  const CreatePdfStatefulWidget({Key? key}) : super(key: key);
+
+  @override
+  _CreatePdfState createState() => _CreatePdfState();
+}
+
+class _CreatePdfState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Create PDF document')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.lightBlue,
+                disabledForegroundColor: Colors.grey,
+              ),
+              onPressed: generateInvoice,
+              child: const Text('Generate PDF'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future generateInvoice() async {
+    &#47;&#47;Create a PDF document.
+    final PdfDocument document = PdfDocument();
+    &#47;&#47;Add page to the PDF
+    final PdfPage page = document.pages.add();
+    &#47;&#47;Get page client size
+    final Size pageSize = page.getClientSize();
+    &#47;&#47;Draw rectangle
+    page.graphics.drawRectangle(
+      bounds: Rect.fromLTWH(0, 0, pageSize.width, pageSize.height),
+      pen: PdfPen(PdfColor(142, 170, 219)),
+    );
+    &#47;&#47;Generate PDF grid.
+    final PdfGrid grid = getGrid();
+    &#47;&#47;Draw the header section by creating text element
+    final PdfLayoutResult result = drawHeader(page, pageSize, grid);
+    &#47;&#47;Draw grid
+    drawGrid(page, grid, result);
+    &#47;&#47;Add invoice footer
+    drawFooter(page, pageSize);
+    &#47;&#47;Save the PDF document
+    final List bytes = document.saveSync();
+    &#47;&#47;Dispose the document.
+    document.dispose();
+    &#47;&#47;Save and launch the file.
+    await saveAndLaunchFile(bytes, 'Invoice.pdf');
+  }
+
+  &#47;&#47;Draws the invoice header
+  PdfLayoutResult drawHeader(PdfPage page, Size pageSize, PdfGrid grid) {
+    &#47;&#47;Draw rectangle
+    page.graphics.drawRectangle(
+      brush: PdfSolidBrush(PdfColor(91, 126, 215)),
+      bounds: Rect.fromLTWH(0, 0, pageSize.width - 115, 90),
+    );
+    &#47;&#47;Draw string
+    page.graphics.drawString(
+      'INVOICE',
+      PdfStandardFont(PdfFontFamily.helvetica, 30),
+      brush: PdfBrushes.white,
+      bounds: Rect.fromLTWH(25, 0, pageSize.width - 115, 90),
+      format: PdfStringFormat(lineAlignment: PdfVerticalAlignment.middle),
+    );
+
+    page.graphics.drawRectangle(
+      bounds: Rect.fromLTWH(400, 0, pageSize.width - 400, 90),
+      brush: PdfSolidBrush(PdfColor(65, 104, 205)),
+    );
+
+    page.graphics.drawString(
+      r'$' + getTotalAmount(grid).toString(),
+      PdfStandardFont(PdfFontFamily.helvetica, 18),
+      bounds: Rect.fromLTWH(400, 0, pageSize.width - 400, 100),
+      brush: PdfBrushes.white,
+      format: PdfStringFormat(
+        alignment: PdfTextAlignment.center,
+        lineAlignment: PdfVerticalAlignment.middle,
+      ),
+    );
+
+    final PdfFont contentFont = PdfStandardFont(PdfFontFamily.helvetica, 9);
+    &#47;&#47;Draw string
+    page.graphics.drawString(
+    
+// ... (truncated)

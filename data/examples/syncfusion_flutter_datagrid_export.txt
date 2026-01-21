@@ -1,0 +1,131 @@
+&#47;&#47; ignore_for_file: depend_on_referenced_packages
+
+import 'package:flutter&#47;material.dart';
+
+&#47;&#47; External package imports
+import 'package:syncfusion_flutter_datagrid&#47;datagrid.dart';
+import 'package:syncfusion_flutter_datagrid_export&#47;export.dart';
+import 'package:syncfusion_flutter_pdf&#47;pdf.dart';
+import 'package:syncfusion_flutter_xlsio&#47;xlsio.dart' hide Column, Row;
+
+&#47;&#47; Local import
+import 'helper&#47;save_file_mobile.dart'
+    if (dart.library.html) 'helper&#47;save_file_web.dart'
+    if (dart.library.js_interop) 'helper&#47;save_file_wasm.dart'
+    as helper;
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; The application that contains datagrid on it.
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Syncfusion DataGrid Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+&#47;&#47;&#47; The home page of the application which hosts the datagrid.
+class MyHomePage extends StatefulWidget {
+  &#47;&#47;&#47; Creates the home page.
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  MyHomePageState createState() => MyHomePageState();
+}
+
+&#47;&#47;&#47; A state class of a [MyHomePage] stateful widget.
+class MyHomePageState extends State {
+  List _employees = [];
+  late EmployeeDataSource _employeeDataSource;
+
+  final GlobalKey _key = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _employees = _getEmployeeData();
+    _employeeDataSource = EmployeeDataSource(employeeData: _employees);
+  }
+
+  Future _exportDataGridToExcel() async {
+    final Workbook workbook = _key.currentState!.exportToExcelWorkbook();
+
+    final List bytes = workbook.saveAsStream();
+    workbook.dispose();
+
+    await helper.saveAndLaunchFile(bytes, 'DataGrid.xlsx');
+  }
+
+  Future _exportDataGridToPdf() async {
+    final PdfDocument document = _key.currentState!.exportToPdfDocument(
+      fitAllColumnsInOnePage: true,
+    );
+
+    final List bytes = document.saveSync();
+    await helper.saveAndLaunchFile(bytes, 'DataGrid.pdf');
+    document.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Syncfusion Flutter DataGrid Export',
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+      body: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                SizedBox(
+                  height: 40.0,
+                  width: 150.0,
+                  child: MaterialButton(
+                    color: Colors.blue,
+                    onPressed: _exportDataGridToExcel,
+                    child: const Center(
+                      child: Text(
+                        'Export to Excel',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+                const Padding(padding: EdgeInsets.all(20)),
+                SizedBox(
+                  height: 40.0,
+                  width: 150.0,
+                  child: MaterialButton(
+                    color: Colors.blue,
+                    onPressed: _exportDataGridToPdf,
+                    child: const Center(
+                      child: Text(
+                        'Export to PDF',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: SfDataGrid(
+              key: _key,
+              source: _employeeDataSource,
+              columns: [
+                GridColumn(
+              
+// ... (truncated)

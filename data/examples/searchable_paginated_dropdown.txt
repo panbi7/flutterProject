@@ -1,0 +1,112 @@
+import 'package:flutter&#47;material.dart';
+import 'package:searchable_paginated_dropdown&#47;searchable_paginated_dropdown.dart';
+import 'package:dio&#47;dio.dart';
+
+import 'model&#47;pagination_model.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late final dio = Dio();
+
+  final SearchableDropdownController searchableDropdownController =
+      SearchableDropdownController(
+    initialItem: const SearchableDropdownMenuItem(
+      value: 2,
+      label: 'At',
+      child: Text('At'),
+    ),
+  );
+
+  @override
+  void dispose() {
+    searchableDropdownController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final formKey = GlobalKey();
+    return MaterialApp(
+      title: 'Material App',
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Searchable Dropdown Example'),
+        ),
+        body: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          children: [
+            Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0)),
+              child: SearchableDropdown.future(
+                hintText: const Text('Future request'),
+                margin: const EdgeInsets.all(15),
+                futureRequest: () async {
+                  final paginatedList = await getAnimeList(page: 1, key: '');
+                  return paginatedList?.animeList
+                      ?.map((e) => SearchableDropdownMenuItem(
+                          value: e.malId,
+                          label: e.title ?? '',
+                          child: Text(e.title ?? '')))
+                      .toList();
+                },
+                onChanged: (int? value) {
+                  debugPrint('$value');
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
+            Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0)),
+              child: SearchableDropdown.paginated(
+                hintText: const Text('Paginated request'),
+                margin: const EdgeInsets.all(15),
+                paginatedRequest: (int page, String? searchKey) async {
+                  final paginatedList =
+                      await getAnimeList(page: page, key: searchKey);
+                  return paginatedList?.animeList
+                      ?.map((e) => SearchableDropdownMenuItem(
+                          value: e.malId,
+                          label: e.title ?? '',
+                          child: Text(e.title ?? '')))
+                      .toList();
+                },
+                requestItemCount: 25,
+                onChanged: (int? value) {
+                  debugPrint('$value');
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
+            SearchableDropdown.paginated(
+              backgroundDecoration: (child) => InputDecorator(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                  labelText: 'Pokemons',
+                ),
+                child: child,
+              ),
+              hintText: const Text('Paginated request'),
+              paginatedRequest: (int page, String? searchKey) async {
+                final paginatedList =
+                    await getAnimeList(page: page, key: searchKey);
+                return paginatedList?.animeList
+                    ?.map((e) => SearchableDropdownMenuItem(
+                        value: e.malId,
+                        label: e.title ?? '',
+                        child: Text(e.title ?? '')))
+                    .toList();
+              },
+              r
+// ... (truncated)

@@ -1,0 +1,137 @@
+import 'package:breakpoint&#47;breakpoint.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Breakpoint Example',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF6750A4),
+          brightness: Brightness.light,
+        ),
+      ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF6750A4),
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: ThemeMode.system,
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final breakpoint = Breakpoint.fromConstraints(constraints);
+      return Scaffold(
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar.medium(
+              title: const Text('Breakpoint Gallery'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.info_outline),
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) => BreakpointInfoSheet(
+                        breakpoint: breakpoint,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: breakpoint.margin,
+                  vertical: 16,
+                ),
+                child: BreakpointInfoCard(breakpoint: breakpoint),
+              ),
+            ),
+            SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: breakpoint.margin),
+              sliver: SliverGrid(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: breakpoint.columns,
+                  crossAxisSpacing: breakpoint.gutters,
+                  mainAxisSpacing: breakpoint.gutters,
+                  childAspectRatio: 1.0,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    return GridItem(index: index);
+                  },
+                  childCount: 24,
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: SizedBox(height: breakpoint.gutters),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+}
+
+class BreakpointInfoCard extends StatelessWidget {
+  const BreakpointInfoCard({
+    super.key,
+    required this.breakpoint,
+  });
+
+  final Breakpoint breakpoint;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Card(
+      elevation: 0,
+      color: colorScheme.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Current Layout',
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: colorScheme.primary,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _InfoItem(
+                    label: 'Device',
+                    value: breakpoint.device.name,
+                    icon: Icons.devices,
+                  ),
+                ),
+                Expanded(
+                  child: _InfoItem(
+                    label: 'Window',
+    
+// ... (truncated)

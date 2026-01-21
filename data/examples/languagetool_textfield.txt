@@ -1,0 +1,66 @@
+import 'package:flutter&#47;material.dart';
+import 'package:languagetool_textfield&#47;languagetool_textfield.dart';
+
+void main() {
+  runApp(
+    const MaterialApp(
+      home: App(),
+    ),
+  );
+}
+
+&#47;&#47;&#47; Example App main page
+&#47;&#47; ignore: prefer_match_file_name
+class App extends StatefulWidget {
+  &#47;&#47;&#47; Example app constructor
+  const App({super.key});
+
+  @override
+  State createState() => _AppState();
+}
+
+class _AppState extends State {
+  &#47;&#47;&#47; Initialize LanguageToolController
+  final LanguageToolController _controller = LanguageToolController();
+
+  static const List alignments = [
+    MainAxisAlignment.center,
+    MainAxisAlignment.start,
+    MainAxisAlignment.end,
+  ];
+  int currentAlignmentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Scaffold(
+        body: Column(
+          mainAxisAlignment: alignments[currentAlignmentIndex],
+          children: [
+            LanguageToolTextField(
+              controller: _controller,
+              language: 'en-US',
+            ),
+            DropdownMenu(
+              hintText: "Select alignment...",
+              onSelected: (value) => setState(() {
+                currentAlignmentIndex = value ?? 0;
+              }),
+              dropdownMenuEntries: const [
+                DropdownMenuEntry(value: 0, label: "Center alignment"),
+                DropdownMenuEntry(value: 1, label: "Top alignment"),
+                DropdownMenuEntry(value: 2, label: "Bottom alignment"),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}

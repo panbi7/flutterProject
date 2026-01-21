@@ -1,0 +1,109 @@
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'package:datepicker_dropdown&#47;datepicker_dropdown.dart';
+import 'package:datepicker_dropdown&#47;order_format.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Dropdown Datepicker Demo',
+      theme: ThemeData(
+        brightness: Brightness.light,
+        &#47;* light theme settings *&#47;
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        &#47;* dark theme settings *&#47;
+      ),
+      themeMode: ThemeMode.system,
+      debugShowCheckedModeBanner: false,
+      home: const MyHomePage(title: 'Dropdown Date picker Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final GlobalKey formKey = GlobalKey();
+  AutovalidateMode _autovalidate = AutovalidateMode.disabled;
+  int _selectedDay = 14;
+  int _selectedMonth = 10;
+  int _selectedYear = 1993;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Form(
+        key: formKey,
+        autovalidateMode: _autovalidate,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              DropdownDatePicker(
+                locale: "en",
+                &#47;&#47; menuHeight: 100,
+                dateformatorder: OrderFormat.ydm, &#47;&#47; default is myd
+                &#47;&#47; inputDecoration: InputDecoration(
+                &#47;&#47;     enabledBorder: const OutlineInputBorder(
+                &#47;&#47;       borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                &#47;&#47;     ),
+                &#47;&#47;     helperText: '',
+                &#47;&#47;     contentPadding: const EdgeInsets.all(8),
+                &#47;&#47;     border: OutlineInputBorder(
+                &#47;&#47;         borderRadius: BorderRadius.circular(10))), &#47;&#47; optional
+                isDropdownHideUnderline: true, &#47;&#47; optional
+                isFormValidator: true, &#47;&#47; optional
+                startYear: 1900, &#47;&#47; optional
+                endYear: 2020, &#47;&#47; optional
+                width: 10, &#47;&#47; optional
+                selectedDay: _selectedDay, &#47;&#47; optional
+                selectedMonth: _selectedMonth, &#47;&#47; optional
+                selectedYear: _selectedYear, &#47;&#47; optional
+                onChangedDay: (value) {
+                  setState(() {
+                    _selectedDay = int.parse(value!);
+                  });
+                  print('onChangedDay: $value');
+                },
+                onChangedMonth: (value) {
+                  setState(() {
+                    _selectedMonth = int.parse(value!);
+                  });
+                  print('onChangedMonth: $value');
+                },
+                onChangedYear: (value) {
+                  setState(() {
+                    _selectedYear = int.parse(value!);
+                  });
+                  print('onChangedYear: $value');
+                },
+                &#47;&#47;boxDecoration: BoxDecoration(
+                &#47;&#47; border: Border.all(color: Colors.grey, width: 1.0)), &#47;&#47; optional
+                &#47;&#47; showDay: false,&#47;&#47; optional
+                &#47;&#47; dayFlex: 2,&#47;&#47; optional
+                &#47;&#47; locale: "zh_CN",&#47;&#47; optional
+                &#47;&#47; hintDay: 'Day', &#47;&#47; optional
+                &#47;&#47; hintMonth: 'Month', &#47;&#47; optional
+                &#47;&#47; hintYear: 'Year', &
+// ... (truncated)

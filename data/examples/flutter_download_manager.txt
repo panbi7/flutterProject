@@ -1,0 +1,115 @@
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_download_manager&#47;flutter_download_manager.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  var url2 = "http:&#47;&#47;download.dcloud.net.cn&#47;HBuilder.9.0.2.macosx_64.dmg";
+
+  var url3 =
+      'https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;flutterchina&#47;flutter-in-action@1.0&#47;docs&#47;imgs&#47;book.jpg';
+  var url = "http:&#47;&#47;app01.78x56.com&#47;Xii_2021-03-13%2010%EF%BC%9A41.ipa";
+  var url4 =
+      "https:&#47;&#47;jsoncompare.org&#47;LearningContainer&#47;SampleFiles&#47;Video&#47;MP4&#47;sample-mp4-file.mp4";
+  var url5 =
+      "https:&#47;&#47;jsoncompare.org&#47;LearningContainer&#47;SampleFiles&#47;Video&#47;MP4&#47;Sample-Video-File-For-Testing.mp4";
+
+  var downloadManager = DownloadManager();
+  var savedDir = "";
+
+  @override
+  void initState() {
+    super.initState();
+    getApplicationSupportDirectory().then((value) => savedDir = value.path);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Flutter Download Manager")),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            ListItem(
+                onDownloadPlayPausedPressed: (url) async {
+                  setState(() {
+                    var task = downloadManager.getDownload(url);
+
+                    if (task != null && !task.status.value.isCompleted) {
+                      switch (task.status.value) {
+                        case DownloadStatus.downloading:
+                          downloadManager.pauseDownload(url);
+                          break;
+                        case DownloadStatus.paused:
+                          downloadManager.resumeDownload(url);
+                          break;
+                      }
+                    } else {
+                      downloadManager.addDownload(url,
+                          "$savedDir&#47;${downloadManager.getFileNameFromUrl(url)}");
+                    }
+                  });
+                },
+                onDelete: (url) {
+                  var fileName =
+                      "$savedDir&#47;${downloadManager.getFileNameFromUrl(url)}";
+                  var file = File(fileName);
+                  file.delete();
+
+                  downloadManager.removeDownload(url);
+                  setState(() {});
+                },
+                url: url,
+                downloadTask: downloadManager.getDownload(url)),
+            ListItem(
+                onDownloadPlayPausedPressed: (url) async {
+                  setState(() {
+                    var task = downloadManager.getDownload(url);
+
+                    if (task != null && !task.status.value.isCompleted) {
+                      switch (task.status.value) {
+                        case DownloadStatus.downloading:
+                          downloadManager.pauseDownload(url);
+                          break;
+                        case DownloadStatus.paused:
+                          downloadManager.resumeDownload(url);
+                          break;
+                      }
+                    } else {
+                      downloadManager.addDownload(url,
+                          "$savedDir&#47;${downloadManager.getFileNameFromUrl(url)}");
+                    }
+                  });
+                },
+                onDelete: (url) {
+                  var fileName
+// ... (truncated)

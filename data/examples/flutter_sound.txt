@@ -1,0 +1,117 @@
+&#47;*
+ * Copyright 2018, 2019, 2020, 2021 Dooboolab.
+ *
+ * This file is part of Flutter-Sound.
+ *
+ * Flutter-Sound is free software: you can redistribute it and&#47;or modify
+ * it under the terms of the Mozilla Public License version 2 (MPL2.0),
+ * as published by the Mozilla organization.
+ *
+ * Flutter-Sound is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MPL General Public License for more details.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https:&#47;&#47;mozilla.org&#47;MPL&#47;2.0&#47;.
+ *&#47;
+
+import 'package:flutter&#47;foundation.dart' show kIsWeb;
+import 'package:flutter&#47;material.dart';
+import 'demo&#47;demo.dart';
+import 'livePlaybackWithBackPressure&#47;live_playback_with_back_pressure.dart';
+import 'livePlaybackWithoutBackPressure&#47;live_playback_without_back_pressure.dart';
+import 'multi_playback&#47;multi_playback.dart';
+import 'recordToStream&#47;record_to_stream_example.dart';
+import 'play_from_mic&#47;play_from_mic.dart';
+&#47;&#47;import 'dummy_mobile.dart'
+&#47;&#47;if (dart.library.js_interop) 'mediaRecorder&#47;media_recorder.dart'; &#47;&#47; package:web implementation
+import 'streams&#47;streams.dart';
+import 'simple_playback&#47;simple_playback.dart';
+import 'simple_recorder&#47;simple_recorder.dart';
+import 'soundEffect&#47;sound_effect.dart';
+import 'loglevel&#47;loglevel.dart';
+import 'volume_control&#47;volume_control.dart';
+import 'volumepan_control&#47;volumepan_control.dart';
+import 'speed_control&#47;speed_control.dart';
+import 'player_onProgress&#47;player_on_progress.dart';
+import 'recorder_onProgress&#47;recorder_on_progress.dart';
+import 'seek&#47;seek.dart';
+
+&#47;*
+    This APP is just a driver to call the various Flutter Sound examples.
+    Please refer to the examples&#47;README.md and all the examples located under the examples&#47;lib directory.
+*&#47;
+
+void main() {
+  runApp(const ExamplesApp());
+}
+
+&#47;&#47;&#47;
+const int tNotWeb = 1;
+const version = '9.30.0';
+
+&#47;&#47;&#47;
+class Example {
+  &#47;&#47;&#47;
+  final String? title;
+
+  &#47;&#47;&#47;
+  final String? subTitle;
+
+  &#47;&#47;&#47;
+  final String? description;
+
+  &#47;&#47;&#47;
+  final WidgetBuilder? route;
+
+  &#47;&#47;&#47;
+  final int? flags;
+
+  &#47;&#47;&#47;
+  &#47;* ctor *&#47; Example(
+      {this.title, this.subTitle, this.description, this.flags, this.route});
+
+  &#47;&#47;&#47;
+  void go(BuildContext context) =>
+      Navigator.push(context, MaterialPageRoute(builder: route!));
+}
+
+&#47;&#47;&#47;
+final List exampleTable = [
+  &#47;&#47; If you update the following test, please update also the Examples&#47;README.md file and the comment inside the dart file.
+
+  Example(
+    title: 'Simple Playback',
+    subTitle: 'A very simple Playback that plays a remote file',
+    flags: 0,
+    route: (_) => const SimplePlayback(),
+    description: '''
+This is a very simple example for Flutter Sound beginners, that shows how to play a remote file.
+This example is really basic.
+''',
+  ),
+
+  Example(
+    title: 'Simple Recorder',
+    subTitle: 'A very simple example',
+    flags: 0,
+    route: (_) => const SimpleRecorder(),
+    description: '''
+This is a very simple example for Flutter Sound beginners, that shows how to record, and then playback a file.
+
+This example is really basic.
+''',
+  ),
+
+&#47;&#47;This example works only on Flutter Web. For Android or iOS, you can look to the example `recordToStream`.
+  Example(
+    title: 'Dart Streams',
+    subTitle: 'Audio Streams with Flutter Sound',
+    flags: 0,
+    route: (_) => const StreamsExample(),
+    description: '''
+The real interest of recording to a Stream is for example to feed a Speech-to-Text engine, or for processing the Live data in Dart in real time.
+This example can record something to a
+// ... (truncated)

@@ -1,0 +1,122 @@
+import 'package:flutter&#47;material.dart';
+import 'package:app_settings&#47;app_settings.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  List getOpenAppSettingsActions() {
+    return [
+      ListTile(
+        title: const Text('Wifi'),
+        minVerticalPadding: 5.0,
+        onTap: () => AppSettings.openAppSettings(type: AppSettingsType.wifi),
+      ),
+      ListTile(
+        title: const Text("Location"),
+        onTap: () =>
+            AppSettings.openAppSettings(type: AppSettingsType.location),
+      ),
+      ListTile(
+        title: const Text("Security"),
+        onTap: () =>
+            AppSettings.openAppSettings(type: AppSettingsType.security),
+      ),
+      ListTile(
+        title: const Text("Lock & Password"),
+        onTap: () =>
+            AppSettings.openAppSettings(type: AppSettingsType.lockAndPassword),
+      ),
+      ListTile(
+        title: const Text("Request app installation"),
+        onTap: () => AppSettings.openAppSettings(
+          type: AppSettingsType.manageUnknownAppSources,
+        ),
+      ),
+      ListTile(
+        title: const Text("App Settings"),
+        onTap: () =>
+            AppSettings.openAppSettings(type: AppSettingsType.settings),
+      ),
+      ListTile(
+        title: const Text("Bluetooth"),
+        onTap: () =>
+            AppSettings.openAppSettings(type: AppSettingsType.bluetooth),
+      ),
+      ListTile(
+        title: const Text("Data Roaming"),
+        onTap: () =>
+            AppSettings.openAppSettings(type: AppSettingsType.dataRoaming),
+      ),
+      ListTile(
+        title: const Text("Date"),
+        onTap: () => AppSettings.openAppSettings(type: AppSettingsType.date),
+      ),
+      ListTile(
+        title: const Text("Display"),
+        onTap: () => AppSettings.openAppSettings(type: AppSettingsType.display),
+      ),
+      ListTile(
+        title: const Text("Notification"),
+        onTap: () =>
+            AppSettings.openAppSettings(type: AppSettingsType.notification),
+      ),
+      ListTile(
+        title: const Text("Sound"),
+        onTap: () => AppSettings.openAppSettings(type: AppSettingsType.sound),
+      ),
+      ListTile(
+        title: const Text("Internal Storage"),
+        onTap: () =>
+            AppSettings.openAppSettings(type: AppSettingsType.internalStorage),
+      ),
+      ListTile(
+        title: const Text("Battery optimization"),
+        onTap: () => AppSettings.openAppSettings(
+            type: AppSettingsType.batteryOptimization),
+      ),
+      ListTile(
+        title: const Text("NFC"),
+        onTap: () => AppSettings.openAppSettings(type: AppSettingsType.nfc),
+      ),
+      ListTile(
+        title: const Text("VPN"),
+        onTap: () => AppSettings.openAppSettings(
+            type: AppSettingsType.vpn, asAnotherTask: true),
+      ),
+      ListTile(
+        title: const Text("Device Settings"),
+        onTap: () => AppSettings.openAppSettings(
+            type: AppSettingsType.device, asAnotherTask: true),
+      ),
+      ListTile(
+        title: const Text("Accessibility"),
+        onTap: () => AppSettings.openAppSettings(
+            type: AppSettingsType.accessibility, asAnotherTask: true),
+      ),
+      ListTile(
+        title: const Text("Developer"),
+        onTap: () => AppSettings.openAppSettings(
+            type: AppSettingsType.developer, asAnotherTask: true),
+      ),
+      ListTile(
+        title: const Text("Hotspot"),
+        onTap: () => AppSettings.openAppSettings(
+            type: AppSettingsType.hotspot, asAnotherTask: true),
+      ),
+      ListTile(
+        title: const Text("APN"),
+        onTap: () => AppSettings.openAppSettings(
+            type: AppSettingsType.apn, asAnotherTask: true),
+      ),
+      ListTile(
+        title: const Text("Alarms"),
+        onTap: () => AppSettings.openAppSettings(
+            type: AppSettingsType.alarm, asAnotherTask: t
+// ... (truncated)

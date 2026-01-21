@@ -1,0 +1,74 @@
+import 'package:flutter&#47;material.dart';
+import 'package:imgly_sdk&#47;imgly_sdk.dart';
+import 'package:video_editor_sdk&#47;video_editor_sdk.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+&#47;&#47;&#47; The example application for the video_editor_sdk plugin.
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  Configuration createConfiguration() {
+    final flutterSticker = Sticker(
+        "example_sticker_logos_flutter", "Flutter", "assets&#47;Flutter-logo.png");
+    final imglySticker = Sticker(
+        "example_sticker_logos_imgly", "img.ly", "assets&#47;IgorSticker.png");
+
+    &#47;&#47;&#47; A completely custom category.
+    final logos = StickerCategory(
+        "example_sticker_category_logos", "Logos", "assets&#47;Flutter-logo.png",
+        items: [flutterSticker, imglySticker]);
+
+    &#47;&#47;&#47; A predefined category.
+    final emoticons =
+        StickerCategory.existing("imgly_sticker_category_emoticons");
+
+    &#47;&#47;&#47; A customized predefined category.
+    final shapes =
+        StickerCategory.existing("imgly_sticker_category_shapes", items: [
+      Sticker.existing("imgly_sticker_shapes_badge_01"),
+      Sticker.existing("imgly_sticker_shapes_arrow_02")
+    ]);
+
+    &#47;&#47;&#47; A GIPHY sticker category.
+    &#47;&#47; final giphy = StickerCategory.giphy(
+    &#47;&#47;     GiphyStickerProvider("YOUR-GIPHY-API-KEY"));
+
+    var categories = [logos, emoticons, shapes];
+    final configuration = Configuration(
+        sticker:
+            StickerOptions(personalStickers: true, categories: categories));
+    return configuration;
+  }
+
+  void presentEditor() async {
+    final result = await VESDK.openEditor(Video("assets&#47;Skater.mp4"),
+        configuration: createConfiguration());
+    print(result?.toJson());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+          appBar: AppBar(
+            title: const Text('VideoEditor SDK Example'),
+          ),
+          body: ListView.builder(
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text("Open video editor"),
+                subtitle: Text("Click to edit a sample video."),
+                onTap: presentEditor,
+              );
+            },
+            itemCount: 1,
+          )),
+    );
+  }
+}

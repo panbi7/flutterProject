@@ -1,0 +1,43 @@
+import 'package:cached_query&#47;cached_query.dart';
+&#47;&#47;ignore_for_file:avoid_print
+
+&#47;&#47; Full project example here: https:&#47;&#47;github.com&#47;D-James-GH&#47;cached_query&#47;tree&#47;main&#47;examples&#47;query_builder
+
+void main() async {
+  &#47;&#47; Optionally initialise cached query with a config
+  CachedQuery.instance.config(
+    config: GlobalQueryConfig(
+      cacheDuration: const Duration(minutes: 4),
+    ),
+  );
+  final filmTitle = getFilmTitle();
+
+  &#47;&#47; listen to state updates
+  filmTitle.stream.listen((event) {
+    print("Stream: ${event.data}");
+  });
+
+  &#47;&#47; Or just await the result
+  print(await filmTitle.fetch());
+
+  &#47;&#47; Calling again gets the same query instance and data from cache
+  final sameQuery = getFilmTitle();
+
+  &#47;&#47; Can force a refetch and await the result
+  &#47;&#47; ignore: unused_local_variable
+  final refetchResult = await sameQuery.refetch();
+}
+
+Query getFilmTitle() {
+  return Query(
+    key: 'title',
+    &#47;&#47; Override the global config here
+    config: QueryConfig(
+      cacheDuration: const Duration(seconds: 4),
+    ),
+    queryFn: () => Future.delayed(
+      const Duration(milliseconds: 400),
+      () => "Star Wars",
+    ),
+  );
+}

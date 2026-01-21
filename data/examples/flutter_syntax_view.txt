@@ -1,0 +1,165 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_syntax_view&#47;flutter_syntax_view.dart';
+
+void main() => runApp(const App());
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: MyApp(),
+      debugShowCheckedModeBanner: false,
+      title: "Flutter Syntax View Example",
+    );
+  }
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => MyAppState();
+}
+
+class MyAppState extends State {
+  static const String code = r"""
+import 'dart:math' as math;
+
+&#47;&#47; Coffee class is the best!
+class Coffee {
+  late int _temperature;
+
+  void heat() => _temperature = 100;
+  void chill() => _temperature = -5;
+
+  void sip() {
+    final bool isTooHot = math.max(37, _temperature) > 37;
+    if (isTooHot)
+      print("myyy liiips!");
+    else
+      print("mmmmm refreshing!");
+  }
+
+  int? get temperature => temperature;
+}
+void main() {
+  var coffee = Coffee();
+  coffee.heat();
+  coffee.sip();
+  coffee.chill();
+  coffee.sip();
+}
+&#47;* And there
+        you have it *&#47;""";
+
+  static final syntaxViews = {
+    "Standard": SyntaxView(
+      code: code,
+      syntax: Syntax.DART,
+      syntaxTheme: SyntaxTheme.standard(),
+      fontSize: 12.0,
+      withZoom: true,
+      withLinesCount: true,
+      expanded: true,
+      selectable: true,
+    ),
+    "Dracula": SyntaxView(
+      code: code,
+      syntax: Syntax.DART,
+      syntaxTheme: SyntaxTheme.dracula(),
+      fontSize: 12.0,
+      withZoom: true,
+      withLinesCount: false,
+      expanded: false,
+      selectable: true,
+    ),
+    "AyuLight": SyntaxView(
+      code: code,
+      syntax: Syntax.DART,
+      syntaxTheme: SyntaxTheme.ayuLight(),
+      fontSize: 12.0,
+      withZoom: false,
+      withLinesCount: true,
+      expanded: true,
+    ),
+    "Custom AyuLight": SyntaxView(
+      code: code,
+      syntax: Syntax.DART,
+      syntaxTheme: SyntaxTheme.ayuLight().copyWith(
+          linesCountColor: Colors.teal,
+          keywordStyle: const TextStyle(color: Colors.purple)),
+      fontSize: 12.0,
+      withZoom: false,
+      withLinesCount: true,
+      expanded: true,
+    ),
+    "AyuDark": SyntaxView(
+      code: code,
+      syntax: Syntax.DART,
+      syntaxTheme: SyntaxTheme.ayuDark(),
+      fontSize: 12.0,
+      withZoom: true,
+      withLinesCount: false,
+      expanded: false,
+    ),
+    "GravityLight": SyntaxView(
+      code: code,
+      syntax: Syntax.DART,
+      syntaxTheme: SyntaxTheme.gravityLight(),
+      fontSize: 12.0,
+      withZoom: true,
+      withLinesCount: true,
+      expanded: true,
+    ),
+    "GravityDark": SyntaxView(
+        code: code,
+        syntax: Syntax.DART,
+        syntaxTheme: SyntaxTheme.gravityDark(),
+        fontSize: 12.0,
+        withZoom: false,
+        withLinesCount: false,
+        expanded: false,
+        selectable: true),
+    "MonokaiSublime": SyntaxView(
+        code: code,
+        syntax: Syntax.DART,
+        syntaxTheme: SyntaxTheme.monokaiSublime(),
+        fontSize: 12.0,
+        withZoom: true,
+        withLinesCount: true,
+        expanded: true,
+        selectable: true),
+    "Obsidian": SyntaxView(
+        code: code,
+        syntax: Syntax.DART,
+        syntaxTheme: SyntaxTheme.obsidian(),
+        fontSize: 12.0,
+        withZoom: true,
+        withLinesCount: true,
+        expanded: false,
+        selectable: true),
+    "OceanSunset": SyntaxView(
+      code: code,
+      syntax: Syntax.DART,
+      syntaxTheme: SyntaxTheme.oceanSunset(),
+      fontSize: 12.0,
+      withZoom: false,
+      withLinesCount: true,
+      expanded: true,
+      selectable: true,
+    ),
+    "vscodeDark": SyntaxView(
+        code: code,
+        syntax: Syntax.DART,
+        syntaxTheme: SyntaxTheme.vscodeDark(),
+        fontSize: 12.0,
+        withZoom: true,
+        withLinesCount: true,
+        expanded: false,
+        selectable: true),
+    "vscodeLight": SyntaxView(
+        code: code,
+        sy
+// ... (truncated)

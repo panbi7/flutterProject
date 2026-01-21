@@ -1,0 +1,113 @@
+import 'dart:io';
+
+import 'package:ext_storage&#47;ext_storage.dart';
+import 'package:file_picker&#47;file_picker.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:open_file&#47;open_file.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:pdf_merger&#47;pdf_merger.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+import 'package:get&#47;get.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  List files;
+  List filesPath;
+  String singleFile;
+
+  @override
+  void initState() {
+    super.initState();
+    clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('PDF Merger'),
+        ),
+        body: Center(
+          child: Container(
+              margin: EdgeInsets.all(25),
+              child: Column(children: [
+                TextButton(
+                  style: ButtonStyle(overlayColor:
+                      MaterialStateProperty.resolveWith(
+                          (Set states) {
+                    if (states.contains(MaterialState.focused))
+                      return Colors.red;
+                    if (states.contains(MaterialState.hovered))
+                      return Colors.green;
+                    if (states.contains(MaterialState.pressed))
+                      return Colors.blue;
+                    return null; &#47;&#47; Defer to the widget's default.
+                  })),
+                  child: Text(
+                    "Chose File",
+                    style: TextStyle(fontSize: 14.0),
+                  ),
+                  onPressed: () {
+                    multipleFilePicker();
+                  },
+                ),
+                SizedBox(height: 10),
+                TextButton(
+                  style: ButtonStyle(overlayColor:
+                      MaterialStateProperty.resolveWith(
+                          (Set states) {
+                    if (states.contains(MaterialState.focused))
+                      return Colors.red;
+                    if (states.contains(MaterialState.hovered))
+                      return Colors.green;
+                    if (states.contains(MaterialState.pressed))
+                      return Colors.blue;
+                    return null; &#47;&#47; Defer to the widget's default.
+                  })),
+                  child: Text(
+                    "Merge Multiple PDF",
+                    style: TextStyle(fontSize: 14.0),
+                  ),
+                  onPressed: () {
+                    callMethod(1);
+                  },
+                ),
+                SizedBox(height: 10),
+                TextButton(
+                  style: ButtonStyle(overlayColor:
+                      MaterialStateProperty.resolveWith(
+                          (Set states) {
+                    if (states.contains(MaterialState.focused))
+                      return Colors.red;
+                    if (states.contains(MaterialState.hovered))
+                      return Colors.green;
+                    if (states.contains(MaterialState.pressed))
+                      return Colors.blue;
+                    return null; &#47;&#47; Defer to the widget's default.
+                  })),
+                  child: Text(
+                    "Create PDF From Multiple Image",
+                    style: TextStyle(fontSize: 14.0),
+                  ),
+                  onPressed: () {
+                    callMethod(2);
+                  },
+                ),
+                SizedBox(height: 10),
+                TextButton(
+                  style: ButtonStyle(overlayColor:
+                      MaterialStateProperty.resolveWith(
+                          (Set states) {
+                    if (states.contains(MaterialState.focused))
+                 
+// ... (truncated)

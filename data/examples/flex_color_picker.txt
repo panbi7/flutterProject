@@ -1,0 +1,114 @@
+import 'package:flex_color_picker&#47;flex_color_picker.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'demo&#47;utils&#47;app_scroll_behavior.dart';
+
+void main() => runApp(const ColorPickerDemo());
+
+class ColorPickerDemo extends StatefulWidget {
+  const ColorPickerDemo({super.key});
+
+  @override
+  State createState() => _ColorPickerDemoState();
+}
+
+class _ColorPickerDemoState extends State {
+  late ThemeMode themeMode;
+
+  @override
+  void initState() {
+    super.initState();
+    themeMode = ThemeMode.light;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      scrollBehavior: AppScrollBehavior(),
+      title: 'ColorPicker',
+      theme: ThemeData(useMaterial3: true),
+      darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
+      themeMode: themeMode,
+      home: ColorPickerPage(
+        themeMode: (ThemeMode mode) {
+          setState(() {
+            themeMode = mode;
+          });
+        },
+      ),
+    );
+  }
+}
+
+class ColorPickerPage extends StatefulWidget {
+  const ColorPickerPage({super.key, required this.themeMode});
+  final ValueChanged themeMode;
+
+  @override
+  State createState() => _ColorPickerPageState();
+}
+
+class _ColorPickerPageState extends State {
+  late Color screenPickerColor; &#47;&#47; Color for picker shown in Card on the screen.
+  late Color dialogPickerColor; &#47;&#47; Color for picker in dialog using onChanged
+  late Color dialogSelectColor; &#47;&#47; Color for picker using color select dialog.
+  late bool isDark;
+
+  &#47;&#47; Define some custom colors for the custom picker segment.
+  &#47;&#47; The 'guide' color values are from
+  &#47;&#47; https:&#47;&#47;material.io&#47;design&#47;color&#47;the-color-system.html#color-theme-creation
+  static const Color guidePrimary = Color(0xFF6200EE);
+  static const Color guidePrimaryVariant = Color(0xFF3700B3);
+  static const Color guideSecondary = Color(0xFF03DAC6);
+  static const Color guideSecondaryVariant = Color(0xFF018786);
+  static const Color guideError = Color(0xFFB00020);
+  static const Color guideErrorDark = Color(0xFFCF6679);
+  static const Color blueBlues = Color(0xFF174378);
+
+  &#47;&#47; Make a custom ColorSwatch to name map from the above custom colors.
+  final Map, String> colorsNameMap =
+      , String>{
+    ColorTools.createPrimarySwatch(guidePrimary): 'Guide Purple',
+    ColorTools.createPrimarySwatch(guidePrimaryVariant): 'Guide Purple Variant',
+    ColorTools.createAccentSwatch(guideSecondary): 'Guide Teal',
+    ColorTools.createAccentSwatch(guideSecondaryVariant): 'Guide Teal Variant',
+    ColorTools.createPrimarySwatch(guideError): 'Guide Error',
+    ColorTools.createPrimarySwatch(guideErrorDark): 'Guide Error Dark',
+    ColorTools.createPrimarySwatch(blueBlues): 'Blue blues',
+  };
+
+  @override
+  void initState() {
+    screenPickerColor = Colors.blue;
+    dialogPickerColor = Colors.red;
+    dialogSelectColor = const Color(0xFFA239CA);
+    isDark = false;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text('ColorPicker Demo'),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+        children: [
+          const SizedBox(height: 16),
+          &#47;&#47; Pick color in a dialog.
+          ListTile(
+            title: const Text('Click this color to modify it in a dialog. '
+                'The color is modified while dialog is open, but returns '
+                'to previous value if dialog is cancelled'),
+            subtitle: Text(
+              &#47;&#47; ignore: lines_longer_than_80_chars, cannot break earlier.
+              '${ColorTools.materialNameAndCode(dialogPickerColor, colorSwatchNameMap: colorsNameMap)} '
+              'aka ${ColorTools.nameThatColor(dialogPickerColor)}',
+            ),
+            trailing: ColorIndicator(
+              width: 44,
+              heigh
+// ... (truncated)

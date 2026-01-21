@@ -1,0 +1,132 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_admin_scaffold&#47;admin_scaffold.dart';
+import 'package:flutter_admin_scaffold_example&#47;sample_pages&#47;dashboard_page.dart';
+import 'package:flutter_admin_scaffold_example&#47;sample_pages&#47;second_level_item_1_page.dart';
+import 'package:flutter_admin_scaffold_example&#47;sample_pages&#47;second_level_item_2_page.dart';
+import 'package:flutter_admin_scaffold_example&#47;sample_pages&#47;third_level_item_1_page.dart';
+import 'package:flutter_admin_scaffold_example&#47;sample_pages&#47;third_level_item_2_page.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  static const MaterialColor themeBlack = MaterialColor(
+    _themeBlackPrimaryValue,
+    {
+      50: Color(_themeBlackPrimaryValue),
+      100: Color(_themeBlackPrimaryValue),
+      200: Color(_themeBlackPrimaryValue),
+      300: Color(_themeBlackPrimaryValue),
+      400: Color(_themeBlackPrimaryValue),
+      500: Color(_themeBlackPrimaryValue),
+      600: Color(_themeBlackPrimaryValue),
+      700: Color(_themeBlackPrimaryValue),
+      800: Color(_themeBlackPrimaryValue),
+      900: Color(_themeBlackPrimaryValue),
+    },
+  );
+  static const int _themeBlackPrimaryValue = 0xFF222222;
+  static const Color themeTextPrimary = Color(0xFF9D9D9D);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Sample',
+      theme: ThemeData(
+        primarySwatch: themeBlack,
+        textTheme: Theme.of(context).textTheme.apply(
+              bodyColor: themeBlack,
+            ),
+        primaryTextTheme: Theme.of(context).textTheme.apply(
+              bodyColor: themeTextPrimary,
+            ),
+        primaryIconTheme: IconThemeData(
+          color: themeTextPrimary,
+        ),
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      onGenerateRoute: (settings) {
+        final page = _getPageWidget(settings);
+        if (page != null) {
+          return PageRouteBuilder(
+              settings: settings,
+              pageBuilder: (_, __, ___) => page,
+              transitionsBuilder: (_, anim, __, child) {
+                return FadeTransition(
+                  opacity: anim,
+                  child: child,
+                );
+              });
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget? _getPageWidget(RouteSettings settings) {
+    if (settings.name == null) {
+      return null;
+    }
+    final uri = Uri.parse(settings.name!);
+    switch (uri.path) {
+      case '&#47;':
+        return DashboardPage();
+      case '&#47;secondLevelItem1':
+        return SecondLevelItem1Page();
+      case '&#47;secondLevelItem2':
+        return SecondLevelItem2Page();
+      case '&#47;thirdLevelItem1':
+        return ThirdLevelItem1Page();
+      case '&#47;thirdLevelItem2':
+        return ThirdLevelItem2Page();
+    }
+    return null;
+  }
+}
+
+class MyScaffold extends StatelessWidget {
+  const MyScaffold({
+    Key? key,
+    required this.route,
+    required this.body,
+  }) : super(key: key);
+
+  final Widget body;
+  final String route;
+
+  final List _sideBarItems = const [
+    AdminMenuItem(
+      title: 'Dashboard',
+      route: '&#47;',
+      icon: Icons.dashboard,
+    ),
+    AdminMenuItem(
+      title: 'Top Level',
+      icon: Icons.file_copy,
+      children: [
+        AdminMenuItem(
+          title: 'Second Level Item 1',
+          route: '&#47;secondLevelItem1',
+        ),
+        AdminMenuItem(
+          title: 'Second Level Item 2',
+          route: '&#47;secondLevelItem2',
+        ),
+        AdminMenuItem(
+          title: 'Third Level',
+          children: [
+            AdminMenuItem(
+              title: 'Third Level Item 1',
+              route: '&#47;thirdLevelItem1',
+            ),
+            AdminMenuItem(
+              title: 'Third Level Item 2',
+              route: '&#47;thirdL
+// ... (truncated)

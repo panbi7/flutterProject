@@ -1,0 +1,60 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+import 'package:plugin_wifi_connect&#47;plugin_wifi_connect.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _ssid = 'Unknown';
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    String ssid;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    try {
+      ssid = await PluginWifiConnect.ssid ?? '';
+    } on PlatformException {
+      ssid = 'Failed to get ssid';
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _ssid = ssid;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: Text('Network SSID: $_ssid\n'),
+        ),
+      ),
+    );
+  }
+}

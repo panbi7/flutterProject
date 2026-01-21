@@ -1,0 +1,136 @@
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:real_volume&#47;real_volume.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  StreamType? selectedStreamType = StreamType.VOICE_CALL;
+  double currentVolume = 0;
+
+  late List menuItems = StreamType.values;
+  int sliderDivisions = 10;
+  int minVolume = 0;
+  int maxVolume = 10;
+  RingerMode ringerMode = RingerMode.NORMAL;
+  bool showUI = false;
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  Future initPlatformState() async {
+    RingerMode rMode = (await RealVolume.getRingerMode()) ?? RingerMode.NORMAL;
+    setState(() {
+      ringerMode = rMode;
+    });
+    RealVolume.onRingerModeChanged.listen((event) async {
+      setState(() {
+        ringerMode = event;
+      });
+      if (Platform.isAndroid) {
+        if (selectedStreamType == StreamType.NOTIFICATION ||
+            selectedStreamType == StreamType.RING) {
+          double curVol =
+              (await RealVolume.getCurrentVol(selectedStreamType)) ?? 0;
+          setState(() {
+            currentVolume = curVol;
+          });
+        }
+      }
+    });
+    RealVolume.onVolumeChanged.listen((event) {
+      onStreamTypeChanged(event.streamType);
+    });
+    onStreamTypeChanged(selectedStreamType);
+    if (!mounted) return;
+  }
+
+  onStreamTypeChanged(StreamType? streamType) async {
+    int minVol = (await RealVolume.getMinVol(streamType)) ?? 0;
+    int maxVol = (await RealVolume.getMaxVol(streamType)) ?? 10;
+    double currentVol = (await RealVolume.getCurrentVol(streamType)) ?? 0;
+    setState(() {
+      minVolume = minVol;
+      maxVolume = maxVol;
+      currentVolume = currentVol;
+      sliderDivisions = maxVol - minVol;
+      selectedStreamType = streamType ?? selectedStreamType;
+    });
+  }
+
+  onValueChanged(double val) async {
+    bool? volumeChanged = await RealVolume.setVolume(val,
+        showUI: showUI, streamType: selectedStreamType);
+    if (volumeChanged!) {
+      setState(() {
+        currentVolume = val;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Real Volume plugin'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (Platform.isAndroid)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: Text('Volume Stream Type:'),
+                    ),
+                    DropdownButton(
+                      value: selectedStreamType,
+                      items: menuItems.map((StreamType streamType) {
+                        return DropdownMenuItem(
+                          value: streamType,
+                          child: Text(streamType.name),
+                        );
+                      }).toList(),
+                      onChanged: onStreamTypeChanged,
+                    ),
+                  ],
+                ),
+              SizedBox(
+                width: 200,
+                child: CheckboxListTile(
+                    title: const Text('Show UI'),
+                    value: showUI,
+                    onChanged: (val) {
+                      setState(() {
+                        showUI = val!;
+                      });
+                    }),
+              ),
+              Slider(
+                divisions: sliderDivisions,
+                value: currentVolume,
+                onChanged: onValueChanged,
+                &#47;&#47; onChangeEnd: onValueChanged,
+              ),
+              Text('Volume: $currentVolume%'),
+             
+// ... (truncated)

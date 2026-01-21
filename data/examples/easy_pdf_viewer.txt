@@ -1,0 +1,140 @@
+import 'package:easy_pdf_viewer_example&#47;with_progress.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:easy_pdf_viewer&#47;easy_pdf_viewer.dart';
+
+void main() => runApp(App());
+
+class App extends StatelessWidget {
+  const App({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: MyApp(),
+    );
+  }
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({this.progressExample = false});
+
+  final bool progressExample;
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool _isLoading = true;
+  late PDFDocument document;
+
+  @override
+  void initState() {
+    super.initState();
+    loadDocument();
+  }
+
+  loadDocument() async {
+    document = await PDFDocument.fromAsset('assets&#47;sample.pdf');
+
+    setState(() => _isLoading = false);
+  }
+
+  changePDF(value) async {
+    setState(() => _isLoading = true);
+    if (value == 1) {
+      document = await PDFDocument.fromAsset('assets&#47;sample2.pdf');
+    } else if (value == 2) {
+      document = await PDFDocument.fromURL(
+        "https:&#47;&#47;www.africau.edu&#47;images&#47;default&#47;sample.pdf",
+
+        &#47;* cacheManager: CacheManager(
+          Config(
+            "customCacheKey",
+            stalePeriod: const Duration(days: 2),
+            maxNrOfCacheObjects: 10,
+          ),
+        ), *&#47;
+      );
+    } else {
+      document = await PDFDocument.fromAsset('assets&#47;sample.pdf');
+    }
+    setState(() => _isLoading = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: Drawer(
+        child: Column(
+          children: [
+            SizedBox(height: 36),
+            ListTile(
+              title: Text('Load from Assets'),
+              onTap: () {
+                changePDF(1);
+              },
+            ),
+            ListTile(
+              title: Text('Load from URL'),
+              onTap: () {
+                changePDF(2);
+              },
+            ),
+            ListTile(
+              title: Text('Restore default'),
+              onTap: () {
+                changePDF(3);
+              },
+            ),
+            ListTile(
+              title: Text('With Progress'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WithProgress(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      appBar: AppBar(
+        title: const Text('PDFViewer'),
+      ),
+      body: Center(
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : PDFViewer(
+                document: document,
+                lazyLoad: false,
+                zoomSteps: 1,
+                numberPickerConfirmWidget: const Text(
+                  "Confirm",
+                ),
+                &#47;&#47;uncomment below line to preload all pages
+                &#47;&#47; lazyLoad: false,
+                &#47;&#47; uncomment below line to scroll vertically
+                &#47;&#47; scrollDirection: Axis.vertical,
+
+                &#47;&#47;uncomment below code to replace bottom navigation with your own
+                &#47;* navigationBuilder:
+                      (context, page, totalPages, jumpToPage, animateToPage) {
+                    return ButtonBar(
+                      alignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.first_page),
+                          onPressed: () {
+                            jumpToPage()(page: 0);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.arrow_back),
+                          onPressed: () {
+                            animateToPage(page: page - 2);
+                          },
+                 
+// ... (truncated)

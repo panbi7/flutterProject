@@ -1,0 +1,107 @@
+import 'dart:io';
+import 'package:animated_text_kit&#47;animated_text_kit.dart';
+import 'package:example&#47;example_editor&#47;editor&#47;custom_quill_editor.dart';
+import 'package:example&#47;example_editor&#47;utils&#47;constants.dart';
+import 'package:example&#47;fonts_loader&#47;fonts_loader.dart';
+import 'package:file_selector&#47;file_selector.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_quill&#47;flutter_quill.dart';
+import 'package:flutter_quill&#47;quill_delta.dart';
+import 'package:flutter_quill_extensions&#47;flutter_quill_extensions.dart';
+&#47;&#47; ignore: implementation_imports
+import 'package:flutter_quill_to_pdf&#47;src&#47;constants.dart';
+import 'package:flutter_quill_to_pdf&#47;flutter_quill_to_pdf.dart';
+import 'package:http&#47;http.dart' as http;
+import 'package:path&#47;path.dart';
+
+&#47;&#47;&#47; This is the default loader for the fonts created to the example
+&#47;&#47;&#47; see this class [here](https:&#47;&#47;github.com&#47;CatHood0&#47;flutter_quill_to_pdf&#47;blob&#47;master&#47;example&#47;lib&#47;fonts_loader&#47;fonts_loader.dart)
+final FontsLoader loader = FontsLoader();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await loader.loadFonts();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter quill to pdf Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color.fromARGB(255, 108, 189, 255)),
+          useMaterial3: true,
+          fontFamily: 'Noto Sans'),
+      localizationsDelegates: [
+        FlutterQuillLocalizations.delegate,
+      ],
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  bool firstEntry = false;
+  final PDFPageFormat params = PDFPageFormat.a4;
+  final QuillController _quillController = QuillController(
+      document: Document(),
+      selection: const TextSelection.collapsed(offset: 0));
+  final FocusNode _editorNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
+  final ValueNotifier _shouldShowToolbar = ValueNotifier(false);
+  Delta? oldDelta;
+
+  @override
+  void dispose() {
+    _quillController.dispose();
+    _editorNode.dispose();
+    _scrollController.dispose();
+    _shouldShowToolbar.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 107, 188, 255),
+        actions: [
+          IconButton(
+              onPressed: () async {
+                final bool isAndroid = Platform.isAndroid;
+                &#47;&#47; on android devices is not available getSaveLocation
+                final Object? result = isAndroid
+                    ? await getDirectoryPath(
+                        confirmButtonText: 'Select directory')
+                    : await getSaveLocation(
+                        suggestedName: 'document_pdf',
+                        acceptedTypeGroups: [
+                          XTypeGroup(
+                            label: 'Pdf',
+                            extensions: ['pdf'],
+                            mimeTypes: ['application&#47;pdf'],
+                            uniformTypeIdentifiers: ['com.adobe.pdf'],
+                          ),
+                        ],
+                      );
+                if (result == null) {
+                  return;
+                }
+                final File file = isAndroid
+                    ? File(result as String)
+                    : File((result as FileSaveLocation).path);
+                PDFConverter pdfConverter = PDFConverter(
+                  backMatt
+// ... (truncated)

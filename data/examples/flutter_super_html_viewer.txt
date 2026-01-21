@@ -1,0 +1,69 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_super_html_viewer&#47;flutter_super_html_viewer.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+const _htmlContent =
+    '''Here is some text with a link.
+  Here is bold text
+  Here is some italic sic text
+  Here is bold and italic text
+  Here is bold and italic and underline text
+  one list elementanother point
+  Here is a quote
+    that spans several lines
+    
+        Another second level blockqote 
+    
+  
+''';
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'WebView Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'WebView Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              HtmlContentViewer(
+                htmlContent: _htmlContent,
+                initialContentHeight: MediaQuery.of(context).size.height,
+                initialContentWidth: MediaQuery.of(context).size.width,
+              )
+            ],
+          ),
+        ) &#47;&#47; This trailing comma makes auto-formatting nicer for build methods.
+        );
+  }
+}

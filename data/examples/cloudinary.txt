@@ -1,0 +1,131 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:cloudinary&#47;cloudinary.dart';
+import 'package:example&#47;utils&#47;utility.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:image_picker&#47;image_picker.dart';
+
+const String apiKey =
+    String.fromEnvironment('CLOUDINARY_API_KEY', defaultValue: '');
+const String apiSecret =
+    String.fromEnvironment('CLOUDINARY_API_SECRET', defaultValue: '');
+const String cloudName =
+    String.fromEnvironment('CLOUDINARY_CLOUD_NAME', defaultValue: '');
+const String folder =
+    String.fromEnvironment('CLOUDINARY_FOLDER', defaultValue: '');
+const String uploadPreset =
+    String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET', defaultValue: '');
+
+final cloudinary = Cloudinary.unsignedConfig(
+  cloudName: cloudName,
+);
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Cloudinary Demo',
+      debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.system,
+      darkTheme: ThemeData.dark(),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Cloudinary Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+enum FileSource {
+  path,
+  bytes,
+}
+
+class DataTransmitNotifier {
+  final String? path;
+  late final ProgressCallback? progressCallback;
+  final notifier = ValueNotifier(0);
+
+  DataTransmitNotifier({this.path, ProgressCallback? progressCallback}) {
+    this.progressCallback = progressCallback ??
+        (count, total) {
+          notifier.value = count.toDouble() &#47; total.toDouble();
+        };
+  }
+}
+
+class _MyHomePageState extends State {
+  static const int loadImage = 1;
+  static const int doSignedUpload = 2;
+  static const int doUnsignedUpload = 3;
+  DataTransmitNotifier dataImages = DataTransmitNotifier();
+  CloudinaryResponse cloudinaryResponses = CloudinaryResponse();
+  bool loading = false;
+  String? errorMessage;
+  FileSource fileSource = FileSource.path;
+
+  void onUploadSourceChanged(FileSource? value) =>
+      setState(() => fileSource = value!);
+
+  Widget get uploadSourceView => Column(
+        children: [
+          const Text("File source"),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: RadioListTile(
+                    title: const Text("Path"),
+                    value: FileSource.path,
+                    groupValue: fileSource,
+                    onChanged: onUploadSourceChanged),
+              ),
+              Expanded(
+                child: RadioListTile(
+                    title: const Text("Bytes"),
+                    value: FileSource.bytes,
+                    groupValue: fileSource,
+                    onChanged: onUploadSourceChanged),
+              ),
+            ],
+          )
+        ],
+      );
+
+  Widget imageFromPathView() {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.file(
+            File(dataImages.path!),
+            height: MediaQuery.of(context).size.width * 0.75,
+            scale: 1.0,
+            fit: BoxFit.cover,
+          ),
+          const SizedBox(height: 16.0),
+          if (dataImages.notifier.value > 0)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ValueListenableBuilder(
+                key: ValueKey(dataImages.path),
+                valueListenable: dataImages.notifier,
+// ... (truncated)

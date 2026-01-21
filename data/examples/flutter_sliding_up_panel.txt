@@ -1,0 +1,133 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_sliding_up_panel&#47;flutter_sliding_up_panel.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  State createState() {
+    &#47;&#47; TODO: implement createState
+    return _MyAppState();
+  }
+}
+
+class _MyAppState extends State {
+  bool showPerformance = false;
+
+  onSettingCallback() {
+    setState(() {
+      showPerformance = !showPerformance;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; TODO: implement build
+    final appTitle = 'Sliding up panel Example';
+    return MaterialApp(
+      title: appTitle,
+      showPerformanceOverlay: showPerformance,
+      home: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return MyHomePage(
+            title: appTitle,
+            onSetting: onSettingCallback,
+          );
+        },
+      ),
+    );
+  }
+}
+
+&#47;&#47; The StatefulWidget's job is to take in some data and create a State class.
+&#47;&#47; In this case, the Widget takes a title, and creates a _MyHomePageState.
+class MyHomePage extends StatefulWidget {
+  final String title;
+
+  final VoidCallback onSetting;
+
+  MyHomePage({Key? key, required this.title, required this.onSetting})
+      : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+&#47;&#47; The State class is responsible for two things: holding some data you can
+&#47;&#47; update and building the UI using that data.
+class _MyHomePageState extends State {
+  &#47;&#47; Whether the green box should be visible or invisible
+
+  late ScrollController scrollController;
+
+  &#47;&#47;&#47;The controller of sliding up panel
+  SlidingUpPanelController panelController = SlidingUpPanelController();
+
+  double minBound = 0;
+
+  double upperBound = 1.0;
+
+  @override
+  void initState() {
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      if (scrollController.offset >=
+              scrollController.position.maxScrollExtent &&
+          !scrollController.position.outOfRange) {
+        panelController.expand();
+      } else if (scrollController.offset [
+        Scaffold(
+          appBar: AppBar(
+            title: Text(widget.title),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.settings),
+                onPressed: () {
+                  widget.onSetting.call();
+                },
+              )
+            ],
+          ),
+          body: Center(
+            child: ListView(
+              padding: EdgeInsets.symmetric(horizontal: 50.0),
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: 50.0),
+                ),
+                TextButton(
+                  child: Text('Show panel'),
+                  onPressed: () {
+                    panelController.expand();
+                  },
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 50.0),
+                ),
+                TextButton(
+                  child: Text('Anchor panel'),
+                  onPressed: () {
+                    panelController.anchor();
+                  },
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 50.0),
+                ),
+                TextButton(
+                  child: Text('Expand panel'),
+                  onPressed: () {
+                    panelController.expand();
+                  },
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 50.0),
+                ),
+                TextButton(
+                  child: Text('Collapse panel'),
+                  onPressed: () {
+                    panelController.collapse();
+                  },
+                ),
+                Padding(
+                  padding: E
+// ... (truncated)

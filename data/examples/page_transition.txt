@@ -1,0 +1,126 @@
+import 'package:flutter&#47;material.dart';
+import 'package:page_transition&#47;page_transition.dart';
+
+void main() => runApp(MyApp());
+
+&#47;&#47;&#47;Example App
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        pageTransitionsTheme: PageTransitionsTheme(builders: {
+          TargetPlatform.iOS:
+              PageTransition(type: PageTransitionType.fade, child: this)
+                  .matchingBuilder,
+        }),
+      ),
+      home: MyHomePage(),
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '&#47;second':
+            return PageTransition(
+              type: PageTransitionType.sharedAxisHorizontal,
+              settings: settings,
+              child: SecondPage(title: 'Shared Axis Horizontal'),
+            );
+          case '&#47;third':
+            return PageTransition(
+              type: PageTransitionType.sharedAxisVertical,
+              settings: settings,
+              child: ThirdPage(title: 'Shared Axis Vertical'),
+            );
+          case '&#47;fourth':
+            return PageTransition(
+              type: PageTransitionType.sharedAxisScale,
+              settings: settings,
+              child: FourthPage(title: 'Shared Axis Scale'),
+            );
+          default:
+            return null;
+        }
+      },
+    );
+  }
+}
+
+&#47;&#47;&#47; Example page
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.blue,
+      appBar: AppBar(
+        title: Text('Page Transition'),
+      ),
+      body: Center(
+        child: ListView(
+          padding: EdgeInsets.all(16),
+          children: [
+            ElevatedButton(
+              child: Text('Fade Second Page - Default'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    type: PageTransitionType.fade,
+                    childBuilder: (context) => SecondPage(
+                      title: 'Second Page from builder',
+                    ),
+                  ),
+                );
+              },
+            ),
+            ElevatedButton(
+              child: Text('Fade Second Page - Witn New Context'),
+              onPressed: () {
+                context.pushTransition(
+                  type: PageTransitionType.fade,
+                  childBuilder: (context) => SecondPage(
+                    title: 'Second Page from builder',
+                  ),
+                );
+              },
+            ),
+            ElevatedButton(
+              child: Text('Left To Right Transition Second Page'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    type: PageTransitionType.leftToRight,
+                    child: SecondPage(),
+                  ),
+                );
+              },
+            ),
+            ElevatedButton(
+              child: Text('Right To Left Transition Second Page Ios SwipeBack'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    type: PageTransitionType.rightToLeft,
+                    isIos: true,
+                    child: SecondPage(),
+                  ),
+                );
+              },
+            ),
+            ElevatedButton(
+              child: Text('Left To Right with Fade Transition Second Page'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    type: PageTransitionType.leftToRightWithFade,
+                    alignme
+// ... (truncated)

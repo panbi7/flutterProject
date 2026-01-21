@@ -1,0 +1,129 @@
+import 'package:blurbox&#47;blurbox.dart';
+import 'package:flutter&#47;material.dart';
+import 'dart:math' as math;
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; The main application widget.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Sets up the MaterialApp with appropriate themes and the home page.
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'BlurBox Examples',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+      ),
+      themeMode: ThemeMode.system,
+      home: const HomePage(),
+    );
+  }
+}
+
+&#47;&#47;&#47; The home page displaying a grid of example widgets.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Shows all available BlurBox examples in a grid layout.
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true, &#47;&#47; Allow content to go behind the bottom nav bar
+      appBar: AppBar(
+        forceMaterialTransparency: true,
+        title: const Text('BlurBox Examples'),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        centerTitle: true,
+        flexibleSpace: BlurBox(
+          height: 210,
+          blur: 8,
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(16),
+            bottomRight: Radius.circular(16),
+          ),
+          child: const SizedBox.shrink(),
+        ),
+      ),
+      bottomNavigationBar: BlurBox(
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+        blur: 10,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+            ),
+            child: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              currentIndex: _selectedIndex,
+              onTap: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              selectedItemColor: Theme.of(context).colorScheme.primary,
+              unselectedItemColor: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
+              items: const [
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.favorite),
+                  label: 'Favorites',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.settings),
+                  label: 'Settings',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          &#47;&#47; Vector Background
+          const VectorBackground(),
+
+          &#47;&#47; Content
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                cr
+// ... (truncated)

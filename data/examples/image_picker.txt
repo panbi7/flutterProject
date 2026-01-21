@@ -1,0 +1,127 @@
+&#47;&#47; Copyright 2013 The Flutter Authors
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:image_picker&#47;image_picker.dart';
+import 'package:mime&#47;mime.dart';
+import 'package:video_player&#47;video_player.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: 'Image Picker Demo',
+      home: MyHomePage(title: 'Image Picker Example'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, this.title});
+
+  final String? title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  List? _mediaFileList;
+
+  void _setImageFileListFromFile(XFile? value) {
+    _mediaFileList = value == null ? null : [value];
+  }
+
+  dynamic _pickImageError;
+  bool isVideo = false;
+
+  VideoPlayerController? _controller;
+  VideoPlayerController? _toBeDisposed;
+  String? _retrieveDataError;
+
+  final ImagePicker _picker = ImagePicker();
+  final TextEditingController maxWidthController = TextEditingController();
+  final TextEditingController maxHeightController = TextEditingController();
+  final TextEditingController qualityController = TextEditingController();
+  final TextEditingController limitController = TextEditingController();
+
+  Future _playVideo(XFile? file) async {
+    if (file != null && mounted) {
+      await _disposeVideoController();
+      final VideoPlayerController controller;
+      if (kIsWeb) {
+        controller = VideoPlayerController.networkUrl(Uri.parse(file.path));
+      } else {
+        controller = VideoPlayerController.file(File(file.path));
+      }
+      _controller = controller;
+      &#47;&#47; In web, most browsers won't honor a programmatic call to .play
+      &#47;&#47; if the video has a sound track (and is not muted).
+      &#47;&#47; Mute the video so it auto-plays in web!
+      &#47;&#47; This is not needed if the call to .play is the result of user
+      &#47;&#47; interaction (clicking on a "play" button, for example).
+      const double volume = kIsWeb ? 0.0 : 1.0;
+      await controller.setVolume(volume);
+      await controller.initialize();
+      await controller.setLooping(true);
+      await controller.play();
+      setState(() {});
+    }
+  }
+
+  Future _onImageButtonPressed(
+    ImageSource source, {
+    required BuildContext context,
+    bool allowMultiple = false,
+    bool isMedia = false,
+  }) async {
+    if (_controller != null) {
+      await _controller!.setVolume(0.0);
+    }
+    if (context.mounted) {
+      if (isVideo) {
+        final List files;
+        if (allowMultiple) {
+          files = await _picker.pickMultiVideo();
+        } else {
+          final XFile? file = await _picker.pickVideo(
+            source: source,
+            maxDuration: const Duration(seconds: 10),
+          );
+          files = [if (file != null) file];
+        }
+        &#47;&#47; Just play the first file, to keep the example simple.
+        await _playVideo(files.firstOrNull);
+      } else if (allowMultiple) {
+        await _displayPickImageDialog(context, true, (
+          double? maxWidth,
+          double? maxHeight,
+          int? quality,
+          int? limit,
+        ) async {
+          try {
+            final List pickedFileList =
+                isMedia
+                    ? await _picker.pickMultipleMedia(
+                      maxWidth: maxWidth,
+                      maxHeight: maxHeight,
+                      imageQuality: quality,
+                      limit: limit,
+                    )
+                    : await _picker.pickMultiImage(
+                      maxWidth: maxWidth,
+                      maxHeight:
+// ... (truncated)

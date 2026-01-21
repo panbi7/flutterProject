@@ -1,0 +1,125 @@
+import 'package:flutter&#47;material.dart';
+import 'package:scroll_spy&#47;scroll_spy.dart';
+
+void main() {
+  runApp(const ShowcaseApp());
+}
+
+class ShowcaseApp extends StatelessWidget {
+  const ShowcaseApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Scroll Spy Showcase',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.indigoAccent,
+          brightness: Brightness.dark,
+        ),
+        scaffoldBackgroundColor: const Color(0xFF0F0F0F),
+      ),
+      home: const FeedPage(),
+    );
+  }
+}
+
+class FeedPage extends StatefulWidget {
+  const FeedPage({super.key});
+
+  @override
+  State createState() => _FeedPageState();
+}
+
+class _FeedPageState extends State {
+  &#47;&#47; 1. Create a Focus Controller
+  final ScrollSpyController _focusController = ScrollSpyController();
+  final ScrollController _scrollController = ScrollController();
+
+  bool _autoScrolling = false;
+  bool _showDebug = true;
+
+  &#47;&#47; Constants to keep list and scroll logic synchronized
+  static const int _itemCount = 20;
+  static const double _itemExtent = 500.0;
+
+  @override
+  void dispose() {
+    _focusController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _toggleAutoScroll() {
+    if (_autoScrolling) {
+      setState(() => _autoScrolling = false);
+      &#47;&#47; Stop scrolling immediately
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.offset);
+      }
+      return;
+    }
+
+    setState(() => _autoScrolling = true);
+    _startAutoScroll();
+  }
+
+  Future _startAutoScroll() async {
+    &#47;&#47; 1. Re-calculate Visual Params (Must match build method logic)
+    if (!_scrollController.hasClients) return;
+
+    final double topPadding = MediaQuery.of(context).padding.top;
+    final double appBarHeight = kToolbarHeight;
+    final double topObscured = topPadding + appBarHeight;
+    final double viewportHeight = _scrollController.position.viewportDimension;
+
+    &#47;&#47; The visual center is shifted down by half the obscured top area.
+    final double visualCenterOffset = (viewportHeight &#47; 2) + (topObscured &#47; 2);
+
+    &#47;&#47; Padding used in ListView (Must match build method logic)
+    final double listTopPadding = (visualCenterOffset - (_itemExtent &#47; 2))
+        .clamp(0.0, double.infinity);
+
+    &#47;&#47; 2. Initialize Index ONCE
+    &#47;&#47;    We effectively "invert" the target calculation to find current index.
+    &#47;&#47;    TargetScroll = (Pad + Index*Size + Size&#47;2) - VisualCenter
+    &#47;&#47;    CurrentPixels + VisualCenter = Pad + Index*Size + Size&#47;2
+    &#47;&#47;    CurrentPixels + VisualCenter - Pad - Size&#47;2 = Index*Size
+    final double currentPixels = _scrollController.position.pixels;
+
+    &#47;&#47; Fallback index calculation
+    int targetIndex =
+        ((currentPixels +
+                    visualCenterOffset -
+                    listTopPadding -
+                    (_itemExtent &#47; 2)) &#47;
+                _itemExtent)
+            .round();
+
+    &#47;&#47; Prefer Spy's opinion if valid
+    final int? spyPrimary = _focusController.snapshot.value.primaryId;
+    if (spyPrimary != null) {
+      targetIndex = spyPrimary;
+    }
+
+    while (_autoScrolling && mounted) {
+      if (!_scrollController.hasClients) break;
+
+      &#47;&#47; 3. Constant Step
+      targetIndex++;
+
+      &#47;&#47; Handle Wrap-around
+      if (targetIndex >= _itemCount) {
+        _scrollController.jumpTo(0);
+        await Future.delayed(const Duration(milliseconds: 200));
+        targetIndex = 1; &#47;&#47; Start at second item since 0 is already centered
+      }
+
+      &#47;&#47; 4. Calculate Exact Target
+      &#47;&#47;    ItemCenter = TopPad + (Index * Size) + (Size &#47; 2)
+      final double itemCenter =
+          listTopPadding + (targetIndex * _ite
+// ... (truncated)

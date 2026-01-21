@@ -1,0 +1,60 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:app_group_directory&#47;app_group_directory.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _sharedDirectory = 'Unknown';
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    Directory? sharedDirectory;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+
+    try {
+      sharedDirectory = await AppGroupDirectory.getAppGroupDirectory(
+          'com.github.mingchen.test');
+      debugPrint('getAppGroupDirectory: $sharedDirectory');
+    } on PlatformException catch (ex) {
+      debugPrint('Failed to call native method: $ex');
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _sharedDirectory = sharedDirectory.toString();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: Text('Shared directory: $_sharedDirectory\n'),
+        ),
+      ),
+    );
+  }
+}

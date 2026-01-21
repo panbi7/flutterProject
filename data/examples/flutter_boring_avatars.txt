@@ -1,0 +1,130 @@
+import 'dart:ui';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_boring_avatars&#47;flutter_boring_avatars.dart';
+import 'package:flutter_boring_avatars_example&#47;control_bar.dart';
+import 'package:random_name_generator&#47;random_name_generator.dart';
+import 'package:super_clipboard&#47;super_clipboard.dart';
+import 'package:flutter_tabler_icons&#47;flutter_tabler_icons.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+
+import 'colors.dart';
+import 'test_page.dart';
+
+void main() {
+  runApp(const MaterialApp(home: MyApp()));
+}
+
+class AvatarInputWidget extends StatefulWidget {
+  const AvatarInputWidget({
+    Key? key,
+    required this.name,
+    required this.onNameChanged,
+    required this.resetInput,
+    required this.shape,
+  }) : super(key: key);
+
+  final String name;
+  final ValueChanged onNameChanged;
+  final int resetInput;
+  final ShapeBorder shape;
+
+  @override
+  State createState() => _AvatarInputWidgetState();
+}
+
+class _AvatarInputWidgetState extends State {
+  late TextEditingController textController = TextEditingController(
+    text: widget.name,
+  );
+
+  late int inputKey = widget.resetInput;
+
+  copyImage() async {
+    final type = DefaultBoringAvatarType.maybeOf(context)?.type ??
+        BoringAvatarType.marble;
+    final colorPalette = DefaultBoringAvatarPalette.maybeOf(context)?.palette ??
+        BoringAvatarPalette.defaultPalette;
+
+    final image = await BoringAvatarData.generate(
+      name: widget.name,
+      type: type,
+      palette: colorPalette,
+      &#47;&#47; shape: widget.shape,
+    ).toImage(
+      size: const Size.square(512),
+    );
+
+    final pngData = await image.toByteData(format: ImageByteFormat.png);
+
+    final clipboard = SystemClipboard.instance;
+    if (clipboard == null) {
+      return; &#47;&#47; Clipboard API is not supported on this platform.
+    }
+    final item = DataWriterItem();
+    item.add(Formats.png(pngData!.buffer.asUint8List()));
+    await clipboard.write([item]);
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Avatar image copied to clipboard'),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.resetInput != inputKey) {
+      textController = TextEditingController(
+        text: widget.name,
+      );
+      inputKey = widget.resetInput;
+    }
+    return Column(
+      children: [
+        Expanded(
+          child: AnimatedBoringAvatar(
+            duration: const Duration(milliseconds: 1200),
+            curve: Curves.easeInOutCubicEmphasized,
+            name: widget.name,
+            shape: widget.shape,
+            child: RawMaterialButton(
+              shape: widget.shape,
+              onPressed: copyImage,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 24,
+          child: TextField(
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+              focusedBorder: const OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.black, width: 1),
+                borderRadius: BorderRadius.all(Radius.circular(32)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide:
+                    BorderSide(color: Colors.grey.withOpacity(0.0), width: 1),
+                borderRadius: const BorderRadius.all(Radius.circular(32)),
+              ),
+            ),
+            controller: textController,
+            style: const TextStyle(fontSize: 12),
+            textAlign: TextAlign.center,
+            onChanged: widget.onNameChanged,
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State 
+// ... (truncated)

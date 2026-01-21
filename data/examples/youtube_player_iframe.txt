@@ -1,0 +1,33 @@
+&#47;&#47; Copyright 2020 Sarbagya Dhaubanjar. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'package:flutter&#47;material.dart';
+import 'package:youtube_player_iframe_example&#47;router.dart';
+import 'package:flutter_web_plugins&#47;url_strategy.dart';
+
+Future main() async {
+  usePathUrlStrategy();
+  runApp(const YoutubeApp());
+}
+
+&#47;&#47;&#47;
+class YoutubeApp extends StatelessWidget {
+  const YoutubeApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: Colors.green,
+      dynamicSchemeVariant: DynamicSchemeVariant.expressive,
+      brightness: Brightness.dark,
+    );
+
+    return MaterialApp.router(
+      title: 'Youtube Player IFrame Demo',
+      theme: ThemeData.from(colorScheme: colorScheme),
+      debugShowCheckedModeBanner: false,
+      routerConfig: router,
+    );
+  }
+}

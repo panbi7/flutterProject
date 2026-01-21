@@ -1,0 +1,42 @@
+import 'package:flutter&#47;material.dart';
+import 'package:intercom_flutter&#47;intercom_flutter.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  &#47;&#47; TODO: make sure to add keys from your Intercom workspace.
+  await Intercom.instance.initialize(
+    'appId',
+    androidApiKey: 'androidApiKey',
+    iosApiKey: 'iosApiKey',
+  );
+  &#47;&#47; TODO: don't forget to set up the custom application class on Android side.
+  runApp(SampleApp());
+}
+
+class SampleApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Intercom example app'),
+        ),
+        body: Center(
+          child: TextButton(
+            onPressed: () {
+              &#47;&#47; NOTE:
+              &#47;&#47; Messenger will load the messages only if the user is registered
+              &#47;&#47; in Intercom.
+              &#47;&#47; Either identified or unidentified.
+              &#47;&#47; So make sure to login the user in Intercom first before opening
+              &#47;&#47; the intercom messenger.
+              &#47;&#47; Otherwise messenger will not load.
+              Intercom.instance.displayMessenger();
+            },
+            child: Text('Show messenger'),
+          ),
+        ),
+      ),
+    );
+  }
+}

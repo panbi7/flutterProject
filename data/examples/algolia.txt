@@ -1,0 +1,140 @@
+import 'dart:async';
+import 'package:algolia&#47;algolia.dart';
+
+void main() async {
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; Initiate Algolia in your project
+  &#47;&#47;&#47;
+  var algolia = Application.algolia;
+  AlgoliaTask taskAdded, taskUpdated, taskDeleted, taskBatch, taskClearIndex;
+  AlgoliaObjectSnapshot addedObject;
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; 1. Perform Adding Object to existing Index.
+  &#47;&#47;&#47;
+  var addData = {
+    'name': 'John Smith',
+    'contact': '+1 609 123456',
+    'email': 'johan@example.com',
+    'isDelete': false,
+    'status': 'published',
+    'createdAt': DateTime.now(),
+    'modifiedAt': DateTime.now(),
+  };
+  taskAdded = await algolia.instance.index('contacts').addObject(addData);
+
+  &#47;&#47; Checking if has [AlgoliaTask]
+  print(taskAdded.data);
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; 2. Perform Get Object to existing Index.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; -- A Delay of 3 seconds is added for algolia to cdn the object for retrieval.
+  addedObject = await Future.delayed(Duration(seconds: 3), () async {
+    return await algolia.instance
+        .index('contacts')
+        .object(taskAdded.data['objectID'].toString())
+        .getObject();
+  });
+
+  &#47;&#47; Checking if has [AlgoliaObjectSnapshot]
+  print('\n\n');
+  print(addedObject.data);
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; 3. Perform Updating Object to existing Index.
+  &#47;&#47;&#47;
+  var updateData = Map.from(addedObject.data);
+  updateData['contact'] = '+1 609 567890';
+  updateData['modifiedAt'] = DateTime.now();
+  taskUpdated = await algolia.instance
+      .index('contacts')
+      .object(addedObject.objectID)
+      .updateData(updateData);
+
+  &#47;&#47; Checking if has [AlgoliaTask]
+  print('\n\n');
+  print(taskUpdated.data);
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; 4. Perform Delete Object to existing Index.
+  &#47;&#47;&#47;
+  taskDeleted = await algolia.instance
+      .index('contacts')
+      .object(addedObject.objectID)
+      .deleteObject();
+
+  &#47;&#47; Checking if has [AlgoliaTask]
+  print('\n\n');
+  print(taskDeleted.data);
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; 5. Perform Batch
+  &#47;&#47;&#47;
+  var batch = algolia.instance.index('contacts').batch();
+  batch.clearIndex();
+  for (var i = 0; i {
+      'name': 'John ${DateTime.now().microsecond}',
+      'contact': '+1 ${DateTime.now().microsecondsSinceEpoch}',
+      'email': 'johan.${DateTime.now().microsecond}@example.com',
+      'isDelete': false,
+      'status': 'published',
+      'createdAt': DateTime.now(),
+      'modifiedAt': DateTime.now(),
+    };
+    batch.addObject(addData);
+  }
+
+  &#47;&#47; Get Result&#47;Objects
+  taskBatch = await batch.commit();
+
+  &#47;&#47; Checking if has [AlgoliaTask]
+  print('\n\n');
+  print(taskBatch.data);
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; 6. Perform Query
+  &#47;&#47;&#47;
+  var query = algolia.instance.index('contacts').query('john');
+
+  &#47;&#47; Perform multiple facetFilters
+  query = query.facetFilter('status:published');
+  query = query.facetFilter('isDelete:false');
+
+  &#47;&#47; Get Result&#47;Objects
+  var snap = await query.getObjects();
+
+  &#47;&#47; Checking if has [AlgoliaQuerySnapshot]
+  print('\n\n');
+  print('Hits count: ${snap.nbHits}');
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; 7. Perform List all Indices
+  &#47;&#47;&#47;
+  var indices = await algolia.instance.getIndices();
+
+  &#47;&#47; Checking if has [AlgoliaIndexesSnapshot]
+  print('\n\n');
+  print('Indices count: ${indices.items.length}');
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; 8. Perform Clear Index.
+  &#47;&#47;&#47;
+  taskClearIndex = await algolia.instance.index('contacts').clearIndex();
+
+  &#47;&#47; Checking if has [AlgoliaTask]
+  print('\n\n');
+  print(taskClearIndex.data);
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; 9. Perform Delete Index.
+  &#47;&#47;&#47;
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; 10. Get Index Setting Instance.
+  &#47;&#47;&#47;
+  var settingsRef = algolia.instance.index('contact').settings;
+
+  &#47;&#47; Get Settings
+  var currentSettings = await
+// ... (truncated)

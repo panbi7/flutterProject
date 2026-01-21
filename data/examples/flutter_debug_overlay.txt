@@ -1,0 +1,145 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:collection&#47;collection.dart';
+import 'package:dio&#47;dio.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_debug_overlay&#47;flutter_debug_overlay.dart';
+import 'package:http&#47;http.dart' as http;
+import 'package:logger&#47;logger.dart' hide LogEvent;
+import 'package:universal_io&#47;io.dart';
+
+import 'example_data.dart';
+import 'example_debug_entry.dart';
+import 'logging&#47;log_adapter.dart';
+import 'logging&#47;log_client.dart';
+import 'logging&#47;log_interceptor.dart';
+
+void main() {
+  &#47;&#47; Enables the debug overlay even in release mode.
+  DebugOverlay.enabled = true;
+
+  &#47;&#47; Uncaught Exceptions.
+  PlatformDispatcher.instance.onError = (exception, stackTrace) {
+    MyApp.logBucket.add(LogEvent(
+      level: LogLevel.fatal,
+      message: "Unhandled Exception",
+      error: exception,
+      stackTrace: stackTrace,
+    ));
+    return false;
+  };
+
+  &#47;&#47; Rendering Exceptions.
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    MyApp.logBucket.add(LogEvent(
+      level: LogLevel.fatal,
+      message: details.exceptionAsString(),
+      error: (kDebugMode
+          ? details.toDiagnosticsNode().toStringDeep()
+          : details.exception.toString()),
+      stackTrace: details.stack,
+    ));
+  };
+
+  &#47;&#47; Connects logger to the overlay.
+  Logger.addOutputListener((event) {
+    LogLevel? level = LogLevel.values
+        .firstWhereOrNull((element) => element.name == event.origin.level.name);
+    if (level == null) return;
+    MyApp.logBucket.add(LogEvent(
+      level: level,
+      message: event.origin.message,
+      error: event.origin.error,
+      stackTrace: event.origin.stackTrace,
+      time: event.origin.time,
+    ));
+  });
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  static final Logger logger = Logger();
+  static final LogBucket logBucket = LogBucket();
+  static final HttpBucket httpBucket = HttpBucket();
+
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  ThemeMode? _forcedTheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "Flutter Debug Demo",
+      themeMode: _forcedTheme ?? ThemeMode.system,
+      theme: ThemeData(),
+      darkTheme: ThemeData.dark(),
+      builder: DebugOverlay.builder(
+        logBucket: MyApp.logBucket,
+        httpBucket: MyApp.httpBucket,
+        debugEntries: [
+          ExampleDebug(
+            onThemeChange: ([ThemeMode? themeMode]) => setState(() {
+              _forcedTheme = themeMode;
+            }),
+          ),
+        ],
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  static Uri baseUrl = Uri.parse("https:&#47;&#47;httpstat.us&#47;");
+
+  late final HttpClient httpClient;
+  late final HttpClientLogAdapter httpClientAdapter;
+  late final http.Client client;
+  late final Dio dio;
+
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47; dart:io
+    httpClient = HttpClient();
+    httpClientAdapter = ExampleHttpClientAdapter(MyApp.httpBucket);
+    &#47;&#47; "http"
+    client = ExampleHttpLogClient(MyApp.httpBucket, http.Client());
+    &#47;&#47; Dio
+    dio = Dio()..interceptors.add(ExampleDioLogInterceptor(MyApp.httpBucket));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Flutter Debug Demo"),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
+                
+// ... (truncated)

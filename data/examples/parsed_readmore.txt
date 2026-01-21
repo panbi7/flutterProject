@@ -1,0 +1,132 @@
+import 'package:flutter&#47;material.dart';
+import 'package:parsed_readmore&#47;parsed_readmore.dart';
+
+const String inputData =
+    "When using custom values we have specified 'the' to https:&#47;&#47;google.com is a very useful website. (rti..notNow should not be parsed) But Instagram.com is more fun to use. We should not forget the contribution of wikipedia.com played in the growth of web. If you like this package do consider liking it so that it could be useful to more developers like you. Thank you for your time";
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const ParsedReadMoreDemo(),
+    );
+  }
+}
+
+class ParsedReadMoreDemo extends StatefulWidget {
+  const ParsedReadMoreDemo({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _ParsedReadMoreDemoState();
+}
+
+class _ParsedReadMoreDemoState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Parsed Read More'),
+            bottom: const TabBar(tabs: [
+              Tab(
+                text: 'Without',
+              ),
+              Tab(
+                text: 'Default',
+              ),
+              Tab(
+                text: 'Custom',
+              ),
+            ]),
+          ),
+          body: const TabBarView(children: [
+            WithoutPackage(),
+            DefaultValuesPackage(),
+            CustomValuesPackage(),
+          ])),
+    );
+  }
+}
+
+class WithoutPackage extends StatelessWidget {
+  const WithoutPackage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const TextStyle labelTextStyle = TextStyle(
+        fontSize: 24, color: Colors.grey, fontWeight: FontWeight.bold);
+
+    return const Padding(
+      padding: EdgeInsets.all(8.0),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Without using the package", style: labelTextStyle),
+            SizedBox(height: 12),
+            Text(inputData),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DefaultValuesPackage extends StatelessWidget {
+  const DefaultValuesPackage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const TextStyle labelTextStyle = TextStyle(
+        fontSize: 24, color: Colors.grey, fontWeight: FontWeight.bold);
+
+    return const Padding(
+      padding: EdgeInsets.all(8.0),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Using package with default values", style: labelTextStyle),
+            SizedBox(height: 12),
+
+            &#47;&#47;Package widget using only default values.
+            ParsedReadMore(TextHighlightParser(data: inputData)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CustomValuesPackage extends StatelessWidget {
+  const CustomValuesPackage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const TextStyle textStyle = TextStyle(fontSize: 20);
+    const TextStyle labelTextStyle = TextStyle(
+        fontSize: 24, color: Colors.grey, fontWeight: FontWeight.bold);
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Using package with custom values',
+              style: labe
+// ... (truncated)

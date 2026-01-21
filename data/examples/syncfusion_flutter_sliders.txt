@@ -1,0 +1,116 @@
+import 'package:flutter&#47;material.dart';
+import 'package:intl&#47;intl.dart';
+import 'package:syncfusion_flutter_charts&#47;charts.dart' hide LabelPlacement;
+import 'package:syncfusion_flutter_sliders&#47;sliders.dart';
+
+void main() {
+  return runApp(const RangeSelectorApp());
+}
+
+&#47;&#47;&#47; This widget will be the root of the application.
+class RangeSelectorApp extends StatelessWidget {
+  &#47;&#47;&#47;Initialize the instance of the [RangeSelectorApp] class.
+  const RangeSelectorApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(title: 'Range Selector Demo', home: MyHomePage());
+  }
+}
+
+&#47;&#47;&#47; This widget is the home page of the application.
+class MyHomePage extends StatefulWidget {
+  &#47;&#47;&#47; Initialize the instance of the [MyHomePage] class.
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  _MyHomePageState();
+
+  final List _chartData = [
+    Data(x: DateTime(2003), y: 3.4),
+    Data(x: DateTime(2004), y: 2.8),
+    Data(x: DateTime(2005), y: 1.6),
+    Data(x: DateTime(2006), y: 2.3),
+    Data(x: DateTime(2007), y: 2.5),
+    Data(x: DateTime(2008), y: 2.9),
+    Data(x: DateTime(2009), y: 3.8),
+    Data(x: DateTime(2010), y: 2.0),
+  ];
+
+  final DateTime _dateMin = DateTime(2003);
+  final DateTime _dateMax = DateTime(2010);
+  final SfRangeValues _dateValues = SfRangeValues(
+    DateTime(2005),
+    DateTime(2008),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Syncfusion Flutter Range Selector')),
+      body: Container(
+        margin: EdgeInsets.zero,
+        padding: EdgeInsets.zero,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Center(
+                &#47;&#47; ignore: missing_required_param
+                child: SfRangeSelector(
+                  min: _dateMin,
+                  max: _dateMax,
+                  initialValues: _dateValues,
+                  labelPlacement: LabelPlacement.betweenTicks,
+                  interval: 1,
+                  dateIntervalType: DateIntervalType.years,
+                  dateFormat: DateFormat.y(),
+                  showTicks: true,
+                  showLabels: true,
+                  child: SizedBox(
+                    height: 200,
+                    child: SfCartesianChart(
+                      margin: EdgeInsets.zero,
+                      primaryXAxis: DateTimeAxis(
+                        minimum: _dateMin,
+                        maximum: _dateMax,
+                        isVisible: false,
+                      ),
+                      primaryYAxis: const NumericAxis(
+                        isVisible: false,
+                        maximum: 4,
+                      ),
+                      series: >[
+                        SplineAreaSeries(
+                          dataSource: _chartData,
+                          xValueMapper: (Data sales, int index) => sales.x,
+                          yValueMapper: (Data sales, int index) => sales.y,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47; Storing the spline series data points.
+class Data {
+  &#47;&#47;&#47; Initialize the instance of the [Data] class.
+  Data({required this.x, required this.y});
+
+  &#47;&#47;&#47; Spline series x points.
+  final DateTime x;
+
+  &#47;&#47;&#47; Spline series y points.
+  final double y;
+}

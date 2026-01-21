@@ -1,0 +1,129 @@
+import 'package:flutter&#47;material.dart';
+
+import 'package:open_settings_plus&#47;open_settings_plus.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            const SliverAppBar(
+              pinned: true,
+              backgroundColor: Colors.blue,
+              flexibleSpace: FlexibleSpaceBar(
+                title: Text("Open settings +"),
+              ),
+              centerTitle: true,
+              expandedHeight: 220,
+            ),
+          ],
+          body: switch (OpenSettingsPlus.shared) {
+            OpenSettingsPlusAndroid settings => _buildAndroidList(settings),
+            OpenSettingsPlusIOS settings => _buildIOSList(settings),
+            _ => const Center(
+                child: Text(
+                  "Unsupported platform.",
+                ),
+              ),
+          },
+        ),
+      ),
+    );
+  }
+
+  ListView _buildIOSList(OpenSettingsPlusIOS settings) {
+    return ListView(
+      children: [
+        ListTile(
+          onTap: settings,
+          title: const Text("Open settings"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.wifi,
+          title: const Text("Open wi-fi"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.about,
+          title: const Text("Open about"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.accessibility,
+          title: const Text("Open accessibility"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.accountSettings,
+          title: const Text("Open account settings"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.autoLock,
+          title: const Text("Open auto lock"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.battery,
+          title: const Text("Open battery"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.bluetooth,
+          title: const Text("Open bluetooth"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.dateAndTime,
+          title: const Text("Open date and time"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.faceIDAndPasscode,
+          title: const Text("Open face ID and passcode"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.cellular,
+          title: const Text("Open cellular"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.dictionary,
+          title: const Text("Open dictionary"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.displayAndBrightness,
+          title: const Text("Open display and brightness"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.general,
+          title: const Text("Open general"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.iCloud,
+          title: const Text("Open iCloud"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.music,
+          title: const Text("Open music"),
+          trailing: const Icon(Icons.chevron_right),
+        ),
+        ListTile(
+          onTap: settings.keyboard,
+          title: const Text("Open keyboard"),
+          trailing: c
+// ... (truncated)

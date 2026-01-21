@@ -1,0 +1,117 @@
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'package:example&#47;element_settings_menu.dart';
+import 'package:example&#47;example_data_serializer.dart';
+import 'package:example&#47;platforms&#47;hooks_mobile.dart'
+    if (dart.library.js) 'package:example&#47;platforms&#47;hooks_web.dart';
+import 'package:example&#47;text_menu.dart';
+import 'package:example&#47;widgets&#47;star.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_flow_chart&#47;flutter_flow_chart.dart';
+import 'package:star_menu&#47;star_menu.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Flow Chart Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Flutter Flow Chart Demo'),
+    );
+  }
+}
+
+&#47;&#47;&#47;
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({required this.title, super.key});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  Dashboard dashboard =
+      Dashboard(dataSerializer: ExampleDataSerializer());
+
+  &#47;&#47;&#47; Notifier for the tension slider
+  final segmentedTension = ValueNotifier(1);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: [
+          IconButton(
+            onPressed: () {
+              dashboard.setZoomFactor(1.5 * dashboard.zoomFactor);
+            },
+            icon: const Icon(Icons.zoom_in),
+          ),
+          IconButton(
+            onPressed: () {
+              dashboard.setZoomFactor(dashboard.zoomFactor &#47; 1.5);
+            },
+            icon: const Icon(Icons.zoom_out),
+          ),
+        ],
+      ),
+      backgroundColor: Colors.black12,
+      body: Container(
+        constraints: const BoxConstraints.expand(),
+        child: FlowChart(
+          dashboard: dashboard,
+          onNewConnection: (p1, p2) {
+            debugPrint('new connection');
+          },
+          onDashboardTapped: (context, position) {
+            debugPrint('Dashboard tapped $position');
+            _displayDashboardMenu(context, position);
+          },
+          onScaleUpdate: (newScale) {
+            debugPrint('Scale updated. new scale: $newScale');
+          },
+          onDashboardSecondaryTapped: (context, position) {
+            debugPrint('Dashboard right clicked $position');
+            _displayDashboardMenu(context, position);
+          },
+          onDashboardLongTapped: (context, position) {
+            debugPrint('Dashboard long tapped $position');
+          },
+          onDashboardSecondaryLongTapped: (context, position) {
+            debugPrint(
+              'Dashboard long tapped with mouse right click $position',
+            );
+          },
+          onElementLongPressed: (context, position, element) {
+            debugPrint('Element with "${element.text}" text '
+                'long pressed');
+          },
+          onElementSecondaryLongTapped: (context, position, element) {
+            debugPrint('Element with "${element.text}" text '
+                'long tapped with mouse right click');
+          },
+          onElementPressed: (context, position, element) {
+            debugPrint('Element with "${element.text}" text pressed');
+            _displayElementMenu(context, position, element);
+          },
+          onElementSecondaryTapped: (context, position, element) {
+            debugPrint('Element with "${element.text}" text pressed');
+            _displayElementMenu(context, position, element);
+          },
+          onHandlerPressed: (context, position, handler, element) {
+            debugPrint('handler pressed: position $position '
+                'handler $handl
+// ... (truncated)

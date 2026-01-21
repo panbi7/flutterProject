@@ -1,0 +1,111 @@
+import 'package:awesome_dialog&#47;awesome_dialog.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'Fancy Dialog Example',
+        theme: ThemeData.dark(),
+        initialRoute: '&#47;',
+        home: HomePage());
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Awesome Dialog Example'),
+      ),
+      body: Center(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                AnimatedButton(
+                  text: 'Info Dialog fixed width and square buttons',
+                  pressEvent: () {
+                    AwesomeDialog(
+                      context: context,
+                      dialogType: DialogType.info,
+                      borderSide: const BorderSide(
+                        color: Colors.green,
+                        width: 2,
+                      ),
+                      width: 280,
+                      buttonsBorderRadius: const BorderRadius.all(
+                        Radius.circular(2),
+                      ),
+                      dismissOnTouchOutside: true,
+                      dismissOnBackKeyPress: false,
+                      onDismissCallback: (type) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Dismissed by $type'),
+                          ),
+                        );
+                      },
+                      headerAnimationLoop: false,
+                      animType: AnimType.bottomSlide,
+                      title: 'INFO',
+                      desc: 'This Dialog can be dismissed touching outside',
+                      showCloseIcon: true,
+                      btnCancelOnPress: () {},
+                      btnOkOnPress: () {},
+                    ).show();
+                  },
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                AnimatedButton(
+                  text: 'Warning Dialog With Custom BTN Style',
+                  pressEvent: () {
+                    AwesomeDialog(
+                      context: context,
+                      dialogType: DialogType.warning,
+                      headerAnimationLoop: false,
+                      animType: AnimType.bottomSlide,
+                      title: 'Question',
+                      desc: 'Dialog description here...',
+                      buttonsTextStyle: const TextStyle(color: Colors.black),
+                      showCloseIcon: true,
+                      btnCancelOnPress: () {},
+                      btnOkOnPress: () {},
+                    ).show();
+                  },
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                AnimatedButton(
+                  text: 'Info Reverse Dialog Without buttons',
+                  pressEvent: () {
+                    AwesomeDialog(
+                      context: context,
+                      dialogType: DialogType.infoReverse,
+                      headerAnimationLoop: true,
+                      animType: AnimType.bottomSlide,
+                      title: 'INFO Reversed',
+                      reverseBtnOrder: true,
+                      btnOkOnPress: () {},
+                      btnCancelOnPress: () {},
+                      desc:
+                          'Lorem ipsum dolor sit amet consectetur adipiscing elit eget ornare tempus, vestibulum sagittis rhonc
+// ... (truncated)

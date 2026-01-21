@@ -1,0 +1,149 @@
+import 'dart:math';
+
+import 'package:cross_scroll&#47;cross_scroll.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  &#47;&#47; This widget is the root of your application.
+  CrossScrollController controller = CrossScrollController();
+  @override
+  void initState() {
+    &#47;&#47; TODO: implement initState
+    super.initState();
+    controller.addListener(() {
+      print("XPosition:${controller.offsetX}");
+      print("YPosition:${controller.offsetY}");
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Cross Scroll',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: CrossScrollBar(
+        controller: controller,
+        child: InfiniteCrossScroll(
+          maxRows: 10,
+          maxColumns: 10,
+          controller: controller,
+          cellSize: const Size(150, 150),
+          builder: (context, vicinity) => Container(
+            height: 150,
+            width: 150,
+            color: Color.fromARGB(255, Random().nextInt(255),
+                Random().nextInt(255), Random().nextInt(255)),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CustomWidget extends StatelessWidget {
+  const CustomWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    print("WIDTH:${MediaQuery.sizeOf(context).width}");
+    return MaterialApp(
+        color: Colors.grey,
+        home: CustomPaint(
+            size: const Size(550, 250), painter: RPSCustomPainter()));
+  }
+}
+
+class RPSCustomPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paintFill0 = Paint()
+      ..color = const Color.fromARGB(255, 255, 255, 255)
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 0;
+
+    Paint paintStroke0 = Paint()
+      ..color = const Color.fromARGB(255, 126, 177, 219)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    Path path_0 = Path();
+
+    &#47;&#47; path_0.moveTo(size.width, size.height);
+
+    &#47;&#47;&#47;TOP Left corner
+    path_0.lineTo(0, 0);
+
+    &#47;&#47;&#47;TOP Right corner
+    path_0.lineTo(size.width, 0);
+
+    path_0.lineTo(size.width, size.height * 0.2);
+    for (Offset offset in createHalfCircleAntiClockwise(
+        Offset(size.width + 2, size.height * 0.6),
+        Offset(size.width + 2, size.height * 0.5),
+        4)) {
+      &#47;&#47; if (i > 2 && i  700) {
+      &#47;&#47;   break;
+      &#47;&#47; }
+      &#47;&#47; print(i);
+    }
+
+    path_0.lineTo(size.width, size.height * 0.5);
+
+    &#47;&#47;&#47;BOTTOM RIGHT CORNER
+    path_0.lineTo(size.width, size.height);
+
+    &#47;&#47;&#47;BOTTOM LEFT CORNER
+    path_0.lineTo(0, size.height);
+
+    for (Offset offset in fullCircle(
+            Offset(0, size.height * 0.5), Offset(0, size.height * 0.6), 4)
+        .reversed) {
+      &#47;&#47; if (i > 2 && i  700) {
+      &#47;&#47;   break;
+      &#47;&#47; }
+      &#47;&#47; print(i);
+    }
+
+    &#47;&#47;&#47;JOIN TOP LEFT AGAIN
+    path_0.lineTo(0, 0);
+
+    path_0.close();
+
+    canvas.drawPath(path_0, paintFill0);
+    canvas.drawPath(path_0, paintStroke0);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+
+  List fullCircle(Offset start, Offset end, double angle) {
+    final double centerX = (start.dx + end.dx) &#47; 2;
+    final double centerY = (start.dy + end.dy) &#47; 2;
+    final double radius = centerY &#47; 2;
+
+    final double startAngle = atan2(start.dy - centerY, start.dx - centerX);
+    final double sweepAngle = angle;
+
+    final List points = [];
+    const double step = 0.1; &#47;&#47; Adjust this value for the desired granularity.
+
+    for (double theta = startAngle;
+        theta  createHalfCircleAntiClockwise(
+      Offset start, Offset end, double angle) {
+    final double centerX = (s
+// ... (truncated)

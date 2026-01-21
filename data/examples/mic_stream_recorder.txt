@@ -1,0 +1,140 @@
+import 'package:flutter&#47;material.dart';
+import 'package:mic_stream_recorder&#47;mic_stream_recorder.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Mic Stream Recorder Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const RecordingPage(),
+    );
+  }
+}
+
+class RecordingPage extends StatefulWidget {
+  const RecordingPage({super.key});
+
+  @override
+  State createState() => _RecordingPageState();
+}
+
+class _RecordingPageState extends State {
+  final MicStreamRecorder _recorder = MicStreamRecorder();
+  final TextEditingController _fileNameController = TextEditingController();
+
+  bool _isRecording = false;
+  bool _isPlaying = false;
+  double _currentAmplitude = 0.0;
+  String? _lastRecordingPath;
+  List _recordingFiles = [];
+  RangeValues _amplitudeRange = const RangeValues(0.0, 100.0);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecordingFiles();
+    _setupAmplitudeListener();
+  }
+
+  void _setupAmplitudeListener() {
+    _recorder.amplitudeStream.listen((rawAmplitude) {
+      if (mounted && _isRecording) {
+        &#47;&#47; Post-process the raw 0.0-1.0 amplitude to custom range
+        final normalizedAmplitude = _normalizeAmplitude(rawAmplitude);
+        setState(() => _currentAmplitude = normalizedAmplitude);
+      }
+    });
+  }
+
+  &#47;&#47;&#47; Post-process raw amplitude (0.0-1.0) to custom range
+  double _normalizeAmplitude(double rawAmplitude) {
+    final minPercent = _amplitudeRange.start &#47; 100.0;
+    final maxPercent = _amplitudeRange.end &#47; 100.0;
+
+    &#47;&#47; Apply custom range normalization
+    return minPercent + (rawAmplitude * (maxPercent - minPercent));
+  }
+
+  @override
+  void dispose() {
+    _fileNameController.dispose();
+    super.dispose();
+  }
+
+  &#47;&#47; Core functionality methods
+  Future _loadRecordingFiles() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final files = directory
+          .listSync()
+          .where((file) => file.path.endsWith('.m4a'))
+          .map((file) => file.path)
+          .toList();
+      setState(() => _recordingFiles = files);
+    } catch (e) {
+      _showMessage('Failed to load files: $e', isError: true);
+    }
+  }
+
+  Future _startRecording() async {
+    if (_isRecording) return;
+    try {
+      String? customPath;
+      if (_fileNameController.text.isNotEmpty) {
+        final directory = await getApplicationDocumentsDirectory();
+        customPath = '${directory.path}&#47;${_fileNameController.text}.m4a';
+        _showMessage('Recording: ${_fileNameController.text}.m4a');
+      }
+      await _recorder.startRecording(customPath);
+      setState(() => _isRecording = true);
+    } catch (e) {
+      _showMessage('Failed to start recording: $e', isError: true);
+    }
+  }
+
+  Future _stopRecording() async {
+    if (!_isRecording) return;
+    try {
+      final recordingPath = await _recorder.stopRecording();
+      setState(() {
+        _isRecording = false;
+        _lastRecordingPath = recordingPath;
+        _currentAmplitude = 0.0;
+      });
+      _fileNameController.clear();
+      await _loadRecordingFiles();
+      _showMessage('Recording saved');
+    } catch (e) {
+      _showMessage('Failed to stop recording: $e', isError: true);
+    }
+  }
+
+  Future _playRecording(String filePath) async {
+    try {
+      await _recorder.playRecording(filePath);
+      setState(() => _isPlaying = true);
+      _checkPlayingStatus();
+    } catch (e) {
+      _showMessage('Failed to play: $e', isError: true);
+    }
+  }
+
+  Future _pausePlayback() async {
+    try {
+      await _recorder.pausePlayback();
+      setState(() => _isPlaying = false);
+    } catch (e) {
+      _showMessage('Failed to pause: $e', isError: true);
+
+// ... (truncated)

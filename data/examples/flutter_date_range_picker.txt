@@ -1,0 +1,109 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter_date_range_picker&#47;flutter_date_range_picker.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Date range picker example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Date range picker example'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  DateRange? selectedDateRange;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: DefaultTabController(
+          length: 3,
+          child: Expanded(
+            child: Column(
+              children: [
+                const TabBar(
+                  tabs: [
+                    Tab(text: "Simple field"),
+                    Tab(text: "Simple form field"),
+                    Tab(text: "Decomposed widgets"),
+                  ],
+                ),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      Column(
+                        children: [
+                          const SizedBox(height: 100),
+                          const Text("The simple field example:"),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            width: 250,
+                            child: DateRangeField(
+                              decoration: const InputDecoration(
+                                label: Text("Date range picker"),
+                                hintText: 'Please select a date range',
+                              ),
+                              onDateRangeSelected: (DateRange? value) {
+                                setState(() {
+                                  selectedDateRange = value;
+                                });
+                              },
+                              selectedDateRange: selectedDateRange,
+                              pickerBuilder: datePickerBuilder,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          const SizedBox(height: 100),
+                          const Text("The simple form field example:"),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            width: 250,
+                            child: DateRangeFormField(
+                              labelBuilder: (dateRange) {
+                                return "Days between ${dateRange.start.toIso8601String().substring(0, 10)} and ${dateRange.end.toIso8601String().substring(0, 10)}: ${dateRange.duration} day(s)";
+                              },
+                              decoration: const InputDecoration(
+                                label: Text("Date range picker"),
+                                hintText: 'Please select a date range',
+                              ),
+                              pickerBuilder: (x, y) =>
+                                  datePickerBuilder(x, y, false),
+                            ),
+                          )
+                        ],
+                      ),
+                      SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 50),
+                            const Text("The decomposed widgets example :"),
+                            const SizedBox(height: 20),
+        
+// ... (truncated)

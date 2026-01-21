@@ -1,0 +1,102 @@
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart' show rootBundle;
+import 'package:image_picker&#47;image_picker.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:qr_code_tools&#47;qr_code_tools.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final picker = ImagePicker();
+  String _qrcodeFile = '';
+  String _data = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    String filename = '1559788943.png';
+    getTemporaryDirectory()
+        .then((dir) => File('${dir.path}&#47;$filename'))
+        .then((file) => file.existsSync()
+            ? Future.value(file)
+            : rootBundle
+                .load("images&#47;$filename")
+                .then((bytes) => file.writeAsBytes(bytes.buffer.asUint8List())))
+        .then((file) {
+          setState(() {
+            _qrcodeFile = file.path;
+          });
+          return file;
+        })
+        .then((file) => decodeQR(file.path))
+        .then((data) {
+          setState(() {
+            _data = data ?? 'Decode is failed';
+          });
+        })
+        .catchError((e) {
+          setState(() {
+            _data = 'Failed to load this file';
+          });
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: Column(
+            children: [
+              _qrcodeFile.isEmpty
+                  ? Image.asset(
+                      'images&#47;1559788943.png',
+                    )
+                  : Image.file(File(_qrcodeFile)),
+              ElevatedButton(
+                onPressed: _getPhotoByGallery,
+                child: const Text("Select file"),
+              ),
+              Text('Qr Code data: $_data\n'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _getPhotoByGallery() {
+    picker
+        .pickImage(source: ImageSource.gallery)
+        .then((xfile) => xfile?.path)
+        .then((path) {
+      if (path != null) {
+        setState(() {
+          _qrcodeFile = path;
+        });
+        decodeQR(path).then((data) => setState(() => _data = data ?? 'Decode is failed'));
+      } else {
+        setState(() {
+          _data = 'Failed to load this file';
+        });
+      }
+    });
+  }
+
+  Future decodeQR(String filePath) {
+    return QrCodeToolsPlugin.decodeFrom(filePath);
+  }
+}

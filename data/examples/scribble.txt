@@ -1,0 +1,150 @@
+import 'dart:convert';
+
+import 'package:flutter&#47;material.dart';
+import 'package:scribble&#47;scribble.dart';
+import 'package:value_notifier_tools&#47;value_notifier_tools.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Scribble',
+      theme: ThemeData.from(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple)),
+      home: const HomePage(title: 'Scribble'),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  late ScribbleNotifier notifier;
+
+  @override
+  void initState() {
+    notifier = ScribbleNotifier();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: _buildActions(context),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 64),
+        child: Column(
+          children: [
+            Expanded(
+              child: Card(
+                clipBehavior: Clip.hardEdge,
+                margin: EdgeInsets.zero,
+                color: Colors.white,
+                surfaceTintColor: Colors.white,
+                child: Scribble(
+                  notifier: notifier,
+                  drawPen: true,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  _buildColorToolbar(context),
+                  const VerticalDivider(width: 32),
+                  _buildStrokeToolbar(context),
+                  const Expanded(child: SizedBox()),
+                  _buildPointerModeSwitcher(context),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  List _buildActions(context) {
+    return [
+      ValueListenableBuilder(
+        valueListenable: notifier,
+        builder: (context, value, child) => IconButton(
+          icon: child as Icon,
+          tooltip: "Undo",
+          onPressed: notifier.canUndo ? notifier.undo : null,
+        ),
+        child: const Icon(Icons.undo),
+      ),
+      ValueListenableBuilder(
+        valueListenable: notifier,
+        builder: (context, value, child) => IconButton(
+          icon: child as Icon,
+          tooltip: "Redo",
+          onPressed: notifier.canRedo ? notifier.redo : null,
+        ),
+        child: const Icon(Icons.redo),
+      ),
+      IconButton(
+        icon: const Icon(Icons.clear),
+        tooltip: "Clear",
+        onPressed: notifier.clear,
+      ),
+      IconButton(
+        icon: const Icon(Icons.image),
+        tooltip: "Show PNG Image",
+        onPressed: () => _showImage(context),
+      ),
+      IconButton(
+        icon: const Icon(Icons.data_object),
+        tooltip: "Show JSON",
+        onPressed: () => _showJson(context),
+      ),
+    ];
+  }
+
+  void _showImage(BuildContext context) async {
+    final image = notifier.renderImage();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Generated Image"),
+        content: SizedBox.expand(
+          child: FutureBuilder(
+            future: image,
+            builder: (context, snapshot) => snapshot.hasData
+                ? Image.memory(snapshot.data!.buffer.asUint8List())
+                : const Center(child: CircularProgressIndicator()),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: Navigator.of(context).pop,
+            child: const Text("Close"),
+          )
+        ],
+      ),
+    );
+  }
+
+  void _showJson(BuildContext context) {
+    s
+// ... (truncated)

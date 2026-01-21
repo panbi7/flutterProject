@@ -1,0 +1,129 @@
+import 'package:example&#47;button_widget.dart';
+import 'package:example&#47;game.dart';
+import 'package:example&#47;page&#47;internal_floating_page.dart';
+import 'package:example&#47;page&#47;page.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_floating&#47;flutter_floating.dart';
+import 'package:get&#47;get_navigation&#47;src&#47;root&#47;get_material_app.dart';
+import 'common.dart';
+import 'floating_icon.dart';
+
+void main() => runApp(GetMaterialApp(home: const MyApp()));
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  static GlobalKey globalKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      navigatorKey: globalKey,
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const MyHomePage(title: 'Floating'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+ late FloatingOverlay floating = floatingManager.createFloating(
+    "key_1",
+    FloatingOverlay(
+      const FloatingIcon(),
+      slideType: FloatingEdgeType.onRightAndTop,
+      right: -20,
+      params: FloatingParams(snapToEdgeSpace: -20),
+      top: 100,
+    ),
+  );
+  late FloatingCommonController controller = floating.controller;
+
+  var canDrag = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      floating.open(context);
+    });
+  }
+
+  void _startCustomPage() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return const CustomPage();
+    }));
+  }
+
+  void _startInternalFollowPage() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return const InternalFloatingPage();
+    }));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Spacer(),
+            ButtonWidget(
+              text: "显示&#47;关闭悬浮窗",
+              callback: () {
+                var floating = floatingManager.getFloating("key_1");
+                floating.isShowing ? floating.close() : floating.open(context);
+              },
+            ),
+            ButtonWidget(text: "跳转页面", callback: () => _startCustomPage()),
+            ButtonWidget(text: "页面内悬浮窗", callback: () => _startInternalFollowPage()),
+            Row(
+              children: [
+                Expanded(
+                    child: Column(
+                  children: [
+                    ButtonWidget(
+                      text: '打开&#47;关闭',
+                      callback: () =>
+                          floating.isShowing ? floating.close() : floating.open(context),
+                    ),
+                    ButtonWidget(
+                      text: '显示&#47;隐藏',
+                      callback: () => floating.isHidden ? floating.show() : floating.hide(),
+                    ),
+                    ButtonWidget(
+                      text: '允许拖动开&#47;关',
+                      callback: () => {
+                        canDrag = !canDrag,
+                        controller.setDragEnable(canDrag),
+                      },
+                    )
+                  ],
+                )),
+                buildGameControllerWidget(),
+                Expanded(
+                    child: Column(
+                  children: [
+                    ButtonWidget(
+                      text: '放大&#47;缩小',
+                      callback: () {
+                        var v = com.wh.value == 100 ? 150.0 : 100.0;
+                        controller.setWAndH(v, v);
+                        com.wh.value = v;
+                      },
+                    ),
+                    ButtonWidget(
+                      text: '吸边距离修改'
+// ... (truncated)

@@ -1,0 +1,73 @@
+import 'package:flutter&#47;material.dart';
+import 'package:octo_image&#47;octo_image.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'OctoImage Demo',
+      theme: ThemeData(),
+      home: const OctoImagePage(),
+    );
+  }
+}
+
+class OctoImagePage extends StatelessWidget {
+  const OctoImagePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('OctoImage Demo'),
+      ),
+      body: ListView(
+        children: [
+          _customImage(),
+          const SizedBox(height: 16),
+          _circleAvatar(),
+        ],
+      ),
+    );
+  }
+
+  Widget _customImage() {
+    return SizedBox(
+      height: 150,
+      child: OctoImage(
+        image: const NetworkImage('https:&#47;&#47;via.placeholder.com&#47;150'),
+        progressIndicatorBuilder: (context, progress) {
+          double? value;
+          var expectedBytes = progress?.expectedTotalBytes;
+          if (progress != null && expectedBytes != null) {
+            value = progress.cumulativeBytesLoaded &#47; expectedBytes;
+          }
+          return CircularProgressIndicator(value: value);
+        },
+        errorBuilder: (context, error, stacktrace) => const Icon(Icons.error),
+      ),
+    );
+  }
+
+  Widget _circleAvatar() {
+    return SizedBox(
+      height: 75,
+      child: OctoImage.fromSet(
+        fit: BoxFit.cover,
+        image: const NetworkImage(
+          'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;thumb&#47;4&#47;4e&#47;Macaca_nigra_self-portrait_large.jpg&#47;1024px-Macaca_nigra_self-portrait_large.jpg',
+        ),
+        octoSet: OctoSet.circleAvatar(
+          backgroundColor: Colors.red,
+          text: const Text("M"),
+        ),
+      ),
+    );
+  }
+}

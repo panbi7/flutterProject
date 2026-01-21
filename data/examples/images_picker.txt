@@ -1,0 +1,126 @@
+import 'dart:io';
+
+import 'package:dio&#47;dio.dart';
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:images_picker&#47;images_picker.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String? path;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Column(
+          children: [
+            ElevatedButton(
+              child: Text('pick'),
+              onPressed: () async {
+                List? res = await ImagesPicker.pick(
+                  count: 3,
+                  pickType: PickType.all,
+                  language: Language.System,
+                  maxTime: 30,
+                  &#47;&#47; maxSize: 500,
+                  cropOpt: CropOption(
+                    &#47;&#47; aspectRatio: CropAspectRatio.wh16x9,
+                    cropType: CropType.circle,
+                  ),
+                );
+                print(res);
+                if (res != null) {
+                  print(res.map((e) => e.path).toList());
+                  setState(() {
+                    path = res[0].thumbPath;
+                  });
+                  &#47;&#47; bool status = await ImagesPicker.saveImageToAlbum(File(res[0]?.path));
+                  &#47;&#47; print(status);
+                }
+              },
+            ),
+            ElevatedButton(
+              child: Text('openCamera'),
+              onPressed: () async {
+                List? res = await ImagesPicker.openCamera(
+                  &#47;&#47; pickType: PickType.video,
+                  pickType: PickType.image,
+                  quality: 0.8,
+                  maxSize: 800,
+                  &#47;&#47; cropOpt: CropOption(
+                  &#47;&#47;   aspectRatio: CropAspectRatio.wh16x9,
+                  &#47;&#47; ),
+                  maxTime: 15,
+                );
+                print(res);
+                if (res != null) {
+                  print(res[0].path);
+                  setState(() {
+                    path = res[0].thumbPath;
+                  });
+                }
+              },
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                File file =
+                    await downloadFile('https:&#47;&#47;cdn.chavesgu.com&#47;logo.png');
+                bool res = await ImagesPicker.saveImageToAlbum(file,
+                    albumName: "chaves");
+                print(res);
+              },
+              child: Text('saveNetworkImageToAlbum'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                File file = await downloadFile(
+                    'https:&#47;&#47;cdn.chavesgu.com&#47;SampleVideo.mp4');
+                bool res = await ImagesPicker.saveVideoToAlbum(file,
+                    albumName: "chaves");
+                print(res);
+              },
+              child: Text('saveNetworkVideoToAlbum'),
+            ),
+            path != null
+                ? Container(
+                    height: 200,
+                    child: Image.file(
+                      File(path!),
+                      fit: BoxFit.contain,
+                    ),
+                  )
+                : SizedBox.shrink(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future downloadFile(String url) async {
+    Dio simple = Dio();
+    String savePath = Directory.systemTemp.path + '&#47;' + url.split('&#47;').last;
+    await simple.download(url, savePath,
+        options: Options(responseType: ResponseType.bytes));
+    print(savePath);
+    File file = new File(savePath);
+    return file;
+  }
+}

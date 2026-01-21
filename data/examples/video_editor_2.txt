@@ -1,0 +1,140 @@
+import 'dart:async';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:image_picker&#47;image_picker.dart';
+import 'package:path&#47;path.dart' as path;
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:video_editor_2&#47;domain&#47;entities&#47;file_format.dart';
+import 'package:video_editor_2&#47;video_editor.dart';
+import 'package:video_editor_example&#47;crop.dart';
+
+void main() => runApp(
+      MaterialApp(
+        title: 'Flutter Video Editor Demo',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.grey,
+          brightness: Brightness.dark,
+          tabBarTheme: const TabBarTheme(
+            indicator: UnderlineTabIndicator(
+              borderSide: BorderSide(color: Colors.white),
+            ),
+          ),
+          dividerColor: Colors.white,
+        ),
+        home: const VideoEditorExample(),
+      ),
+    );
+
+class VideoEditorExample extends StatefulWidget {
+  const VideoEditorExample({super.key});
+
+  @override
+  State createState() => _VideoEditorExampleState();
+}
+
+class _VideoEditorExampleState extends State {
+  final ImagePicker _picker = ImagePicker();
+
+  void _pickVideo() async {
+    final XFile? file = await _picker.pickVideo(source: ImageSource.gallery);
+
+    if (mounted && file != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => VideoEditor(file: file),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Image &#47; Video Picker")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text("Click on the button to select video"),
+            ElevatedButton(
+              onPressed: _pickVideo,
+              child: const Text("Pick Video From Gallery"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47;-------------------&#47;&#47;
+&#47;&#47;VIDEO EDITOR SCREEN&#47;&#47;
+&#47;&#47;-------------------&#47;&#47;
+class VideoEditor extends StatefulWidget {
+  const VideoEditor({super.key, required this.file});
+
+  final XFile file;
+
+  @override
+  State createState() => _VideoEditorState();
+}
+
+class _VideoEditorState extends State {
+  final _exportingProgress = ValueNotifier(0.0);
+  final _isExporting = ValueNotifier(false);
+  final double height = 60;
+
+  &#47;&#47;&#47; On the web, when multiple VideoPlayers reuse the same VideoController,
+  &#47;&#47;&#47; only the last one can show the frames.
+  &#47;&#47;&#47; Therefore, when CropScreen is popped, the CropGridViewer should be given a
+  &#47;&#47;&#47; new key to refresh itself.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; https:&#47;&#47;github.com&#47;flutter&#47;flutter&#47;issues&#47;124210
+  int cropGridViewerKey = 0;
+
+  late final _controller = VideoEditorController.file(
+    widget.file,
+    minDuration: const Duration(seconds: 1),
+    maxDuration: const Duration(seconds: 10),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.initialize(aspectRatio: 9 &#47; 16).then((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    }).catchError((error) {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }, test: (e) => e is VideoMinDurationError);
+  }
+
+  @override
+  void dispose() {
+    _exportingProgress.dispose();
+    _isExporting.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: _controller.initialized
+            ? SafeArea(
+                child: Stack(
+                  children: [
+                    Column(
+                      children: [
+                        _topNavBar(),
+                        Expanded(
+                          child: DefaultTabController
+// ... (truncated)

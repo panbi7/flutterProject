@@ -1,0 +1,127 @@
+import 'package:enough_giphy_flutter&#47;enough_giphy_flutter.dart';
+import 'package:enough_platform_widgets&#47;enough_platform_widgets.dart';
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PlatformApp(
+      title: 'enough_giphy_flutter',
+      material: (context, target) => MaterialAppData(
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          brightness: Brightness.light,
+        ),
+      ),
+      home: const MyHomePage(title: 'enough_giphy_flutter Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final _images = [];
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final content = Center(
+      child: _images.isEmpty
+          ? const Center(child: Text('Please add a GIF'))
+          : ListView.builder(
+              itemBuilder: (context, index) => GiphyImageView(
+                gif: _images[index],
+                fit: BoxFit.contain,
+              ),
+              itemCount: _images.length,
+              controller: _scrollController,
+            ),
+    );
+    return PlatformScaffold(
+      appBar: PlatformAppBar(
+        title: Text(widget.title),
+      ),
+      material: (context, platform) => MaterialScaffoldData(
+        body: content,
+        floatingActionButton: FloatingActionButton(
+          onPressed: _selectGif,
+          tooltip: 'Select Gif',
+          child: const Icon(Icons.gif),
+        ),
+      ),
+      cupertino: (context, platform) => CupertinoPageScaffoldData(
+          body: Stack(
+        children: [
+          content,
+          SafeArea(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: CupertinoButton.filled(
+                onPressed: _selectGif,
+                child: const Icon(Icons.gif),
+              ),
+            ),
+          ),
+        ],
+      )),
+    );
+  }
+
+  &#47;&#47;&#47; Selects and display a gif, sticker or emoji from GIPHY
+  void _selectGif() async {
+    const giphyApiKey = 'giphy-api-key';
+    if (giphyApiKey == 'giphy-api-key') {
+      showPlatformDialog(
+        context: context,
+        builder: (context) => PlatformAlertDialog(
+          title: const Text('Check your GIPHY API Key'),
+          content: const Text('You need to register an API key first.'),
+        ),
+      );
+      return;
+    }
+    &#47;&#47; let the user select the gif:
+    final gif = await Giphy.getGif(
+      context: context,
+      apiKey: giphyApiKey, &#47;&#47;  your API key
+      type: GiphyType.gifs, &#47;&#47; choose between gifs, stickers and emoji
+      rating: GiphyRating.g, &#47;&#47; general audience &#47; all ages
+      lang: GiphyLanguage.english, &#47;&#47; 'en'
+      keepState: true, &#47;&#47; remember type and search query
+      showPreview: true, &#47;&#47; shows a preview before returning the GIF
+    );
+    &#47;&#47; process the gif:
+    if (gif != null) {
+      _images.insert(0, gif);
+      setState(() {});
+      WidgetsBinding.instance.addPostFrameCallback((duration) {
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(microseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      });
+    }
+  }
+}

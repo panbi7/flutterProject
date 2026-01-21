@@ -1,0 +1,64 @@
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'package:flutter&#47;material.dart';
+import 'package:rhttp&#47;rhttp.dart';
+import 'package:rhttp_example&#47;widgets&#47;response_card.dart';
+
+Future main() async {
+  await Rhttp.init();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  HttpTextResponse? response;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Test Page'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    final res = await Rhttp.get(
+                      'https:&#47;&#47;reqres.in&#47;api&#47;users',
+                      query: {'page': '5'},
+                      headers: const HttpHeaders.rawMap({
+                        'x-api-key': 'reqres-free-v1',
+                      }),
+                      settings: const ClientSettings(
+                        httpVersionPref: HttpVersionPref.http3,
+                      ),
+                    );
+                    setState(() {
+                      response = res;
+                    });
+                  } catch (e, st) {
+                    print(e);
+                    print(st);
+                  }
+                },
+                child: const Text('Test'),
+              ),
+              if (response != null) ResponseCard(response: response!),
+              &#47;&#47; if (response != null) Text(response!.headers.toString()),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

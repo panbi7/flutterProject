@@ -1,0 +1,107 @@
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:particle_field&#47;particle_field.dart';
+import 'package:rnd&#47;rnd.dart';
+
+&#47;&#47; TODO: Add additional examples, including interactive ones
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: 'Particle Field Demo',
+      debugShowCheckedModeBanner: false,
+      home: ParticleFieldExample(),
+    );
+  }
+}
+
+&#47;&#47; this is a very quick and dirty example.
+class ParticleFieldExample extends StatelessWidget {
+  const ParticleFieldExample({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final SpriteSheet sparkleSpriteSheet = SpriteSheet(
+      image: const AssetImage('assets&#47;particle-21x23.png'),
+      frameWidth: 21,
+    );
+
+    &#47;&#47; simple "star" particle field.
+    final ParticleField starField = ParticleField(
+      spriteSheet: sparkleSpriteSheet,
+      &#47;&#47; use the sprite alpha, with the particle color:
+      blendMode: BlendMode.dstIn,
+      &#47;&#47; top left will be 0,0:
+      origin: Alignment.topLeft,
+      &#47;&#47; onTick is where all the magic happens:
+      onTick: (controller, elapsed, size) {
+        List particles = controller.particles;
+        &#47;&#47; add a new particle each frame:
+        particles.add(Particle(
+          color: Colors.white,
+          &#47;&#47; set a random x position along the width:
+          x: rnd(size.width),
+          &#47;&#47; set a random size:
+          scale: rnd(0.2, 0.5),
+          &#47;&#47; show a random frame:
+          frame: rnd(sparkleSpriteSheet.length * 1.0).floor(),
+          &#47;&#47; set a y velocity:
+          vy: rnd(6, 20),
+        ));
+        &#47;&#47; update existing particles:
+        for (int i = particles.length - 1; i >= 0; i--) {
+          Particle particle = particles[i];
+          &#47;&#47; call update, which automatically adds vx&#47;vy to x&#47;y
+          particle.update();
+          &#47;&#47; remove particle if it's out of bounds:
+          if (!size.contains(particle.toOffset())) particles.removeAt(i);
+        }
+      },
+    );
+
+    &#47;&#47; more complex "comet" particle effect
+    final ParticleField cometParticles = ParticleField(
+      &#47;&#47; start out the same:
+      spriteSheet: sparkleSpriteSheet,
+      blendMode: BlendMode.dstIn,
+      origin: Alignment.topCenter,
+      &#47;&#47; but with a different onTick handler:
+      onTick: (controller, elapsed, size) {
+        List particles = controller.particles;
+        &#47;&#47; add 10 particles each tick:
+        for (int i = 10; i > 0; i--) {
+          particles.add(Particle(
+            &#47;&#47; assign a random blue-ish color:
+            color: HSLColor.fromAHSL(1, rnd(180, 290), 1, 0.5).toColor(),
+            &#47;&#47; set a starting location:
+            x: rnd(size.width &#47; 2) * rnd.getSign(),
+            y: rnd(-10, size.height),
+            &#47;&#47; add a tiny bit of initial x & y velocity
+            vx: rnd(-2, 2),
+            vy: rnd(-1, 1),
+            &#47;&#47; start on a random frame, with some random rotation:
+            frame: rnd.getInt(0, 10000),
+            rotation: rnd(pi),
+            &#47;&#47; give it a random lifespan (in ticks):
+            lifespan: rnd(30, 80),
+          ));
+        }
+        for (int i = particles.length - 1; i >= 0; i--) {
+          Particle particle = particles[i];
+          &#47;&#47; calculate ratio of age vs lifespan:
+          double ratio = particle.age &#47; particle.lifespan;
+          &#47;&#47; update the particle (remember, it automatically applies vx&#47;vy):
+          particle.update(
+            &#47;&#47; accelerate, by adding to velocity y each frame:
+            vy: particle.vy + 0.15,
+            &#47;&#47; update x, with some math to move toward the center:
+            x: particle.x * sqrt(1 - ratio * 0.
+// ... (truncated)

@@ -1,0 +1,61 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_svg_provider&#47;flutter_svg_provider.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Svg Provider Example'),
+      ),
+      body: DecoratedBox(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            repeat: ImageRepeat.repeat,
+            image: Svg(
+              'assets&#47;test.svg',
+              size: Size(10, 10),
+            ),
+            colorFilter: ColorFilter.mode(
+              Colors.black12,
+              BlendMode.srcIn,
+            ),
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image(
+                width: 200,
+                height: 200,
+                image: Svg('assets&#47;test.svg'),
+                color: Colors.red,
+              ),
+              SizedBox(height: 50),
+              Image(
+                width: 200,
+                height: 200,
+                image: Svg(
+                  'https:&#47;&#47;dev.w3.org&#47;SVG&#47;tools&#47;svgweb&#47;samples&#47;svg-files&#47;ubuntu.svg',
+                  source: SvgSource.network,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

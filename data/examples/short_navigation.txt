@@ -1,0 +1,79 @@
+&#47;&#47; ignore_for_file: prefer_const_constructors
+
+import 'package:example&#47;home_page.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:short_navigation&#47;short_navigation.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: Go.navigatorKey, &#47;&#47;*Pass this navigatorKey here
+      debugShowCheckedModeBanner: false,
+      home: const HomeScreen(),
+    );
+  }
+}
+
+&#47;&#47; class HomePage extends StatelessWidget {
+&#47;&#47;   const HomePage({super.key});
+&#47;&#47;   @override
+&#47;&#47;   Widget build(BuildContext context) {
+&#47;&#47;     return Scaffold(
+&#47;&#47;       backgroundColor: Colors.red,
+&#47;&#47;       body: Center(
+&#47;&#47;         child: ElevatedButton(
+&#47;&#47;           onPressed: navigation,
+&#47;&#47;           child: const Text("Go to Second Page"),
+&#47;&#47;         ),
+&#47;&#47;       ),
+&#47;&#47;     );
+&#47;&#47;   }
+&#47;&#47;   void navigation() {
+&#47;&#47;     &#47;&#47; Go.to(SecondPage());
+&#47;&#47;     &#47;&#47; Go.toName("&#47;home");
+&#47;&#47;     &#47;&#47; GoFade.to(SecondPage(), transitionDuration: Duration(milliseconds: 600));
+&#47;&#47;     &#47;&#47; GoSlide.to(SecondPage(), slideDirection: AxisDirection.left);
+&#47;&#47;     &#47;&#47; GoRotation.to(SecondPage());
+&#47;&#47;     &#47;&#47; GoScale.to(
+&#47;&#47;     &#47;&#47;   SecondPage(),
+&#47;&#47;     &#47;&#47;   alignment: Alignment.center,
+&#47;&#47;     &#47;&#47; );
+&#47;&#47;     &#47;&#47; GoSize.to(
+&#47;&#47;     &#47;&#47;   SecondPage(),
+&#47;&#47;     &#47;&#47;   sizeDirection: SizeDirection.center,
+&#47;&#47;     &#47;&#47;   sizeAxis: Axis.horizontal,
+&#47;&#47;     &#47;&#47; );
+&#47;&#47;     GoAnimation.to(
+&#47;&#47;       ProfileScreen(),
+&#47;&#47;       transitions: [.fade(), .slide()],
+&#47;&#47;       transitionDuration: Duration(seconds: 1),
+&#47;&#47;     );
+&#47;&#47;   }
+&#47;&#47; }
+
+&#47;&#47; class SecondPage extends StatelessWidget {
+&#47;&#47;   const SecondPage({super.key});
+&#47;&#47;   @override
+&#47;&#47;   Widget build(BuildContext context) {
+&#47;&#47;     return Scaffold(
+&#47;&#47;       backgroundColor: Colors.green,
+&#47;&#47;       body: Center(
+&#47;&#47;         child: ElevatedButton(
+&#47;&#47;           onPressed: () {
+&#47;&#47;             if (Go.canBack() ?? false) {
+&#47;&#47;               Go.back();
+&#47;&#47;             }
+&#47;&#47;           },
+&#47;&#47;           child: const Text("Back to First Page"),
+&#47;&#47;         ),
+&#47;&#47;       ),
+&#47;&#47;     );
+&#47;&#47;   }
+&#47;&#47; }

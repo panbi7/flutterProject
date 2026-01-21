@@ -1,0 +1,75 @@
+import 'dart:math' as math;
+
+import 'package:flexible_scrollbar&#47;flexible_scrollbar.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(FlexibleScrollbarExampleApp());
+}
+
+class FlexibleScrollbarExampleApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State {
+  final ScrollController scrollController = ScrollController();
+
+  BarPosition barPosition = BarPosition.end;
+
+  Axis scrollDirection = Axis.vertical;
+
+  final int itemsCount = 99;
+
+  final List itemsColors = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    for (int i = 0; i  0.5
+                          ? Colors.black
+                          : Colors.white,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Transform.rotate(
+            angle: scrollDirection == Axis.vertical ? math.pi &#47; 2 : 0,
+            child: Icon(Icons.height),
+          ),
+          onPressed: () => setState(() {
+            switch (barPosition) {
+              case BarPosition.start:
+                barPosition = BarPosition.end;
+                break;
+              case BarPosition.end:
+                barPosition = BarPosition.start;
+                break;
+            }
+          }),
+        ),
+      );
+    });
+  }
+}

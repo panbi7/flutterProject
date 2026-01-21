@@ -1,0 +1,119 @@
+import 'package:circular_reveal_animation&#47;circular_reveal_animation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'CRA Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.red,
+      ),
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State
+    with SingleTickerProviderStateMixin {
+  late AnimationController animationController;
+  late Animation animation;
+
+  @override
+  void initState() {
+    super.initState();
+    animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1000),
+    );
+    animation = CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeIn,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("CRA Demo"),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'This is demo of "Circular Reveal Animation" Flutter library',
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 4),
+                InkWell(
+                  child: Text(
+                    'https:&#47;&#47;github.com&#47;qwert2603&#47;circular_reveal_animation',
+                    style: TextStyle(fontSize: 16, color: Colors.deepOrange),
+                  ),
+                  onTap: () => launchUrl(
+                    Uri.parse(
+                      "https:&#47;&#47;github.com&#47;qwert2603&#47;circular_reveal_animation",
+                    ),
+                  ),
+                ),
+                SizedBox(height: 12),
+                InkWell(
+                  child: Text(
+                    'https:&#47;&#47;pub.dev&#47;packages&#47;circular_reveal_animation',
+                    style: TextStyle(fontSize: 16, color: Colors.deepOrange),
+                  ),
+                  onTap: () => launchUrl(
+                    Uri.parse(
+                      "https:&#47;&#47;pub.dev&#47;packages&#47;circular_reveal_animation",
+                    ),
+                  ),
+                ),
+                SizedBox(height: 12),
+                MaterialButton(
+                  child: Text("show reveal image dialog"),
+                  onPressed: () => showRevealImageDialog(context),
+                  color: Colors.red,
+                ),
+                SizedBox(height: 12),
+                MaterialButton(
+                  child: Text("show reveal text dialog"),
+                  onPressed: () => showRevealTextDialog(context),
+                  color: Colors.amber,
+                ),
+                SizedBox(height: 12),
+                MaterialButton(
+                  child: Text("show &#47; hide image"),
+                  onPressed: () {
+                    if (animationController.status == AnimationStatus.forward ||
+                        animationController.status ==
+                            AnimationStatus.completed) {
+                      animationController.reverse();
+                    } else {
+                      animationController.forward();
+                    }
+                  },
+                  color: Colors.yellow,
+                ),
+                SizedBox(height: 12),
+                CircularRevealAnimation(
+                  child: Image.asset(
+                    'assets&#47;ocv.jpg',
+                    width: 300,
+                    height: 300,
+                  ),
+                  animat
+// ... (truncated)

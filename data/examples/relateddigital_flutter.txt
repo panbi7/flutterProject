@@ -1,0 +1,130 @@
+import 'package:flutter&#47;material.dart';
+import 'package:relateddigital_flutter&#47;relateddigital_flutter.dart';
+import 'package:relateddigital_flutter_example&#47;styles.dart';
+import 'package:relateddigital_flutter_example&#47;constants.dart';
+import 'package:relateddigital_flutter_example&#47;screens&#47;home.dart';
+import 'package:relateddigital_flutter_example&#47;screens&#47;event.dart';
+import 'package:relateddigital_flutter_example&#47;screens&#47;push.dart';
+import 'package:relateddigital_flutter_example&#47;screens&#47;inapp.dart';
+import 'package:relateddigital_flutter_example&#47;screens&#47;story.dart';
+import 'package:relateddigital_flutter_example&#47;screens&#47;notification_center.dart';
+&#47;&#47; import 'package:onesignal_flutter&#47;onesignal_flutter.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(RDExample());
+  &#47;&#47; OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  &#47;&#47; OneSignal.initialize("APP_ID");
+  &#47;&#47; OneSignal.Notifications.requestPermission(false);
+
+}
+
+class RDExample extends StatefulWidget {
+  @override
+  _RDExample createState() => _RDExample();
+}
+
+class _RDExample extends State with SingleTickerProviderStateMixin {
+  final RelateddigitalFlutter relatedDigitalPlugin = RelateddigitalFlutter();
+  TabController? controller;
+  final GlobalKey key = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TabController(length: 4, vsync: this);
+    
+  }
+
+  void _readNotificationCallback(dynamic result) async {
+    print('_readNotificationCallback');
+    print(result);
+    showDialog(
+        context: key.currentContext!,
+        builder: (context) => AlertDialog(
+              title: Text("_readNotificationCallback"),
+              content: Text(result.toString()),
+            ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      navigatorKey: key,
+      title: "RDExample",
+      initialRoute: "&#47;home",
+      routes: {
+        '&#47;home': (context) => homeView(),
+        '&#47;tabBarView': (context) => tabBarView(),
+        '&#47;notificationCenter': (context) => notificationCenterView(),
+      },
+    );
+  }
+
+  Widget homeView() {
+    return Home(
+      relatedDigitalPlugin: relatedDigitalPlugin,
+      notificationHandler: _readNotificationCallback,
+    );
+  }
+
+  Widget eventView() {
+    return Event(relatedDigitalPlugin: relatedDigitalPlugin);
+  }
+
+  Widget pushView() {
+    return Push(relatedDigitalPlugin: relatedDigitalPlugin);
+  }
+
+  Widget inAppView() {
+    return InApp(relatedDigitalPlugin: relatedDigitalPlugin);
+  }
+
+  Widget storyView() {
+    return Story(relatedDigitalPlugin: relatedDigitalPlugin);
+  }
+
+  Widget notificationCenterView() {
+    return NotificationCenter(relatedDigitalPlugin: relatedDigitalPlugin);
+  }
+
+  Widget tabBarView() {
+    return WillPopScope(
+        onWillPop: null,
+        child: Scaffold(
+          body: TabBarView(
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              eventView(),
+              pushView(),
+              inAppView(),
+              storyView(),
+            ],
+            controller: controller,
+          ),
+          bottomNavigationBar: bottomNavigationBar(),
+        ));
+  }
+
+  Widget bottomNavigationBar() {
+    return Material(
+      &#47;&#47; set the color of the bottom navigation bar
+      color: Colors.grey[200],
+      &#47;&#47; set the tab bar as the child of bottom navigation bar
+      child: TabBar(
+        indicatorColor: Styles.relatedRed,
+        labelColor: Colors.black,
+        tabs: [
+          Tab(
+            text: Constants.Event,
+            icon: Icon(Icons.analytics, color: Styles.relatedOrange),
+          ),
+          Tab(
+            text: Constants.Push,
+            icon: Icon(Icons.messenger, color: Styles.relatedRed),
+          ),
+          Tab(
+            text: Constants.InApp,
+            icon: Icon(Icons.data_usage_sha
+// ... (truncated)

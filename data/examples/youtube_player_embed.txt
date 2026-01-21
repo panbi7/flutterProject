@@ -1,0 +1,111 @@
+import 'package:flutter&#47;material.dart';
+import 'package:youtube_player_embed&#47;controller&#47;video_controller.dart';
+import 'package:youtube_player_embed&#47;enum&#47;video_state.dart';
+import 'package:youtube_player_embed&#47;youtube_player_embed.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  &#47;&#47;&#47;&#47;
+  final List listOfVideos = ["pUb9EW770d0", "3vPbzEhF63s"];
+  &#47;&#47;&#47;&#47;
+  String currentPlayingVideo = "";
+  &#47;&#47;&#47;&#47;
+  VideoController? videoController;
+  &#47;&#47;&#47;&#47;
+
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47;&#47;&#47;
+    currentPlayingVideo = listOfVideos.removeAt(0);
+    &#47;&#47;&#47;&#47;
+  }
+  &#47;&#47;&#47;&#47;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'YouTube Player Embed Demo',
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('YouTube Player Example'),
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            &#47;&#47;&#47;&#47;
+            YoutubePlayerEmbed(
+              key: ValueKey(currentPlayingVideo), &#47;&#47; Unique key for the video
+              callBackVideoController: (controller) {
+                videoController = controller;
+              },
+              videoId:
+                  currentPlayingVideo, &#47;&#47; 'shorts_video_id' Replace with a YouTube Shorts or normal video ID
+              customVideoTitle: "بسم الله الرحمن الرحيم",
+              autoPlay: false,
+              hidenVideoControls: false,
+              mute: false,
+              enabledShareButton: false,
+              hidenChannelImage: true,
+              aspectRatio: 16 &#47; 9,
+              onVideoEnd: () {
+                if (listOfVideos.isNotEmpty) {
+                  setState(() {
+                    currentPlayingVideo = listOfVideos.removeAt(0);
+                  });
+                } else {
+                  &#47;&#47; Handle when the list is empty
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No more videos to play!')),
+                  );
+                }
+              },
+              onVideoSeek: (currentTime) =>
+                  print("Seeked to $currentTime seconds"),
+              onVideoTimeUpdate: (currentTime) =>
+                  print("Current time: $currentTime seconds"),
+              onVideoStateChange: (state) {
+                switch (state) {
+                  case VideoState.playing:
+                    print("Video is playing");
+                    break;
+                  case VideoState.paused:
+                    print("Video is paused");
+                    break;
+                  case VideoState.muted:
+                    print("Video is muted");
+                    break;
+                  case VideoState.unmuted:
+                    print("Video is unmuted");
+                    break;
+                  case VideoState.fullscreen:
+                    print("Video is in fullscreen");
+                  case VideoState.normalView:
+                    print("Video is in normal view");
+                }
+              },
+            ),
+            &#47;&#47;&#47;&#47;
+            const SizedBox(height: 100),
+            &#47;&#47;&#47;&#47;
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                &#47;&#47;&#47;&#47;
+                ElevatedButton(
+                  onPressed: () async {
+                    await videoController?.playVideo();
+                  },
+                  child: const Text("Play"),
+                ),
+                &#47;&#47;&#47;&#47;
+                ElevatedBut
+// ... (truncated)

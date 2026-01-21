@@ -1,0 +1,132 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+
+import 'date_pickers_widgets&#47;day_picker_page.dart';
+import 'date_pickers_widgets&#47;days_picker_page.dart';
+import 'date_pickers_widgets&#47;month_picker_page.dart';
+import 'date_pickers_widgets&#47;months_picker_page.dart';
+import 'date_pickers_widgets&#47;range_picker_page.dart';
+import 'date_pickers_widgets&#47;week_picker_page.dart';
+import 'date_pickers_widgets&#47;year_picker_page.dart';
+import 'date_pickers_widgets&#47;years_picker_page.dart';
+import 'event.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+&#47;&#47;&#47;
+class MyApp extends StatelessWidget {
+  @override
+  &#47;&#47; ignore: prefer_expression_function_bodies
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      supportedLocales: [
+        const Locale('en', 'US'), &#47;&#47; American English
+        const Locale('ru', 'RU'), &#47;&#47; Russian
+        const Locale("pt"), &#47;&#47; Portuguese
+        const Locale('ar'), &#47;&#47; Arabic
+      ],
+      debugShowCheckedModeBanner: false,
+      title: 'Date pickers demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blueGrey,
+      ),
+      home: MyHomePage(
+        title: 'flutter_date_pickers Demo',
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47; Start page.
+class MyHomePage extends StatefulWidget {
+  &#47;&#47;&#47; Page title.
+  final String title;
+
+  &#47;&#47;&#47;
+  MyHomePage({
+    required this.title,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State with TickerProviderStateMixin {
+  DateTime startOfPeriod = DateTime.now().subtract(Duration(days: 10));
+  DateTime endOfPeriod = DateTime.now().add(Duration(days: 10));
+  int _selectedTab = 0;
+
+  final List datePickers = [
+    DayPickerPage(
+      events: events,
+    ),
+    DaysPickerPage(),
+    WeekPickerPage(
+      events: events,
+    ),
+    RangePickerPage(
+      events: events,
+    ),
+    MonthPickerPage(),
+    MonthsPickerPage(),
+    YearPickerPage(),
+    YearsPickerPage()
+  ];
+
+  @override
+  &#47;&#47; ignore: prefer_expression_function_bodies
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          widget.title,
+          style: TextStyle(letterSpacing: 1.15),
+        ),
+      ),
+      body: datePickers[_selectedTab],
+      bottomNavigationBar: Theme(
+        data: Theme.of(context).copyWith(
+            canvasColor: Colors.blueGrey,
+            textTheme: Theme.of(context).textTheme.copyWith(
+                bodySmall: TextStyle(color: Colors.white.withOpacity(0.5)))),
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.date_range), label: "Day"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.date_range), label: "Days"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.date_range), label: "Week"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.date_range), label: "Range"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.date_range), label: "Month"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.date_range), label: "Months"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.date_range), label: "Year"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.date_range), label: "Years"),
+          ],
+          fixedColor: Colors.yellow,
+          currentIndex: _selectedTab,
+          onTap: (newIndex) {
+            setState(() {
+              _selectedTab = newIndex;
+            });
+          },
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47; Mock events.
+final List events = [
+  Event(DateTime.now(), "Today event"),
+  Event(DateTime.now().subtract(Du
+// ... (truncated)

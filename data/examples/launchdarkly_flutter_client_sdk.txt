@@ -1,0 +1,98 @@
+import 'package:flutter&#47;material.dart';
+import 'package:launchdarkly_flutter_client_sdk&#47;launchdarkly_flutter_client_sdk.dart';
+import 'package:provider&#47;provider.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; The LDClient doesn't need to change throughout the lifetime of the
+    &#47;&#47; application, so we wrap the application in a provider with the client.
+    return Provider(
+        create: (_) => LDClient(
+            LDConfig(
+              &#47;&#47; The credentials come from the environment, you can set them
+              &#47;&#47; using --dart-define.
+              &#47;&#47; Examples:
+              &#47;&#47; flutter run --dart-define LAUNCHDARKLY_CLIENT_SIDE_ID= -d Chrome
+              &#47;&#47; flutter run --dart-define LAUNCHDARKLY_MOBILE_KEY= -d ios
+              &#47;&#47;
+              &#47;&#47; Alternatively `CredentialSource.fromEnvironment()` can be replaced with your mobile key.
+              CredentialSource.fromEnvironment(),
+              AutoEnvAttributes.enabled,
+            ),
+            &#47;&#47; Here we are using a default user with 'user-key'.
+            LDContextBuilder().kind('user', 'user-key').build()),
+        dispose: (_, client) => client.close(),
+        &#47;&#47; We use a future provider to wait for the client to either start,
+        &#47;&#47; or for a timeout to elapse.
+        child: MaterialApp(
+          title: 'LaunchDarkly Example',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+          ),
+          home: const MyHomePage(title: 'LaunchDarkly Example'),
+        ));
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+&#47;&#47;&#47; Example provider which listens for flag changes and maps them to string
+&#47;&#47;&#47; values. It would also be possible to map to some application specific model
+&#47;&#47;&#47; types. When mapping be sure all values are accessed through the client
+&#47;&#47;&#47; `variation` methods. This ensures that the SDK generates the expected
+&#47;&#47;&#47; events.
+class FlagProviderString extends StreamProvider {
+  FlagProviderString(
+      {super.key,
+      required LDClient client,
+      required String flagKey,
+      required String defaultValue,
+      required Widget child})
+      : super(
+            create: (context) => client.flagChanges
+                .where((element) => element.keys.contains(flagKey))
+                .map((event) => client.stringVariation(flagKey, defaultValue)),
+            &#47;&#47; Here we get the initial value of the flag. If the SDK is not
+            &#47;&#47; initialized, then the default value will be returned.
+            initialData: client.stringVariation(flagKey, defaultValue),
+            child: child);
+}
+
+class _MyHomePageState extends State {
+  final _userKeyController = TextEditingController(text: 'user-key');
+
+  final _formKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      body: &#47;&#47; The FutureBuilder here is used in order to gate the presentation content
+          &#47;&#47; based on the LaunchDarkly SDK having started. While it has not started
+          &#47;&#47; a loading indicator will be shown. Once it has started, or encountered
+          &#47;&#47; a timeout, then it will render the content.
+          FutureBuilder(
+              future: Provider.of(context, listen: false)
+                  .start()
+                  &#47;&#47; In this case we do not have special handling for a failed
+    
+// ... (truncated)

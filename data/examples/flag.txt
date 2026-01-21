@@ -1,0 +1,138 @@
+import 'package:example&#47;restart_widget.dart';
+import 'package:flag&#47;flag.dart';
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_svg&#47;flutter_svg.dart';
+
+void main() => runApp(RestartWidget(child: MyApp()));
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  bool? displayFlagPicker;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: SafeArea(
+        child: ListView(
+          children: [
+            Column(
+              spacing: 10.0,
+              children: [
+                Flag.fromCode(
+                  FlagsCode.GB,
+                  height: 100,
+                ),
+                Flag.fromCode(
+                  FlagsCode.GR,
+                  height: 100,
+                ),
+                Flag.fromCode(
+                  FlagsCode.AD,
+                  height: 10,
+                  width: 100,
+                  fit: BoxFit.fill,
+                ),
+                Flag.fromCode(
+                  FlagsCode.AD,
+                  height: 50,
+                  width: 50,
+                  fit: BoxFit.fill,
+                  flagSize: FlagSize.size_1x1,
+                  borderRadius: 25,
+                ),
+                Flags.fromCode(
+                  [
+                    FlagsCode.GB,
+                    FlagsCode.CN,
+                  ],
+                  height: 100,
+                  width: 100 * 4 &#47; 3,
+                ),
+                Flag.fromString(
+                  'ACC',
+                  height: 10,
+                  width: 100,
+                  fit: BoxFit.fill,
+                  replacement: Text('ACC not found'),
+                ),
+                Divider(),
+                if (Flag.flagsCode.contains('AF'.toLowerCase()))
+                  Flag.fromString(
+                    'af',
+                    height: 10,
+                    width: 100,
+                    fit: BoxFit.fill,
+                  ),
+              ],
+            ),
+            &#47;&#47; Static asset path examples
+            _buildPathExample(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  onPressed: displayFlagPicker == null
+                      ? () => setState(() {
+                            displayFlagPicker = false;
+                          })
+                      : null,
+                  child: Text('no preCache'),
+                ),
+                ElevatedButton(
+                  onPressed: displayFlagPicker == null
+                      ? () => setState(() {
+                            displayFlagPicker = true;
+                          })
+                      : null,
+                  child: Text('preCache'),
+                ),
+                ElevatedButton(
+                  onPressed: () => RestartWidget.restartApp(context),
+                  child: Text('restart'),
+                ),
+              ],
+            ),
+            if (displayFlagPicker != null)
+              FlagPicker(
+                width: 50,
+                height: 300,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  &#47;&#47;&#47; Builds examples showing flags alongside their asset paths
+  Widget _buildPathExample() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+// ... (truncated)

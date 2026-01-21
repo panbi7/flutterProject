@@ -1,0 +1,131 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+
+import 'package:app_widget&#47;app_widget.dart';
+
+void onClickWidget(String? payload) {
+  &#47;&#47; print('onClick Widget: $payload');
+}
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late final AppWidgetPlugin _appWidgetPlugin;
+  late final TextEditingController _widgetIdcontroller;
+  late final TextEditingController _layoutIdcontroller;
+  late final TextEditingController _layoutNamecontroller;
+  int? _widgetId;
+  int? _layoutId;
+  &#47;&#47; ignore: unused_field
+  String? _layoutName;
+
+  @override
+  void initState() {
+    super.initState();
+    _appWidgetPlugin = AppWidgetPlugin(
+      &#47;&#47; androidPackageName: 'tech.noxasch.app_widget_example',
+      onConfigureWidget: onConfigureWidget,
+      onClickWidget: onClickWidget,
+    );
+    _widgetIdcontroller = TextEditingController();
+    _layoutIdcontroller = TextEditingController();
+    _layoutNamecontroller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _widgetIdcontroller.dispose();
+    _layoutIdcontroller.dispose();
+    _layoutNamecontroller.dispose();
+    super.dispose();
+  }
+
+  void onConfigureWidget(int widgetId, int layoutId, String layoutName) {
+    setState(() {
+      _widgetId = widgetId;
+      _layoutId = layoutId;
+      _layoutName = layoutName;
+    });
+    _widgetIdcontroller.text = widgetId.toString();
+    _layoutIdcontroller.text = layoutId.toString();
+    _layoutNamecontroller.text = layoutName.toString();
+    &#47;&#47; do something
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('AppWidgetPlugin example app'),
+        ),
+        body: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(30.0),
+                  child: TextField(
+                    decoration: const InputDecoration(label: Text('Widget Id')),
+                    controller: _widgetIdcontroller,
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(30.0),
+                  child: TextField(
+                    decoration: const InputDecoration(label: Text('Layout Id')),
+                    controller: _layoutIdcontroller,
+                    readOnly: true,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(30.0),
+                  child: TextField(
+                    decoration:
+                        const InputDecoration(label: Text('Layout Name')),
+                    controller: _layoutNamecontroller,
+                    readOnly: true,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                ConfigureButton(
+                    widgetId: _widgetId,
+                    layoutId: _layoutId,
+                    appWidgetPlugin: _appWidgetPlugin),
+                const SizedBox(
+                  height: 10,
+                ),
+                WidgetExistButton(
+                  controller: _widgetIdcontroller,
+                  appWidgetPlugin: _appWidgetPlugin,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                ReloadWidgetButton(appWidgetPlugin: _appWidgetPlugin),
+                const SizedBox(
+            
+// ... (truncated)

@@ -1,0 +1,113 @@
+import 'dart:convert';
+import 'dart:io';
+
+&#47;&#47; import 'package:chopper&#47;chopper.dart' hide Options;
+import 'package:dio&#47;dio.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_alice&#47;alice.dart';
+import 'package:flutter_alice&#47;core&#47;alice_http_client_extensions.dart';
+import 'package:flutter_alice&#47;core&#47;alice_http_extensions.dart';
+import 'package:http&#47;http.dart' as http;
+import 'package:overlay_support&#47;overlay_support.dart';
+
+&#47;&#47; import 'posts_service.dart';
+
+&#47;&#47; Navigator key
+final navigatorKey = GlobalKey();
+
+final alice = Alice(navigatorKey: navigatorKey);
+final dio = Dio(BaseOptions(followRedirects: false));
+final httpClient = HttpClient();
+&#47;&#47; late final PostsService _postsService;
+&#47;&#47; late final ChopperClient? _chopper;
+
+void main() {
+  &#47;&#47; Set up Alice to use the navigator key
+  &#47;&#47; alice.setNavigatorKey(navigatorKey);
+  &#47;&#47; Alice Capture all HTTP requests and responses in debug mode
+  &#47;&#47; Attach alice into Dio (only onetime)
+  if (kDebugMode) dio.interceptors.add(alice.getDioInterceptor());
+  &#47;&#47;
+  &#47;&#47; &#47;&#47; Capture for chopper
+  &#47;&#47; _chopper = ChopperClient(
+  &#47;&#47;   interceptors: alice.getChopperInterceptor(),
+  &#47;&#47; );
+  &#47;&#47; _postsService = PostsService.create(_chopper);
+
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47;&#47; Using OverlaySupport to show alice bubble
+    &#47;&#47;&#47; You need wrap your material app with OverlaySupport
+    return OverlaySupport(
+      child: MaterialApp(
+        navigatorKey: navigatorKey,
+        home: Scaffold(
+          appBar: AppBar(title: const Text('Alice Inspector')),
+          body: Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 24),
+                _textWidget(
+                  "Click \"TEST\" button to attach Alice interceptor to Dio\n"
+                  " Click \"Open Alice Inspector\" or green bubble to show inspector.",
+                ),
+                ElevatedButton(
+                  child: Text("TEST", style: TextStyle(color: Colors.white)),
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(Colors.green),
+                  ),
+                  onPressed: () {
+                    _runDioRequests();
+                  },
+                ),
+                ElevatedButton(
+                  child: Text("Open Alice Inspector"),
+                  onPressed: alice.showInspector,
+                ),
+
+                &#47;&#47;&#47; Generate sample request
+                const SizedBox(height: 64),
+                _textWidget("Click buttons below to generate sample data."),
+                ElevatedButton(
+                  child: Text("Run Dio HTTP Requests"),
+                  onPressed: _runDioRequests,
+                ),
+                ElevatedButton(
+                  child: Text("Run http&#47;http HTTP Requests"),
+                  onPressed: _runHttpHttpRequests,
+                ),
+                ElevatedButton(
+                  child: Text("Run HttpClient Requests"),
+                  onPressed: _runHttpHttpClientRequests,
+                ),
+                &#47;&#47; ElevatedButton(
+                &#47;&#47;   child: Text("Run Chopper HTTP Requests"),
+                &#47;&#47;   onPressed: _runChopperHttpRequests,
+                &#47;&#47; ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _textWidget(String text) {
+    return Text(
+      text,
+      style: TextStyle(fontSize: 14),
+      t
+// ... (truncated)

@@ -1,0 +1,132 @@
+import 'package:flutter&#47;material.dart';
+import 'package:windows_taskbar&#47;windows_taskbar.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String? lastTooltip;
+  String? lastIcon;
+  double value = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    enableThumbnailToolbar();
+    WindowsTaskbar.setThumbnailTooltip('Awesome Flutter window.');
+    WindowsTaskbar.setProgress(69, 100);
+    WindowsTaskbar.setProgressMode(TaskbarProgressMode.indeterminate);
+  }
+
+  void enableThumbnailToolbar() {
+    WindowsTaskbar.setThumbnailToolbar(
+      [
+        ThumbnailToolbarButton(
+          ThumbnailToolbarAssetIcon('assets&#47;folder.ico'),
+          'Button 1',
+          () {
+            setState(() {
+              lastTooltip = 'Button 1';
+              lastIcon = 'assets&#47;folder.ico';
+            });
+          },
+        ),
+        ThumbnailToolbarButton(
+          ThumbnailToolbarAssetIcon('assets&#47;pictures.ico'),
+          'Button 2',
+          () {
+            setState(() {
+              lastTooltip = 'Button 2';
+              lastIcon = 'assets&#47;pictures.ico';
+            });
+          },
+        ),
+        ThumbnailToolbarButton(
+          ThumbnailToolbarAssetIcon('assets&#47;sync.ico'),
+          'Button 3',
+          () {
+            setState(() {
+              lastTooltip = 'Button 3';
+              lastIcon = 'assets&#47;sync.ico';
+            });
+          },
+        ),
+        ThumbnailToolbarButton(
+          ThumbnailToolbarAssetIcon('assets&#47;music.ico'),
+          'Button 4',
+          () {
+            setState(() {
+              lastTooltip = 'Button 4';
+              lastIcon = 'assets&#47;music.ico';
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('windows_taskbar'),
+        ),
+        body: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          children: [
+            Card(
+              elevation: 2.0,
+              margin: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'WindowsTaskbar.setThumbnailToolbar',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const Text(
+                      'Sets thumbnail toolbar for the taskbar app icon.',
+                    ),
+                    const SizedBox(
+                      height: 12.0,
+                    ),
+                    ElevatedButton(
+                      onPressed: enableThumbnailToolbar,
+                      child: const Text('Enable'),
+                    ),
+                    Container(
+                      height: 32.0,
+                      alignment: Alignment.bottomLeft,
+                      child: Row(
+                        children: [
+                          const Text('Pressed button:'),
+                          Text('$lastTooltip'),
+                          if (lastIcon != null)
+                            Image.asset(
+                              lastIcon!,
+                              height: 18.0,
+                              width: 18.0,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+       
+// ... (truncated)

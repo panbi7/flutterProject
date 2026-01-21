@@ -1,0 +1,141 @@
+import 'dart:io';
+
+import 'package:video_editor_example&#47;crop_page.dart';
+import 'package:video_editor_example&#47;export_service.dart';
+import 'package:video_editor_example&#47;widgets&#47;export_result.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:image_picker&#47;image_picker.dart';
+import 'package:video_editor&#47;video_editor.dart';
+
+void main() => runApp(
+      MaterialApp(
+        title: 'Flutter Video Editor Demo',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.grey,
+          brightness: Brightness.dark,
+          tabBarTheme: const TabBarTheme(
+            indicator: UnderlineTabIndicator(
+              borderSide: BorderSide(color: Colors.white),
+            ),
+          ),
+          dividerColor: Colors.white,
+        ),
+        home: const VideoEditorExample(),
+      ),
+    );
+
+class VideoEditorExample extends StatefulWidget {
+  const VideoEditorExample({super.key});
+
+  @override
+  State createState() => _VideoEditorExampleState();
+}
+
+class _VideoEditorExampleState extends State {
+  final ImagePicker _picker = ImagePicker();
+
+  void _pickVideo() async {
+    final XFile? file = await _picker.pickVideo(source: ImageSource.gallery);
+
+    if (mounted && file != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => VideoEditor(file: File(file.path)),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Video Picker")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text("Click on the button to select video"),
+            ElevatedButton(
+              onPressed: _pickVideo,
+              child: const Text("Pick Video From Gallery"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47;-------------------&#47;&#47;
+&#47;&#47;VIDEO EDITOR SCREEN&#47;&#47;
+&#47;&#47;-------------------&#47;&#47;
+class VideoEditor extends StatefulWidget {
+  const VideoEditor({super.key, required this.file});
+
+  final File file;
+
+  @override
+  State createState() => _VideoEditorState();
+}
+
+class _VideoEditorState extends State {
+  final _exportingProgress = ValueNotifier(0.0);
+  final _isExporting = ValueNotifier(false);
+  final double height = 60;
+
+  late final VideoEditorController _controller = VideoEditorController.file(
+    widget.file,
+    minDuration: const Duration(seconds: 1),
+    maxDuration: const Duration(seconds: 10),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _controller
+        .initialize(aspectRatio: 9 &#47; 16)
+        .then((_) => setState(() {}))
+        .catchError((error) {
+      &#47;&#47; handle minumum duration bigger than video duration error
+      Navigator.pop(context);
+    }, test: (e) => e is VideoMinDurationError);
+  }
+
+  @override
+  void dispose() async {
+    _exportingProgress.dispose();
+    _isExporting.dispose();
+    _controller.dispose();
+    ExportService.dispose();
+    super.dispose();
+  }
+
+  void _showErrorSnackBar(String message) =>
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+
+  void _exportVideo() async {
+    _exportingProgress.value = 0;
+    _isExporting.value = true;
+
+    final config = VideoFFmpegVideoEditorConfig(
+      _controller,
+      &#47;&#47; format: VideoExportFormat.gif,
+      &#47;&#47; commandBuilder: (config, videoPath, outputPath) {
+      &#47;&#47;   final List filters = config.getExportFilters();
+      &#47;&#47;   filters.add('hflip'); &#47;&#47; add horizontal flip
+
+      &#47;&#47;   return '-i $videoPath ${config.filtersCmd(filters)} -preset ultrafast $outputPath';
+      &#47;&#47; },
+    );
+
+    await ExportService.runFFmpegCommand(
+      await config.getExecuteConfig(),
+      onProgress: (stats
+// ... (truncated)

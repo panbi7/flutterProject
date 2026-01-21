@@ -1,0 +1,129 @@
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:storyly_flutter&#47;storyly_flutter.dart';
+import 'package:storyly_flutter&#47;vertical_feed_data.dart';
+import 'package:storyly_flutter&#47;vertical_feed_flutter.dart';
+import 'package:storyly_flutter&#47;vertical_feed_bar_flutter.dart';
+import 'package:storyly_flutter&#47;vertical_feed_presenter_flutter.dart';
+
+const String STORYLY_TOKEN =
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NfaWQiOjc2MCwiYXBwX2lkIjo0MDUsImluc19pZCI6NDA0fQ.1AkqOy_lsiownTBNhVOUKc91uc9fDcAxfQZtpm3nj40";
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'StorylyDemo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MainScreen(),
+    );
+  }
+}
+
+class MainScreen extends StatefulWidget {
+  const MainScreen({Key? key}) : super(key: key);
+
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          const StorylyPage(),
+          const VerticalFeedPage(),
+          VerticalFeedPresenterPage(isPlaying: _selectedIndex == 2),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.image), label: 'Storyly'),
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Feed'),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+}
+
+class StorylyPage extends StatefulWidget {
+  const StorylyPage({Key? key}) : super(key: key);
+
+  @override
+  _StorylyPageState createState() => _StorylyPageState();
+}
+
+class _StorylyPageState extends State {
+  late StorylyViewController storylyViewController;
+  late StorylyViewController customStorylyViewController;
+  late VerticalFeedController verticalFeedController;
+
+  void onStorylyViewCreated(StorylyViewController storylyViewController) {
+    this.storylyViewController = storylyViewController;
+  }
+
+  void onCustomStorylyViewCreated(StorylyViewController storylyViewController) {
+    customStorylyViewController = storylyViewController;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: SafeArea(
+            child: Column(children: [
+      const Padding(padding: EdgeInsets.all(8.0)),
+      Container(
+          height: 120,
+          color: Colors.lightGreen,
+          child: StorylyView(
+            onStorylyViewCreated: onStorylyViewCreated,
+            androidParam: StorylyParam()
+              ..storylyId = STORYLY_TOKEN
+              ..storyGroupSize = "large",
+            iosParam: StorylyParam()
+              ..storylyId = STORYLY_TOKEN
+              ..storyGroupSize = "large",
+            storylyLoaded: (storyGroups, dataSource) {
+              debugPrint("storylyLoaded -> storyGroups: ${storyGroups.length}");
+            },
+            storylyOnProductHydration: (info) => {
+              storylyViewController.hydrateWishlist([
+                STRProductItem(
+                    productId: "1",
+                    productGroupId: "1",
+                    price: 10,
+                    currency: "")
+              ])
+            },
+            storylyOnWishlistUpdated: (event, item, responseId) {
+              storylyViewController.approveWishlistChange(responseId, {
+                "productId": item?.productId,
+                "productGroupId": item?.productGroupId,
+                "title": item?.title,
+                "desc": item?.desc,
+                "price": item?.price,
+                "
+// ... (truncated)

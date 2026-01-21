@@ -1,0 +1,145 @@
+import 'dart:ui';
+
+import 'package:card_swiper&#47;card_swiper.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'src&#47;config.dart';
+import 'src&#47;example_custom.dart';
+import 'src&#47;example_swiper_in_scrollview.dart';
+
+void main() => runApp(const MyApp());
+
+class MyScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      scrollBehavior: MyScrollBehavior(),
+      title: 'Flutter Demo',
+      theme: ThemeData.light(),
+      home: const MyHomePage(title: 'Flutter Swiper'),
+      routes: {
+        '&#47;example01': (context) => const ExampleHorizontal(),
+        '&#47;example02': (context) => const ExampleVertical(),
+        '&#47;example03': (context) => const ExampleFraction(),
+        '&#47;example04': (context) => const ExampleCustomPagination(),
+        '&#47;example05': (context) => const ExamplePhone(),
+        '&#47;example06': (context) => const ScaffoldWidget(
+              child: ExampleSwiperInScrollView(),
+              title: 'ScrollView',
+            ),
+        '&#47;example07': (context) => const ScaffoldWidget(
+              child: ExampleCustom(),
+              title: 'Custom All',
+            )
+      },
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  List render(BuildContext context, List> children) {
+    return ListTile.divideTiles(
+      context: context,
+      tiles: children.map((data) {
+        return buildListTile(context, data[0], data[1], data[2]);
+      }),
+    ).toList();
+  }
+
+  Widget buildListTile(
+      BuildContext context, String title, String subtitle, String url) {
+    return ListTile(
+      onTap: () {
+        Navigator.of(context).pushNamed(url);
+      },
+      isThreeLine: true,
+      dense: false,
+      leading: null,
+      title: Text(title),
+      subtitle: Text(subtitle),
+      trailing: const Icon(
+        Icons.arrow_right,
+        color: Colors.blueAccent,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; DateTime moonLanding = DateTime.parse("1969-07-20");
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: ListView(
+        children: render(context, [
+          ['Horizontal', 'Scroll Horizontal', '&#47;example01'],
+          ['Vertical', 'Scroll Vertical', '&#47;example02'],
+          ['Fraction', 'Fraction style', '&#47;example03'],
+          ['Custom Pagination', 'Custom Pagination', '&#47;example04'],
+          ['Phone', 'Phone view', '&#47;example05'],
+          ['ScrollView ', 'In a ScrollView', '&#47;example06'],
+          ['Custom', 'Custom all properties', '&#47;example07']
+        ]),
+      ),
+    );
+  }
+}
+
+const List titles = [
+  'Flutter Swiper is awesome',
+  'Really nice',
+  'Yeah'
+];
+
+class ExampleHorizontal extends StatelessWidget {
+  const ExampleHorizontal({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('ExampleHorizontal'),
+      ),
+      body: Swiper(
+        itemBuilder: (context, index) {
+          final image = images[index];
+          return Image.asset(
+            image,
+            fit: BoxFit.fill,
+          );
+        },
+        indicatorLayout: PageIndicatorLayout.COLOR,
+        autoplay: true,
+        itemCount: images.length,
+        pagination: const SwiperPagination(),
+        control: const SwiperControl(),
+      ),
+    );
+  }
+}
+
+class ExampleVertical extends StatelessWidget {
+  const ExampleVertical({Key? key}) :
+// ... (truncated)

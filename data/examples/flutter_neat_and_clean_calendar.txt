@@ -1,0 +1,123 @@
+&#47;&#47; ignore_for_file: unused_field
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_neat_and_clean_calendar&#47;flutter_neat_and_clean_calendar.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Clean Calendar Demo',
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.system,
+      home: CalendarScreen(),
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      supportedLocales: [
+        const Locale('en'),
+        const Locale('fr'),
+        const Locale('de'),
+        const Locale('es'),
+        const Locale('it'),
+        const Locale('ru'),
+      ],
+    );
+  }
+}
+
+class CalendarScreen extends StatefulWidget {
+  @override
+  State createState() {
+    return _CalendarScreenState();
+  }
+}
+
+class _CalendarScreenState extends State {
+  bool showEvents = true;
+
+  List _todaysEvents = [
+    NeatCleanCalendarEvent(
+      'Event A',
+      startTime: DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day, 10, 0),
+      endTime: DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day, 12, 0),
+      description: 'A special event',
+      color: Colors.blue[700],
+    ),
+  ];
+
+  final List _eventList = [
+    NeatCleanCalendarEvent(
+      'MultiDay Event A',
+      description: 'test desc',
+      startTime: DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day, 10, 0),
+      endTime: DateTime(DateTime.now().year, DateTime.now().month,
+          DateTime.now().day + 2, 12, 0),
+      color: Colors.orange,
+      isMultiDay: true,
+    ),
+    NeatCleanCalendarEvent('Event X',
+        description: 'test desc',
+        startTime: DateTime(DateTime.now().year, DateTime.now().month,
+            DateTime.now().day, 10, 30),
+        endTime: DateTime(DateTime.now().year, DateTime.now().month,
+            DateTime.now().day, 11, 30),
+        color: Colors.lightGreen,
+        isAllDay: false,
+        isDone: true,
+        icon: 'assets&#47;event1.jpg',
+        wide: false),
+    NeatCleanCalendarEvent('Allday Event B',
+        description: 'test desc',
+        startTime: DateTime(DateTime.now().year, DateTime.now().month,
+            DateTime.now().day - 2, 14, 30),
+        endTime: DateTime(DateTime.now().year, DateTime.now().month,
+            DateTime.now().day + 2, 17, 0),
+        color: Colors.pink,
+        isAllDay: true,
+        icon: 'assets&#47;event1.jpg',
+        wide: false),
+    NeatCleanCalendarEvent(
+      'Normal Event D',
+      description: 'test desc',
+      startTime: DateTime(DateTime.now().year, DateTime.now().month,
+          DateTime.now().day, 14, 30),
+      endTime: DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day, 17, 0),
+      color: Colors.indigo,
+      wide: true,
+      icon: 'assets&#47;events.jpg',
+    ),
+    NeatCleanCalendarEvent(
+      'Normal Event E',
+      description: 'test desc',
+      startTime: DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day, 7, 45),
+      endTime: DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day, 9, 0),
+      color: Colors.indigo,
+      wide: true,
+      icon: 'assets&#47;profile.jpg',
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47; Force selection of today on first load, so that the list of today's events gets shown.
+    _handleNewDate(DateTime(
+        DateTime.now().year, DateTime.now().month, DateTime.now().day));
+  }
+
+  Widget eventCell(BuildContext context, NeatCleanCalendarEvent event,
+      String start, String end) {
+    return Container(
+        padding: EdgeInsets.all(8.0),
+        child: Text('Calendar Event: ${event.summary} from $start 
+// ... (truncated)

@@ -1,0 +1,62 @@
+import 'dart:async';
+
+import 'package:fk_user_agent&#47;fk_user_agent.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _platformVersion = 'Unknown';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
+      await FkUserAgent.init();
+      initPlatformState();
+    });
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    String platformVersion;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    try {
+      platformVersion = FkUserAgent.userAgent!;
+      print(platformVersion);
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _platformVersion = platformVersion;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: Text('Running on: $_platformVersion\n'),
+        ),
+      ),
+    );
+  }
+}

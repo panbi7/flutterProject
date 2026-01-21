@@ -1,0 +1,166 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_drawing_board&#47;flutter_drawing_board.dart';
+import 'package:flutter_drawing_board&#47;paint_contents.dart';
+import 'package:flutter_drawing_board&#47;paint_extension.dart';
+
+import 'test_data.dart';
+
+Future _getImage(String path) async {
+  final Completer completer = Completer();
+  final NetworkImage img = NetworkImage(path);
+  img.resolve(ImageConfiguration.empty).addListener(
+    ImageStreamListener((ImageInfo info, _) {
+      completer.complete(info);
+    }),
+  );
+
+  final ImageInfo imageInfo = await completer.future;
+
+  return imageInfo.image;
+}
+
+const Map _testLine1 = {
+  'type': 'StraightLine',
+  'startPoint': {
+    'dx': 68.94337550070736,
+    'dy': 62.05980083656557
+  },
+  'endPoint': {
+    'dx': 277.1373386828114,
+    'dy': 277.32029957032194
+  },
+  'paint': {
+    'blendMode': 3,
+    'color': 4294198070,
+    'filterQuality': 3,
+    'invertColors': false,
+    'isAntiAlias': false,
+    'strokeCap': 1,
+    'strokeJoin': 1,
+    'strokeWidth': 4.0,
+    'style': 1
+  }
+};
+
+const Map _testLine2 = {
+  'type': 'StraightLine',
+  'startPoint': {
+    'dx': 106.35164817830423,
+    'dy': 255.9575653134524
+  },
+  'endPoint': {
+    'dx': 292.76034659254094,
+    'dy': 92.125586665872
+  },
+  'paint': {
+    'blendMode': 3,
+    'color': 4294198070,
+    'filterQuality': 3,
+    'invertColors': false,
+    'isAntiAlias': false,
+    'strokeCap': 1,
+    'strokeJoin': 1,
+    'strokeWidth': 4.0,
+    'style': 1
+  }
+};
+
+&#47;&#47;&#47; Custom drawn triangles
+class Triangle extends PaintContent {
+  Triangle();
+
+  Triangle.data({
+    required this.startPoint,
+    required this.A,
+    required this.B,
+    required this.C,
+    required Paint paint,
+  }) : super.paint(paint);
+
+  factory Triangle.fromJson(Map data) {
+    return Triangle.data(
+      startPoint: jsonToOffset(data['startPoint'] as Map),
+      A: jsonToOffset(data['A'] as Map),
+      B: jsonToOffset(data['B'] as Map),
+      C: jsonToOffset(data['C'] as Map),
+      paint: jsonToPaint(data['paint'] as Map),
+    );
+  }
+
+  Offset startPoint = Offset.zero;
+
+  Offset A = Offset.zero;
+  Offset B = Offset.zero;
+  Offset C = Offset.zero;
+
+  @override
+  String get contentType => 'Triangle';
+
+  @override
+  void startDraw(Offset startPoint) => this.startPoint = startPoint;
+
+  @override
+  void drawing(Offset nowPoint) {
+    A = Offset(
+        startPoint.dx + (nowPoint.dx - startPoint.dx) &#47; 2, startPoint.dy);
+    B = Offset(startPoint.dx, nowPoint.dy);
+    C = nowPoint;
+  }
+
+  @override
+  void draw(Canvas canvas, Size size, bool deeper) {
+    final Path path = Path()
+      ..moveTo(A.dx, A.dy)
+      ..lineTo(B.dx, B.dy)
+      ..lineTo(C.dx, C.dy)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  Triangle copy() => Triangle();
+
+  @override
+  Map toContentJson() {
+    return {
+      'startPoint': startPoint.toJson(),
+      'A': A.toJson(),
+      'B': B.toJson(),
+      'C': C.toJson(),
+      'paint': paint.toJson(),
+    };
+  }
+}
+
+&#47;&#47;&#47; Custom drawn image
+&#47;&#47;&#47; url: https:&#47;&#47;web-strapi.mrmilu.com&#47;uploads&#47;flutter_logo_470e9f7491.png
+const String _imageUrl =
+    'https:&#47;&#47;web-strapi.mrmilu.com&#47;uploads&#47;flutter_logo_470e9f7491.png';
+
+class ImageContent extends PaintContent {
+  ImageContent(this.image, {this.imageUrl = ''});
+
+  ImageContent.data({
+    required this.startPoint,
+    required this.size,
+    required this.image,
+    required this.imageUrl,
+    required Paint paint,
+  }) : super.paint(paint);
+
+  factory ImageContent.fromJson(Map data) {
+    return ImageContent.data(
+      startPoint: jsonToOffset(data['startPoint'] as Map),
+      size: jsonToOffset(data['size'] as Map),
+      imageUrl: data['imageUrl'] as String,
+      image: data['image'] as ui.Image,
+      paint: jsonToPaint(data['p
+// ... (truncated)

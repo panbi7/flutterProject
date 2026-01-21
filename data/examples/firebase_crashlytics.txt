@@ -1,0 +1,122 @@
+&#47;&#47; ignore_for_file: require_trailing_commas
+&#47;&#47; Copyright 2019 The Chromium Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'dart:async';
+import 'dart:io';
+
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:firebase_crashlytics&#47;firebase_crashlytics.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'firebase_options.dart';
+
+&#47;&#47; Toggle this to cause an async error to be thrown during initialization
+&#47;&#47; and to test that runZonedGuarded() catches the error
+const _kShouldTestAsyncErrorOnInit = false;
+
+&#47;&#47; Toggle this for testing Crashlytics in your app locally.
+const _kTestingCrashlytics = true;
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  const fatalError = true;
+  &#47;&#47; Non-async exceptions
+  FlutterError.onError = (errorDetails) {
+    if (fatalError) {
+      &#47;&#47; If you want to record a "fatal" exception
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+      &#47;&#47; ignore: dead_code
+    } else {
+      &#47;&#47; If you want to record a "non-fatal" exception
+      FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
+    }
+  };
+  &#47;&#47; Async exceptions
+  PlatformDispatcher.instance.onError = (error, stack) {
+    if (fatalError) {
+      &#47;&#47; If you want to record a "fatal" exception
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      &#47;&#47; ignore: dead_code
+    } else {
+      &#47;&#47; If you want to record a "non-fatal" exception
+      FirebaseCrashlytics.instance.recordError(error, stack);
+    }
+    return true;
+  };
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  MyApp({Key? key}) : super(key: key);
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late Future _initializeFlutterFireFuture;
+  bool _crashlyticsEnabled = true;
+
+  Future _testAsyncErrorOnInit() async {
+    Future.delayed(const Duration(seconds: 2), () {
+      final List list = [];
+      print(list[100]);
+    });
+  }
+
+  &#47;&#47; Define an async function to initialize FlutterFire
+  Future _initializeFlutterFire() async {
+    if (_kTestingCrashlytics) {
+      &#47;&#47; Force enable crashlytics collection enabled if we're testing it.
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+      _crashlyticsEnabled = true;
+    } else {
+      &#47;&#47; Else only enable it in non-debug builds.
+      &#47;&#47; You could additionally extend this to allow users to opt-in.
+      const enabled = !kDebugMode;
+      await FirebaseCrashlytics.instance
+          .setCrashlyticsCollectionEnabled(enabled);
+      _crashlyticsEnabled = enabled;
+    }
+
+    if (_kShouldTestAsyncErrorOnInit) {
+      await _testAsyncErrorOnInit();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeFlutterFireFuture = _initializeFlutterFire();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Crashlytics example app'),
+        ),
+        body: FutureBuilder(
+          future: _initializeFlutterFireFuture,
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  );
+                }
+                return Center(
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async {
+                          final newValue = !_crashlyticsEnabled;
+              
+// ... (truncated)

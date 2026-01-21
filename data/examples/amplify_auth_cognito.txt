@@ -1,0 +1,114 @@
+&#47;&#47; Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+&#47;&#47; SPDX-License-Identifier: Apache-2.0
+
+import 'package:amplify_api&#47;amplify_api.dart';
+import 'package:amplify_auth_cognito&#47;amplify_auth_cognito.dart';
+import 'package:amplify_auth_cognito_example&#47;screens&#47;confirm_user_attribute.dart';
+import 'package:amplify_auth_cognito_example&#47;screens&#47;update_user_attribute.dart';
+import 'package:amplify_auth_cognito_example&#47;screens&#47;update_user_attributes.dart';
+import 'package:amplify_auth_cognito_example&#47;screens&#47;view_user_attributes.dart';
+import 'package:amplify_authenticator&#47;amplify_authenticator.dart';
+import 'package:amplify_flutter&#47;amplify_flutter.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:go_router&#47;go_router.dart';
+
+import 'amplifyconfiguration.dart';
+
+final AmplifyLogger _logger = AmplifyLogger('MyApp');
+
+void main() {
+  AmplifyLogger().logLevel = LogLevel.verbose;
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  static final _router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '&#47;',
+        builder: (BuildContext _, GoRouterState _) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: '&#47;view-user-attributes',
+        builder: (BuildContext _, GoRouterState _) =>
+            const ViewUserAttributesScreen(),
+      ),
+      GoRoute(
+        path: '&#47;update-user-attribute',
+        builder: (BuildContext _, GoRouterState state) =>
+            UpdateUserAttributeScreen(
+              userAttributeKey: state.extra as CognitoUserAttributeKey?,
+            ),
+      ),
+      GoRoute(
+        path: '&#47;update-user-attributes',
+        builder: (BuildContext _, GoRouterState state) =>
+            const UpdateUserAttributesScreen(),
+      ),
+      GoRoute(
+        path: '&#47;confirm-user-attribute&#47;email',
+        builder: (BuildContext _, GoRouterState state) =>
+            const ConfirmUserAttributeScreen(
+              userAttributeKey: CognitoUserAttributeKey.email,
+            ),
+      ),
+      GoRoute(
+        path: '&#47;confirm-user-attribute&#47;phone_number',
+        builder: (BuildContext _, GoRouterState state) =>
+            const ConfirmUserAttributeScreen(
+              userAttributeKey: CognitoUserAttributeKey.phoneNumber,
+            ),
+      ),
+    ],
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _configure();
+  }
+
+  Future _configure() async {
+    try {
+      await Amplify.addPlugins([
+        AmplifyAPI(),
+        AmplifyAuthCognito(
+          &#47;&#47; FIXME: In your app, make sure to remove this line and set up
+          &#47;&#47;&#47; Keychain Sharing in Xcode as described in the docs:
+          &#47;&#47;&#47; https:&#47;&#47;docs.amplify.aws&#47;lib&#47;project-setup&#47;platform-setup&#47;q&#47;platform&#47;flutter&#47;#enable-keychain
+          secureStorageFactory: AmplifySecureStorage.factoryFrom(
+            macOSOptions:
+                &#47;&#47; ignore: invalid_use_of_visible_for_testing_member
+                MacOSSecureStorageOptions(useDataProtection: false),
+          ),
+        ),
+      ]);
+
+      &#47;&#47; Uncomment this block, and comment out the one above to change how
+      &#47;&#47; credentials are persisted.
+      &#47;*
+      await Amplify.addPlugin(
+          AmplifyAuthCognito(
+             secureStorageFactory: (scope) => AmplifySecureStorage.fromConfig(
+               config: AmplifySecureStorageConfig(
+                 scope: scope.name,
+                 webOptions: WebSecureStorageOptions(
+                   persistenceOption: WebPersistenceOption.inMemory,
+                 ),
+               ),
+             ),
+           ),
+         );
+       *&#47;
+      await Amplify.configure(amplifyconfig);
+      _logger.debug('Successfully configured Amplify');
+
+      Amplify.Hub.listen(HubChannel.Auth, (e
+// ... (truncated)

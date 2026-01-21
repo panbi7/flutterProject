@@ -1,0 +1,78 @@
+import 'package:cached_network_svg_image&#47;cached_network_svg_image.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Cached Network SVG Image Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  static const _imagesUrlList = [
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;0&#47;02&#47;SVG_logo.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;7&#47;71&#47;Epsilon_letter%2C_Mega_Etymologikon%2C_1499.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;0&#47;0a&#47;Python.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;3&#47;3f&#47;Git_icon.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;9&#47;96&#47;Sass_Logo_Color.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;2&#47;27&#47;PHP-logo.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;5&#47;57&#47;Delta_letter%2C_Mega_Etymologikon%2C_1499.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;9&#47;91&#47;Electron_Software_Framework_Logo.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;e&#47;e2&#47;202009_Allosaurus_fragilis.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;6&#47;61&#47;HTML5_logo_and_wordmark.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;d&#47;d5&#47;CSS3_logo_and_wordmark.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;7&#47;73&#47;Ruby_logo.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;3&#47;34&#47;202101_Zebrafish.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;1&#47;18&#47;ISO_C%2B%2B_Logo.svg',
+    'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;b&#47;bb&#47;Lamda_letter%2C_Mega_Etymologikon%2C_1499.svg',
+  ];
+
+  int _selectedIndex = 0;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Cached Network SVG Image Demo'),
+      ),
+      body: Center(
+        child: CachedNetworkSVGImage(
+          _imagesUrlList[_selectedIndex],
+          placeholder: const CircularProgressIndicator(color: Colors.green),
+          errorWidget: const Icon(Icons.error, color: Colors.red),
+          width: 250.0,
+          height: 250.0,
+          fadeDuration: const Duration(milliseconds: 700),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _nextImage,
+        tooltip: 'Next',
+        child: const Icon(Icons.navigate_next),
+      ),
+    );
+  }
+
+  void _nextImage() => setState(() {
+        _selectedIndex = (_selectedIndex + 1) % _imagesUrlList.length;
+      });
+}

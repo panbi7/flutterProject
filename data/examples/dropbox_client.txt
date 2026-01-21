@@ -1,0 +1,157 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+import 'package:dropbox_client&#47;dropbox_client.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:shared_preferences&#47;shared_preferences.dart';
+
+const String dropbox_clientId = 'test-flutter-dropbox';
+const String dropbox_key = 'dropbox_key';
+const String dropbox_secret = 'dropbox_secret';
+
+void main() {
+  return runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(home: Home());
+  }
+}
+
+class Home extends StatefulWidget {
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State {
+  String? accessToken;
+  String? credentials;
+  bool showInstruction = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    initDropbox();
+  }
+
+  Future initDropbox() async {
+    if (dropbox_key == 'dropbox_key') {
+      showInstruction = true;
+      return;
+    }
+
+    await Dropbox.init(dropbox_clientId, dropbox_key, dropbox_secret);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    accessToken = prefs.getString('dropboxAccessToken');
+    credentials = prefs.getString('dropboxCredentials');
+
+    setState(() {});
+  }
+
+  Future checkAuthorized(bool authorize) async {
+    final _credentials = await Dropbox.getCredentials();
+    if (_credentials != null) {
+      if (credentials == null || _credentials!.isEmpty) {
+        credentials = _credentials;
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('dropboxCredentials', credentials!);
+      }
+      return true;
+    }
+
+    final token = await Dropbox.getAccessToken();
+    if (token != null) {
+      if (accessToken == null || accessToken!.isEmpty) {
+        accessToken = token;
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('dropboxAccessToken', accessToken!);
+      }
+      return true;
+    }
+
+    if (authorize) {
+      if (credentials != null && credentials!.isNotEmpty) {
+        await Dropbox.authorizeWithCredentials(credentials!);
+        final _credentials = await Dropbox.getCredentials();
+        if (_credentials != null) {
+          print('authorizeWithCredentials!');
+          return true;
+        }
+      }
+      if (accessToken != null && accessToken!.isNotEmpty) {
+        await Dropbox.authorizeWithAccessToken(accessToken!);
+        final token = await Dropbox.getAccessToken();
+        if (token != null) {
+          print('authorizeWithAccessToken!');
+          return true;
+        }
+      } else {
+        await Dropbox.authorize();
+        print('authorize!');
+      }
+    }
+    return false;
+  }
+
+  Future authorize() async {
+    await Dropbox.authorize();
+  }
+
+  Future authorizePKCE() async {
+    await Dropbox.authorizePKCE();
+  }
+
+  Future unlinkToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('dropboxAccessToken');
+
+    setState(() {
+      accessToken = null;
+    });
+    await Dropbox.unlink();
+  }
+
+  Future unlinkCredentials() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('dropboxCredentials');
+
+    setState(() {
+      credentials = null;
+    });
+    await Dropbox.unlink();
+  }
+
+  Future authorizeWithAccessToken() async {
+    await Dropbox.authorizeWithAccessToken(accessToken!);
+  }
+
+  Future authorizeWithCredentials() async {
+    await Dropbox.authorizeWithCredentials(credentials!);
+  }
+
+  Future getAccountName() async {
+    if (await checkAuthorized(true)) {
+      final user = await Dropbox.getAccountName();
+      print('user = $user');
+    }
+  }
+
+  Future listFolder(path) async {
+    if (await checkAuthorized(true)) {
+      final result = await Dropbox.listFolder(path);
+      setState(() {
+        list.clear();
+        list.addAll(result);
+      });
+    }
+  }
+
+  Futur
+// ... (truncated)

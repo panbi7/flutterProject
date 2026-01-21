@@ -1,0 +1,39 @@
+import 'package:open_route_service&#47;open_route_service.dart';
+
+Future main() async {
+  &#47;&#47; Initialize the OpenRouteService with your API key.
+  final OpenRouteService client = OpenRouteService(apiKey: 'YOUR-API-KEY');
+
+  &#47;&#47; Example coordinates to test between
+  const double startLat = 37.4220698;
+  const double startLng = -122.0862784;
+  const double endLat = 37.4111466;
+  const double endLng = -122.0792365;
+
+  &#47;&#47; Form Route between coordinates
+  final List routeCoordinates =
+      await client.directionsRouteCoordsGet(
+    startCoordinate: ORSCoordinate(latitude: startLat, longitude: startLng),
+    endCoordinate: ORSCoordinate(latitude: endLat, longitude: endLng),
+  );
+
+  &#47;&#47; Print the route coordinates
+  routeCoordinates.forEach(print);
+
+  &#47;&#47; Map route coordinates to a list of LatLng (requires google_maps_flutter)
+  &#47;&#47; to be used in Polyline
+  &#47;&#47; final List routePoints = routeCoordinates
+  &#47;&#47;     .map((coordinate) => LatLng(coordinate.latitude, coordinate.longitude))
+  &#47;&#47;     .toList();
+
+  &#47;&#47; Create Polyline (requires Material UI for Color)
+  &#47;&#47; final Polyline routePolyline = Polyline(
+  &#47;&#47;   polylineId: PolylineId('route'),
+  &#47;&#47;   visible: true,
+  &#47;&#47;   points: routePoints,
+  &#47;&#47;   color: Colors.red,
+  &#47;&#47;   width: 4,
+  &#47;&#47; );
+
+  &#47;&#47; Use Polyline to draw route on map or do anything else with the data :)
+}

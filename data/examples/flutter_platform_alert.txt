@@ -1,0 +1,128 @@
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_platform_alert&#47;flutter_platform_alert.dart';
+import 'package:tray_manager&#47;tray_manager.dart';
+import 'package:window_manager&#47;window_manager.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+    await windowManager.ensureInitialized();
+  }
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State with TrayListener, WindowListener {
+  @override
+  void initState() {
+    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      &#47;&#47; These are not supported on iOS and Android.
+      trayManager.addListener(this);
+      windowManager.addListener(this);
+      _init();
+    }
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    trayManager.removeListener(this);
+    windowManager.removeListener(this);
+    super.dispose();
+  }
+
+  void _init() async {
+    await trayManager.setIcon(
+      Platform.isWindows
+          ? 'images&#47;tray_icon_original.ico'
+          : 'images&#47;tray_icon_original.png',
+    );
+    List items = [
+      MenuItem(
+        key: 'show_window',
+        label: 'Show Window',
+      ),
+      MenuItem(
+        key: 'hide_window',
+        label: 'Hide Window',
+      ),
+      MenuItem(
+        key: 'show_alert_ok',
+        label: 'Show OK',
+      ),
+      MenuItem.separator(),
+      MenuItem(
+        key: 'exit_app',
+        label: 'Exit App',
+      ),
+    ];
+    final menu = Menu(items: items);
+    await trayManager.setContextMenu(menu);
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        home: Scaffold(
+            appBar: AppBar(title: const Text('Flutter Platform Alert')),
+            body: ListView(children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text('Play Alert Sounds',
+                    style: Theme.of(context).textTheme.titleLarge),
+              ),
+              ListTile(
+                  onTap: () async {
+                    await FlutterPlatformAlert.playAlertSound();
+                  },
+                  title: const Text('Play Alert Sound (Default)')),
+              ListTile(
+                  onTap: () async {
+                    await FlutterPlatformAlert.playAlertSound(
+                      iconStyle: IconStyle.exclamation,
+                    );
+                  },
+                  title: const Text('Play Alert Sound (exclamation)')),
+              ListTile(
+                  onTap: () async {
+                    await FlutterPlatformAlert.playAlertSound(
+                      iconStyle: IconStyle.error,
+                    );
+                  },
+                  title: const Text('Play Alert Sound (error)')),
+              const Divider(),
+              Padding(
+                padding: const EdgeInsets.all(14.0),
+                child: Text('Standard Alert with Styles',
+                    style: Theme.of(context).textTheme.titleLarge),
+              ),
+              ListTile(
+                  onTap: () async {
+                    final result = await FlutterPlatformAlert.showAlert(
+                      windowTitle: '白日依山盡 黃河入海流',
+                      text: '芋頭西米露 保力達蠻牛',
+                      iconStyle: IconStyle.exclamation,
+                      alertStyle: AlertButtonStyle.abortRetryIgnore,
+                      options: PlatformAlertOptions(
+                        windows: WindowsAlertOptions(preferMessageBox: true),
+                      ),
+                    );
+                    print(result);
+                  },
+                  title: const Text('Show non-ascii characters')),
+              const Divider(),
+              ListTile(
+                  onTap: () asyn
+// ... (truncated)

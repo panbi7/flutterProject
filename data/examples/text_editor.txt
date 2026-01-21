@@ -1,0 +1,119 @@
+import 'package:flutter&#47;material.dart';
+import 'package:text_editor&#47;text_editor.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final fonts = [
+    'OpenSans',
+    'Billabong',
+    'GrandHotel',
+    'Oswald',
+    'Quicksand',
+    'BeautifulPeople',
+    'BeautyMountains',
+    'BiteChocolate',
+    'BlackberryJam',
+    'BunchBlossoms',
+    'CinderelaRegular',
+    'Countryside',
+    'Halimun',
+    'LemonJelly',
+    'QuiteMagicalRegular',
+    'Tomatoes',
+    'TropicalAsianDemoRegular',
+    'VeganStyle',
+  ];
+  TextStyle _textStyle = TextStyle(
+    fontSize: 50,
+    color: Colors.white,
+    fontFamily: 'Billabong',
+  );
+  String _text = 'Sample Text';
+  TextAlign _textAlign = TextAlign.center;
+
+  void _tapHandler(text, textStyle, textAlign) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      transitionDuration: Duration(
+        milliseconds: 400,
+      ), &#47;&#47; how long it takes to popup dialog after button click
+      pageBuilder: (_, __, ___) {
+        &#47;&#47; your widget implementation
+        return Container(
+          color: Colors.black.withOpacity(0.4),
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: SafeArea(
+              &#47;&#47; top: false,
+              child: Container(
+                child: TextEditor(
+                  fonts: fonts,
+                  text: text,
+                  textStyle: textStyle,
+                  textAlingment: textAlign,
+                  minFontSize: 10,
+                  &#47;&#47; paletteColors: [
+                  &#47;&#47;   Colors.black,
+                  &#47;&#47;   Colors.white,
+                  &#47;&#47;   Colors.blue,
+                  &#47;&#47;   Colors.red,
+                  &#47;&#47;   Colors.green,
+                  &#47;&#47;   Colors.yellow,
+                  &#47;&#47;   Colors.pink,
+                  &#47;&#47;   Colors.cyanAccent,
+                  &#47;&#47; ],
+                  &#47;&#47; decoration: EditorDecoration(
+                  &#47;&#47;   textBackground: TextBackgroundDecoration(
+                  &#47;&#47;     disable: Text('Disable'),
+                  &#47;&#47;     enable: Text('Enable'),
+                  &#47;&#47;   ),
+                  &#47;&#47;   doneButton: Icon(Icons.close, color: Colors.white),
+                  &#47;&#47;   fontFamily: Icon(Icons.title, color: Colors.white),
+                  &#47;&#47;   colorPalette: Icon(Icons.palette, color: Colors.white),
+                  &#47;&#47;   alignment: AlignmentDecoration(
+                  &#47;&#47;     left: Text(
+                  &#47;&#47;       'left',
+                  &#47;&#47;       style: TextStyle(color: Colors.white),
+                  &#47;&#47;     ),
+                  &#47;&#47;     center: Text(
+                  &#47;&#47;       'center',
+                  &#47;&#47;       style: TextStyle(color: Colors.white),
+                  &#47;&#47;     ),
+                  &#47;&#47;     right: Text(
+                  &#47;&#47;       'right',
+                  &#47;&#47;       style: TextStyle(color: Colors.white),
+                  &#47;&#47;     ),
+                  &#47;&#47;   ),
+                  &#47;&#47; ),
+                  onEditCompleted: (style, align, text) {
+                    setState(() {
+                      _text = text;
+                      _textStyle = style;
+                      _textAlign = 
+// ... (truncated)

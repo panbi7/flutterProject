@@ -1,0 +1,127 @@
+import 'package:flutter&#47;material.dart';
+import 'package:v_video_compressor&#47;v_video_compressor.dart';
+import 'package:image_picker&#47;image_picker.dart';
+import 'package:gal&#47;gal.dart';
+import 'four_k_test_page.dart';
+
+void main() {
+  &#47;&#47; Configure logging for development
+  VVideoCompressor.configureLogging(VVideoLogConfig.development());
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'V Video Compressor Example',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const MyHomePage(title: 'V Video Compressor Example'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final VVideoCompressor _compressor = VVideoCompressor();
+
+  String? _selectedVideoPath;
+  double _compressionProgress = 0.0;
+  bool _isCompressing = false;
+  VVideoInfo? _videoInfo;
+  VVideoCompressionResult? _result;
+  bool _saveToGallery = false;
+  String? _thumbnailPath;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FourKTestPage()),
+              );
+            },
+            icon: const Icon(Icons.science),
+            tooltip: '4K Compression Test',
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'V Video Compressor Example',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Card(
+              color: Colors.blue.shade50,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'For 4K video compression testing, tap the test tube icon above.',
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const FourKTestPage()),
+                        );
+                      },
+                      child: const Text('4K Test'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            &#47;&#47; Video Selection
+            ElevatedButton.icon(
+              onPressed: _pickVideo,
+              icon: const Icon(Icons.video_library),
+              label: const Text('Pick Video from Gallery'),
+            ),
+            const SizedBox(height: 16),
+
+            if (_videoInfo != null) ...[
+              &#47;&#47; Video Info Card
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Video Information',
+// ... (truncated)

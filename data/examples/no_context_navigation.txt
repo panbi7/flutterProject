@@ -1,0 +1,26 @@
+import 'package:flutter&#47;material.dart';
+import 'package:no_context_navigation&#47;no_context_navigation.dart';
+
+import 'src&#47;detail_screen&#47;detail_screen.dart';
+import 'src&#47;home_screen&#47;home_screen.dart';
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: NavigationService.navigationKey,
+      onGenerateRoute: (RouteSettings settings) {
+        switch (settings.name) {
+          case '&#47;':
+            return MaterialPageRoute(builder: (context) => HomeScreen());
+          case '&#47;detail_screen':
+            return MaterialPageRoute(
+                builder: (context) =>
+                    DetailScreen(settings.arguments as String));
+          default:
+            return null;
+        }
+      },
+    );
+  }
+}

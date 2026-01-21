@@ -1,0 +1,21 @@
+@override
+Widget build(BuildContext context) {
+  return FlutterMap(
+    options: MapOptions(),
+    children: [
+      TileLayer(
+        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        tileProvider: CachedTileProvider(
+          // maxStale keeps the tile cached for the given Duration and 
+          // tries to revalidate the next time it gets requested
+          maxStale: const Duration(days: 30),
+          // This example uses Hive as storage backend
+          store: HiveCacheStore(
+            path,
+            hiveBoxName: 'HiveCacheStore',
+          ),
+        ),
+      ),
+    ],
+  );
+}

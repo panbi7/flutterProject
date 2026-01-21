@@ -1,0 +1,131 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:phonepe_payment_sdk&#47;phonepe_payment_sdk.dart';
+import 'package:phonepe_payment_sdk_example&#47;upi_app.dart';
+
+void main() {
+  runApp(const MerchantApp());
+}
+
+class MerchantApp extends StatefulWidget {
+  const MerchantApp({super.key});
+
+  @override
+  State createState() => MerchantScreen();
+}
+
+class MerchantScreen extends State {
+  String request = "";
+  String appSchema = "flutterDemoApp";
+
+  Map headers = {};
+  List environmentList = ['SANDBOX', 'PRODUCTION'];
+  bool enableLogs = true;
+  Object? result;
+  String environmentValue = 'SANDBOX';
+  String merchantId = "";
+  String flowId = ""; &#47;&#47; Pass the user id or the unique string
+  String packageName = "com.phonepe.simulator";
+
+  void initPhonePeSdk() {
+    PhonePePaymentSdk.init(environmentValue, merchantId, flowId, enableLogs)
+        .then((isInitialized) => {
+              setState(() {
+                result = 'PhonePe SDK Initialized - $isInitialized';
+              })
+            })
+        .catchError((error) {
+      handleError(error);
+      return {};
+    });
+  }
+
+  void startTransaction() async {
+    try {
+      PhonePePaymentSdk.startTransaction(request, appSchema)
+          .then((response) => {
+                setState(() {
+                  if (response != null) {
+                    String status = response['status'].toString();
+                    String error = response['error'].toString();
+                    if (status == 'SUCCESS') {
+                      result = "Flow Completed - Status: Success!";
+                    } else {
+                      result =
+                          "Flow Completed - Status: $status and Error: $error";
+                    }
+                  } else {
+                    result = "Flow Incomplete";
+                  }
+                })
+              })
+          .catchError((error) {
+        handleError(error);
+        return {};
+      });
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  void getInstalledUpiAppsForiOS() {
+    PhonePePaymentSdk.getInstalledUpiAppsForiOS()
+        .then((apps) => {
+              setState(() {
+                result = 'getUPIAppsInstalledForIOS - $apps';
+
+                &#47;&#47; For Usage
+                List stringList = apps
+                        ?.whereType() &#47;&#47; Filters out null and non-String elements
+                        .toList() ??
+                    [];
+
+                &#47;&#47; Check if the string value 'Orange' exists in the filtered list
+                String searchString = 'PHONEPE';
+                bool isStringExist = stringList.contains(searchString);
+
+                if (isStringExist) {
+                  print('$searchString app exist in the device.');
+                } else {
+                  print('$searchString app does not exist in the list.');
+                }
+              })
+            })
+        .catchError((error) {
+      handleError(error);
+      return {};
+    });
+  }
+
+  void getInstalledApps() {
+    if (Platform.isAndroid) {
+      getInstalledUpiAppsForAndroid();
+    } else {
+      getInstalledUpiAppsForiOS();
+    }
+  }
+
+  void getInstalledUpiAppsForAndroid() {
+    PhonePePaymentSdk.getUpiAppsForAndroid()
+        .then((apps) => {
+              setState(() {
+                if (apps != null) {
+                  Iterable l = json.decode(apps);
+                  List upiApps = List.from(
+                      l.map((model) => UPIApp.fromJson(model)));
+                  String appString = '';
+                  for (var element in upiApps) {
+                    appString +=
+                        "${element.applicationName} ${element.version} ${element.packageName}";
+                  }
+                  result = 'Installed Upi Apps - $appString';
+                } else {
+                  result = 'Installed Upi Apps - 0';
+                }
+              })
+            })
+        .catchError((error) {
+      handleErr
+// ... (truncated)

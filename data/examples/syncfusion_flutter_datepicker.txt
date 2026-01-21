@@ -1,0 +1,89 @@
+import 'package:flutter&#47;material.dart';
+&#47;&#47; ignore: depend_on_referenced_packages
+import 'package:intl&#47;intl.dart';
+import 'package:syncfusion_flutter_datepicker&#47;datepicker.dart';
+
+void main() {
+  return runApp(const MyApp());
+}
+
+&#47;&#47;&#47; My app class to display the date range picker
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+&#47;&#47;&#47; State for MyApp
+class MyAppState extends State {
+  String _selectedDate = '';
+  String _dateCount = '';
+  String _range = '';
+  String _rangeCount = '';
+
+  &#47;&#47;&#47; The method for [DateRangePickerSelectionChanged] callback, which will be
+  &#47;&#47;&#47; called whenever a selection changed on the date picker widget.
+  void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
+    &#47;&#47;&#47; The argument value will return the changed date as [DateTime] when the
+    &#47;&#47;&#47; widget [SfDateRangeSelectionMode] set as single.
+    &#47;&#47;&#47;
+    &#47;&#47;&#47; The argument value will return the changed dates as [List]
+    &#47;&#47;&#47; when the widget [SfDateRangeSelectionMode] set as multiple.
+    &#47;&#47;&#47;
+    &#47;&#47;&#47; The argument value will return the changed range as [PickerDateRange]
+    &#47;&#47;&#47; when the widget [SfDateRangeSelectionMode] set as range.
+    &#47;&#47;&#47;
+    &#47;&#47;&#47; The argument value will return the changed ranges as
+    &#47;&#47;&#47; [List) {
+        _dateCount = args.value.length.toString();
+      } else {
+        _rangeCount = args.value.length.toString();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('DatePicker demo')),
+        body: Stack(
+          children: [
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 80,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Selected date: $_selectedDate'),
+                  Text('Selected date count: $_dateCount'),
+                  Text('Selected range: $_range'),
+                  Text('Selected ranges count: $_rangeCount'),
+                ],
+              ),
+            ),
+            Positioned(
+              left: 0,
+              top: 80,
+              right: 0,
+              bottom: 0,
+              child: SfDateRangePicker(
+                onSelectionChanged: _onSelectionChanged,
+                selectionMode: DateRangePickerSelectionMode.range,
+                initialSelectedRange: PickerDateRange(
+                  DateTime.now().subtract(const Duration(days: 4)),
+                  DateTime.now().add(const Duration(days: 3)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

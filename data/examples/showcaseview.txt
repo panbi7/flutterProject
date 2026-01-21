@@ -1,0 +1,124 @@
+import 'dart:developer';
+
+import 'package:example&#47;detailscreen.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:showcaseview&#47;showcaseview.dart';
+
+void main() => runApp(const MyApp());
+
+&#47;&#47;&#47; Global key for the first showcase widget
+final GlobalKey _firstShowcaseWidget = GlobalKey();
+
+&#47;&#47;&#47; Global key for the last showcase widget
+final GlobalKey _lastShowcaseWidget = GlobalKey();
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter ShowCase',
+      theme: ThemeData(
+        primaryColor: const Color(0xffEE5366),
+      ),
+      debugShowCheckedModeBanner: false,
+      home: const MailPage(),
+    );
+  }
+}
+
+class MailPage extends StatefulWidget {
+  const MailPage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MailPageState();
+}
+
+class _MailPageState extends State {
+  final GlobalKey _two = GlobalKey();
+  final GlobalKey _three = GlobalKey();
+  final GlobalKey _four = GlobalKey();
+  List mails = [];
+
+  final scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47; Register the showcase view
+    &#47;&#47; This is alternative of ShowCaseWidget register all the configuration here which are in ShowCaseWidget.
+    &#47;&#47; if we don't register the ShowcaseView then showcase functionality will not work.
+    ShowcaseView.register(
+      hideFloatingActionWidgetForShowcase: [_lastShowcaseWidget],
+      globalFloatingActionWidget: (showcaseContext) => FloatingActionWidget(
+        left: 16,
+        bottom: 16,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ElevatedButton(
+            onPressed: () => ShowcaseView.get().dismiss(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xffEE5366),
+            ),
+            child: const Text(
+              'Skip',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+              ),
+            ),
+          ),
+        ),
+      ),
+      onStart: (index, key) {
+        log('onStart: $index, $key');
+      },
+      onComplete: (index, key) {
+        log('onComplete: $index, $key');
+        if (index == 4) {
+          SystemChrome.setSystemUIOverlayStyle(
+            SystemUiOverlayStyle.light.copyWith(
+              statusBarIconBrightness: Brightness.dark,
+              statusBarColor: Colors.white,
+            ),
+          );
+        }
+      },
+      blurValue: 1,
+      autoPlayDelay: const Duration(seconds: 3),
+      globalTooltipActionConfig: const TooltipActionConfig(
+        position: TooltipActionPosition.inside,
+        alignment: MainAxisAlignment.spaceBetween,
+        actionGap: 20,
+      ),
+      globalTooltipActions: [
+        &#47;&#47; Here we don't need previous action for the first showcase widget
+        &#47;&#47; so we hide this action for the first showcase widget
+        TooltipActionButton(
+          type: TooltipDefaultActionType.previous,
+          textStyle: const TextStyle(
+            color: Colors.white,
+          ),
+          hideActionWidgetForShowcase: [_firstShowcaseWidget],
+        ),
+        &#47;&#47; Here we don't need next action for the last showcase widget so we
+        &#47;&#47; hide this action for the last showcase widget
+        TooltipActionButton(
+          type: TooltipDefaultActionType.next,
+          textStyle: const TextStyle(
+            color: Colors.white,
+          ),
+          hideActionWidgetForShowcase: [_lastShowcaseWidget],
+        ),
+      ],
+      onDismiss: (key) {
+        debugPrint('Dismissed at $key');
+      },
+    );
+    &#47;&#47;Start showcase view after current widget frames are drawn.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => ShowcaseView.get().startShowCase(
+        [_firstShowcaseWidget, _two,
+// ... (truncated)

@@ -1,0 +1,140 @@
+import 'package:flutter&#47;material.dart';
+import 'package:convex_flutter&#47;convex_flutter.dart';
+import 'screens&#47;home_screen.dart';
+import 'screens&#47;authentication_screen.dart';
+import 'screens&#47;messaging_screen.dart';
+import 'screens&#47;connection_screen.dart';
+import 'screens&#47;advanced_screen.dart';
+import 'widgets&#47;connection_status_indicator.dart';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await ConvexClient.initialize(
+    ConvexConfig(
+      deploymentUrl: "https:&#47;&#47;merry-grasshopper-563.convex.cloud",
+      clientId: "flutter-app-1.0",
+      operationTimeout: const Duration(seconds: 30),
+      healthCheckQuery: "health:ping",
+    ),
+  );
+
+  runApp(const ConvexExampleApp());
+}
+
+class ConvexExampleApp extends StatelessWidget {
+  const ConvexExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Convex Flutter Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+      home: const MainNavigationScreen(),
+    );
+  }
+}
+
+class MainNavigationScreen extends StatefulWidget {
+  const MainNavigationScreen({super.key});
+
+  @override
+  State createState() => _MainNavigationScreenState();
+}
+
+class _MainNavigationScreenState extends State {
+  int _selectedIndex = 0;
+
+  final List _screens = const [
+    HomeScreen(),
+    AuthenticationScreen(),
+    MessagingScreen(),
+    ConnectionScreen(),
+    AdvancedScreen(),
+  ];
+
+  final List _navItems = const [
+    NavigationItem(
+      icon: Icons.home,
+      label: 'Home',
+      description: 'Welcome and overview',
+    ),
+    NavigationItem(
+      icon: Icons.login,
+      label: 'Authentication',
+      description: 'JWT tokens, auto-refresh, auth state',
+    ),
+    NavigationItem(
+      icon: Icons.message,
+      label: 'Messaging',
+      description: 'Query, mutation, subscribe, live updates',
+    ),
+    NavigationItem(
+      icon: Icons.wifi,
+      label: 'Connection',
+      description: 'WebSocket state, health checks, reconnect',
+    ),
+    NavigationItem(
+      icon: Icons.settings,
+      label: 'Advanced',
+      description: 'Timeouts, actions, error handling, lifecycle',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_navItems[_selectedIndex].label),
+        actions: const [
+          ConnectionStatusIndicator(),
+        ],
+      ),
+      drawer: _buildDrawer(),
+      body: _screens[_selectedIndex],
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.primaryContainer,
+                ],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.cloud, color: Colors.white, size: 48),
+                const SizedBox(height: 8),
+                const Text(
+                  'Convex Flutter',
+                  style: TextStyle(color: Colors.white, fontSize: 24,
+                    fontWeight: FontWeight.bold),
+                ),
+                const Text(
+                  'Example App',
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                ),
+                const Spacer(),
+                &#47;&#47; Auth state indicator in drawer
+                StreamBuilder(
+                  stream: ConvexClient.instance.authState,
+                  initialData: false,
+                  builder: (context, snapshot) {
+                    final isAuth = snapshot.data ?? false;
+                    return Row(
+                      children: [
+                        Icon(
+
+// ... (truncated)

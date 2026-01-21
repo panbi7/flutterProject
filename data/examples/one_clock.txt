@@ -1,0 +1,152 @@
+import 'package:flutter&#47;material.dart';
+import 'package:one_clock&#47;one_clock.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'One Clock Example'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  DateTime dateTime = DateTime.now();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              analogClockExample(dateTime),
+              const SizedBox(
+                height: 50,
+              ),
+              ...digitalClockExample(dateTime)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Widget analogClockExample(DateTime dateTimee) {
+  return SingleChildScrollView(
+    &#47;&#47; padding: EdgeInsets.all(7),
+    scrollDirection: Axis.horizontal,
+    child: Column(
+      children: [
+        const Text(
+          "Analog Clock Example",
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(
+          height: 30,
+        ),
+        Row(
+          children: [
+            AnalogClock(
+              isLive: false,
+              width: 120,
+              height: 120,
+              datetime: dateTimee,
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            AnalogClock.dark(
+              width: 120,
+              height: 120,
+              isLive: true,
+              datetime: dateTimee,
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            AnalogClock(
+              width: 120,
+              height: 120,
+              isLive: true,
+              decoration: BoxDecoration(color: Colors.green[100], shape: BoxShape.circle),
+              datetime: dateTimee,
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            AnalogClock(
+              width: 120,
+              height: 120,
+              isLive: true,
+              decoration: BoxDecoration(color: Colors.yellow[100], shape: BoxShape.circle),
+              datetime: dateTimee,
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            AnalogClock(
+              width: 120,
+              height: 120,
+              isLive: true,
+              showDigitalClock: false,
+              decoration: BoxDecoration(color: Colors.cyan[100], shape: BoxShape.circle),
+              datetime: dateTimee,
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            AnalogClock(
+              width: 120,
+              height: 120,
+              isLive: true,
+              showDigitalClock: false,
+              decoration: BoxDecoration(color: Colors.red[100], shape: BoxShape.circle),
+              datetime: dateTimee,
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+List digitalClockExample(DateTime dateTimee) {
+  return [
+    SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Column(
+        children: [
+          const Text(
+            "Digital Clock Example",
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+          ),
+          con
+// ... (truncated)

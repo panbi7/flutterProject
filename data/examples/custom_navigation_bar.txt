@@ -1,0 +1,120 @@
+&#47;&#47; Copyright (c) 2020 Ricky Wen
+&#47;&#47; Permission is hereby granted, free of charge, to any person obtaining a copy
+&#47;&#47; of this software and associated documentation files (the "Software"), to deal
+&#47;&#47; in the Software without restriction, including without limitation the rights
+&#47;&#47; to use, copy, modify, merge, publish, distribute, sublicense, and&#47;or sell
+&#47;&#47; copies of the Software, and to permit persons to whom the Software is
+&#47;&#47; furnished to do so, subject to the following conditions:
+&#47;&#47; The above copyright notice and this permission notice shall be included in all
+&#47;&#47; copies or substantial portions of the Software.
+&#47;&#47; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+&#47;&#47; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+&#47;&#47; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+&#47;&#47; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+&#47;&#47; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+&#47;&#47; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+&#47;&#47; SOFTWARE.
+
+import 'package:flutter&#47;material.dart';
+import 'package:custom_navigation_bar&#47;custom_navigation_bar.dart';
+import 'package:flutter_icons&#47;flutter_icons.dart';
+
+void main() => runApp(MyApp());
+
+enum ThemeStyle {
+  Dribbble,
+  Light,
+  NoElevation,
+  AntDesign,
+  BorderRadius,
+  FloatingBar,
+  NotificationBadge,
+  WithTitle,
+  BlurEffect
+}
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Custom Navigation Bar Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Example'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key key, this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int _currentIndex = 0;
+  ThemeStyle _currentStyle = ThemeStyle.NotificationBadge;
+
+  List _badgeCounts = List.generate(5, (index) => index);
+
+  List _badgeShows = List.generate(5, (index) => true);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      &#47;&#47; extendBody for floating bar get better perfomance
+      extendBody: true,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: ListView(
+          children: [
+            ListTile(
+              title: const Text('Notification badge'),
+              leading: Radio(
+                value: ThemeStyle.NotificationBadge,
+                groupValue: _currentStyle,
+                onChanged: (ThemeStyle value) {
+                  setState(() {
+                    _currentStyle = value;
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title: const Text('Dribbble'),
+              leading: Radio(
+                value: ThemeStyle.Dribbble,
+                groupValue: _currentStyle,
+                onChanged: (ThemeStyle value) {
+                  setState(() {
+                    _currentStyle = value;
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title: const Text('Light'),
+              leading: Radio(
+                value: ThemeStyle.Light,
+                groupValue: _currentStyle,
+                onChanged: (ThemeStyle value) {
+                  setState(() {
+                    _currentStyle = value;
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title: const Text('No elevation'),
+              leading: Radio(
+                value: ThemeStyle.NoElevation,
+         
+// ... (truncated)

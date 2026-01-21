@@ -1,0 +1,129 @@
+&#47;&#47; ignore_for_file: comment_references
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_rx_bloc&#47;flutter_rx_bloc.dart';
+import 'package:rx_bloc&#47;rx_bloc.dart';
+import 'package:rxdart&#47;rxdart.dart';
+
+void main() {
+  runApp(const CounterApp());
+}
+
+&#47;&#47;&#47;region UI Layer
+
+&#47;&#47;&#47; The app widget
+class CounterApp extends StatelessWidget {
+  const CounterApp({Key? key}) : super(key: key);
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Counter sample',
+        theme: ThemeData(primarySwatch: Colors.blue),
+        home: RxBlocProvider(
+          create: (ctx) => CounterBloc(CounterRepository()),
+          child: const CounterPage(),
+        ),
+      );
+}
+
+&#47;&#47;&#47; The page widget
+class CounterPage extends StatelessWidget {
+  &#47;&#47;&#47; Default constructor
+  const CounterPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('Counter sample')),
+        body: Center(
+          child: RxBlocListener(
+            state: (bloc) => bloc.states.errors,
+            listener: _showError,
+            child: RxBlocBuilder(
+              state: (bloc) => bloc.states.count,
+              builder: (context, snapshot, bloc) =>
+                  _buildCount(snapshot, context),
+            ),
+          ),
+        ),
+        floatingActionButton: RxLoadingBuilder(
+          state: (bloc) => bloc.states.isLoading,
+          builder: (context, isLoading, tag, bloc) => Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ActionButton(
+                tooltip: 'Increment',
+                iconData: Icons.add,
+                onPressed: bloc.events.increment,
+                disabled: isLoading,
+                loading: isLoading && tag == CounterBloc.tagIncrement,
+              ),
+              const SizedBox(width: 16),
+              ActionButton(
+                tooltip: 'Decrement',
+                iconData: Icons.remove,
+                onPressed: bloc.events.decrement,
+                disabled: isLoading,
+                loading: isLoading && tag == CounterBloc.tagDecrement,
+              ),
+            ],
+          ),
+        ),
+      );
+
+  StatelessWidget _buildCount(
+    AsyncSnapshot snapshot,
+    BuildContext context,
+  ) =>
+      snapshot.hasData
+          ? Text(
+              snapshot.data.toString(),
+              style: Theme.of(context).textTheme.headlineMedium,
+            )
+          : Container();
+
+  void _showError(BuildContext context, String errorMessage) =>
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+}
+
+&#47;&#47;&#47; Increment&#47;Decrement button
+class ActionButton extends StatelessWidget {
+  &#47;&#47;&#47; Default constructor
+  const ActionButton({
+    required this.iconData,
+    required this.onPressed,
+    this.disabled = false,
+    this.tooltip = '',
+    this.loading = false,
+    Key? key,
+  }) : super(key: key);
+
+  &#47;&#47;&#47; The button disable state, which removes the [onPress] and sets a color
+  final bool disabled;
+
+  &#47;&#47;&#47; Loading flag that shows a loading indicator
+  final bool loading;
+
+  &#47;&#47;&#47; Text that describes the action that will occur when the button is pressed.
+  final String tooltip;
+
+  &#47;&#47;&#47; The icon to display. The available icons are described in [Icons].
+  final IconData iconData;
+
+  &#47;&#47;&#47; The callback that is called when the button is tapped or
+  &#47;&#47;&#47; otherwise activated.
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child: CircularProgressIndicat
+// ... (truncated)

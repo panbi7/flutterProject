@@ -1,0 +1,9 @@
+Veriff veriff = Veriff();
+
+try {
+    Result result = await veriff.start(config);
+    print(result.status);
+    print(result.error);
+} on PlatformException {
+    // handle exception
+}

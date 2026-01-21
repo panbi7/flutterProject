@@ -1,0 +1,75 @@
+import 'dart:async';
+import 'dart:developer';
+import 'dart:convert';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;scheduler.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_screenutil&#47;flutter_screenutil.dart';
+import 'package:language_picker&#47;language_picker_dialog.dart';
+import 'package:language_picker&#47;languages.dart';
+import 'package:nutrition_ai&#47;nutrition_ai.dart';
+import 'package:nutrition_ai_example&#47;const&#47;dimens.dart';
+import 'package:nutrition_ai_example&#47;domain&#47;entity&#47;app_secret&#47;app_secret.dart';
+import 'package:nutrition_ai_example&#47;inject&#47;injector.dart';
+import 'package:nutrition_ai_example&#47;presentation&#47;advisor_image&#47;advisor_image_page.dart';
+import 'package:nutrition_ai_example&#47;presentation&#47;camera_recognition&#47;camera_recognition_page.dart';
+import 'package:nutrition_ai_example&#47;presentation&#47;food_analysis&#47;food_analysis_page.dart';
+import 'package:nutrition_ai_example&#47;presentation&#47;food_search&#47;food_search_page.dart';
+import 'package:nutrition_ai_example&#47;presentation&#47;meal_plan&#47;meal_plan_page.dart';
+import 'package:nutrition_ai_example&#47;presentation&#47;predict_next_ingredient&#47;predict_next_ingredient_page.dart';
+import 'package:nutrition_ai_example&#47;presentation&#47;recognize_speech&#47;recognize_speech_page.dart';
+import 'package:nutrition_ai_example&#47;presentation&#47;suggestion&#47;suggestion_page.dart';
+import 'package:nutrition_ai_example&#47;presentation&#47;third_party_camera&#47;third_party_camera_page.dart';
+import 'package:nutrition_ai_example&#47;router&#47;routes.dart';
+
+import 'locale&#47;app_localizations.dart';
+import 'presentation&#47;advisor_message&#47;advisor_message_page.dart';
+import 'presentation&#47;legacy_api&#47;legacy_api_page.dart';
+import 'presentation&#47;recognize_image&#47;recognize_image_page.dart';
+import 'presentation&#47;recognize_nutrition_facts&#47;recognize_nutrition_facts_page.dart';
+import 'presentation&#47;search_food_semantic&#47;search_food_semantic_page.dart';
+
+Future main() async {
+  await runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    await Injector.setup();
+
+    runApp(
+      ScreenUtilInit(
+        designSize: const Size(Dimens.designWidth, Dimens.designHeight),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (context, child) {
+          return MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            debugShowCheckedModeBanner: false,
+            localeResolutionCallback: (deviceLocale, supportedLocales) {
+              if (supportedLocales
+                  .map((e) => e.languageCode)
+                  .contains(deviceLocale?.languageCode)) {
+                return deviceLocale;
+              } else {
+                return const Locale('en', '');
+              }
+            },
+            &#47;&#47; Start the app with the "&#47;" named route. In this case, the app starts
+            &#47;&#47; on the FirstScreen widget.
+            initialRoute: Routes.initialRoute,
+            routes: {
+              &#47;&#47; When navigating to the [Routes.foodSearchPage] route, build the [FoodSearchPage] widget.
+              Routes.cameraRecognitionPage: (context) =>
+                  const CameraRecognitionPage(),
+              Routes.foodSearchPage: (context) => const FoodSearchPage(),
+              Routes.suggestionsPage: (context) => const SuggestionPage(),
+              Routes.mealPlansPage: (context) => const MealPlanPage(),
+              Routes.legacyApiPage: (context) => const LegacyApiPage(),
+              Routes.recognizedSpeechPage: (context) =>
+                  const RecognizeSpeechPage(),
+              Routes.recognizedImagePage: (context) =>
+                  const RecognizeImagePage(),
+     
+// ... (truncated)

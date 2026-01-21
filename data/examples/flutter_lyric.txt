@@ -1,0 +1,106 @@
+import 'dart:ui';
+
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_lyric&#47;flutter_lyric.dart';
+import 'package:flutter_lyric_example&#47;show_lyric.dart';
+import 'package:just_audio&#47;just_audio.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final player = AudioPlayer();
+
+  ValueNotifier progressNotifier = ValueNotifier(Duration.zero);
+
+  @override
+  void initState() {
+    super.initState();
+    setPlayer();
+    player.positionStream.listen((event) {
+      progressNotifier.value = event;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Builder(
+        builder: (context) {
+          return AnnotatedRegion(
+            value: SystemUiOverlayStyle(
+              systemNavigationBarColor: Colors.transparent,
+              systemNavigationBarDividerColor: Colors.transparent,
+              systemNavigationBarIconBrightness: Brightness.light,
+              statusBarColor: Colors.transparent,
+            ),
+            child: Scaffold(
+              extendBody: true,
+              body: Stack(
+                clipBehavior: Clip.hardEdge,
+                children: [
+                  Positioned.fill(
+                    child: ClipPath(
+                      clipBehavior: Clip.hardEdge,
+                      child: ImageFiltered(
+                        imageFilter: ImageFilter.blur(sigmaX: 120, sigmaY: 120),
+                        child: Transform.scale(
+                          scale: 1.8,
+                          child: Image.asset(
+                            'assets&#47;cover.webp',
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: Column(
+                      children: [
+                        SizedBox(height: MediaQuery.paddingOf(context).top),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          child: DefaultTextStyle(
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white.withValues(alpha: 0.8),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "Be What You Wanna Be",
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                SizedBox(height: 4),
+                                Text("Darin", style: TextStyle(fontSize: 12)),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: ValueListenableBuilder(
+                            valueListenable: progressNotifier,
+                            builder: (context, value, child) {
+                              final items = [
+                                ShowLyric(
+                                  initStyle: LyricStyles.default2,
+                                  initController: (controller) {
+                                    controller.setOnTapLineCallback(
+                                      (duration) async => {
+                                        controller.stopSelection
+// ... (truncated)

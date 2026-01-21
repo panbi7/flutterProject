@@ -1,0 +1,104 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:gaimon&#47;gaimon.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                Flexible(
+                  flex: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Basic',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      Expanded(
+                        child: ListView(
+                          &#47;&#47; shrinkWrap: true,
+                          children: [
+                            TextButton(
+                              onPressed: () => Gaimon.selection(),
+                              child: const Text('👆 Selection'),
+                            ),
+                            TextButton(
+                              onPressed: () => Gaimon.error(),
+                              child: const Text('❌ Error'),
+                            ),
+                            TextButton(
+                              onPressed: () => Gaimon.success(),
+                              child: const Text('✅ Success'),
+                            ),
+                            TextButton(
+                              onPressed: () => Gaimon.warning(),
+                              child: const Text('🚨 Warning'),
+                            ),
+                            TextButton(
+                              onPressed: () => Gaimon.heavy(),
+                              child: const Text('💪 Heavy'),
+                            ),
+                            TextButton(
+                              onPressed: () => Gaimon.medium(),
+                              child: const Text('👊 Medium'),
+                            ),
+                            TextButton(
+                              onPressed: () => Gaimon.light(),
+                              child: const Text('🐥 Light'),
+                            ),
+                            TextButton(
+                              onPressed: () => Gaimon.rigid(),
+                              child: const Text('🔨 Rigid'),
+                            ),
+                            TextButton(
+                              onPressed: () => Gaimon.soft(),
+                              child: const Text('🧽 Soft'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Patterns',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      Expanded(
+                        child: ListView(
+                          children: [
+                            TextButton(
+                              onPressed: () async {
+                                final String response = await rootBundle
+                                    .loadString('assets&#47;haptics&#47;rumble.ahap');
+                                Gaimon.patternFromData(response);
+                              },
+                              child: const Text('📳 Rumble'),
+                            ),
+                            
+// ... (truncated)

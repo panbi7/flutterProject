@@ -1,0 +1,170 @@
+import 'package:flutter&#47;material.dart';
+import 'package:undo&#47;undo.dart';
+
+void main() {
+  runApp(const UndoExampleApp());
+}
+
+class UndoExampleApp extends StatelessWidget {
+  const UndoExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.teal,
+          brightness: Brightness.light,
+        ),
+      ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.teal,
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: ThemeMode.system,
+      home: const TodoListScreen(),
+    );
+  }
+}
+
+&#47;&#47; ----------------------------------------------------------------------
+&#47;&#47; Domain Model
+&#47;&#47; ----------------------------------------------------------------------
+
+class TodoItem {
+  final String id;
+  final String description;
+  final bool isCompleted;
+
+  TodoItem({
+    required this.id,
+    required this.description,
+    this.isCompleted = false,
+  });
+
+  TodoItem copyWith({
+    String? description,
+    bool? isCompleted,
+  }) {
+    return TodoItem(
+      id: id,
+      description: description ?? this.description,
+      isCompleted: isCompleted ?? this.isCompleted,
+    );
+  }
+}
+
+&#47;&#47; ----------------------------------------------------------------------
+&#47;&#47; Controller (Logic)
+&#47;&#47; ----------------------------------------------------------------------
+
+class TodoListController extends ChangeNotifier {
+  final ChangeStack _changes = ChangeStack();
+  
+  List _items = [
+    TodoItem(id: '1', description: 'Buy groceries'),
+    TodoItem(id: '2', description: 'Walk the dog'),
+    TodoItem(id: '3', description: 'Read a book'),
+  ];
+
+  List get items => List.unmodifiable(_items);
+
+  bool get canUndo => _changes.canUndo;
+  bool get canRedo => _changes.canRedo;
+
+  void undo() {
+    if (canUndo) {
+      _changes.undo();
+      notifyListeners();
+    }
+  }
+
+  void redo() {
+    if (canRedo) {
+      _changes.redo();
+      notifyListeners();
+    }
+  }
+
+  void addItem(String description) {
+    final newItem = TodoItem(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      description: description,
+    );
+    
+    _changes.add(
+      Change>(
+        _items,
+        () {
+          _items = List.of(_items)..add(newItem);
+          notifyListeners();
+        },
+        (oldList) {
+          _items = oldList;
+          notifyListeners();
+        },
+        description: 'Add item "$description"',
+      ),
+    );
+  }
+
+  void removeItem(String id) {
+    final itemToRemove = _items.firstWhere((item) => item.id == id);
+    
+    _changes.add(
+      Change>(
+        _items,
+        () {
+          _items = List.of(_items)..removeWhere((item) => item.id == id);
+          notifyListeners();
+        },
+        (oldList) {
+          _items = oldList;
+          notifyListeners();
+        },
+        description: 'Remove item "${itemToRemove.description}"',
+      ),
+    );
+  }
+
+  void toggleItem(String id) {
+    final index = _items.indexWhere((item) => item.id == id);
+    if (index == -1) return;
+    
+    final item = _items[index];
+    
+    _changes.add(
+      Change>(
+        _items,
+        () {
+          _items = List.of(_items);
+          _items[index] = item.copyWith(isCompleted: !item.isCompleted);
+          notifyListeners();
+        },
+        (oldList) {
+          _items = oldList;
+          notifyListeners();
+        },
+        description: 'Toggle "${item.description}"',
+      ),
+    );
+  }
+  
+  void clearHistory() {
+    _changes.clearHistory();
+    notifyListeners();
+  }
+}
+
+&#47;&#47; ----------------------------------------------------------------------
+&#47;&#47; UI
+&#47;&#47; ----------------------------------------------------------------------
+
+class TodoListScreen extends StatefulWidget {
+  const TodoL
+// ... (truncated)

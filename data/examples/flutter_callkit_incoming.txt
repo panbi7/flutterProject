@@ -1,0 +1,130 @@
+import 'dart:async';
+
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:firebase_messaging&#47;firebase_messaging.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_callkit_incoming&#47;entities&#47;entities.dart';
+import 'package:flutter_callkit_incoming&#47;flutter_callkit_incoming.dart';
+import 'package:flutter_callkit_incoming_example&#47;app_router.dart';
+import 'package:flutter_callkit_incoming_example&#47;navigation_service.dart';
+import 'package:uuid&#47;uuid.dart';
+
+Future _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message: ${message.messageId}");
+  await Firebase.initializeApp(); &#47;&#47;make sure firebase is initialized before using it (showCallkitIncoming)
+  showCallkitIncoming(const Uuid().v4());
+}
+
+Future showCallkitIncoming(String uuid) async {
+  final params = CallKitParams(
+    id: uuid,
+    nameCaller: 'Hien Nguyen',
+    appName: 'Callkit',
+    avatar: 'https:&#47;&#47;i.pravatar.cc&#47;100',
+    handle: '0123456789',
+    type: 0,
+    duration: 30000,
+    textAccept: 'Accept',
+    textDecline: 'Decline',
+    missedCallNotification: const NotificationParams(
+      showNotification: true,
+      isShowCallback: true,
+      subtitle: 'Missed call',
+      callbackText: 'Call back',
+    ),
+    extra: {'userId': '1a2b3c4d'},
+    headers: {'apiKey': 'Abc@123!', 'platform': 'flutter'},
+    android: const AndroidParams(
+      isCustomNotification: true,
+      isShowLogo: true,
+      logoUrl: 'assets&#47;test.png',
+      ringtonePath: 'system_ringtone_default',
+      backgroundColor: '#0955fa',
+      backgroundUrl: 'assets&#47;test.png',
+      actionColor: '#4CAF50',
+      textColor: '#ffffff',
+    ),
+    ios: const IOSParams(
+      iconName: 'CallKitLogo',
+      handleType: 'generic',
+      supportsVideo: true,
+      maximumCallGroups: 2,
+      maximumCallsPerCallGroup: 1,
+      audioSessionMode: 'default',
+      audioSessionActive: true,
+      audioSessionPreferredSampleRate: 44100.0,
+      audioSessionPreferredIOBufferDuration: 0.005,
+      supportsDTMF: true,
+      supportsHolding: true,
+      supportsGrouping: false,
+      supportsUngrouping: false,
+      ringtonePath: 'system_ringtone_default',
+    ),
+  );
+  await FlutterCallkitIncoming.showCallkitIncoming(params);
+}
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State with WidgetsBindingObserver {
+  late final Uuid _uuid;
+  String? _currentUuid;
+
+  late final FirebaseMessaging _firebaseMessaging;
+
+  @override
+  void initState() {
+    super.initState();
+    _uuid = const Uuid();
+    initFirebase();
+    WidgetsBinding.instance.addObserver(this);
+    FlutterCallkitIncoming.requestFullIntentPermission();
+
+    &#47;&#47;Check call when open app from terminated
+    checkAndNavigationCallingPage();
+  }
+
+  Future getCurrentCall() async {
+    &#47;&#47;check current call from pushkit if possible
+    var calls = await FlutterCallkitIncoming.activeCalls();
+    if (calls is List) {
+      if (calls.isNotEmpty) {
+        print('DATA: $calls');
+        if(calls[0]['id'] != null && calls[0]['isAccepted'] == true) {
+          _currentUuid = calls[0]['id'];
+          return calls[0];
+        } else {
+          _currentUuid = "";
+          return null;
+        }
+      } else {
+        _currentUuid = "";
+        return null;
+      }
+    }
+  }
+
+  Future checkAndNavigationCallingPage() async {
+    var currentCall = await getCurrentCall();
+    if (currentCall != null) {
+      NavigationService.instance.pushNamedIfNotCurrent(AppRoute.callingPage, args: currentCall);
+    }
+  }
+
+  @override
+  Future didChangeAppLifecycleState(AppLifecycleState state) async {
+    print(state);
+    if (state == AppLifecycleState.resumed) {
+      &#47;&#47;Check call when open app from background
+      checkAndNavigation
+// ... (truncated)

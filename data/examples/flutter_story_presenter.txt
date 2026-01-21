@@ -1,0 +1,125 @@
+import 'dart:math';
+import 'dart:ui';
+
+import 'package:cached_network_image&#47;cached_network_image.dart';
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_story_presenter&#47;flutter_story_presenter.dart';
+import 'package:just_audio&#47;just_audio.dart';
+
+void main() {
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+  ));
+  runApp(const MainApp());
+}
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.dark,
+      darkTheme: ThemeData.dark(),
+      home: const Home(),
+    );
+  }
+}
+
+class Home extends StatefulWidget {
+  const Home({super.key});
+
+  @override
+  State createState() => _HomeState();
+}
+
+class _HomeState extends State {
+  PageController pageController = PageController();
+  double currentPageValue = 0.0;
+
+  &#47;&#47;Story Data
+  List sampleStory = [
+    StoryModel(
+      userName: 'Kaival Patel',
+      userProfile: 'https:&#47;&#47;avatars.githubusercontent.com&#47;u&#47;39383435?v=4',
+      stories: [
+        StoryItem(
+          storyItemType: StoryItemType.video,
+          storyItemSource: StoryItemSource.asset,
+          url: 'assets&#47;fb8512a35d6f4b2e8917b74a048de71a.MP4',
+          thumbnail: const Center(
+              child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CupertinoActivityIndicator(
+                radius: 15,
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text('Video Loading')
+            ],
+          )),
+          videoConfig: const StoryViewVideoConfig(
+            fit: BoxFit.cover,
+          ),
+        ),
+        StoryItem(
+          storyItemType: StoryItemType.custom,
+          audioConfig: StoryViewAudioConfig(
+            audioPath: 'https:&#47;&#47;audios.ftcdn.net&#47;08&#47;98&#47;82&#47;47&#47;48K_898824706.m4a',
+            source: StoryItemSource.network,
+            onAudioStart: (p0) {},
+          ),
+          customWidget: (p0, audioPlayer) => AudioCustomView1(
+            controller: p0,
+            audioPlayer: audioPlayer,
+          ),
+        ),
+        StoryItem(
+          storyItemType: StoryItemType.image,
+          url:
+              "https:&#47;&#47;images.pexels.com&#47;photos&#47;3225517&#47;pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&w=800",
+        ),
+        StoryItem(
+          storyItemType: StoryItemType.video,
+          url:
+              'https:&#47;&#47;videos.pexels.com&#47;video-files&#47;5913245&#47;5913245-uhd_1440_2560_30fps.mp4',
+          videoConfig: const StoryViewVideoConfig(
+            fit: BoxFit.cover,
+            height: double.infinity,
+            width: double.infinity,
+            loadingWidget: Center(child: CupertinoActivityIndicator()),
+          ),
+        ),
+      ],
+    ),
+    StoryModel(
+      userName: 'Lakhan P.',
+      userProfile: 'https:&#47;&#47;avatars.githubusercontent.com&#47;u&#47;16955147?v=4',
+      stories: [
+        StoryItem(
+          storyItemType: StoryItemType.custom,
+          duration: const Duration(seconds: 20),
+          customWidget: (p0, audioPlayer) => PostOverlayView(
+            controller: p0,
+          ),
+          imageConfig: StoryViewImageConfig(
+            fit: BoxFit.contain,
+            progressIndicatorBuilder: (p0, p1, p2) => const Center(
+              child: CupertinoActivityIndicator(),
+            ),
+          ),
+        ),
+        StoryItem(
+          storyItemType: StoryItemType.video,
+          storyItemSource: StoryItemSource.asset,
+          url: 'assets&#47;StorySaver.net-_spindia_-Video-1718781607686.mp4',
+          thumbnail: const Center(
+              child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children:
+// ... (truncated)

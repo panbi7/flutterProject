@@ -1,0 +1,106 @@
+&#47;&#47; Copyright (c) 2019-present,  SurfStudio LLC
+&#47;&#47;
+&#47;&#47; Licensed under the Apache License, Version 2.0 (the "License");
+&#47;&#47; you may not use this file except in compliance with the License.
+&#47;&#47; You may obtain a copy of the License at
+&#47;&#47;
+&#47;&#47;     http:&#47;&#47;www.apache.org&#47;licenses&#47;LICENSE-2.0
+&#47;&#47;
+&#47;&#47; Unless required by applicable law or agreed to in writing, software
+&#47;&#47; distributed under the License is distributed on an "AS IS" BASIS,
+&#47;&#47; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+&#47;&#47; See the License for the specific language governing permissions and
+&#47;&#47; limitations under the License.
+
+&#47;&#47; ignore_for_file: unused_element, prefer_final_fields, unused_field, type_annotate_public_apis, unreachable_from_main
+import 'package:example&#47;async_function.dart';
+import 'package:meta&#47;meta.dart';
+import 'package:surf_lint_rules&#47;surf_lint_rules.dart';
+
+Future main() async {
+  await asyncFunction();
+
+  unawaited(asyncFunction());
+
+  OrderExample.empty();
+
+  OrderExample.staticFoo();
+
+  final _ = OrderExample.staticFinal + OrderExample.staticField;
+}
+
+class OrderExample {
+  static const staticConst = 42;
+
+  static const _staticConst = staticConst;
+
+  static final staticFinal = _staticConst.isEven ? 42 : 43;
+
+  static final _staticFinal = _staticConst.isEven ? 42 : 43;
+
+  static var staticField = 42;
+
+  static var _staticField = 42;
+
+  final fin = 42;
+
+  final String finalField;
+
+  final _fin = 42;
+
+  String publicField;
+
+  String get string => publicField;
+
+  set string(String newString) => publicField = newString;
+
+  String _privateField = '42';
+
+  String get _field => _privateField;
+
+  set _field(String _) => _privateField = '42';
+
+  OrderExample({
+    required this.finalField,
+    required this.publicField,
+  });
+
+  OrderExample.empty()
+      : finalField = '',
+        publicField = '';
+
+  factory OrderExample.factored(
+    String finalField,
+    String publicField,
+  ) =>
+      OrderExample(
+        finalField: finalField,
+        publicField: publicField,
+      );
+
+  @override
+  String toString() {
+    return super.toString().substring(0);
+  }
+
+  static void staticFoo() {
+    return;
+  }
+
+  void foo() {
+    return;
+  }
+
+  @protected
+  void protectedFoo() {
+    return;
+  }
+
+  static void _staticFoo() {
+    return;
+  }
+
+  void _foo() {
+    return;
+  }
+}

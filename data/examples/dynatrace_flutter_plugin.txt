@@ -1,0 +1,138 @@
+import 'dart:io';
+
+import 'package:dynatrace_flutter_plugin&#47;dynatrace_flutter_plugin.dart';
+import 'package:dynatrace_flutter_plugin_example&#47;crash_reporting.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+const String HOME_NAV = 'homeNav';
+const String TEST_NAV = 'testNav';
+const String CRASH_REPORTING_NAV = 'crashReportingNav';
+
+MethodChannel platform = const MethodChannel('com.dynatrace.flutter&#47;crash');
+
+void main() {
+  Dynatrace().start(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Dynatrace Test App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      onUnknownRoute: (settings) => MaterialPageRoute(
+          builder: (context) => UndefinedView(
+                name: settings.name,
+              )),
+      initialRoute: HOME_NAV,
+      routes: {
+        HOME_NAV: (context) => const MyHomePage(),
+        TEST_NAV: (context) => const TestNav(),
+        CRASH_REPORTING_NAV: (context) => const CrashTestScreen(),
+      },
+      navigatorObservers: [DynatraceNavigationObserver()],
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class TestNav extends StatelessWidget {
+  const TestNav({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: FloatingActionButton(
+          child: const Icon(Icons.navigate_before),
+          onPressed: () {
+            Navigator.pushNamed(context, HOME_NAV);
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class UndefinedView extends StatelessWidget {
+  const UndefinedView({Key? key, this.name}) : super(key: key);
+  final String? name;
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Text('No route defined here!'),
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  Text appBarText = const Text('Dynatrace Test App');
+  static late BuildContext _context;
+
+  static Map actionsMap = {
+    'Single Action': _singleAction,
+    'Sub Action': _subAction,
+    'Web Action': _webAction,
+    'Web Action Override': _webActionOverrideHeader,
+    'Web Action Full Manual': _webActionFullManualInstr,
+    'Report values': _reportAll,
+    'Make Navigation': _makeNavigation,
+    'Open Crash Reporting': _openCrashReporting,
+    'Flush data': _flushData,
+    'Tag user': _tagUser,
+    'End Session': _endSession,
+    'setGpsLocation: Hawaii': _setGpsLocationHawaii,
+    'User Privacy Options : All Off': _userPrivacyOptionsAllOff,
+    'User Privacy Options : All On': _userPrivacyOptionsAllOn,
+    'getUserPrivacyOptions': () async {
+      final options = await Dynatrace().getUserPrivacyOptions();
+      print('User Privacy Options Crash:');
+      print(options.crashReportingOptedIn);
+      print('User Privacy Options Level:');
+      print(options.dataCollectionLevel);
+    },
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    _context = context;
+
+    final sController = ScrollController();
+    return Scaffold(
+      appBar: AppBar(
+        title: appBarText,
+        automaticallyImplyLeading: false,
+      ),
+      body: Scrollbar(
+        controller: sController,
+        child: SingleChildScrollView(
+          controller: sController,
+          padding: const EdgeInsets.all(20),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (int i = 0; i  _webAction() async {
+    final client = Dynatrace().createHttpClient();
+    const url = 'https:&#47;&#47;dynatrace.com';
+    final webAction = Dynatrace().enterAction('Web Action - $url');
+
+    try {
+   
+// ... (truncated)

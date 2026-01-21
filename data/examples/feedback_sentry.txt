@@ -1,0 +1,2 @@
+dependencies:
+  feedback_sentry: x.y.z # use the latest version found on pub.dev

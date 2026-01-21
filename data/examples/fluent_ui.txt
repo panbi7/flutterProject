@@ -1,0 +1,115 @@
+import 'package:example&#47;screens&#47;home.dart';
+import 'package:example&#47;screens&#47;settings.dart';
+import 'package:fluent_ui&#47;fluent_ui.dart' hide Page;
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter_acrylic&#47;flutter_acrylic.dart' as flutter_acrylic;
+import 'package:go_router&#47;go_router.dart';
+import 'package:provider&#47;provider.dart';
+import 'package:system_theme&#47;system_theme.dart';
+import 'package:url_launcher&#47;link.dart';
+import 'package:window_manager&#47;window_manager.dart';
+
+import 'routes&#47;forms.dart' deferred as forms;
+import 'routes&#47;inputs.dart' deferred as inputs;
+import 'routes&#47;navigation.dart' deferred as navigation;
+import 'routes&#47;popups.dart' deferred as popups;
+import 'routes&#47;surfaces.dart' deferred as surfaces;
+import 'routes&#47;theming.dart' deferred as theming;
+import 'theme.dart';
+import 'widgets&#47;deferred_widget.dart';
+
+const String appTitle = 'Win UI for Flutter';
+
+&#47;&#47;&#47; Checks if the current environment is a desktop environment.
+bool get isDesktop {
+  if (kIsWeb) return false;
+  return [
+    TargetPlatform.windows,
+    TargetPlatform.linux,
+    TargetPlatform.macOS,
+  ].contains(defaultTargetPlatform);
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  &#47;&#47; if it's not on the web, windows or android, load the accent color
+  if (!kIsWeb &&
+      [
+        TargetPlatform.windows,
+        TargetPlatform.android,
+      ].contains(defaultTargetPlatform)) {
+    SystemTheme.accentColor.load();
+  }
+
+  if (isDesktop) {
+    await flutter_acrylic.Window.initialize();
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      await flutter_acrylic.Window.hideWindowControls();
+    }
+    await WindowManager.instance.ensureInitialized();
+    windowManager.waitUntilReadyToShow().then((_) async {
+      await windowManager.setTitleBarStyle(
+        TitleBarStyle.hidden,
+        windowButtonVisibility: false,
+      );
+      await windowManager.setMinimumSize(const Size(500, 600));
+      await windowManager.show();
+      await windowManager.setPreventClose(true);
+      await windowManager.setSkipTaskbar(false);
+    });
+  }
+
+  runApp(const MyApp());
+
+  Future.wait([
+    DeferredWidget.preload(popups.loadLibrary),
+    DeferredWidget.preload(forms.loadLibrary),
+    DeferredWidget.preload(inputs.loadLibrary),
+    DeferredWidget.preload(navigation.loadLibrary),
+    DeferredWidget.preload(surfaces.loadLibrary),
+    DeferredWidget.preload(theming.loadLibrary),
+  ]);
+}
+
+final _appTheme = AppTheme();
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: _appTheme,
+      builder: (context, child) {
+        final appTheme = context.watch();
+        return FluentApp.router(
+          title: appTitle,
+          themeMode: appTheme.mode,
+          debugShowCheckedModeBanner: false,
+          color: appTheme.color,
+          darkTheme: FluentThemeData(
+            brightness: Brightness.dark,
+            accentColor: appTheme.color,
+            visualDensity: VisualDensity.standard,
+            focusTheme: FocusThemeData(
+              glowFactor: is10footScreen(context) ? 2.0 : 0.0,
+            ),
+          ),
+          theme: FluentThemeData(
+            accentColor: appTheme.color,
+            visualDensity: VisualDensity.standard,
+            focusTheme: FocusThemeData(
+              glowFactor: is10footScreen(context) ? 2.0 : 0.0,
+            ),
+          ),
+          locale: appTheme.locale,
+          builder: (context, child) {
+            return Directionality(
+              textDirection: appTheme.textDirection,
+              child: NavigationPaneTheme(
+                data: NavigationPaneThemeData(
+                  backgroundColor:
+                      appTheme.windowEffect !=
+         
+// ... (truncated)

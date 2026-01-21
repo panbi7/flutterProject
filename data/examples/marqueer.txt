@@ -1,0 +1,145 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:marqueer&#47;marqueer.dart';
+
+void main() {
+  runApp(const ExampleApp());
+}
+
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Marqueer Example',
+      theme: ThemeData(
+        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const ExampleScreen(),
+    );
+  }
+}
+
+class ExampleScreen extends StatefulWidget {
+  const ExampleScreen({super.key});
+
+  @override
+  State createState() => _ExampleScreenState();
+}
+
+class _ExampleScreenState extends State {
+  final controller = MarqueerController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: ListView(
+        padding: .zero,
+        children: [
+          Row(
+            mainAxisAlignment: .spaceBetween,
+            children: [
+              TextButton.icon(
+                onPressed: controller.backward,
+                label: const Text('Backward'),
+                icon: const Icon(Icons.chevron_left),
+              ),
+
+              TextButton.icon(
+                onPressed: () {
+                  unawaited(
+                    controller.animateTo(
+                      0,
+                      duration: const Duration(seconds: 1),
+                      curve: Curves.easeInOut,
+                    ),
+                  );
+                },
+                label: const Text('Animate To 0'),
+                icon: const Icon(Icons.play_arrow),
+              ),
+
+              TextButton.icon(
+                onPressed: controller.forward,
+                label: const Text('Forward'),
+                icon: const Icon(Icons.chevron_right),
+              ),
+            ],
+          ),
+          _PostCard(controller: controller),
+          SizedBox(
+            height: 100,
+            child: Marqueer.builder(
+              pps: 60,
+              scrollablePointerIgnoring: true,
+              controller: controller,
+              itemBuilder: (context, index) {
+                &#47;&#47;&#47;
+                &#47;&#47;&#47;
+                return GestureDetector(
+                  behavior: .opaque,
+                  onTap: () {
+                    print('Tap');
+                  },
+                  child: Image.network(
+                    'https:&#47;&#47;picsum.photos&#47;300&#47;300?random=$index',
+                    width: 100,
+                  ),
+                );
+              },
+            ),
+          ),
+          ExchangeBar(controller: controller),
+          SizedBox(
+            height: 300,
+            child: Marqueer.builder(
+              pps: 30,
+              controller: controller,
+              direction: MarqueerDirection.ltr,
+              autoStartAfter: const Duration(seconds: 2),
+              itemCount: 10,
+              itemBuilder: (context, index) {
+                return Image.network(
+                  'https:&#47;&#47;picsum.photos&#47;300&#47;300?random=$index',
+                  height: 300,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PostCard extends StatelessWidget {
+  const _PostCard({required this.controller});
+
+  final MarqueerController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final size = (mediaQuery.size.width * mediaQuery.devicePixelRatio).toInt();
+    final id = Random().nextInt(1000);
+
+    return Stack(
+      children: [
+        AspectRatio(
+          aspectRatio: 1,
+          child: Marqueer(
+            controller: controller,
+            direction: .btt,
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Image.network(
+                'https:&#47;&#47;picsum.photos&#47;$size&#47;$size?random=$id',
+                fit: .cover,
+              ),
+ 
+// ... (truncated)

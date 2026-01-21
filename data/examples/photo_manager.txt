@@ -1,0 +1,150 @@
+import 'dart:async';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:oktoast&#47;oktoast.dart';
+import 'package:photo_manager&#47;photo_manager.dart';
+import 'package:provider&#47;provider.dart';
+
+import 'model&#47;photo_provider.dart';
+import 'page&#47;index_page.dart';
+import 'widget&#47;image_item_widget.dart';
+
+final PhotoProvider provider = PhotoProvider();
+
+void main() {
+  runZonedGuarded(
+    () => runApp(const _SimpleExampleApp()),
+    (Object e, StackTrace s) {
+      if (kDebugMode) {
+        FlutterError.reportError(FlutterErrorDetails(exception: e, stack: s));
+      }
+      showToast('$e\n$s', textAlign: TextAlign.start);
+    },
+  );
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+    ),
+  );
+}
+
+class _SimpleExampleApp extends StatelessWidget {
+  const _SimpleExampleApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: provider, &#47;&#47; This is for the advanced usages.
+      child: MaterialApp(
+        title: 'Photo Manager Example',
+        theme: ThemeData(
+          colorSchemeSeed: Colors.blue,
+        ),
+        themeMode: ThemeMode.system,
+        builder: (context, child) {
+          if (child == null) {
+            return const SizedBox.shrink();
+          }
+          return Banner(
+            message: 'Debug',
+            location: BannerLocation.bottomStart,
+            child: OKToast(child: child),
+          );
+        },
+        home: const _SimpleExamplePage(),
+        debugShowCheckedModeBanner: false,
+      ),
+    );
+  }
+}
+
+class _SimpleExamplePage extends StatefulWidget {
+  const _SimpleExamplePage();
+
+  @override
+  _SimpleExamplePageState createState() => _SimpleExamplePageState();
+}
+
+class _SimpleExamplePageState extends State {
+  final int _sizePerPage = 50;
+
+  AssetPathEntity? _path;
+  List? _entities;
+  int _totalEntitiesCount = 0;
+
+  int _page = 0;
+  bool _isLoading = false;
+  bool _isLoadingMore = false;
+  bool _hasMoreToLoad = true;
+
+  Future _requestAssets() async {
+    setState(() {
+      _isLoading = true;
+    });
+    &#47;&#47; Request permissions.
+    final PermissionState ps = await PhotoManager.requestPermissionExtend();
+    if (!mounted) {
+      return;
+    }
+    &#47;&#47; Further requests can be only proceed with authorized or limited.
+    if (!ps.hasAccess) {
+      setState(() {
+        _isLoading = false;
+      });
+      showToast('Permission is not accessible.');
+      return;
+    }
+    &#47;&#47; Customize your own filter options.
+    final PMFilter filter = FilterOptionGroup(
+      imageOption: const FilterOption(
+        sizeConstraint: SizeConstraint(ignoreSize: true),
+      ),
+    );
+    &#47;&#47; Obtain assets using the path entity.
+    final List paths = await PhotoManager.getAssetPathList(
+      onlyAll: true,
+      filterOption: filter,
+    );
+    if (!mounted) {
+      return;
+    }
+    &#47;&#47; Return if not paths found.
+    if (paths.isEmpty) {
+      setState(() {
+        _isLoading = false;
+      });
+      showToast('No paths found.');
+      return;
+    }
+    setState(() {
+      _path = paths.first;
+    });
+    _totalEntitiesCount = await _path!.assetCountAsync;
+    final List entities = await _path!.getAssetListPaged(
+      page: 0,
+      size: _sizePerPage,
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _entities = entities;
+      _isLoading = false;
+      _hasMoreToLoad = _entities!.length  _loadMoreAsset() async {
+    final List entities = await _path!.getAssetListPaged(
+      page: _page + 1,
+      size: _sizePerPage,
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _entities!.addAll(entities);
+      _page++;
+      _hasMoreToLoad = _entities!.length (index),
+            entity: entity,
+            option: const ThumbnailOption(size: Thu
+// ... (truncated)

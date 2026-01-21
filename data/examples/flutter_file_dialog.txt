@@ -1,0 +1,117 @@
+&#47;&#47; Copyright (c) 2020 KineApps. All rights reserved.
+&#47;&#47;
+&#47;&#47; This source code is licensed under the BSD-style license found in the
+&#47;&#47; LICENSE file in the root directory of this source tree.
+
+import 'dart:io';
+
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_file_dialog&#47;flutter_file_dialog.dart';
+
+void main() => runApp(MaterialApp(
+      home: MyApp(),
+    ));
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool _isBusy = false;
+  OpenFileDialogType _dialogType = OpenFileDialogType.image;
+  SourceType _sourceType = SourceType.photoLibrary;
+  bool _allowEditing = false;
+  File? _currentFile;
+  String? _savedFilePath;
+  bool _localOnly = false;
+  bool _copyFileToCacheDir = true;
+  String? _pickedFilePath;
+
+  DirectoryLocation? _pickedDirecotry;
+  Future _isPickDirectorySupported =
+      FlutterFileDialog.isPickDirectorySupported();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('FlutterFileDialog test app'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: CupertinoSegmentedControl(
+                children: const {
+                  OpenFileDialogType.document: Text("document"),
+                  OpenFileDialogType.image: Text("image"),
+                },
+                groupValue: _dialogType,
+                onValueChanged: (value) => setState(() => _dialogType = value),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: CupertinoSegmentedControl(
+                children: const {
+                  SourceType.photoLibrary: Text("photoLibrary"),
+                  SourceType.savedPhotosAlbum: Text("savedPhotosAlbum"),
+                  SourceType.camera: Text("camera"),
+                },
+                groupValue: _sourceType,
+                onValueChanged: (value) => setState(() => _sourceType = value),
+              ),
+            ),
+            if (_dialogType == OpenFileDialogType.image)
+              Padding(
+                padding: const EdgeInsets.only(top: 24),
+                child: CheckboxListTile(
+                  title: const Text("Allow editing"),
+                  value: _allowEditing,
+                  onChanged: (v) => setState(() => _allowEditing = v == true),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: CheckboxListTile(
+                title: const Text("Copy file to cache dir"),
+                value: _copyFileToCacheDir,
+                onChanged: (v) =>
+                    setState(() => _copyFileToCacheDir = v == true),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: ElevatedButton(
+                onPressed: _pickFile,
+                child: const Text('Pick file'),
+              ),
+            ),
+            FutureBuilder(
+              future: _isPickDirectorySupported,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || !snapshot.data!) return Container();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 24),
+                  child: ElevatedButton(
+                    onPressed: _pickDirectory,
+                    child: const Text('Pick directory'),
+                  ),
+                );
+              },
+            ),
+            if (_pickedDirecotry !
+// ... (truncated)

@@ -1,0 +1,134 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui';
+
+import 'package:camera&#47;camera.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_speed_dial&#47;flutter_speed_dial.dart';
+import 'dart:async';
+import 'package:flutter_vision&#47;flutter_vision.dart';
+import 'package:image_picker&#47;image_picker.dart';
+
+enum Options {
+  none,
+  imagev5,
+  imagev8,
+  imageV11,
+  imagev8seg,
+  frame,
+  tesseract,
+  vision
+}
+
+late List cameras;
+main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
+  runApp(
+    const MaterialApp(
+      home: MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late FlutterVision vision;
+  Options option = Options.none;
+  @override
+  void initState() {
+    super.initState();
+    vision = FlutterVision();
+  }
+
+  @override
+  void dispose() async {
+    super.dispose();
+    await vision.closeYoloModel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: task(option),
+      floatingActionButton: SpeedDial(
+        &#47;&#47;margin bottom
+        icon: Icons.menu, &#47;&#47;icon on Floating action button
+        activeIcon: Icons.close, &#47;&#47;icon when menu is expanded on button
+        backgroundColor: Colors.black12, &#47;&#47;background color of button
+        foregroundColor: Colors.white, &#47;&#47;font color, icon color in button
+        activeBackgroundColor:
+            Colors.deepPurpleAccent, &#47;&#47;background color when menu is expanded
+        activeForegroundColor: Colors.white,
+        visible: true,
+        closeManually: false,
+        curve: Curves.bounceIn,
+        overlayColor: Colors.black,
+        overlayOpacity: 0.5,
+        buttonSize: const Size(56.0, 56.0),
+        children: [
+          SpeedDialChild(
+            &#47;&#47;speed dial child
+            child: const Icon(Icons.video_call),
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            label: 'Yolo on Frame',
+            labelStyle: const TextStyle(fontSize: 18.0),
+            onTap: () {
+              setState(() {
+                option = Options.frame;
+              });
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.camera),
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            label: 'YoloV8seg on Image',
+            labelStyle: const TextStyle(fontSize: 18.0),
+            onTap: () {
+              setState(() {
+                option = Options.imagev8seg;
+              });
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.camera),
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            label: 'YoloV11 on Image',
+            labelStyle: const TextStyle(fontSize: 18.0),
+            onTap: () {
+              setState(() {
+                option = Options.imageV11;
+              });
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.camera),
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            label: 'YoloV8 on Image',
+            labelStyle: const TextStyle(fontSize: 18.0),
+            onTap: () {
+              setState(() {
+                option = Options.imagev8;
+              });
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.camera),
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            label: 'YoloV5 on Image',
+            labelStyle: const TextStyle(fontSize: 18.0),
+            onTap: () {
+              setState(() {
+                option = Options.image
+// ... (truncated)

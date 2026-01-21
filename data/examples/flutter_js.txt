@@ -1,0 +1,128 @@
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_js&#47;flutter_js.dart';
+import 'package:flutter_js_example&#47;ajv_example.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  final GlobalKey scaffoldState = GlobalKey();
+
+  MyApp({super.key});
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: FlutterJsHomeScreen(),
+    );
+  }
+}
+
+class FlutterJsHomeScreen extends StatefulWidget {
+  const FlutterJsHomeScreen({super.key});
+
+  @override
+  _FlutterJsHomeScreenState createState() => _FlutterJsHomeScreenState();
+}
+
+class _FlutterJsHomeScreenState extends State {
+  String _jsResult = '';
+
+  final JavascriptRuntime javascriptRuntime =
+      getJavascriptRuntime(forceJavascriptCoreOnAndroid: false);
+
+  String? _quickjsVersion;
+
+  Future evalJS() async {
+    JsEvalResult jsResult = await javascriptRuntime.evaluateAsync(
+      """
+            if (typeof MyClass == 'undefined') {
+              var MyClass = class  {
+                constructor(id) {
+                  this.id = id;
+                }
+                
+                getId() { 
+                  return this.id;
+                }
+              }
+            }
+            async function test() {
+              var obj = new MyClass(1);
+              var jsonStringified = JSON.stringify(obj);
+              var value = Math.trunc(Math.random() * 100).toString();
+              var asyncResult = await sendMessage("getDataAsync", JSON.stringify({"count": Math.trunc(Math.random() * 10)}));
+              var err;
+              try {
+                await sendMessage("asyncWithError", "{}");
+              } catch(e) {
+                err = e.message || e;
+              }
+              return {"object": jsonStringified, "expression": value, "asyncResult": asyncResult, "expectedError": err};
+            }
+            test();
+            """,
+      sourceUrl: 'script.js',
+    );
+    javascriptRuntime.executePendingJob();
+    JsEvalResult asyncResult = await javascriptRuntime.handlePromise(jsResult);
+    return asyncResult.stringResult;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    javascriptRuntime.setInspectable(true);
+    javascriptRuntime.onMessage('getDataAsync', (args) async {
+      await Future.delayed(const Duration(seconds: 1));
+      final int count = args['count'];
+      Random rnd = Random();
+      final result = >[];
+      for (int i = 0; i [
+            Text(
+              'JS Evaluate Result:\n\n$_jsResult\n',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            const Padding(
+              padding: EdgeInsets.all(10),
+              child: Text(
+                  'Click on the big JS Yellow Button to evaluate the expression bellow using the flutter_js plugin'),
+            ),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                "Math.trunc(Math.random() * 100).toString();",
+                style: TextStyle(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (ctx) => AjvExample(
+                      &#47;&#47;widget.javascriptRuntime,
+                      javascriptRuntime),
+                ),
+              ),
+              child: const Text('See Ajv Example'),
+            ),
+            SizedBox.fromSize(size: const Size(double.maxFinite, 20)),
+            ElevatedButton(
+              child: const Text('Fetch Remote Data'),
+              onPressed: () async {
+                var asyncResult = await ja
+// ... (truncated)

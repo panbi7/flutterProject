@@ -1,0 +1,132 @@
+import 'package:flutter&#47;material.dart' hide ReorderableList;
+import 'package:flutter_reorderable_list&#47;flutter_reorderable_list.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Rerderable List',
+      theme: ThemeData(
+        dividerColor: const Color(0x50000000),
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Flutter Reorderable List'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class ItemData {
+  ItemData(this.title, this.key);
+
+  final String title;
+
+  &#47;&#47; Each item in reorderable list needs stable and unique key
+  final Key key;
+}
+
+enum DraggingMode {
+  iOS,
+  android,
+}
+
+class _MyHomePageState extends State {
+  late List _items;
+  _MyHomePageState() {
+    _items = [];
+    for (int i = 0; i  d.key == key);
+  }
+
+  bool _reorderCallback(Key item, Key newPosition) {
+    int draggingIndex = _indexOfKey(item);
+    int newPositionIndex = _indexOfKey(newPosition);
+
+    &#47;&#47; Uncomment to allow only even target reorder possition
+    &#47;&#47; if (newPositionIndex % 2 == 1)
+    &#47;&#47;   return false;
+
+    final draggedItem = _items[draggingIndex];
+    setState(() {
+      debugPrint("Reordering $item -> $newPosition");
+      _items.removeAt(draggingIndex);
+      _items.insert(newPositionIndex, draggedItem);
+    });
+    return true;
+  }
+
+  void _reorderDone(Key item) {
+    final draggedItem = _items[_indexOfKey(item)];
+    debugPrint("Reordering finished for ${draggedItem.title}}");
+  }
+
+  &#47;&#47;
+  &#47;&#47; Reordering works by having ReorderableList widget in hierarchy
+  &#47;&#47; containing ReorderableItems widgets
+  &#47;&#47;
+
+  DraggingMode _draggingMode = DraggingMode.iOS;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: ReorderableList(
+        onReorder: _reorderCallback,
+        onReorderDone: _reorderDone,
+        child: CustomScrollView(
+          &#47;&#47; cacheExtent: 3000,
+          slivers: [
+            SliverAppBar(
+              actions: [
+                PopupMenuButton(
+                  child: Container(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                    child: const Text("Options"),
+                  ),
+                  initialValue: _draggingMode,
+                  onSelected: (DraggingMode mode) {
+                    setState(() {
+                      _draggingMode = mode;
+                    });
+                  },
+                  itemBuilder: (BuildContext context) =>
+                      >[
+                    const PopupMenuItem(
+                        value: DraggingMode.iOS,
+                        child: Text('iOS-like dragging')),
+                    const PopupMenuItem(
+                        value: DraggingMode.android,
+                        child: Text('Android-like dragging')),
+                  ],
+                ),
+              ],
+              pinned: true,
+              expandedHeight: 150.0,
+              flexibleSpace: const FlexibleSpaceBar(
+                title: Text('Demo'),
+              ),
+            ),
+            SliverPadding(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).padding.bottom),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (BuildContext context, int index) {
+                      return Item(
+                        data: _items[index],
+                        &#47;&#47; first and last attributes affect border drawn during dragging
+                  
+// ... (truncated)

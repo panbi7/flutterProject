@@ -1,0 +1,156 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:image&#47;image.dart' as img;
+
+import 'package:tflite&#47;tflite.dart';
+import 'package:image_picker&#47;image_picker.dart';
+
+void main() => runApp(new App());
+
+const String mobile = "MobileNet";
+const String ssd = "SSD MobileNet";
+const String yolo = "Tiny YOLOv2";
+const String deeplab = "DeepLab";
+const String posenet = "PoseNet";
+
+class App extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: MyApp(),
+    );
+  }
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => new _MyAppState();
+}
+
+class _MyAppState extends State {
+  File _image;
+  List _recognitions;
+  String _model = mobile;
+  double _imageHeight;
+  double _imageWidth;
+  bool _busy = false;
+
+  Future predictImagePicker() async {
+    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    if (image == null) return;
+    setState(() {
+      _busy = true;
+    });
+    predictImage(image);
+  }
+
+  Future predictImage(File image) async {
+    if (image == null) return;
+
+    switch (_model) {
+      case yolo:
+        await yolov2Tiny(image);
+        break;
+      case ssd:
+        await ssdMobileNet(image);
+        break;
+      case deeplab:
+        await segmentMobileNet(image);
+        break;
+      case posenet:
+        await poseNet(image);
+        break;
+      default:
+        await recognizeImage(image);
+      &#47;&#47; await recognizeImageBinary(image);
+    }
+
+    new FileImage(image)
+        .resolve(new ImageConfiguration())
+        .addListener(ImageStreamListener((ImageInfo info, bool _) {
+      setState(() {
+        _imageHeight = info.image.height.toDouble();
+        _imageWidth = info.image.width.toDouble();
+      });
+    }));
+
+    setState(() {
+      _image = image;
+      _busy = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _busy = true;
+
+    loadModel().then((val) {
+      setState(() {
+        _busy = false;
+      });
+    });
+  }
+
+  Future loadModel() async {
+    Tflite.close();
+    try {
+      String res;
+      switch (_model) {
+        case yolo:
+          res = await Tflite.loadModel(
+            model: "assets&#47;yolov2_tiny.tflite",
+            labels: "assets&#47;yolov2_tiny.txt",
+            &#47;&#47; useGpuDelegate: true,
+          );
+          break;
+        case ssd:
+          res = await Tflite.loadModel(
+            model: "assets&#47;ssd_mobilenet.tflite",
+            labels: "assets&#47;ssd_mobilenet.txt",
+            &#47;&#47; useGpuDelegate: true,
+          );
+          break;
+        case deeplab:
+          res = await Tflite.loadModel(
+            model: "assets&#47;deeplabv3_257_mv_gpu.tflite",
+            labels: "assets&#47;deeplabv3_257_mv_gpu.txt",
+            &#47;&#47; useGpuDelegate: true,
+          );
+          break;
+        case posenet:
+          res = await Tflite.loadModel(
+            model: "assets&#47;posenet_mv1_075_float_from_checkpoints.tflite",
+            &#47;&#47; useGpuDelegate: true,
+          );
+          break;
+        default:
+          res = await Tflite.loadModel(
+            model: "assets&#47;mobilenet_v1_1.0_224.tflite",
+            labels: "assets&#47;mobilenet_v1_1.0_224.txt",
+            &#47;&#47; useGpuDelegate: true,
+          );
+      }
+      print(res);
+    } on PlatformException {
+      print('Failed to load model.');
+    }
+  }
+
+  Uint8List imageToByteListFloat32(
+      img.Image image, int inputSize, double mean, double std) {
+    var convertedBytes = Float32List(1 * inputSize * inputSize * 3);
+    var buffer = Float32List.view(convertedBytes.buffer);
+    int pixelIndex = 0;
+    for (var i = 0; i  renderBoxes(Size screen) {
+    if (_recognitions == null) return [];
+    if (_imageHeight == null || _imageWidth == null) return [];
+
+    double factorX = screen.width;
+    doubl
+// ... (truncated)

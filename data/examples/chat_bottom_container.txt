@@ -1,0 +1,21 @@
+&#47;*
+ * @Author: LinXunFeng linxunfeng@yeah.net
+ * @Repo: https:&#47;&#47;github.com&#47;LinXunFeng&#47;flutter_chat_packages
+ * @Date: 2024-06-15 17:48:05
+ *&#47;
+
+import 'package:chat_bottom_container_example&#47;common&#47;route&#47;route.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      routerConfig: MyRoute.routerConfig,
+    );
+  }
+}

@@ -1,0 +1,106 @@
+import 'dart:io';
+
+import 'package:baseflow_plugin_template&#47;baseflow_plugin_template.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+
+void main() {
+  runApp(
+    BaseflowPluginExample(
+      pluginName: 'Permission Handler',
+      githubURL: 'https:&#47;&#47;github.com&#47;Baseflow&#47;flutter-permission-handler',
+      pubDevURL: 'https:&#47;&#47;pub.dev&#47;packages&#47;permission_handler',
+      pages: [PermissionHandlerWidget.createPage()],
+    ),
+  );
+}
+
+&#47;&#47;&#47;Defines the main theme color
+final MaterialColor themeMaterialColor =
+    BaseflowPluginExample.createMaterialColor(
+      const Color.fromRGBO(48, 49, 60, 1),
+    );
+
+&#47;&#47;&#47; A Flutter application demonstrating the functionality of this plugin
+class PermissionHandlerWidget extends StatefulWidget {
+  const PermissionHandlerWidget._();
+
+  &#47;&#47;&#47; Create a page containing the functionality of this plugin
+  static ExamplePage createPage() {
+    return ExamplePage(
+      Icons.location_on,
+      (context) => const PermissionHandlerWidget._(),
+    );
+  }
+
+  @override
+  State createState() =>
+      _PermissionHandlerWidgetState();
+}
+
+class _PermissionHandlerWidgetState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ListView(
+        children:
+            Permission.values
+                .where((permission) {
+                  if (Platform.isIOS) {
+                    return permission != Permission.unknown &&
+                        permission != Permission.phone &&
+                        permission != Permission.sms &&
+                        permission != Permission.ignoreBatteryOptimizations &&
+                        permission != Permission.accessMediaLocation &&
+                        permission != Permission.activityRecognition &&
+                        permission != Permission.manageExternalStorage &&
+                        permission != Permission.systemAlertWindow &&
+                        permission != Permission.requestInstallPackages &&
+                        permission != Permission.accessNotificationPolicy &&
+                        permission != Permission.bluetoothScan &&
+                        permission != Permission.bluetoothAdvertise &&
+                        permission != Permission.bluetoothConnect &&
+                        permission != Permission.nearbyWifiDevices &&
+                        permission != Permission.videos &&
+                        permission != Permission.audio &&
+                        permission != Permission.scheduleExactAlarm &&
+                        permission != Permission.sensorsAlways;
+                  } else {
+                    return permission != Permission.unknown &&
+                        permission != Permission.mediaLibrary &&
+                        permission != Permission.photosAddOnly &&
+                        permission != Permission.reminders &&
+                        permission != Permission.bluetooth &&
+                        permission != Permission.appTrackingTransparency &&
+                        permission != Permission.criticalAlerts &&
+                        permission != Permission.assistant;
+                  }
+                })
+                .map((permission) => PermissionWidget(permission))
+                .toList(),
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47; Permission widget containing information about the passed [Permission]
+class PermissionWidget extends StatefulWidget {
+  &#47;&#47;&#47; Constructs a [PermissionWidget] for the supplied [Permission]
+  const PermissionWidget(this.permission, {super.key});
+
+  &#47;&#47;&#47; The [Permission] for which this widget is rendered.
+  final Permission permission;
+
+  @override
+  State createState() => _PermissionState();
+}
+
+class _PermissionState extends State {
+  _PermissionState();
+
+  PermissionStatus _permissionStatus = PermissionStatus.denied;
+
+  @override
+  void initState() {
+    
+// ... (truncated)

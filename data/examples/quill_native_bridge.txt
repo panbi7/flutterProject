@@ -1,0 +1,127 @@
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:quill_native_bridge&#47;quill_native_bridge.dart';
+
+import 'album_name_input_dialog.dart';
+import 'assets.dart';
+import 'select_image_dialog.dart';
+
+&#47;&#47;&#47; Creates a global instance of [QuillNativeBridge], allowing it to be overridden in tests.
+@visibleForTesting
+QuillNativeBridge quillNativeBridge = QuillNativeBridge();
+
+void main() => runApp(const MainApp());
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Quill Native Bridge'),
+        ),
+        body: const SingleChildScrollView(
+          child: Center(child: Buttons()),
+        ),
+      ),
+    );
+  }
+}
+
+class Buttons extends StatelessWidget {
+  const Buttons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Image.asset(
+          kFlutterQuillAssetImage,
+          width: 300,
+        ),
+        const SizedBox(height: 50),
+        ElevatedButton.icon(
+          onPressed: () => _onButtonPressed(
+            QuillNativeBridgeFeature.isIOSSimulator,
+            context: context,
+          ),
+          label: const Text('Is iOS Simulator'),
+          icon: const Icon(Icons.apple),
+        ),
+        ElevatedButton.icon(
+          onPressed: () => _onButtonPressed(
+            QuillNativeBridgeFeature.getClipboardHtml,
+            context: context,
+          ),
+          label: const Text('Get HTML from Clipboard'),
+          icon: const Icon(Icons.html),
+        ),
+        ElevatedButton.icon(
+          onPressed: () => _onButtonPressed(
+            QuillNativeBridgeFeature.copyHtmlToClipboard,
+            context: context,
+          ),
+          label: const Text('Copy HTML to Clipboard'),
+          icon: const Icon(Icons.copy),
+        ),
+        ElevatedButton.icon(
+          onPressed: () => _onButtonPressed(
+            QuillNativeBridgeFeature.copyImageToClipboard,
+            context: context,
+          ),
+          label: const Text('Copy Image to Clipboard'),
+          icon: const Icon(Icons.copy),
+        ),
+        ElevatedButton.icon(
+          onPressed: () => _onButtonPressed(
+            QuillNativeBridgeFeature.getClipboardImage,
+            context: context,
+          ),
+          label: const Text('Retrieve Image from Clipboard'),
+          icon: const Icon(Icons.image),
+        ),
+        ElevatedButton.icon(
+          onPressed: () => _onButtonPressed(
+            QuillNativeBridgeFeature.getClipboardGif,
+            context: context,
+          ),
+          label: const Text('Retrieve Gif from Clipboard'),
+          icon: const Icon(Icons.gif),
+        ),
+        ElevatedButton.icon(
+          onPressed: () => _onButtonPressed(
+            QuillNativeBridgeFeature.getClipboardFiles,
+            context: context,
+          ),
+          label: const Text('Retrieve Files from Clipboard'),
+          icon: const Icon(Icons.file_open),
+        ),
+        ElevatedButton.icon(
+          onPressed: () => _onButtonPressed(
+            QuillNativeBridgeFeature.openGalleryApp,
+            context: context,
+          ),
+          label: const Text('Open the gallery app'),
+          icon: const Icon(Icons.photo_album),
+        ),
+        ElevatedButton.icon(
+          onPressed: () => _onButtonPressed(
+            QuillNativeBridgeFeature.saveImageToGallery,
+            context: context,
+          ),
+          label: const Text('Save image to gallery'),
+          icon: const Icon(Icons.photo_album),
+        ),
+        ElevatedButton.icon(
+          onPressed: () => _onButtonPressed(
+            QuillNativeBridgeFeature.saveImage,
+            context: context,
+          ),
+          label: const Text('Save image'),
+          icon: const Icon(Icons.image),
+        ),
+        El
+// ... (truncated)

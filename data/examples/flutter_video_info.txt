@@ -1,0 +1,90 @@
+import 'dart:io';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_video_info&#47;flutter_video_info.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  getExternalStoragePermission() async {
+    Map statuses = await [
+      Permission.videos,
+      Permission.photos,
+      Permission.storage,
+    ].request();
+  }
+
+  final videoInfo = FlutterVideoInfo();
+
+  @override
+  void initState() {
+    if (Platform.isAndroid) {
+      getExternalStoragePermission();
+    }
+    super.initState();
+  }
+
+  String info = "";
+  String videoFilePath = "";
+
+  getVideoInfo() async {
+    &#47;&#47;&#47; here file path of video required
+    if (Platform.isIOS) {
+      videoFilePath =
+          "&#47;Users&#47;User&#47;Library&#47;Developer&#47;CoreSimulator&#47;Devices&#47;6A0D4244-1DEB-49C3-9837-C08E19DAED31&#47;data&#47;Media&#47;DCIM&#47;100APPLE&#47;IMG_0011.mp4";
+    } else if (Platform.isAndroid) {
+      videoFilePath = "storage&#47;emulated&#47;0&#47;Geocam&#47;Videos&#47;4.mp4";
+    }
+    var a = await videoInfo.getVideoInfo(videoFilePath);
+    setState(() {
+      info =
+          "title=> ${a?.title}\npath=> ${a?.path}\nauthor=> ${a?.author}\nmimetype=> ${a?.mimetype}";
+      info +=
+          "\nheight=> ${a?.height}\nwidth=> ${a?.width}\nfileSize=> ${a?.filesize} Bytes\nduration=> ${a?.duration} milisec";
+      info +=
+          "\norientation=> ${a?.orientation}\ndate=> ${a?.date}\nframerate=> ${a?.framerate}";
+      info += "\nlocation=> ${a?.location}";
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: FloatingActionButton.extended(
+            backgroundColor: Colors.white,
+            label: Text(
+              "Get Info",
+              style: TextStyle(color: Colors.black),
+            ),
+            icon: Icon(
+              Icons.video_call_outlined,
+              color: Colors.purple,
+            ),
+            onPressed: () {
+              getVideoInfo();
+            }),
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: Colors.purple,
+          title: const Text('Video Info'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Center(
+            child: Text(
+              info,
+              style: TextStyle(fontSize: 21),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,56 @@
+import 'package:fluttertoast_example&#47;toast_context.dart';
+import 'package:fluttertoast_example&#47;toast_no_context.dart';
+import 'package:fluttertoast&#47;fluttertoast.dart';
+import 'package:flutter&#47;material.dart';
+
+GlobalKey navigatorKey = GlobalKey();
+
+void main() => runApp(
+      MaterialApp(
+        builder: FToastBuilder(),
+        home: MyApp(),
+        navigatorKey: navigatorKey,
+      ),
+    );
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Toast"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ToastNoContext(),
+                ));
+              },
+              child: Text("Flutter Toast No Context"),
+            ),
+            SizedBox(
+              height: 24.0,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ToastContext(),
+                ));
+              },
+              child: Text("Flutter Toast Context"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

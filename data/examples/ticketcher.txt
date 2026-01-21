@@ -1,0 +1,125 @@
+import 'package:example&#47;show_cases&#47;advanced_dividers_showcase.dart';
+import 'package:example&#47;show_cases&#47;animation_showcase.dart';
+import 'package:example&#47;show_cases&#47;blur_effect_showcase.dart';
+import 'package:example&#47;show_cases&#47;colored_ticket.dart';
+import 'package:example&#47;show_cases&#47;flight.dart';
+import 'package:example&#47;show_cases&#47;flight_multi_section.dart';
+import 'package:example&#47;show_cases&#47;gradient_border_ticket.dart';
+import 'package:example&#47;show_cases&#47;gradient_card.dart';
+import 'package:example&#47;show_cases&#47;gradient_variations.dart';
+import 'package:example&#47;show_cases&#47;hologram_ticket.dart';
+import 'package:example&#47;show_cases&#47;horizontal_ticket.dart';
+import 'package:example&#47;show_cases&#47;image_background_showcase.dart';
+import 'package:example&#47;show_cases&#47;interactive_ticket.dart';
+import 'package:example&#47;show_cases&#47;notch_shapes_showcase.dart';
+import 'package:example&#47;show_cases&#47;sales_offer.dart';
+import 'package:example&#47;show_cases&#47;section_gradient_showcase.dart';
+import 'package:example&#47;show_cases&#47;social_media.dart';
+import 'package:example&#47;show_cases&#47;stacked_ticket.dart';
+import 'package:example&#47;show_cases&#47;watermark_showcase.dart';
+import 'package:flutter&#47;material.dart';
+import 'show_cases&#47;circle_divider.dart';
+import 'show_cases&#47;wave_divider.dart';
+import 'show_cases&#47;smooth_wave_divider.dart';
+
+class ExampleItem {
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final Widget page;
+
+  const ExampleItem({
+    required this.icon,
+    required this.title,
+    required this.page,
+    this.subtitle,
+  });
+}
+
+final List examples = [
+  &#47;&#47; New Features v1.0.0
+  ExampleItem(
+    icon: Icons.change_history,
+    title: 'Notch Shapes',
+    subtitle: 'Circle, triangle, square, diamond',
+    page: const NotchShapesShowcase(),
+  ),
+  ExampleItem(
+    icon: Icons.content_cut,
+    title: 'Advanced Dividers',
+    subtitle: 'Tear lines & gradient dividers',
+    page: const AdvancedDividersShowcase(),
+  ),
+  ExampleItem(
+    icon: Icons.animation,
+    title: 'Animations',
+    subtitle: 'Fade, slide, scale, flip',
+    page: const AnimationShowcase(),
+  ),
+  ExampleItem(
+    icon: Icons.format_color_fill,
+    title: 'Section Gradients',
+    subtitle: 'Gradient backgrounds for sections',
+    page: const SectionGradientShowcase(),
+  ),
+  &#47;&#47; Existing Features
+  ExampleItem(
+    icon: Icons.blur_on,
+    title: 'Blur Effects',
+    subtitle: 'Glassmorphism & frosted glass',
+    page: const BlurEffectShowcase(),
+  ),
+  ExampleItem(
+    icon: Icons.image_outlined,
+    title: 'Image Backgrounds',
+    subtitle: 'Background images for tickets',
+    page: const ImageBackgroundShowcase(),
+  ),
+  ExampleItem(
+    icon: Icons.water_drop_outlined,
+    title: 'Watermark Showcase',
+    subtitle: 'Text watermarks with various effects',
+    page: const WatermarkShowcase(),
+  ),
+  ExampleItem(
+    icon: Icons.touch_app,
+    title: 'Interactive Ticket',
+    subtitle: 'Tap sections for interactions',
+    page: const InteractiveTicket(),
+  ),
+  ExampleItem(
+    icon: Icons.flight,
+    title: 'Flight Card',
+    page: const FlightCard(),
+  ),
+  ExampleItem(
+    icon: Icons.flight_takeoff,
+    title: 'Flight Card with Multiple Sections',
+    page: const FlightCardMultiSection(),
+  ),
+  ExampleItem(
+    icon: Icons.gradient_outlined,
+    title: 'Gradient Card',
+    page: const GradientCard(),
+  ),
+  ExampleItem(
+    icon: Icons.border_color,
+    title: 'Gradient Border Ticket',
+    subtitle: 'Colorful gradient borders',
+    page: const GradientBorderTicket(),
+  ),
+  ExampleItem(
+    icon: Icons.auto_awesome,
+    title: 'Holographic Ticket',
+    page: const HologramTicket(),
+  ),
+  ExampleItem(
+    icon: Icons.people_outline,
+    title: 'Social Media Card',
+    page: const SocialMedia(),
+  ),
+  ExampleItem(
+    icon: Icons.local_offer_outlined,
+    title: 'Sales Offer',
+ 
+// ... (truncated)

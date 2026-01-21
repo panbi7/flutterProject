@@ -1,0 +1,99 @@
+import 'package:flutter&#47;material.dart';
+import 'package:google_fonts&#47;google_fonts.dart';
+import 'package:linkfy_text&#47;linkfy_text.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+final k = GlobalKey();
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'linkfy_text Demo',
+      scaffoldMessengerKey: k,
+      debugShowCheckedModeBanner: false,
+      home: App(),
+    );
+  }
+}
+
+class App extends StatefulWidget {
+  @override
+  _AppState createState() => _AppState();
+}
+
+class _AppState extends State {
+  final textStyle =
+      GoogleFonts.spaceGrotesk(fontSize: 16, fontWeight: FontWeight.w400);
+
+  final List> texts = [
+    {
+      "text": "O1. This text contains a url: https:&#47;&#47;flutter.dev",
+      "types": null
+    },
+    {
+      "text": "O2. This text contains an email address: example@app.com",
+      "types": [LinkType.email]
+    },
+    {
+      "text": "O3. This text contains an #hashtag",
+      "types": [LinkType.hashTag]
+    },
+    {
+      "text": "O4. This text contains a @user tag",
+      "types": [LinkType.userTag]
+    },
+    {
+      "text": "O5. This text contains a phone number: (555) 444 2223",
+      "types": [LinkType.phone]
+    },
+    {
+      "text":
+          "O6. My website url: https:&#47;&#47;hello.com&#47;GOOGLE search using: www.google.com, social media is facebook.com, additional link https:&#47;&#47;example.com&#47;method?param=fullstackoverflow.dev, hashtag #trending & mention @dev.user +18009999999",
+      "types": [
+        LinkType.phone,
+        LinkType.email,
+        LinkType.url,
+        LinkType.hashTag,
+        LinkType.userTag,
+      ]
+    },
+  ];
+
+  void showSnackbar(String msg) {
+    k.currentState!.removeCurrentSnackBar();
+    k.currentState!.showSnackBar(SnackBar(
+      content: Text("$msg", style: textStyle),
+      behavior: SnackBarBehavior.floating,
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(27.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Text(
+                "LinkfyText Example",
+                style: textStyle.copyWith(
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            for (var i = 0; i  showSnackbar(
+                        "link pressed: ${link.value!}. Type: ${link.type}"),
+                  )),
+          ],
+        ),
+      ),
+    );
+  }
+}

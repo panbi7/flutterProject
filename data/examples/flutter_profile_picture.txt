@@ -1,0 +1,129 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_profile_picture&#47;flutter_profile_picture.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'FLUTTER PROFILE PICTURE',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Example FPP'),
+      ),
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Container(
+            width: 500,
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Table(
+              border: TableBorder.all(),
+              columnWidths: const {
+                0: FlexColumnWidth(),
+                1: FlexColumnWidth(),
+                2: FlexColumnWidth(),
+              },
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: [
+                _exampleDefault(),
+                _exampleRandomColor(),
+                _exampleMaxLetter(),
+                _exampleEmptyName(),
+                _exampleImages(),
+                _exampleTooltipsWithoutRole(),
+                _exampleTooltipsWithRole(),
+                _exampleTooltipsWithRoleAndImages(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  TableRow _exampleTooltipsWithRoleAndImages() {
+    return TableRow(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: Text(
+            '8. Tooltips with role and images',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          &#47;&#47; enable tooltip feature with role and image
+          &#47;&#47; same as example 7
+          &#47;&#47; but you can add parameter img = 'your_img'
+          &#47;&#47; background color and initial name will be replaced with the image
+          child: ProfilePicture(
+            name: 'Aditya Dharmawan Saputra',
+            role: 'ADMINISTRATOR',
+            radius: 31,
+            fontsize: 21,
+            tooltip: true,
+            img: 'https:&#47;&#47;avatars.githubusercontent.com&#47;u&#47;37553901?v=4',
+          ),
+        ),
+        Center(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Text(
+              'Replace name with image, you can click the images if you want to show tooltips with full name and role',
+              style: TextStyle(
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  TableRow _exampleTooltipsWithRole() {
+    return TableRow(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: Text(
+            '7. Tooltips with role',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          &#47;&#47; enable tooltip feature with role
+          &#47;&#47; same as example 6
+          &#47;&#47; but you can add parameter role = 'your_role'
+          &#47;&#47; role will be appear under name
+          child: ProfilePicture(
+   
+// ... (truncated)

@@ -1,0 +1,38 @@
+import 'package:flutter&#47;material.dart';
+import 'package:waveform_flutter&#47;waveform_flutter.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(title: Text('WaveForm Example')),
+          body: WaveFormExample(),
+        ),
+      );
+}
+
+class WaveFormExample extends StatefulWidget {
+  const WaveFormExample({super.key});
+
+  @override
+  &#47;&#47; ignore: library_private_types_in_public_api
+  _WaveFormExampleState createState() => _WaveFormExampleState();
+}
+
+class _WaveFormExampleState extends State {
+  final Stream _amplitudeStream = createRandomAmplitudeStream();
+
+  @override
+  Widget build(BuildContext context) => AnimatedWaveList(
+        stream: _amplitudeStream,
+        barBuilder: (animation, amplitude) => WaveFormBar(
+          animation: animation,
+          amplitude: amplitude,
+          color: Colors.red, &#47;&#47; override the default of cyan
+        ),
+      );
+}

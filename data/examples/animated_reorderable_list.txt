@@ -1,0 +1,123 @@
+import 'dart:ui';
+
+import 'package:animated_reorderable_list&#47;animated_reorderable_list.dart';
+import 'package:example&#47;theme&#47;colors.dart';
+import 'package:example&#47;utils&#47;animation_provider.dart';
+import 'package:example&#47;utils&#47;extension.dart';
+import 'package:example&#47;utils&#47;item_card.dart';
+import 'package:example&#47;utils&#47;item_tile.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'model&#47;user_model.dart';
+
+void main() {
+  runApp(
+      const MaterialApp(title: 'Animated Reorderable List', home: HomePage()));
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  AnimationType appliedStyle = AnimationType.fadeIn;
+  List list = [];
+
+  int addedNumber = 9;
+  bool isGrid = true;
+
+  List nonDraggableItems = [];
+  List lockedItems = [];
+
+  List animations = [];
+
+  @override
+  void initState() {
+    super.initState();
+    list = List.generate(8, (index) => User(name: "User $index", id: index));
+    nonDraggableItems = list.where((user) => user.id == 1).toList();
+    lockedItems = list.where((user) => user.id == 0).toList();
+  }
+
+  void insert() {
+    addedNumber += 1;
+    setState(() {
+      list.insert(1, User(name: "User $addedNumber", id: addedNumber));
+    });
+  }
+
+  void remove() {
+    setState(() {
+      if (list.isNotEmpty && list.length > 1) list.removeAt(1);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        backgroundColor: surfaceColor,
+        appBar: AppBar(
+          backgroundColor: surfaceColor,
+          title: _listType(),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  final child1 = list[2];
+                  final child2 = list[7];
+                  list[2] = child2;
+                  list[7] = child1;
+                  setState(() {});
+                },
+                icon: const Icon(
+                  Icons.swap_horiz,
+                  color: primaryColor,
+                )),
+            IconButton(
+                onPressed: insert,
+                icon: const Icon(
+                  Icons.add,
+                  color: primaryColor,
+                )),
+            IconButton(
+                onPressed: remove,
+                icon: const Icon(
+                  Icons.remove,
+                  color: primaryColor,
+                )),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildAnimationControlPanel(),
+              Expanded(
+                child: isGrid
+                    ? AnimatedReorderableGridView(
+                        items: list,
+                        itemBuilder: (BuildContext context, int index) {
+                          final user = list[index];
+                          return ItemCard(
+                            key: ValueKey(user.id),
+                            id: user.id,
+                            dragEnabled: !nonDraggableItems.contains(user),
+                            isLocked: lockedItems.contains(user),
+                          );
+                        },
+                        sliverGridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4),
+                        enterTransition: animations,
+                        exitTransition: animations,
+                        insertDuration: const Duration(milliseconds: 300),
+                        removeDuration: const Duration(milliseconds: 300),
+                        onReorder: (int oldIndex, int newIndex) {
+                          final Map lockedItemPositions = {
+                            for (int i = 0; i  a.id == b.id,
+
+                        &#47;*  A custom builder that is for inserting items with animatio
+// ... (truncated)

@@ -1,0 +1,87 @@
+&#47;&#47; Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+&#47;&#47; SPDX-License-Identifier: Apache-2.0
+
+library;
+
+import 'dart:async';
+
+import 'package:amplify_api&#47;amplify_api.dart';
+import 'package:amplify_auth_cognito&#47;amplify_auth_cognito.dart';
+import 'package:amplify_authenticator&#47;amplify_authenticator.dart';
+import 'package:amplify_datastore&#47;amplify_datastore.dart';
+import 'package:amplify_datastore_example&#47;amplifyconfiguration.dart';
+import 'package:amplify_datastore_example&#47;widgets&#47;navigator_scaffold.dart';
+import 'package:amplify_flutter&#47;amplify_flutter.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+import 'models&#47;ModelProviderExampleApp.dart';
+
+part 'widgets&#47;event_display_widgets.dart';
+part 'widgets&#47;queries_display_widgets.dart';
+part 'widgets&#47;save_model_widgets.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+final divider = VerticalDivider(color: Colors.white, width: 10);
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late AmplifyDataStore datastorePlugin;
+  bool _isAmplifyConfigured = false;
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    try {
+      datastorePlugin = AmplifyDataStore(
+        modelProvider: ModelProvider.instance,
+        options: DataStorePluginOptions(
+          errorHandler: ((error) => {
+            print("Custom ErrorHandler received: " + error.toString()),
+          }),
+          authModeStrategy: AuthModeStrategy.multiAuth,
+        ),
+      );
+      await Amplify.addPlugin(datastorePlugin);
+
+      &#47;&#47; Configure
+
+      &#47;&#47; Comment the below lines to disable remote sync.
+      await Amplify.addPlugin(AmplifyAuthCognito());
+      await Amplify.addPlugin(AmplifyAPI());
+      await Amplify.configure(amplifyconfig);
+      &#47;&#47; replace the above two lines with this to force local sync only
+      &#47;&#47; await Amplify.configure("{}");
+    } on AmplifyAlreadyConfiguredException {
+      print(
+        'Amplify was already configured. Looks like app restarted on android.',
+      );
+    }
+
+    setState(() {
+      _isAmplifyConfigured = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Authenticator(
+      child: MaterialApp(
+        title: 'Best DataStore App Ever',
+        home: NavigatorScaffold(isAmplifyConfigured: _isAmplifyConfigured),
+      ),
+    );
+  }
+}

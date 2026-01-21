@@ -1,0 +1,110 @@
+&#47;&#47; ignore_for_file: use_build_context_synchronously
+
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:open_mail&#47;open_mail.dart';
+
+void main() {
+  runApp(const MaterialApp(home: MyApp()));
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  EmailContent get emailContent => EmailContent(
+        to: ['user@domain.com'],
+        subject: 'Hello!',
+        body: 'How are you doing? [Debug: ${DateTime.now()}]',
+        cc: ['user2@domain.com', 'user3@domain.com'],
+        bcc: ['boss@domain.com'],
+        attachments: [
+          &#47;&#47; Example file path (must be accessible and supported by the mail app)
+          &#47;&#47; 'file:&#47;&#47;&#47;path&#47;to&#47;your&#47;file.pdf',
+        ],
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Open Mail Example"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            &#47;&#47; Button to open a mail app
+            ElevatedButton(
+              child: const Text("Open Mail App"),
+              onPressed: () async {
+                var result = await OpenMail.openMailApp();
+
+                &#47;&#47; If no mail apps are installed
+                if (!result.didOpen && !result.canOpen) {
+                  showNoMailAppsDialog(context);
+                }
+              },
+            ),
+
+            &#47;&#47; Button to compose an email in the mail app
+            ElevatedButton(
+              child: const Text('Compose Email'),
+              onPressed: () async {
+                OpenMailAppResult result;
+
+                try {
+                  &#47;&#47; Compose a new email using the first available mail app
+                  result = await OpenMail.composeNewEmailInMailApp(
+                      nativePickerTitle: 'Select email app to compose',
+                      emailContent: emailContent);
+
+                  if (!result.didOpen && !result.canOpen) {
+                    showNoMailAppsDialog(context);
+                  }
+                } catch (e) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text('Error'),
+                      content: Text('Failed to compose email: $e'),
+                      actions: [
+                        TextButton(
+                          child: const Text('OK'),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+            ),
+
+            &#47;&#47; Button to get the list of installed mail apps and open a specific one
+            ElevatedButton(
+              child: const Text("Open Specific One Mail App"),
+              onPressed: () async {
+                try {
+                  &#47;&#47; Open the first available mail app directly if only one is installed
+                  var apps = await OpenMail.getMailApps();
+
+                  &#47;&#47; If no mail apps are installed
+                  if (apps.isEmpty) {
+                    showNoMailAppsDialog(context);
+                  }
+                  &#47;&#47; Show a dialog listing all available mail apps
+                  else {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Installed Mail Apps'),
+                          content: SizedBox(
+                            width: double.maxFinite,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: apps.length,
+                              itemBuilder: (context, index) {
+                        
+// ... (truncated)

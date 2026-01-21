@@ -1,0 +1,115 @@
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:dio&#47;dio.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+import 'package:gal&#47;gal.dart';
+
+final navigatorKey = GlobalKey();
+
+void main() => runApp(const App());
+
+class App extends StatefulWidget {
+  const App({super.key});
+
+  @override
+  State createState() => _AppState();
+}
+
+class _AppState extends State {
+  bool toAlbum = false;
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      home: Scaffold(
+        body: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const Text('toAlbum'),
+                Switch(
+                    value: toAlbum,
+                    onChanged: (_) => setState(() => toAlbum = !toAlbum)),
+                FilledButton(
+                  onPressed: () async => Gal.open(),
+                  child: const Text('Open Gallery'),
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    final path = await getFilePath('assets&#47;done.mp4');
+                    await Gal.putVideo(path, album: album);
+                    showSnackbar();
+                  },
+                  child: const Text('Save Video from file path'),
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    final path = await getFilePath('assets&#47;done.jpg');
+                    await Gal.putImage(path, album: album);
+                    showSnackbar();
+                  },
+                  child: const Text('Save Image from file path'),
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    final bytes = await getBytesData('assets&#47;done.jpg');
+                    await Gal.putImageBytes(bytes, album: album);
+                    showSnackbar();
+                  },
+                  child: const Text('Save Image from bytes'),
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    final path = '${Directory.systemTemp.path}&#47;done.jpg';
+                    await Dio().download(
+                      'https:&#47;&#47;github.com&#47;natsuk4ze&#47;gal&#47;raw&#47;main&#47;example&#47;assets&#47;done.jpg',
+                      path,
+                    );
+                    await Gal.putImage(path, album: album);
+                    showSnackbar();
+                  },
+                  child: const Text('Download Image'),
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    final path = '${Directory.systemTemp.path}&#47;done.mp4';
+                    await Dio().download(
+                      'https:&#47;&#47;github.com&#47;natsuk4ze&#47;gal&#47;raw&#47;main&#47;example&#47;assets&#47;done.mp4',
+                      path,
+                    );
+                    await Gal.putVideo(path, album: album);
+                    showSnackbar();
+                  },
+                  child: const Text('Download Video'),
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    final hasAccess = await Gal.hasAccess(toAlbum: toAlbum);
+                    log('Has Access:${hasAccess.toString()}');
+                  },
+                  child: const Text('Has Access'),
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    final requestGranted =
+                        await Gal.requestAccess(toAlbum: toAlbum);
+                    log('Request Granted:${requestGranted.toString()}');
+                  },
+                  child: const Text('Request Access'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String? get album => toAlbum ? 'Album' : null;
+
+  void showSnackbar() {
+    final conte
+// ... (truncated)

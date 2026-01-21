@@ -1,0 +1,130 @@
+&#47;&#47; ignore_for_file: avoid_redundant_argument_values
+
+import "package:flutter&#47;material.dart";
+import "package:persistent_bottom_nav_bar&#47;persistent_bottom_nav_bar.dart";
+import "package:persistent_bottom_nav_bar_example_project&#47;animated-icons.screen.dart";
+
+import "package:persistent_bottom_nav_bar_example_project&#47;custom-widget-tabs.widget.dart";
+import "package:persistent_bottom_nav_bar_example_project&#47;screens.dart";
+
+void main() => runApp(const MyApp());
+
+BuildContext? testContext;
+
+class MyApp extends StatelessWidget {
+  const MyApp({final Key? key}) : super(key: key);
+
+  @override
+  Widget build(final BuildContext context) => MaterialApp(
+        title: "Persistent Bottom Navigation Bar example project",
+        theme: ThemeData.dark(),
+        home: const MainMenu(),
+        initialRoute: "&#47;",
+        routes: {
+          &#47;&#47; When navigating to the "&#47;" route, build the FirstScreen widget.
+          "&#47;first": (final context) => const MainScreen2(),
+          &#47;&#47; When navigating to the "&#47;second" route, build the SecondScreen widget.
+          "&#47;second": (final context) => const MainScreen3(),
+        },
+      );
+}
+
+class MainMenu extends StatefulWidget {
+  const MainMenu({final Key? key}) : super(key: key);
+
+  @override
+  _MainMenuState createState() => _MainMenuState();
+}
+
+class _MainMenuState extends State {
+  @override
+  Widget build(final BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text("Sample Project"),
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: ElevatedButton(
+                child: const Text("Custom widget example"),
+                onPressed: () => PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: CustomWidgetExample(
+                    menuScreenContext: context,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                child: const Text("Built-in styles example"),
+                onPressed: () => PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: ProvidedStylesExample(
+                    menuScreenContext: context,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                child: const Text("Animated icons example"),
+                onPressed: () => PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: AnimatedIconScreen(
+                    menuScreenContext: context,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+}
+
+&#47;&#47; ----------------------------------------- Provided Style ----------------------------------------- &#47;&#47;
+
+class ProvidedStylesExample extends StatefulWidget {
+  const ProvidedStylesExample({
+    required this.menuScreenContext,
+    final Key? key,
+  }) : super(key: key);
+  final BuildContext menuScreenContext;
+
+  @override
+  _ProvidedStylesExampleState createState() => _ProvidedStylesExampleState();
+}
+
+class _ProvidedStylesExampleState extends State {
+  late PersistentTabController _controller;
+  late bool _hideNavBar;
+  final List _scrollControllers = [
+    ScrollController(),
+    ScrollController(),
+  ];
+
+  NavBarStyle _navBarStyle = NavBarStyle.simple;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = PersistentTabController(initialIndex: 1);
+    _hideNavBar = false;
+  }
+
+  @override
+  void dispose() {
+    for (final element in _scrollControllers) {
+      element.dispose();
+    }
+    super.dispose();
+  }
+
+  List _buildScreens() => [
+        MainScreen(
+          menuScreenContext: widget.menuScreenContext,
+          scroll
+// ... (truncated)

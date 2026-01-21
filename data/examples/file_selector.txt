@@ -1,0 +1,45 @@
+&#47;&#47; Copyright 2013 The Flutter Authors
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'package:flutter&#47;material.dart';
+
+import 'get_directory_page.dart';
+import 'get_multiple_directories_page.dart';
+import 'home_page.dart';
+import 'open_image_page.dart';
+import 'open_multiple_images_page.dart';
+import 'open_text_page.dart';
+import 'save_text_page.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; MyApp is the Main Application
+class MyApp extends StatelessWidget {
+  &#47;&#47;&#47; Default Constructor
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'File Selector Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const HomePage(),
+      routes: {
+        '&#47;open&#47;image': (BuildContext context) => const OpenImagePage(),
+        '&#47;open&#47;images': (BuildContext context) =>
+            const OpenMultipleImagesPage(),
+        '&#47;open&#47;text': (BuildContext context) => const OpenTextPage(),
+        '&#47;save&#47;text': (BuildContext context) => SaveTextPage(),
+        '&#47;directory': (BuildContext context) => GetDirectoryPage(),
+        '&#47;multi-directories': (BuildContext context) =>
+            const GetMultipleDirectoriesPage(),
+      },
+    );
+  }
+}

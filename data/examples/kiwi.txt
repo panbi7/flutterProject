@@ -1,0 +1,47 @@
+import 'package:kiwi&#47;kiwi.dart';
+
+main() {
+  KiwiContainer container = KiwiContainer();
+
+  container.registerInstance(Logger());
+  container.registerSingleton((c) => Logger(), name: 'namedLogger');
+  container.registerFactory(
+      (c) => ServiceA(logger: c.resolve('namedLogger')));
+
+  final comumLogger = container.resolve();
+  final namedLogger = container.resolve('namedLogger');
+  final serviceA = container.resolve();
+
+  print(comumLogger.toString()); &#47;&#47; Hey, I'm a logger!
+  print(namedLogger.toString()); &#47;&#47; Hey, I'm a logger!
+  print(serviceA.toString()); &#47;&#47; Hey, I'm a service A!
+}
+
+class Service {
+  const Service();
+
+  @override
+  String toString() {
+    return 'Hey, I\'m a service!';
+  }
+}
+
+class ServiceA extends Service {
+  final Logger logger;
+
+  const ServiceA({required this.logger});
+
+  @override
+  String toString() {
+    return 'Hey, I\'m a service A!';
+  }
+}
+
+class Logger {
+  const Logger();
+
+  @override
+  String toString() {
+    return 'Hey, I\'m a logger!';
+  }
+}

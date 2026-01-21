@@ -1,0 +1,142 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_svg&#47;flutter_svg.dart';
+import 'package:google_fonts&#47;google_fonts.dart' hide Config;
+import 'package:locus&#47;locus.dart';
+
+void main() => runApp(const LocusExampleApp());
+
+&#47;&#47; =============================================================================
+&#47;&#47; App Entry Point
+&#47;&#47; =============================================================================
+
+class LocusExampleApp extends StatefulWidget {
+  const LocusExampleApp({super.key});
+
+  @override
+  State createState() => _LocusExampleAppState();
+}
+
+class _LocusExampleAppState extends State {
+  static const int _maxEventEntries = 250;
+
+  final GlobalKey _scaffoldMessengerKey =
+      GlobalKey();
+
+  &#47;&#47; Stream subscriptions
+  final List> _subscriptions = [];
+
+  &#47;&#47; State
+  final List _events = [];
+  final Map _eventCounts = {};
+  Location? _latestLocation;
+  Activity? _lastActivity;
+
+  ConnectivityChangeEvent? _lastConnectivity;
+
+  GeolocationState? _lastState;
+
+  List? _lastLog;
+
+  PowerState? _powerState;
+  BatteryStats? _batteryStats;
+  BatteryRunway? _batteryRunway;
+  AdaptiveSettings? _adaptiveSettings;
+  AdaptiveTrackingConfig? _adaptiveTrackingConfig;
+  PowerStateChangeEvent? _lastPowerEvent;
+  List _storedLocations = [];
+  LocationSummary? _locationSummary;
+  List _syncQueue = [];
+  DiagnosticsSnapshot? _diagnostics;
+  List _polygonGeofences = [];
+  List _privacyZones = [];
+  GeofenceWorkflowEvent? _lastWorkflowEvent;
+  LocationQuality? _lastQuality;
+  LocationAnomaly? _lastAnomaly;
+  StreamSubscription? _qualitySubscription;
+  StreamSubscription? _anomalySubscription;
+
+  &#47;&#47; Toggles
+  bool _isRunning = false;
+  bool _isReady = false;
+
+  bool _spoofDetectionEnabled = false;
+  bool _significantChangesEnabled = false;
+  bool _isSyncPaused = false;
+  bool _automationEnabled = false;
+  bool _qualityMonitoringEnabled = false;
+  bool _anomalyMonitoringEnabled = false;
+  bool _workflowRegistered = false;
+  String? _benchmarkStatus;
+  TrackingProfile? _currentProfile;
+  SyncPolicy _syncPolicy = SyncPolicy.balanced;
+  SyncDecision? _syncDecision;
+  String? _lastQueueId;
+  String _activeScenario = 'None';
+  Map _syncContext = const {
+    'shift_id': 'shift-001',
+    'driver_id': 'driver-42',
+    'route_id': 'route-7',
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_configure());
+  }
+
+  @override
+  void dispose() {
+    unawaited(_qualitySubscription?.cancel());
+    unawaited(_anomalySubscription?.cancel());
+    for (final sub in _subscriptions) {
+      unawaited(sub.cancel());
+    }
+    super.dispose();
+  }
+
+  &#47;&#47; ===========================================================================
+  &#47;&#47; Configuration
+  &#47;&#47; ===========================================================================
+
+  Future _configure() async {
+    final isGranted = await Locus.requestPermission();
+    if (!isGranted) {
+      _showSnackbar('Location permission required', isSuccess: false);
+      return;
+    }
+
+    final config = Config(
+      stationaryRadius: 25,
+      motionTriggerDelay: 15000,
+      activityRecognitionInterval: 10000,
+      startOnBoot: true,
+      stopOnTerminate: false,
+      enableHeadless: true,
+      autoSync: true,
+      batchSync: true,
+      maxBatchSize: 5,
+      autoSyncThreshold: 1,
+      queueMaxDays: 7,
+      queueMaxRecords: 500,
+      persistMode: PersistMode.location,
+      maxDaysToPersist: 7,
+      maxRecordsToPersist: 200,
+      maxMonitoredGeofences: 20,
+      url: 'https:&#47;&#47;example.com&#47;locations',
+      extras: _syncContext,
+      adaptiveTracking: AdaptiveTrackingConfig.balanced,
+      logLevel: LogLevel.info,
+      notification: const NotificationConfig(
+        title: 'Locus Example',
+        text: 'Tracking location in background',
+      ),
+    );
+
+    await Locus.ready(config);
+    await _configureProfiles();
+    _setupListeners();
+    await _refreshState();
+ 
+// ... (truncated)

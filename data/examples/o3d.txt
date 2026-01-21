@@ -1,0 +1,129 @@
+import 'dart:developer';
+
+import 'package:example&#47;logger.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:o3d&#47;o3d.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'O3D Viewer',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+      home: const MyHomePage(title: 'O3D Viewer'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  &#47;&#47; to control the animation
+  final O3DController controller = O3DController(),
+      controller2 = O3DController(),
+      controller3 = O3DController(),
+      controller4 = O3DController();
+  List logs = [];
+  bool cameraControls = false;
+
+  List? availableVariants;
+  List? availableAnimations;
+
+  @override
+  void initState() {
+    super.initState();
+    controller.logger = (data) {
+      logs.add(data.toString());
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+        centerTitle: true,
+        leading: IconButton.filledTonal(
+            onPressed: () {
+              launchUrl(Uri.parse('https:&#47;&#47;pub.dev&#47;packages&#47;o3d'));
+            },
+            icon: const Icon(Icons.source)),
+        actions: [
+          IconButton(
+              onPressed: () => {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoggerPage(logs),
+                        ))
+                  },
+              icon: const Icon(Icons.login_rounded)),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            &#47;&#47;&#47; model 1
+            ModelDetail(
+              actions: [
+                FilledButton(
+                  onPressed: () => controller.variantName = null,
+                  child: const Text('Default'),
+                ),
+                FilledButton(
+                  onPressed: () => controller.variantName = 'beach',
+                  child: const Text('beach'),
+                ),
+                FilledButton(
+                  onPressed: () => controller.variantName = 'street',
+                  child: const Text('street'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    controller.availableVariants().then((value) {
+                      setState(() {
+                        availableVariants = value;
+                      });
+                    });
+                  },
+                  child: const Text('available variants'),
+                ),
+                if (availableVariants != null)
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: availableVariants!.length,
+                    itemBuilder: (context, index) {
+                      String variant = availableVariants![index];
+                      return Text('variant $index is $variant');
+                    },
+                  )
+              ],
+              o3d: O3D(
+                controller: controller,
+                progressBarColor: Colors.red,
+                src: 'assets&#47;glb&#47;materials_variants_shoe.glb',
+                &#47;&#47; variantName: 'street',
+              ),
+            ),
+
+            const Divide
+// ... (truncated)

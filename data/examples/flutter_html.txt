@@ -1,0 +1,164 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_html&#47;flutter_html.dart';
+import 'package:flutter_html_all&#47;flutter_html_all.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.deepPurple,
+      ),
+      home: const MyHomePage(title: 'flutter_html Example'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  MyHomePageState createState() => MyHomePageState();
+}
+
+const htmlData = r"""
+Scroll to bottom
+      Header 1
+      Header 2
+      Header 3
+      Header 4
+      Header 5
+      Header 6
+
+      Inline Styles:
+      The should be BLUE style='color: blue;'
+      The should be RED style='color: red;'
+      The should be BLACK with 10% alpha style='color: rgba(0, 0, 0, 0.10);
+      The should be GREEN style='color: rgb(0, 97, 0);
+      The should be GREEN style='color: rgb(0, 97, 0);
+
+      Text Alignment
+      Center Aligned Text
+      Right Aligned Text
+      Justified Text
+      Center Aligned Text
+
+      Margins
+      Default Div (width 350px height 20px)
+      margin-left: 3em
+      margin: auto
+      margin: 15px auto
+      margin-left: auto
+      margin-right: auto
+      margin-left: auto; margin-right: 3em
+
+      Margin Auto on Image
+      display:inline-block; margin: auto; (should not center):
+      
+      display:block margin: auto; (should center):
+      
+
+      Support for sub&#47;sup
+      Solve for xn: log2(x2+n) = 93
+      One of the most common equations in all of physics is E=mc2.
+
+      Ruby Support:
+      
+        
+          漢かん
+          字じ
+        
+        &nbsp;is Japanese Kanji.
+      
+
+      Support for maxLines:
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vestibulum sapien feugiat lorem tempor, id porta orci elementum. Fusce sed justo id arcu egestas congue. Fusce tincidunt lacus ipsum, in imperdiet felis ultricies eu. In ullamcorper risus felis, ac maximus dui bibendum vel. Integer ligula tortor, facilisis eu mauris ut, ultrices hendrerit ex. Donec scelerisque massa consequat, eleifend mauris eu, mollis dui. Donec placerat augue tortor, et tincidunt quam tempus non. Quisque sagittis enim nisi, eu condimentum lacus egestas ac. Nam facilisis luctus ipsum, at aliquam urna fermentum a. Quisque tortor dui, faucibus in ante eget, pellentesque mattis nibh. In augue dolor, euismod vitae eleifend nec, tempus vel urna. Donec vitae augue accumsan ligula fringilla ultrices et vel ex.
+
+
+      Table support (With custom styling!):
+      
+      
+        
+        
+      
+      
+      OneTwoThree
+      
+      
+      
+        RowspanRowspanRowspanRowspanRowspanRowspanRowspanRowspanRowspanRowspanRowspanRowspanRowspanRowspanDataData
+      
+      
+        
+      
+      
+      
+      fDatafDatafData
+      
+      
+
+      List support:
+      
+            This
+            is
+            an
+            
+            ordered
+            
+            With...
+            a
+            nested
+            unordered
+            
+            With a nested
+            ordered list
+            with a lower alpha list style
+            starting at letter e
+            
+            
+            list
+            
+            
+            list! Lorem ipsum dolor sit amet.
+            Header 2
+            Header 2
+      
+
+      Link support:
+      
+        Linking to websites has never been easier.
+      
+
+      Image support:
+
+      
+      Network png
+      Local asset png
+      Local asset svg
+      Data uri (with base64 support)
+      
+      
+      
+      
+      Custom image render
+      Broken network image
+      
+
+      SVG support:
+      
+            
+            
+            
+      
+
+      Custom Element Support:
+     
+// ... (truncated)

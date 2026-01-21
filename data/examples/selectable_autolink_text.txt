@@ -1,0 +1,125 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:selectable_autolink_text&#47;selectable_autolink_text.dart';
+import 'package:share_plus&#47;share_plus.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+
+void main() => runApp(_MyApp());
+
+class _MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.white,
+      ),
+      home: _MyHomePage(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class _MyHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Selectable Autolink Text')),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _basic(context),
+            const Divider(height: 32),
+            _advanced(context),
+            const Divider(height: 32),
+            _custom(context),
+            const Divider(height: 32),
+            _moreAdvanced(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _basic(BuildContext context) {
+    return SelectableAutoLinkText(
+      'Basic\n'
+      'Generate inline links that can be selected, tapped, '
+      'long pressed and highlighted on tap.\n'
+      'As written below.\n'
+      'Dart packages https:&#47;&#47;pub.dev',
+      linkStyle: const TextStyle(color: Colors.blueAccent),
+      highlightedLinkStyle: TextStyle(
+        color: Colors.blueAccent,
+        backgroundColor: Colors.blueAccent.withAlpha(0x33),
+      ),
+      onTap: _launchUrl,
+      onLongPress: _share,
+      contextMenuBuilder: (context, state) {
+        return AdaptiveTextSelectionToolbar.buttonItems(
+          buttonItems: state.contextMenuButtonItems
+            ..add(ContextMenuButtonItem(
+              label: 'Print',
+              onPressed: () {
+                final v = state.currentTextEditingValue;
+                print(
+                    '☕️ ${v.text.substring(v.selection.start, v.selection.end)}');
+              },
+            )),
+          anchors: state.contextMenuAnchors,
+        );
+      },
+    );
+  }
+
+  Widget _advanced(BuildContext context) {
+    return SelectableAutoLinkText(
+      '''
+Advanced
+You can shrink url like https:&#47;&#47;github.com&#47;miyakeryo&#47;flutter_selectable_autolink_text
+tel: 012-3456-7890
+email: mail@example.com''',
+      style: TextStyle(color: Colors.green[800]),
+      linkStyle: const TextStyle(color: Colors.purpleAccent),
+      highlightedLinkStyle: TextStyle(
+        color: Colors.purpleAccent,
+        backgroundColor: Colors.purpleAccent.withAlpha(0x33),
+      ),
+      onTransformDisplayLink: AutoLinkUtils.shrinkUrl,
+      onTap: (url) async {
+        print('🌶 Tap: $url');
+        if (!await _launchUrl(url)) {
+          _alert(context, '🌶 Tap', url);
+        }
+      },
+      onLongPress: (url) {
+        print('🍔 LongPress: $url');
+        _share(url);
+      },
+      onTapOther: (local, global) {
+        print('🍇️ onTapOther: $local, $global');
+      },
+      onLongPressOther: (local, global) {
+        print('🍊️ onLongPressOther: $local, $global');
+      },
+    );
+  }
+
+  Widget _custom(BuildContext context) {
+    return SelectableAutoLinkText(
+      'Custom links'
+      '\nHi! @screen_name.'
+      ' If you customize the regular expression, you can make them.'
+      ' #hash_tag',
+      style: const TextStyle(color: Colors.black87),
+      linkStyle: const TextStyle(color: Colors.deepOrangeAccent),
+      highlightedLinkStyle: TextStyle(
+        color: Colors.deepOrangeAccent,
+        backgroundColor: Colors.deepOrangeAccent.withAlpha(0x33),
+      ),
+      linkRegExpPattern: '(@[\\w]+|#[\\w]+|${AutoLinkUtils.urlRegExpPattern})',
+      onTransformDisplayLink: AutoLinkUtils.shrinkUrl,
+      onTap: (url) => _alert(context, '🍒 Tap', url),
+      onLongPress: (url) => _alert(context
+// ... (truncated)

@@ -1,0 +1,93 @@
+import 'dart:math' as math;
+
+import 'package:flutter&#47;material.dart';
+import 'package:url_launcher&#47;url_launcher_string.dart';
+import 'package:yaru&#47;yaru.dart';
+
+void main() {
+  runApp(
+    YaruTheme(builder: (context, yaru, child) {
+      return MaterialApp(
+        theme: yaru.theme,
+        darkTheme: yaru.darkTheme,
+        debugShowCheckedModeBanner: false,
+        home: const HandyPage(),
+      );
+    }),
+  );
+}
+
+class HandyPage extends StatelessWidget {
+  const HandyPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Handy Window'),
+      ),
+      body: const Center(
+        child: ClickableLink(
+          url: 'https:&#47;&#47;gnome.pages.gitlab.gnome.org&#47;libhandy',
+          child: Text(
+            'gitlab.gnome.org&#47;libhandy',
+            style: TextStyle(fontSize: 28),
+          ),
+        ),
+      ),
+      bottomNavigationBar: const Row(
+        children: [
+          RotatedArrow(angle: math.pi &#47; 4),
+          Spacer(),
+          RotatedArrow(angle: -math.pi &#47; 4),
+        ],
+      ),
+    );
+  }
+}
+
+class ClickableLink extends StatelessWidget {
+  const ClickableLink({
+    Key? key,
+    required this.url,
+    required this.child,
+  }) : super(key: key);
+
+  final String url;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => launchUrlString(url),
+        child: DefaultTextStyle(
+          style: TextStyle(
+            color: Colors.blue.shade700,
+            decoration: TextDecoration.underline,
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class RotatedArrow extends StatelessWidget {
+  const RotatedArrow({Key? key, required this.angle}) : super(key: key);
+
+  final double angle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.rotate(
+      angle: angle,
+      child: Icon(
+        Icons.arrow_downward,
+        color: Theme.of(context).primaryColor,
+        size: 72,
+      ),
+    );
+  }
+}

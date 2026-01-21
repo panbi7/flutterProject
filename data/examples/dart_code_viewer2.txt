@@ -1,0 +1,118 @@
+import 'package:dart_code_viewer2&#47;dart_code_viewer2.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late ThemeMode _themeMode;
+  late IconData iconToggle;
+
+  @override
+  initState() {
+    super.initState();
+    _themeMode = ThemeMode.system;
+    iconToggle = Icons.toggle_on;
+  }
+
+  toggleThemeMode() {
+    if (_themeMode == ThemeMode.light) {
+      _themeMode = ThemeMode.dark;
+      iconToggle = Icons.toggle_off;
+    } else if (_themeMode == ThemeMode.dark) {
+      _themeMode = ThemeMode.light;
+      iconToggle = Icons.toggle_on;
+    } else {
+      if (Theme.of(context).brightness == Brightness.light) {
+        _themeMode = ThemeMode.dark;
+        iconToggle = Icons.toggle_off;
+      } else {
+        _themeMode = ThemeMode.light;
+        iconToggle = Icons.toggle_on;
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: _themeMode,
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Dart Code Viewer Example'),
+          actions: [
+            IconButton(
+              icon: Icon(iconToggle),
+              onPressed: () {
+                setState(() {
+                  toggleThemeMode();
+                });
+              },
+            ),
+          ],
+        ),
+        body: const DartCodeViewer(DartCode.template),
+      ),
+    );
+  }
+}
+
+class DartCode {
+  static const template = '''
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+import 'dart_code_viewer_theme.dart';
+import 'pre_highlighter.dart';
+
+&#47;&#47;&#47; A code viewer for the dart language.
+&#47;&#47;&#47;
+&#47;&#47;&#47; A code viewer can be used to display dart code. By default the [DartCodeViewer]
+&#47;&#47;&#47; gives you a Theme based code view. If you are using a [ThemeMode] that is light
+&#47;&#47;&#47; than you will get the light option. Note that the default background of the code
+&#47;&#47;&#47; viewer is based off [ColorScheme.background].
+&#47;&#47;&#47;
+&#47;&#47;&#47; Supplying a non-null [data] String is required as input.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Requires one of its ancestors to be a [Material] widget.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Requires one of its ancestors to be a [MediaQuery] widget. Typically, these
+&#47;&#47;&#47; are introduced by the [MaterialApp] or [WidgetsApp] widget at the top of
+&#47;&#47;&#47; your application widget tree.
+&#47;&#47;&#47;
+&#47;&#47;&#47; {@tool dartpad --template=stateless_widget_scaffold}
+&#47;&#47;&#47;
+&#47;&#47;&#47; ![A dart_code_viewer example for light mode.]
+&#47;&#47;&#47; (https:&#47;&#47;github.com&#47;JoseAlba&#47;dart_code_viewer&#47;images&#47;import_example)
+&#47;&#47;&#47;
+&#47;&#47;&#47; Here is an example of a small string that shows up as Dart code in a flutter
+&#47;&#47;&#47; application.
+&#47;&#47;&#47;
+&#47;&#47;&#47; ```dart
+&#47;&#47;&#47; @override
+&#47;&#47;&#47; Widget build(BuildContext context) {
+&#47;&#47;&#47;   return DartCodeViewer(r'class DartCodeViewer extends StatelessWidget {}');
+&#47;&#47;&#47; }
+&#47;&#47;&#47; ```
+&#47;&#47;&#47; {@end-tool}
+&#47;&#47;&#47;
+&#47;&#47;&#47; See also:
+&#47;&#47;&#47;  * [DartCodeViewerTheme] and [DartCodeViewerThemeData] for information about
+&#47;&#47;&#47;  controlling the visual appearance of the DartCodeViewer.
+&#47;&#47;&#47;  * [Code viewer online tool](https:&#47;&#47;romannurik.github.io&#47;SlidesCodeHighlighter&#47;)
+&#47;&#47;&#47;  is a useful tool that lets you choose the color for each different style.
+&#47;&#47;&#47;  On the left side you put your example code and on the right you can choose
+&#47;&#47;&#47;  the colors you want the code viewer to display.
+&#47;&#47;&#47;    background =
+// ... (truncated)

@@ -1,0 +1,127 @@
+import 'dart:async';
+import 'dart:io' show Platform;
+
+import 'package:braze_plugin&#47;braze_plugin.dart';
+import 'package:braze_plugin_example&#47;jwt_generator.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'log_console.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Welcome to Flutter',
+      home: BrazeFunctions(),
+    );
+  }
+}
+
+class BrazeFunctions extends StatefulWidget {
+  @override
+  BrazeFunctionsState createState() => new BrazeFunctionsState();
+}
+
+void deepLinkAlert(String link, BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Deep Link Alert"),
+        content: Text("Opened with deep link: $link"),
+        actions: [
+          TextButton(
+            child: Text("Close"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+class BrazeFunctionsState extends State {
+  late BrazePlugin _braze;
+  String _userId = "";
+  String _enabled = "";
+  String _ccStreamSubscription = "DISABLED";
+  String _bannerStreamSubscription = "DISABLED";
+  String _iamStreamSubscription = "DISABLED";
+  String _ffStreamSubscription = "DISABLED";
+  String _pushStreamSubscription = "DISABLED";
+  String _featureFlagPropertyType = "BOOLEAN";
+  String _bannerPropertyType = "BOOLEAN";
+  bool _showBrazeConsole = false;
+
+  &#47;&#47; Subscriptions
+  late StreamSubscription inAppMessageStreamSubscription;
+  late StreamSubscription contentCardsStreamSubscription;
+  late StreamSubscription bannerStreamSubscription;
+  late StreamSubscription pushEventsStreamSubscription;
+  late StreamSubscription featureFlagsStreamSubscription;
+
+  &#47;&#47; Text controllers
+  final userIdController = TextEditingController();
+  final customEventNameController = TextEditingController();
+  final customEventPropertyKeyController = TextEditingController();
+  final customEventPropertyValueController = TextEditingController();
+  final featureFlagController = TextEditingController();
+  final featureFlagPropertyController = TextEditingController();
+  final bannerController = TextEditingController();
+  final bannerRefreshController =
+      TextEditingController(text: "placement_1, placement_2");
+  final bannerPropertyController = TextEditingController();
+
+  &#47;&#47; ignore: unused_field
+  double _bannerHeight = 0;
+  String? _displayedPlacement = "sdk-test-2";
+
+  &#47;&#47; Change to `true` to automatically log clicks, button clicks,
+  &#47;&#47; and impressions for in-app messages and content cards.
+  final automaticallyInteract = false;
+
+  void initState() {
+    _braze = new BrazePlugin(customConfigs: {replayCallbacksConfigKey: true});
+
+    _braze.setBrazeSdkAuthenticationErrorCallback(
+        (BrazeSdkAuthenticationError error) async {
+      print('Received an SDK Auth error: $error');
+
+      final String? newSignature = await JwtGenerator.create(_userId);
+      print('Setting new signature: $newSignature, userId: $_userId');
+      _braze.setSdkAuthenticationSignature(newSignature);
+    });
+
+    &#47;&#47; Populate the initial user ID, if currently set.
+    _braze.getUserId().then((userId) {
+      if (userId != null) {
+        this.setState(() {
+          _userId = userId;
+          userIdController.text = _userId;
+        });
+      }
+    });
+
+    &#47;&#47; Perform an initial refresh of banners.
+    _refreshBanners("placement_1, placement_2, sdk-test-2");
+
+    &#47;&#47; Deep link channel
+    MethodChannel('deepLinkChannel')
+        .setMethodCallHandler((MethodCall call) async {
+      deepLinkAlert(call.arguments, context);
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    userIdController.dispose();
+    customEventNameController.dispose();
+    customEventPropertyKeyController.dispose();
+    customEventPro
+// ... (truncated)

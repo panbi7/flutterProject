@@ -1,0 +1,133 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:menu_bar&#47;menu_bar.dart';
+
+void main() {
+  runApp(const MyHomePage());
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  List _menuBarButtons() {
+    return [
+      BarButton(
+        text: const Text(
+          'File',
+          style: TextStyle(color: Colors.white),
+        ),
+        submenu: SubMenu(
+          menuItems: [
+            MenuButton(
+              onTap: () => print('Save'),
+              text: const Text('Save'),
+              shortcutText: 'Ctrl+S',
+              shortcut:
+                  const SingleActivator(LogicalKeyboardKey.keyS, control: true),
+            ),
+            MenuButton(
+              onTap: () {},
+              text: const Text('Save as'),
+              shortcutText: 'Ctrl+Shift+S',
+            ),
+            const MenuDivider(),
+            MenuButton(
+              onTap: () {},
+              text: const Text('Open File'),
+            ),
+            MenuButton(
+              onTap: () {},
+              text: const Text('Open Folder'),
+            ),
+            const MenuDivider(),
+            MenuButton(
+              text: const Text('Preferences'),
+              icon: const Icon(Icons.settings),
+              submenu: SubMenu(
+                menuItems: [
+                  MenuButton(
+                    onTap: () {},
+                    icon: const Icon(Icons.keyboard),
+                    text: const Text('Shortcuts'),
+                  ),
+                  const MenuDivider(),
+                  MenuButton(
+                    onTap: () {},
+                    icon: const Icon(Icons.extension),
+                    text: const Text('Extensions'),
+                  ),
+                  const MenuDivider(),
+                  MenuButton(
+                    icon: const Icon(Icons.looks),
+                    text: const Text('Change theme'),
+                    submenu: SubMenu(
+                      menuItems: [
+                        MenuButton(
+                          onTap: () {},
+                          icon: const Icon(Icons.light_mode),
+                          text: const Text('Light theme'),
+                        ),
+                        const MenuDivider(),
+                        MenuButton(
+                          onTap: () {},
+                          icon: const Icon(Icons.dark_mode),
+                          text: const Text('Dark theme'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const MenuDivider(),
+            MenuButton(
+              onTap: () {},
+              shortcutText: 'Ctrl+Q',
+              text: const Text('Exit'),
+              icon: const Icon(Icons.exit_to_app),
+            ),
+          ],
+        ),
+      ),
+      BarButton(
+        text: const Text(
+          'Edit',
+          style: TextStyle(color: Colors.white),
+        ),
+        submenu: SubMenu(
+          menuItems: [
+            MenuButton(
+              onTap: () {},
+              text: const Text('Undo'),
+              shortcutText: 'Ctrl+Z',
+            ),
+            MenuButton(
+              onTap: () {},
+              text: const Text('Redo'),
+              shortcutText: 'Ctrl+Y',
+            ),
+            const MenuDivider(),
+            MenuButton(
+              onTap: () {},
+              text: const Text('Cut'),
+              shortcutText: 'Ctrl+X',
+            ),
+            MenuButton(
+              onTap: () {},
+              text: const Text('Copy'),
+              shortcutText: 'Ctrl+C',
+            ),
+            MenuButton(
+              onTap: () {},
+              text: const Text('Paste'),
+              shortcutText: 'Ctrl+V',
+            ),
+            const MenuDivider(),
+            MenuButton(
+              onTa
+// ... (truncated)

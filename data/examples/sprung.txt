@@ -1,0 +1,61 @@
+import 'package:flutter&#47;material.dart';
+import 'package:sprung&#47;sprung.dart';
+
+void main() => runApp(SprungDemoApp());
+
+class SprungDemoApp extends StatefulWidget {
+  static final title = 'Sprung';
+
+  @override
+  _SprungDemoAppState createState() => _SprungDemoAppState();
+}
+
+class _SprungDemoAppState extends State {
+  bool toggle = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: SprungDemoApp.title,
+      theme: ThemeData(primarySwatch: Colors.pink),
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        &#47;&#47;&#47; App bar
+        appBar: AppBar(
+          title: Text(SprungDemoApp.title),
+        ),
+        body: Material(
+          &#47;&#47;&#47; Use [Sprung] in place of any curve.
+          &#47;&#47;&#47;
+          &#47;&#47;&#47; Opinionated curves are [Sprung.underDamped], [Sprung.criticallyDamped], [Sprung.overDamped].
+          &#47;&#47;&#47; This is the most common way to use [Sprung].
+          &#47;&#47;&#47;
+          &#47;&#47;&#47; If you wish to fine tune the damping action, use `Sprung()` which defaults to `Sprung(20)` and
+          &#47;&#47;&#47; is the same as [Sprung.criticallyDamped]. Changing the value will fine tune the damping action.
+          &#47;&#47;&#47;
+          &#47;&#47;&#47; If you want full control over making custom spring curves, [Sprung.custom] allows you to adjust
+          &#47;&#47;&#47; damping, stiffness, mass, and velocity.
+          &#47;&#47;&#47;
+          &#47;&#47;&#47; ```
+          &#47;&#47;&#47; Sprung.custom(
+          &#47;&#47;&#47;   damping: 20,
+          &#47;&#47;&#47;   stiffness: 180,
+          &#47;&#47;&#47;   mass: 1.0,
+          &#47;&#47;&#47;   velocity: 0.0,
+          &#47;&#47;&#47; )
+          &#47;&#47;&#47; ```
+          child: AnimatedContainer(
+            curve: Sprung.underDamped,
+            duration: Duration(milliseconds: 750),
+            alignment: toggle ? Alignment.topCenter : Alignment.bottomCenter,
+            margin: EdgeInsets.symmetric(vertical: 50),
+            child: ElevatedButton(
+              child: Text('Tap me!'),
+              onPressed: () => setState(() => toggle = !toggle),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,126 @@
+import 'package:example&#47;song_metadata.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:mini_music_visualizer&#47;mini_music_visualizer.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Demo Project',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  final ValueNotifier playing = ValueNotifier(true);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Demo Project')),
+      body: SizedBox.expand(
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: musicLibrary.length,
+          itemBuilder: (context, index) {
+            final item = musicLibrary[index];
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: ListTile(
+                title: Text(item.title),
+                subtitle: Text(item.artist),
+                leading: Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: Image(
+                    image: AssetImage(item.image),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (index == 1)
+                      ValueListenableBuilder(
+                        valueListenable: playing,
+                        builder: (BuildContext context, value, Widget? child) {
+                          return MiniMusicVisualizer(
+                            color: Colors.red,
+                            width: 4,
+                            height: 15,
+                            radius: 2,
+                            animate: value,
+                          );
+                        },
+                      ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.more_vert),
+                    )
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+      floatingActionButton: ValueListenableBuilder(
+        valueListenable: playing,
+        builder: (BuildContext context, bool value, Widget? child) {
+          return FloatingActionButton.extended(
+            onPressed: () {
+              playing.value = !playing.value;
+            },
+            label: const Text('Play &#47; Pause'),
+            icon: Icon(playing.value ? Icons.pause : Icons.play_arrow),
+          );
+        },
+      ),
+    );
+  }
+}
+
+const musicLibrary = [
+  SongMetadata(
+    title: 'Invader',
+    artist: 'Dance With the Dead',
+    image: 'assets&#47;images&#47;Dance_with_the_dead_near_dark.jpg',
+  ),
+  SongMetadata(
+    title: 'Don\'t Stop Me Now',
+    artist: 'Queen',
+    image: 'assets&#47;images&#47;Queen_Jazz.png',
+  ),
+  SongMetadata(
+    title: 'I\'m Good (Blue)',
+    artist: 'David Guetta, Bebe Rexha',
+    image: 'assets&#47;images&#47;I\'m_Good_Blue.png',
+  ),
+  SongMetadata(
+    title: 'Excaping the Void',
+    artist: 'Timecop1983',
+    image: 'assets&#47;images&#47;Excaping_the_Void.jpg',
+  ),
+  SongMetadata(
+    title: 'Master of Puppets (Remastered)',
+    artist: 'Metallica',
+    image: 'assets&#47;images&#47;Master_of_Puppets_Remastered.jpg',
+  ),
+];

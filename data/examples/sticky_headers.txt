@@ -1,0 +1,136 @@
+import 'package:flutter&#47;material.dart';
+import 'package:sticky_headers&#47;sticky_headers.dart';
+
+import '.&#47;images.dart';
+
+void main() => runApp(const ExampleApp());
+
+@immutable
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Sticky Headers Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blueGrey,
+      ),
+      home: const MainScreen(),
+    );
+  }
+}
+
+@immutable
+class MainScreen extends StatelessWidget {
+  const MainScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaffoldWrapper(
+      title: 'Sticky Headers Example',
+      child: ListView(
+        children: ListTile.divideTiles(
+          context: context,
+          tiles: [
+            ListTile(
+              title: const Text('Example 1 - Headers and Content'),
+              onTap: () => navigateTo(context, (context) => const Example1()),
+            ),
+            ListTile(
+              title: const Text('Example 2 - Animated Headers with Content'),
+              onTap: () => navigateTo(context, (context) => const Example2()),
+            ),
+            ListTile(
+              title: const Text('Example 3 - Headers overlapping the Content'),
+              onTap: () => navigateTo(context, (context) => const Example3()),
+            ),
+            ListTile(
+              title: const Text('Example 4 - Example using scroll controller'),
+              onTap: () => navigateTo(context, (context) => const Example4()),
+            ),
+          ],
+        ).toList(growable: false),
+      ),
+    );
+  }
+
+  void navigateTo(BuildContext context, WidgetBuilder builder) {
+    Navigator.of(context).push(MaterialPageRoute(builder: builder));
+  }
+}
+
+@immutable
+class Example1 extends StatelessWidget {
+  const Example1({
+    Key? key,
+    this.controller,
+  }) : super(key: key);
+
+  final ScrollController? controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaffoldWrapper(
+      wrap: controller == null,
+      title: 'Example 1',
+      child: ListView.builder(
+        primary: controller == null,
+        controller: controller,
+        itemBuilder: (context, index) {
+          return StickyHeader(
+            controller: controller, &#47;&#47; Optional
+            header: Container(
+              height: 50.0,
+              color: Colors.blueGrey[700],
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Header #$index',
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+            content: Container(
+              color: Colors.grey[300],
+              child: Image.network(
+                imageForIndex(index),
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: 200.0,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  String imageForIndex(int index) {
+    return Images.imageThumbUrls[index % Images.imageThumbUrls.length];
+  }
+}
+
+@immutable
+class Example2 extends StatelessWidget {
+  const Example2({
+    Key? key,
+    this.controller,
+  }) : super(key: key);
+
+  final ScrollController? controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaffoldWrapper(
+      wrap: controller == null,
+      title: 'Example 2',
+      child: ListView.builder(
+        primary: controller == null,
+        controller: controller,
+        itemBuilder: (context, index) {
+          return StickyHeaderBuilder(
+            controller: controller, &#47;&#47; Optional
+            builder: (BuildContext context, double stuckAmount) {
+              stuckAmount = 1.0 - stuckAmount.clamp(0.0, 1.0);
+              return 
+// ... (truncated)

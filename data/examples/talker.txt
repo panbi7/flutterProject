@@ -1,0 +1,46 @@
+import 'package:talker&#47;talker.dart';
+
+Future main() async {
+  final talker = Talker(
+    settings: TalkerSettings(
+      colors: {
+        TalkerKey.info: AnsiPen()..magenta(),
+        YourCustomKey.logKey: AnsiPen()..green(),
+      },
+      titles: {
+        TalkerKey.exception: 'Whatever you want',
+        TalkerKey.error: 'E',
+        TalkerKey.info: 'i',
+        YourCustomKey.logKey: 'Custom',
+      },
+    ),
+  );
+
+  &#47;&#47;&#47; Logs with LogLevel
+  &#47;&#47; talker.warning('The pizza is over 😥');
+  &#47;&#47; talker.debug('Thinking about order new one 🤔');
+  talker.error('The restaurant is closed ❌');
+  talker.info('Ordering from other restaurant...');
+  &#47;&#47; talker.verbose('Payment started...');
+  &#47;&#47; talker.info('Payment completed! Waiting for pizza 🍕');
+
+  &#47;&#47;&#47; [Exception]'s and [Error]'s handling
+  try {
+    throw Exception('Something went wrong');
+  } catch (e, st) {
+    talker.handle(e, st, 'Exception with');
+  }
+
+  &#47;&#47;&#47; Custom logs
+  talker.logCustom(YourCustomKey('Something like your own service message'));
+}
+
+class YourCustomKey extends TalkerLog {
+  YourCustomKey(String message) : super(message);
+
+  &#47;&#47;&#47; Your own log key (for color customization in settings)
+  static const logKey = 'custom_log_key';
+
+  @override
+  String? get key => logKey;
+}

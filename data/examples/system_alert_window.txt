@@ -1,0 +1,131 @@
+import 'dart:async';
+import 'dart:developer';
+import 'dart:isolate';
+import 'dart:ui';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:share_plus&#47;share_plus.dart';
+import 'package:system_alert_window&#47;system_alert_window.dart';
+import 'custom_overlay.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
+}
+
+@pragma("vm:entry-point")
+void overlayMain() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: CustomOverlay(),
+    ),
+  );
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _platformVersion = 'Unknown';
+  bool _isShowingWindow = false;
+  bool _isUpdatedWindow = false;
+  SystemWindowPrefMode prefMode = SystemWindowPrefMode.OVERLAY;
+  static const String _mainAppPort = 'MainApp';
+  final _receivePort = ReceivePort();
+  SendPort? homePort;
+  String? latestMessageFromOverlay;
+
+  @override
+  void initState() {
+    super.initState();
+    _initPlatformState();
+    _requestPermissions();
+    if (homePort != null) return;
+    final res = IsolateNameServer.registerPortWithName(
+      _receivePort.sendPort,
+      _mainAppPort,
+    );
+    log("$res: OVERLAY");
+    _receivePort.listen((message) {
+      log("message from OVERLAY: $message");
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future _initPlatformState() async {
+    await SystemAlertWindow.enableLogs(true);
+    String? platformVersion;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    try {
+      platformVersion = await SystemAlertWindow.platformVersion;
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+    if (platformVersion != null)
+      setState(() {
+        _platformVersion = platformVersion!;
+      });
+  }
+
+  Future _requestPermissions() async {
+    await SystemAlertWindow.requestPermissions(prefMode: prefMode);
+  }
+
+  void _showOverlayWindow() async {
+    if (!_isShowingWindow) {
+      await SystemAlertWindow.sendMessageToOverlay('show system window');
+      SystemAlertWindow.showSystemWindow(
+          height: 200,
+          width: MediaQuery.of(context).size.width.floor(),
+          gravity: SystemWindowGravity.CENTER,
+          prefMode: prefMode,
+          layoutParamFlags: [SystemWindowFlags.FLAG_NOT_FOCUSABLE]);
+      setState(() {
+        _isShowingWindow = true;
+      });
+    } else if (!_isUpdatedWindow) {
+      await SystemAlertWindow.sendMessageToOverlay('update system window');
+      SystemAlertWindow.updateSystemWindow(
+        height: 200,
+        width: MediaQuery.of(context).size.width.floor(),
+        gravity: SystemWindowGravity.CENTER,
+        prefMode: prefMode,
+        layoutParamFlags: [SystemWindowFlags.FLAG_NOT_FOCUSABLE, SystemWindowFlags.FLAG_NOT_TOUCHABLE],
+        &#47;&#47; isDisableClicks: true
+      );
+      setState(() {
+        _isUpdatedWindow = true;
+        SystemAlertWindow.sendMessageToOverlay(_isUpdatedWindow);
+      });
+    } else {
+      setState(() {
+        _isShowingWindow = false;
+        _isUpdatedWindow = false;
+        SystemAlertWindow.sendMessageToOverlay(_isUpdatedWindow);
+      });
+      SystemAlertWindow.closeSystemWindow(prefMode: prefMode);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+    
+// ... (truncated)

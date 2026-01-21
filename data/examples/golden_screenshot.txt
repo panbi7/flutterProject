@@ -1,0 +1,68 @@
+&#47;&#47;&#47; This file contains the tests that take screenshots of the app.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Run it with `flutter test --update-goldens` to generate the screenshots
+&#47;&#47;&#47; or `flutter test` to compare the screenshots to the golden files.
+library;
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_test&#47;flutter_test.dart';
+import 'package:golden_screenshot&#47;golden_screenshot.dart';
+import 'package:golden_screenshot_demo&#47;main.dart';
+
+void main() {
+  group('Screenshot:', () {
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    _screenshot('1_home', home: DemoHomePage());
+
+    _screenshot('2_chat_jane', home: DemoChatPage(userName: 'Jane'));
+
+    _screenshot(
+      '3_dialog',
+      home: DemoChatPage(userName: 'Jane'),
+      beforeScreenshot: (tester) async {
+        await tester.enterText(find.byType(TextField), 'Hello Jane!');
+        await tester.pump();
+        await tester.longPress(find.byIcon(Icons.send));
+        await tester.pump();
+      },
+    );
+  });
+}
+
+void _screenshot(
+  String description, {
+  required Widget home,
+  Future Function(WidgetTester tester)? beforeScreenshot,
+}) {
+  group(description, () {
+    for (final goldenDevice in GoldenScreenshotDevices.values) {
+      testGoldens('for ${goldenDevice.name}', (tester) async {
+        final device = goldenDevice.device;
+
+        await tester.pumpWidget(
+          ScreenshotApp.withConditionalTitlebar(
+            device: device,
+            title: 'Talk',
+            home: home,
+          ),
+        );
+
+        &#47;&#47; One of our tests needs to interact with the UI before taking the screenshot.
+        await beforeScreenshot?.call(tester);
+
+        &#47;&#47; Precache the images and fonts so they're ready for the screenshot.
+        await tester.loadAssets();
+
+        &#47;&#47; Pump the widget for a second to ensure animations are complete.
+        await tester.pumpFrames(
+          tester.widget(find.byType(ScreenshotApp)),
+          const Duration(seconds: 1),
+        );
+
+        &#47;&#47; Take the screenshot and compare it to the golden file.
+        await tester.expectScreenshot(device, description);
+      });
+    }
+  });
+}

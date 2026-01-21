@@ -1,0 +1,27 @@
+import 'package:bot_toast&#47;bot_toast.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:tray_manager_example&#47;pages&#47;home.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      builder: BotToastInit(),
+      navigatorObservers: [BotToastNavigatorObserver()],
+      home: const HomePage(),
+    );
+  }
+}

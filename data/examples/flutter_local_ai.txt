@@ -1,0 +1,140 @@
+import 'dart:io' show Platform;
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;foundation.dart' show kIsWeb;
+import 'package:flutter_local_ai&#47;flutter_local_ai.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Local AI Example',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const MyHomePage(title: 'Flutter Local AI Example'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final _aiEngine = FlutterLocalAi();
+  final _promptController = TextEditingController();
+  final _instructionsController = TextEditingController(
+    text: 'You are a helpful assistant. Provide concise answers.',
+  );
+  String _response = '';
+  String _errorMessage = '';
+  bool _isLoading = false;
+  bool _isAvailable = false;
+  bool _isInitialized = false;
+  bool _isInitializing = false;
+  bool _toolsRegistered = false;
+  bool _toolsEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAvailability();
+  }
+
+  Future _checkAvailability() async {
+    try {
+      final available = await _aiEngine.isAvailable();
+      setState(() {
+        _isAvailable = available;
+        _errorMessage = ''; &#47;&#47; Clear error on success
+      });
+
+      &#47;&#47; Auto-initialize if available
+      if (available && !_isInitialized) {
+        _initialize();
+      }
+    } catch (e) {
+      final errorStr = e.toString();
+      setState(() {
+        _isAvailable = false;
+        _errorMessage = errorStr;
+      });
+
+      &#47;&#47; Check if it's an AICore error (error code -101) - Android only
+      if (errorStr.contains('-101') || errorStr.contains('AICore')) {
+        _showAICoreErrorDialog();
+      } else if (errorStr.contains('Windows AI') ||
+          errorStr.contains('cppwinrt')) {
+        &#47;&#47; Windows AI headers not available
+        if (mounted) {
+          _showWindowsAIErrorDialog();
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error checking availability: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future _configureTools(bool enable) async {
+    if (!Platform.isIOS && !Platform.isMacOS) return;
+    try {
+      final tools = enable ? _buildSampleTools() : [];
+      await _aiEngine.registerTools(tools);
+      setState(() {
+        _toolsRegistered = enable;
+        _toolsEnabled = enable;
+      });
+    } catch (e) {
+      debugPrint('Failed to register tools: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to ${enable ? "enable" : "disable"} tools: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  List _buildSampleTools() {
+    return [
+      LocalAiTool(
+        name: 'searchBreadDatabase',
+        description: 'Searches a local database for bread recipes.',
+        parameters: const [
+          ToolParameter(
+              name: 'searchTerm',
+              type: ToolArgumentType.string,
+              description: 'Type of bread to search for',
+            ),
+            ToolParameter(
+              name: 'limit',
+              type: ToolArgumentType.integer,
+              description: 'Number of recipes to return',
+            ),
+          ],
+          onCall: (arguments) async {
+            final term = arguments['searchTerm']?.toString() ?? '';
+            final limit = (arguments['limit'] as num?)?.toInt() ?? 2;
+            &#47;&#47; Replace with your own data loo
+// ... (truncated)

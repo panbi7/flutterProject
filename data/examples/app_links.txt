@@ -1,0 +1,103 @@
+import 'dart:async';
+
+import 'package:app_links&#47;app_links.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'url_protocol&#47;api.dart';
+
+&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;
+&#47;&#47;&#47; Please make sure to follow the setup instructions below
+&#47;&#47;&#47;
+&#47;&#47;&#47; Please take a look at:
+&#47;&#47;&#47; - example&#47;android&#47;app&#47;main&#47;AndroidManifest.xml for Android.
+&#47;&#47;&#47;
+&#47;&#47;&#47; - example&#47;ios&#47;Runner&#47;Runner.entitlements for Universal Link sample.
+&#47;&#47;&#47; - example&#47;ios&#47;Runner&#47;Info.plist for Custom URL scheme sample.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Android launch:
+&#47;&#47;&#47;    adb shell am start -a android.intent.action.VIEW \
+&#47;&#47;&#47;     -d "sample:&#47;&#47;open.my.app&#47;#&#47;book&#47;hello-world"
+&#47;&#47;&#47;
+&#47;&#47;&#47; iOS launch:
+&#47;&#47;&#47;    &#47;usr&#47;bin&#47;xcrun simctl openurl booted "app:&#47;&#47;www.example.com&#47;#&#47;book&#47;hello-world"
+&#47;&#47;&#47;
+&#47;&#47;&#47;
+&#47;&#47;&#47; Windows & macOS launch:
+&#47;&#47;&#47;   The simplest way to test it is by
+&#47;&#47;&#47;   opening your browser and type: sample:&#47;&#47;foo&#47;#&#47;book&#47;hello-world2
+&#47;&#47;&#47;
+&#47;&#47;&#47; On windows:
+&#47;&#47;&#47; Outside of a browser, in a email for example, you can use:
+&#47;&#47;&#47; https:&#47;&#47;example.com&#47;#&#47;book&#47;hello-world2
+&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;
+
+const kWindowsScheme = 'sample';
+
+void main() {
+  &#47;&#47; Register our protocol only on Windows platform
+  &#47;&#47; registerProtocolHandler(kWindowsScheme);
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final _navigatorKey = GlobalKey();
+  StreamSubscription? _linkSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    initDeepLinks();
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+
+    super.dispose();
+  }
+
+  Future initDeepLinks() async {
+    &#47;&#47; Handle links
+    _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
+      debugPrint('onAppLink: $uri');
+      openAppLink(uri);
+    });
+  }
+
+  void openAppLink(Uri uri) {
+    _navigatorKey.currentState?.pushNamed(uri.fragment);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: _navigatorKey,
+      initialRoute: "&#47;",
+      onGenerateRoute: (RouteSettings settings) {
+        Widget routeWidget = defaultScreen();
+
+        &#47;&#47; Mimic web routing
+        final routeName = settings.name;
+        if (routeName != null) {
+          if (routeName.startsWith('&#47;book&#47;')) {
+            &#47;&#47; Navigated to &#47;book&#47;:id
+            routeWidget = customScreen(
+              routeName.substring(routeName.indexOf('&#47;book&#47;')),
+            );
+          } else if (routeName == '&#47;book') {
+            &#47;&#47; Navigated to &#47;book without other parameters
+            routeWidget = customScreen("None");
+          }
+        }
+
+        
+// ... (truncated)

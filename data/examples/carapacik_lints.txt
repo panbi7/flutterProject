@@ -1,0 +1,2 @@
+dev_dependencies:
+  carapacik_lints: ^3.10.2

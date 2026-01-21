@@ -1,0 +1,54 @@
+&#47;&#47; Copyright 2018 the Charts project authors. Please see the AUTHORS file
+&#47;&#47; for details.
+&#47;&#47;
+&#47;&#47; Licensed under the Apache License, Version 2.0 (the "License");
+&#47;&#47; you may not use this file except in compliance with the License.
+&#47;&#47; You may obtain a copy of the License at
+&#47;&#47;
+&#47;&#47; http:&#47;&#47;www.apache.org&#47;licenses&#47;LICENSE-2.0
+&#47;&#47;
+&#47;&#47; Unless required by applicable law or agreed to in writing, software
+&#47;&#47; distributed under the License is distributed on an "AS IS" BASIS,
+&#47;&#47; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+&#47;&#47; See the License for the specific language governing permissions and
+&#47;&#47; limitations under the License.
+
+import 'package:flutter&#47;material.dart';
+import 'app_config.dart';
+import 'home.dart';
+
+&#47;&#47;&#47; The main gallery app widget.
+class GalleryApp extends StatefulWidget {
+  GalleryApp({Key? key}) : super(key: key);
+
+  @override
+  GalleryAppState createState() => new GalleryAppState();
+}
+
+&#47;&#47;&#47; The main gallery app state.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Controls performance overlay, and instantiates a [Home] widget.
+class GalleryAppState extends State {
+  &#47;&#47; Initialize app settings from the default configuration.
+  bool _showPerformanceOverlay = defaultConfig.showPerformanceOverlay;
+
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+        title: defaultConfig.appName,
+        theme: defaultConfig.theme,
+        showPerformanceOverlay: _showPerformanceOverlay,
+        home: new Home(
+          showPerformanceOverlay: _showPerformanceOverlay,
+          onShowPerformanceOverlayChanged: (bool value) {
+            setState(() {
+              _showPerformanceOverlay = value;
+            });
+          },
+        ));
+  }
+}
+
+void main() {
+  runApp(new GalleryApp());
+}

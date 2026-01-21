@@ -1,0 +1,47 @@
+import 'dart:async';
+import 'package:at_client_mobile_example&#47;src&#47;screens&#47;home.dart';
+import 'package:at_client_mobile_example&#47;src&#47;screens&#47;login.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:at_client_mobile&#47;at_client_mobile.dart';
+import 'package:path_provider&#47;path_provider.dart'
+    show getApplicationSupportDirectory;
+import 'package:at_app_flutter&#47;at_app_flutter.dart' show AtEnv;
+
+Future main() async {
+  await AtEnv.load();
+  runApp(const MyApp());
+}
+
+Future loadAtClientPreference() async {
+  var dir = await getApplicationSupportDirectory();
+  return AtClientPreference()
+    ..rootDomain = AtEnv.rootDomain
+    ..namespace = AtEnv.appNamespace
+    ..hiveStoragePath = dir.path
+    ..commitLogPath = dir.path
+    ..isLocalStoreRequired = true;
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  &#47;&#47; * load the AtClientPreference in the background
+  Future futurePreference = loadAtClientPreference();
+  AtClientPreference? atClientPreference;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      &#47;&#47; * The onboarding screen (first screen)
+      initialRoute: LoginScreen.id,
+      routes: {
+        LoginScreen.id: (BuildContext context) => const LoginScreen(),
+        HomeScreen.id: (BuildContext context) => const HomeScreen(),
+      },
+    );
+  }
+}

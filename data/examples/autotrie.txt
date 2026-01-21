@@ -1,0 +1,48 @@
+import 'dart:io';
+
+import 'package:autotrie&#47;autotrie.dart';
+
+void main() {
+  var engine = AutoComplete(engine: SortEngine.configMulti(Duration(seconds: 1), 15, 0.5, 0.5)); &#47;&#47;You can also initialize with a starting databank.
+
+  var interval = Duration(milliseconds: 1);
+
+  engine.enter('more'); &#47;&#47; Enter more thrice.
+  engine.enter('more');
+  engine.enter('more');
+
+  engine.enter('moody'); &#47;&#47; Enter moody twice.
+  engine.enter('moody');
+
+  engine.enter('morose'); &#47;&#47; Enter scattered words (with mo).
+  engine.enter('morty');
+  sleep(interval);
+  engine.enter('moment');
+  sleep(interval);
+  engine.enter('momentum');
+
+  engine.enter('sorose'); &#47;&#47; Enter scattered words (without mo).
+  engine.enter('sorty');
+
+  engine.delete('morose'); &#47;&#47; Delete morose.
+
+  &#47;&#47; Check if morose is deleted.
+  print('Morose deletion check: ${!engine.contains('morose')}');
+
+  &#47;&#47; Check if engine is empty.
+  print('Engine emptiness check: ${engine.isEmpty}');
+
+  &#47;&#47; Suggestions starting with 'mo'.
+  &#47;&#47; They've been ranked by frequency and recency. Since they're all so similar
+  &#47;&#47; in recency, frequency takes priority.
+  print("'mo' suggestions: ${engine.suggest('mo')}");
+  &#47;&#47; Result: [more, moody, momentum, moment, morty]
+
+  &#47;&#47; Get all entries.
+  &#47;&#47; They've not been sorted.
+  print('All entries: ${engine.allEntries}');
+  &#47;&#47; Result: [more, moody, sorty, sorose, momentum, moment, morty]
+}
+
+&#47;&#47; Check the API Reference for the latest information and adv.
+&#47;&#47; methods from this class.

@@ -1,0 +1,146 @@
+import 'dart:async';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_midi_command&#47;flutter_midi_command.dart';
+
+import 'controller.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State {
+  StreamSubscription? _setupSubscription;
+  StreamSubscription? _bluetoothStateSubscription;
+  final MidiCommand _midiCommand = MidiCommand();
+
+  bool _virtualDeviceActivated = false;
+  bool _iOSNetworkSessionEnabled = false;
+
+  bool _didAskForBluetoothPermissions = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _setupSubscription = _midiCommand.onMidiSetupChanged?.listen((data) async {
+      if (kDebugMode) {
+        print("setup changed $data");
+      }
+      setState(() {});
+    });
+
+    _bluetoothStateSubscription =
+        _midiCommand.onBluetoothStateChanged.listen((data) {
+      if (kDebugMode) {
+        print("bluetooth state change $data");
+      }
+      setState(() {});
+    });
+
+    _updateNetworkSessionState();
+  }
+
+  @override
+  void dispose() {
+    _setupSubscription?.cancel();
+    _bluetoothStateSubscription?.cancel();
+    super.dispose();
+  }
+
+  _updateNetworkSessionState() async {
+    var nse = await _midiCommand.isNetworkSessionEnabled;
+    if (nse != null) {
+      setState(() {
+        _iOSNetworkSessionEnabled = nse;
+      });
+    }
+  }
+
+  IconData _deviceIconForType(String type) {
+    switch (type) {
+      case "native":
+        return Icons.devices;
+      case "network":
+        return Icons.language;
+      case "BLE":
+        return Icons.bluetooth;
+      default:
+        return Icons.device_unknown;
+    }
+  }
+
+  Future _informUserAboutBluetoothPermissions(
+      BuildContext context) async {
+    if (_didAskForBluetoothPermissions) {
+      return;
+    }
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+              'Please Grant Bluetooth Permissions to discover BLE MIDI Devices.'),
+          content: const Text(
+              'In the next dialog we might ask you for bluetooth permissions.\n'
+              'Please grant permissions to make bluetooth MIDI possible.'),
+          actions: [
+            TextButton(
+              child: const Text('Ok. I got it!'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    _didAskForBluetoothPermissions = true;
+
+    return;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('FlutterMidiCommand Example'),
+          actions: [
+            Switch(
+                value: _iOSNetworkSessionEnabled,
+                onChanged: (newValue) {
+                  _midiCommand.setNetworkSessionEnabled(newValue);
+                  setState(() {
+                    _iOSNetworkSessionEnabled = newValue;
+                  });
+                }),
+            Switch(
+                value: _virtualDeviceActivated,
+                onChanged: (newValue) {
+                  setState(() {
+                    _virtualDeviceActivated = newValue;
+                  });
+                  if (newValue) {
+                    _midiCommand.addVirtualDevice(name: "Flutter MIDI Command");
+                  } else {
+                    _midiCommand.removeVirtualDevice(
+                        name: "Flutter MIDI Command");
+                  }
+                }),
+            Builder(builder: (context) {
+              return IconButton(
+                  onPressed: () async {
+                    &#47;&#47; Ask for bluetooth permissions
+                    await _informUserAboutBluetoothPermissions(co
+// ... (truncated)

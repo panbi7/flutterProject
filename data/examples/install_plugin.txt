@@ -1,0 +1,115 @@
+import 'dart:io';
+
+import 'package:dio&#47;dio.dart';
+import 'package:file_picker&#47;file_picker.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:install_plugin&#47;install_plugin.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+import 'utils.dart';
+
+void main() => runApp(new MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => new _MyAppState();
+}
+
+class _MyAppState extends State {
+  &#47;&#47;&#47; 默认使用了再惠合伙人的下载地址
+  static const _defaultUrl =
+      'https:&#47;&#47;itunes.apple.com&#47;cn&#47;app&#47;%E5%86%8D%E6%83%A0%E5%90%88%E4%BC%99%E4%BA%BA&#47;id1375433239?l=zh&ls=1&mt=8';
+  TextEditingController _textEditingController = TextEditingController();
+  String _appUrl = '';
+  double _progressValue = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _textEditingController.text = _defaultUrl;
+    PermissionUtil.requestAll();
+  }
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Container(
+          alignment: Alignment.center,
+          child: Platform.isAndroid
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(top: 30, left: 16.0, right: 16),
+                      child: LinearProgressIndicator(
+                        value: _progressValue,
+                        backgroundColor: Colors.grey,
+                        valueColor: AlwaysStoppedAnimation(Colors.blue),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          top: 16, left: 16.0, right: 16, bottom: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                              'downloading ${(_progressValue * 100).toStringAsFixed(0)} %')
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                        onPressed: () => _networkInstallApk(),
+                        child: Text('network install apk')),
+                    SizedBox(height: 10),
+                    ElevatedButton(
+                        onPressed: () => _localInstallApk(),
+                        child: Text('local install apk')),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Platform.isIOS
+                        ? TextField(
+                            controller: _textEditingController,
+                            decoration: InputDecoration(
+                                hintText: 'URL for app store to launch'),
+                            onChanged: (url) => _appUrl = url,
+                          )
+                        : SizedBox(),
+                    Platform.isIOS
+                        ? ElevatedButton(
+                            onPressed: () => _gotoAppStore(_appUrl),
+                            child: Text('gotoAppStore'))
+                        : SizedBox()
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+
+  _networkInstallApk() async {
+    if (_progressValue != 0 && _progressValue < 1) {
+      _showResMsg("Wait a moment, downloading");
+      return;
+    }
+
+    _progressValue = 0.0;
+    var appDocDir = await getTemporaryDirectory();
+    String savePath = appDocDir.path + "&#47;zaihui_kylinim_42.apk";
+    String fileUrl =
+        "https:&#47;&#47;s3.cn-north-1.amazonaws.com.cn&#47;mtab.kezaihui.com&#47;apk&#47;kylinim&#47;zaihui_kylinim_42.apk
+// ... (truncated)

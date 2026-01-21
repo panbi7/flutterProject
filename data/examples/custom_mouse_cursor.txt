@@ -1,0 +1,91 @@
+import 'dart:async';
+import 'dart:ui' as ui;
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:custom_mouse_cursor&#47;custom_mouse_cursor.dart';
+import 'package:google_fonts&#47;google_fonts.dart';
+import 'package:material_symbols_icons&#47;symbols.dart';
+import 'package:signature&#47;signature.dart';
+import 'package:chalkdart&#47;chalk.dart';
+
+class _Logger {
+  static void log(String message) {
+    debugPrint(message);
+  }
+}
+
+late CustomMouseCursor assetCursor;
+late CustomMouseCursor assetCursorOnly25;
+late CustomMouseCursor assetCursorNative8x;
+late CustomMouseCursor iconCursor;
+late CustomMouseCursor msIconCursor;
+late CustomMouseCursor assetCursorSingleSize;
+late CustomMouseCursor catUiImageCursor;
+late CustomMouseCursor helloKittyCursorNative8x;
+
+&#47;&#47;&#47; Change this to true illustrates the widget calling the CustomMouseCursor DPR handler function
+&#47;&#47;&#47; during didChangeDependencies call.
+&#47;&#47;&#47; It is included here ONLY for testing that CustomMouseCursor does not interfere with these
+&#47;&#47;&#47; events handling methods! (Whether or not CustomMouseCursor.noOnMetricsChangedHook is set to true).
+const illustrateManualHandlingOfDPRChangesForCursorsWithDidChangeDependencies =
+    false;
+const illustrateManualHandlingOfDPRChangesForCursorsWithDidChangeMetricsCallback =
+    false;
+const includeHelloKitty8xExample = false;
+
+Future initializeCursors() async {
+  _Logger.log(chalk.brightRed(
+      'initializeCursors() Creating cursors from asset and from icon'));
+
+  CustomMouseCursor.useWebKitImageSet =
+      true; &#47;&#47; Optional flag to specify web platform to use `-webkit-image-set` command instead of `image-set` (defaults to true).
+  &#47;&#47;CustomMouseCursor.useOnlyImageSetCSS = true;   &#47;&#47; Optional flag to specify web platform to use `image-set()` css commands only. (defaults to false).
+  &#47;&#47;CustomMouseCursor.useOnlyURLDataURICursorCSS = true;  &#47;&#47; Optional flag to specify web platform use only `url()` css commands. (defaults to false).
+
+  &#47;&#47; Example of image asset that has many device pixel ratio versions (1.5x,2.0x,2.5x,3.0x,3.5x,4.0x,8.0x).
+  &#47;&#47; The exact size required for most DevicePixelRatio will be able to be loaded directly and used
+  &#47;&#47; without scaling.
+  assetCursor = await CustomMouseCursor.asset(
+      'assets&#47;cursors&#47;startrek_mousepointer.png',
+      hotX: 18,
+      hotY: 0);
+
+  &#47;&#47; Example of image asset that has only device pixel ratio versions (1.0x ands 2.5x).
+  &#47;&#47; In this case if the devicePixelRatio was 2.0x the 2.5x asset would be loaded and
+  &#47;&#47; scaled down to 2.0x size.
+  assetCursorOnly25 = await CustomMouseCursor.asset(
+      'assets&#47;cursors&#47;startrek_mousepointer25Only.png',
+      hotX: 18,
+      hotY: 0);
+
+  &#47;&#47; Example of image asset only at 8x native DevicePixelRatio so will get scaled down
+  &#47;&#47; to most&#47;all encoutered DPR's.
+  assetCursorNative8x = await CustomMouseCursor.exactAsset(
+      'assets&#47;cursors&#47;star-trek-mouse-pointer-cursor292x512.png',
+      hotX: 144,
+      hotY: 0,
+      nativeDevicePixelRatio: 8.0);
+
+  &#47;&#47; Example of a custom cursor created from a icon, with drop shadow added.
+  List shadows = [
+    const BoxShadow(
+      color: Color.fromRGBO(0, 0, 0, 0.8),
+      offset: Offset(4, 3),
+      blurRadius: 3,
+      spreadRadius: 2,
+    ),
+  ];
+  iconCursor = await CustomMouseCursor.icon(Icons.redo,
+      size: 24, hotX: 22, hotY: 17, color: Colors.pinkAccent, shadows: shadows);
+
+  &#47;&#47; example of custom cursor created from a icon that is filled, colored blue and
+  &#47;&#47; added drop shadow.
+  msIconCursor = await CustomMouseCursor.icon(
+      Symbols.arrow_selector_tool_sharp,
+      size: 32,
+      hotX: 8,
+      hotY: 2,
+      fill: 1,
+      color: Colors.blueAccent,
+      shadows: shad
+// ... (truncated)

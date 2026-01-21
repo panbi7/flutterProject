@@ -1,0 +1,9 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_modular&#47;flutter_modular.dart';
+
+import 'app&#47;app_module.dart';
+import 'app&#47;app_widget.dart';
+
+void main() {
+  runApp(ModularApp(module: AppModule(), child: AppWidget()));
+}

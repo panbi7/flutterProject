@@ -1,0 +1,20 @@
+import 'package:pubghost&#47;pubghost.dart';
+
+&#47;&#47;&#47; Demonstrates basic usage of the `pubghost` package.
+&#47;&#47;&#47;
+&#47;&#47;&#47; This example shows how to run all checks programmatically:
+&#47;&#47;&#47; - Unused dependencies
+&#47;&#47;&#47; - Unused classes&#47;widgets
+&#47;&#47;&#47; - Unused ARB intl keys
+&#47;&#47;&#47;
+&#47;&#47;&#47; This mirrors what the CLI commands `--deps`, `--widgets`, `--intl` do.
+Future main() async {
+  print('=== Running dependency analysis ===');
+  await checkUnusedDependencies();
+
+  print('\n=== Running widget&#47;class analysis ===');
+  await checkUnusedWidgets();
+
+  print('\n=== Running intl key analysis ===');
+  await checkUnusedIntlKeys();
+}

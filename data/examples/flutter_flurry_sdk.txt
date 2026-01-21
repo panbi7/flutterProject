@@ -1,0 +1,118 @@
+&#47;&#47; Copyright 2022, Yahoo Inc.
+&#47;&#47;
+&#47;&#47; Licensed under the Apache License, Version 2.0 (the "License");
+&#47;&#47; you may not use this file except in compliance with the License.
+&#47;&#47; You may obtain a copy of the License at
+&#47;&#47;
+&#47;&#47;     http:&#47;&#47;www.apache.org&#47;licenses&#47;LICENSE-2.0
+&#47;&#47;
+&#47;&#47; Unless required by applicable law or agreed to in writing, software
+&#47;&#47; distributed under the License is distributed on an "AS IS" BASIS,
+&#47;&#47; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+&#47;&#47; See the License for the specific language governing permissions and
+&#47;&#47; limitations under the License.
+
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter_flurry_sdk&#47;flurry.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  Future initPlatformState() async {
+    &#47;&#47; Init and run Flurry APIs.
+    FlurryExample.init();
+    FlurryExample.example();
+    FlurryExample.config();
+    FlurryExample.publisherSegmentation();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Flutter example for Flurry SDK'),
+        ),
+        body: Center(
+          child: Text('Flutter Plugin for Flurry SDK started.'),
+        ),
+      ),
+    );
+  }
+}
+
+class FlurryExample {
+  static const String FLURRY_ANDROID_API_KEY = 'C9R699NJWSMJVPQWJ273';
+  static const String FLURRY_IOS_API_KEY     = 'RPBHT5CJFFJ9WCS3C5R6';
+
+  &#47;&#47;&#47; Init Flurry once as early as possible recommended in main.dart.
+  &#47;&#47;&#47; For each platform (Android, iOS) where the app runs you need to acquire a unique Flurry API Key.
+  &#47;&#47;&#47; i.e., you need two API keys if you are going to release the app on both Android and iOS platforms.
+  &#47;&#47;&#47; If you are building for TV platforms, you will need two API keys for Android TV and tvOS.
+  static void init() {
+    Flurry.builder
+        .withCrashReporting(true)
+        .withLogEnabled(true)
+        .withLogLevel(LogLevel.debug)
+        .withReportLocation(true)
+        .withMessaging(true, MyMessagingListener())
+        .build(
+            androidAPIKey: FLURRY_ANDROID_API_KEY,
+                iosAPIKey: FLURRY_IOS_API_KEY);
+  }
+
+  &#47;&#47;&#47; Set, get, log Flurry events in anywhere of your codes.
+  static void example() async {
+    &#47;&#47; Example to get Flurry versions.
+    int agentVersion = await Flurry.getAgentVersion();
+    print('Agent Version: $agentVersion');
+
+    String? releaseVersion = await Flurry.getReleaseVersion();
+    print('Release Version: $releaseVersion');
+
+    String? sessionId = await Flurry.getSessionId();
+    print('Session Id: $sessionId');
+
+    &#47;&#47; Set Flurry preferences.
+    Flurry.setLogEnabled(true);
+    Flurry.setLogLevel(LogLevel.verbose);
+
+    &#47;&#47; Set user preferences.
+    Flurry.setAge(36);
+    Flurry.setGender(Gender.female);
+    Flurry.setReportLocation(true);
+
+    &#47;&#47; Set user properties.
+    var list = [];
+    for (int i = 0; i {};
+    for (int i = 0; i  '$i');
+    }
+    Flurry.logTimedEventWithParameters('Flutter Timed Event', map, true);
+    Flurry.endTimedEvent('Flutter Timed Event');
+
+    &#47;&#47; Log Flurry standard events.
+    var paramBuilder = Param()
+        .putDoubleParam(EventParam.totalAmount, 34.99)
+        .putBooleanParam(EventParam.success, true)
+        .putStringParam(EventParam.itemName, 'book 1')
+        .putString('note', 'This is an awesome book to purchase !!!');
+    Flurry.logStandardEvent(FlurryEvent.purchased, paramBuilder);
+  }
+
+  &#47;&#47;&#47; Example to get Flurry Remote Configurations.
+  static void config() {
+    Flurry.config.registerListener(MyConfigListener())
+// ... (truncated)

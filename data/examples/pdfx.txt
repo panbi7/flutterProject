@@ -1,0 +1,26 @@
+import 'package:flutter&#47;material.dart';
+import 'package:pdfx_example&#47;pinch.dart';
+import 'package:pdfx_example&#47;simple.dart';
+
+import 'package:universal_platform&#47;universal_platform.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(primaryColor: Colors.white),
+        darkTheme: ThemeData.dark(),
+        home: UniversalPlatform.isWindows
+            ? const SimplePage()
+            : const PinchPage(),
+      );
+}

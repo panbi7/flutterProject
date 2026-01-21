@@ -1,0 +1,129 @@
+&#47;&#47; Copyright 2019 The Chromium Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:rtmp_broadcaster&#47;camera.dart';
+import 'package:video_player&#47;video_player.dart';
+import 'package:wakelock_plus&#47;wakelock_plus.dart';
+
+class CameraExampleHome extends StatefulWidget {
+  @override
+  _CameraExampleHomeState createState() {
+    return _CameraExampleHomeState();
+  }
+}
+
+&#47;&#47;&#47; Returns a suitable camera icon for [direction].
+IconData getCameraLensIcon(CameraLensDirection? direction) {
+  switch (direction) {
+    case CameraLensDirection.back:
+      return Icons.camera_rear;
+    case CameraLensDirection.front:
+      return Icons.camera_front;
+    case CameraLensDirection.external:
+    default:
+      return Icons.camera;
+  }
+}
+
+void logError(String code, String message) => print('Error: $code\nError Message: $message');
+
+class _CameraExampleHomeState extends State with WidgetsBindingObserver {
+  CameraController? controller;
+  String? imagePath;
+  String? videoPath;
+  String? url;
+  VideoPlayerController? videoController;
+  VoidCallback? videoPlayerListener;
+  bool enableAudio = true;
+  bool useOpenGL = true;
+  TextEditingController _textFieldController = TextEditingController(text: "rtmp:&#47;&#47;192.168.68.116&#47;live&#47;your_stream");
+
+  bool get isStreaming => controller?.value.isStreamingVideoRtmp ?? false;
+  bool isVisible = true;
+
+  bool get isControllerInitialized => controller?.value.isInitialized ?? false;
+  bool get isStreamingVideoRtmp => controller?.value.isStreamingVideoRtmp ?? false;
+  bool get isRecordingVideo => controller?.value.isRecordingVideo ?? false;
+  bool get isRecordingPaused => controller?.value.isRecordingPaused ?? false;
+  bool get isStreamingPaused => controller?.value.isStreamingPaused ?? false;
+  bool get isTakingPicture => controller?.value.isTakingPicture ?? false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    WakelockPlus.disable();
+    super.dispose();
+  }
+
+  @override
+  Future didChangeAppLifecycleState(AppLifecycleState state) async {
+    &#47;&#47; App state changed before we got the chance to initialize.
+    if (controller == null || !isControllerInitialized) {
+      return;
+    }
+    if (state == AppLifecycleState.paused) {
+      isVisible = false;
+      if (isStreaming) {
+        await pauseVideoStreaming();
+      }
+    } else if (state == AppLifecycleState.resumed) {
+      isVisible = true;
+      if (controller != null) {
+        if (isStreaming) {
+          await resumeVideoStreaming();
+        } else {
+          onNewCameraSelected(controller!.description);
+        }
+      }
+    }
+  }
+
+  final GlobalKey _scaffoldKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    Color color = Colors.grey;
+
+    if (controller != null) {
+      if (controller!.value.isRecordingVideo ?? false) {
+        color = Colors.redAccent;
+      } else if (controller!.value.isStreamingVideoRtmp ?? false) {
+        color = Colors.blueAccent;
+      }
+    }
+
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: const Text('Camera example'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Container(
+              child: Padding(
+                padding: const EdgeInsets.all(1.0),
+                child: Center(
+                  child: _cameraPreviewWidget(),
+                ),
+              ),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                border: Border.all(
+                  color: color,
+                  width: 3.
+// ... (truncated)

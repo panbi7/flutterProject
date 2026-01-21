@@ -1,0 +1,164 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_joystick&#47;flutter_joystick.dart';
+
+void main() {
+  runApp(const JoystickExampleApp());
+}
+
+const ballSize = 20.0;
+const step = 10.0;
+
+class JoystickExampleApp extends StatelessWidget {
+  const JoystickExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Joystick Example'),
+        ),
+        body: const MainPage(),
+      ),
+    );
+  }
+}
+
+class MainPage extends StatelessWidget {
+  const MainPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Button(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const JoystickExample()),
+              );
+            },
+            label: 'Joystick',
+          ),
+          Button(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const JoystickAreaExample()),
+              );
+            },
+            label: 'Joystick Area',
+          ),
+          Button(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const SquareJoystickExample()),
+              );
+            },
+            label: 'Square Joystick',
+          ),
+          Button(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const JoystickCustomizationExample()),
+              );
+            },
+            label: 'Customization',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class JoystickExample extends StatefulWidget {
+  const JoystickExample({super.key});
+
+  @override
+  State createState() => _JoystickExampleState();
+}
+
+class _JoystickExampleState extends State {
+  double _x = 100;
+  double _y = 100;
+  JoystickMode _joystickMode = JoystickMode.all;
+
+  @override
+  void didChangeDependencies() {
+    _x = MediaQuery.of(context).size.width &#47; 2 - ballSize &#47; 2;
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(
+        title: const Text('Joystick'),
+        actions: [
+          JoystickModeDropdown(
+            mode: _joystickMode,
+            onChanged: (JoystickMode value) {
+              setState(() {
+                _joystickMode = value;
+              });
+            },
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Ball(_x, _y),
+            Align(
+              alignment: const Alignment(0, 0.8),
+              child: Joystick(
+                mode: _joystickMode,
+                listener: (details) {
+                  setState(() {
+                    _x = _x + step * details.x;
+                    _y = _y + step * details.y;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class JoystickCustomizationExample extends StatefulWidget {
+  const JoystickCustomizationExample({super.key});
+
+  @override
+  State createState() =>
+      _JoystickCustomizationExampleState();
+}
+
+class _JoystickCustomizationExampleState
+    extends State {
+  double _x = 100;
+  double _y = 100;
+  JoystickMode _joystickMode = JoystickMode.all;
+  bool drawArrows = true;
+  bool includeInitialAnimation = true;
+  bool enableArrowAnimation = false;
+  bool isBlueJoystick = false;
+  bool withOuterCircle = false;
+  Key key = UniqueKey();
+
+  @override
+  void didChangeDependencies() {
+    _x = MediaQuery.of(contex
+// ... (truncated)

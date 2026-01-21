@@ -1,0 +1,76 @@
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+&#47;&#47; ignore: depend_on_referenced_packages
+import 'package:flutter_web_plugins&#47;url_strategy.dart';
+import 'package:minimal&#47;pages&#47;pages.dart';
+import 'package:minimal&#47;routes.dart';
+import 'package:responsive_framework&#47;responsive_framework.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (kIsWeb) {
+    usePathUrlStrategy();
+  }
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      &#47;&#47; Wrapping the app with a builder method makes breakpoints
+      &#47;&#47; accessible throughout the widget tree.
+      builder: (context, child) => ResponsiveBreakpoints.builder(
+        breakpoints: [
+          const Breakpoint(start: 0, end: 450, name: MOBILE),
+          const Breakpoint(start: 451, end: 800, name: TABLET),
+          const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+          const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+        ],
+        child: child!,
+      ),
+      initialRoute: '&#47;',
+      onGenerateInitialRoutes: (initialRoute) {
+        final Uri uri = Uri.parse(initialRoute);
+        return [
+          buildPage(path: uri.path, queryParams: uri.queryParameters),
+        ];
+      },
+      onGenerateRoute: (RouteSettings settings) {
+        final Uri uri = Uri.parse(settings.name ?? '&#47;');
+        return buildPage(path: uri.path, queryParams: uri.queryParameters);
+      },
+      debugShowCheckedModeBanner: false,
+    );
+  }
+
+  &#47;&#47; onGenerateRoute route switcher.
+  &#47;&#47; Navigate using the page name, `Navigator.pushNamed(context, ListPage.name)`.
+  Route buildPage(
+      {required String path, Map queryParams = const {}}) {
+    return Routes.noAnimation(
+        settings: RouteSettings(
+            name: (path.startsWith('&#47;') == false) ? '&#47;$path' : path),
+        builder: (context) {
+          String pathName =
+              path != '&#47;' && path.startsWith('&#47;') ? path.substring(1) : path;
+          return switch (pathName) {
+            '&#47;' || ListPage.name => const ListPage(),
+            PostPage.name =>
+              &#47;&#47; Breakpoints can be nested.
+              &#47;&#47; Here's an example of custom "per-page" breakpoints.
+              const ResponsiveBreakpoints(breakpoints: [
+                Breakpoint(start: 0, end: 480, name: MOBILE),
+                Breakpoint(start: 481, end: 1200, name: TABLET),
+                Breakpoint(start: 1201, end: double.infinity, name: DESKTOP),
+              ], child: PostPage()),
+            TypographyPage.name => const TypographyPage(),
+            _ => const SizedBox.shrink(),
+          };
+        });
+  }
+}

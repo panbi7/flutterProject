@@ -1,0 +1,121 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_sliding_box&#47;flutter_sliding_box.dart';
+
+void main() {
+  runApp(const SlidingBoxExampleApp());
+}
+
+class SlidingBoxExampleApp extends StatelessWidget {
+  const SlidingBoxExampleApp({super.key});
+
+  static const ThemeMode themeMode = ThemeMode.light;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "Flutter Sliding Box - Example App",
+      theme: MyTheme.call(themeMode: themeMode),
+      home: const SlidingBoxExamplePage(),
+    );
+  }
+}
+
+class SlidingBoxExamplePage extends StatefulWidget {
+  const SlidingBoxExamplePage({super.key});
+
+  @override
+  State createState() => _SlidingBoxExamplePageState();
+}
+
+class _SlidingBoxExamplePageState extends State {
+  final BoxController boxController = BoxController();
+  final TextEditingController textEditingController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    textEditingController.addListener(() {
+      boxController.setSearchBody(
+          child: Center(
+        child: Text(
+          textEditingController.text != ""
+              ? textEditingController.value.text
+              : "Empty",
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.onBackground, fontSize: 20),
+        ),
+      ));
+    });
+  }
+
+  @override
+  void dispose() {
+    boxController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness:
+          SlidingBoxExampleApp.themeMode == ThemeMode.light
+              ? Brightness.dark
+              : Brightness.light,
+      systemNavigationBarColor: Theme.of(context).colorScheme.background,
+    ));
+    &#47;&#47;
+    double bottomNavigationBarHeight =
+        (MediaQuery.of(context).viewInsets.bottom > 0) ? 0 : 50;
+    double appBarHeight = MediaQuery.of(context).size.height * 0.1;
+    if (appBarHeight  _body(sc, pos),
+        collapsedBody: _collapsedBody(),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        padding: EdgeInsets.zero,
+        height: bottomNavigationBarHeight,
+        color: Theme.of(context).colorScheme.background,
+        child: Container(
+          decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background,
+              border: Border(
+                top: BorderSide(
+                  width: 0.5,
+                  color:
+                      Theme.of(context).colorScheme.onBackground.withAlpha(100),
+                ),
+              )),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    CupertinoIcons.chat_bubble_text,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  )),
+              IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    CupertinoIcons.phone,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  )),
+              IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    CupertinoIcons.plus_app,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  )),
+              IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    CupertinoIcons.photo_camera,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  )),
+              IconButton(
+                  onPressed: () {},
+    
+// ... (truncated)

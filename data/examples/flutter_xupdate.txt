@@ -1,0 +1,141 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_xupdate&#47;flutter_xupdate.dart';
+import 'package:flutter_xupdate_example&#47;app_info.dart';
+import 'package:flutter&#47;services.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _message = '';
+
+  String _customJson = '';
+
+  @override
+  void initState() {
+    super.initState();
+    initXUpdate();
+    loadJsonFromAsset();
+  }
+
+  Future loadJsonFromAsset() async {
+    _customJson = await rootBundle.loadString('assets&#47;update_custom.json');
+  }
+
+  &#47;&#47;&#47;初始化
+  void initXUpdate() {
+    if (Platform.isAndroid) {
+      FlutterXUpdate.init(
+
+              &#47;&#47;&#47;是否输出日志
+              debug: true,
+
+              &#47;&#47;&#47;是否使用post请求
+              isPost: false,
+
+              &#47;&#47;&#47;post请求是否是上传json
+              isPostJson: false,
+
+              &#47;&#47;&#47;请求响应超时时间
+              timeout: 25000,
+
+              &#47;&#47;&#47;是否开启自动模式
+              isWifiOnly: false,
+
+              &#47;&#47;&#47;是否开启自动模式
+              isAutoMode: false,
+
+              &#47;&#47;&#47;需要设置的公共参数
+              supportSilentInstall: false,
+
+              &#47;&#47;&#47;在下载过程中，如果点击了取消的话，是否弹出切换下载方式的重试提示弹窗
+              enableRetry: false)
+          .then((value) {
+        updateMessage('初始化成功: $value');
+      }).catchError((error) {
+        print(error);
+      });
+
+&#47;&#47;      FlutterXUpdate.setErrorHandler(
+&#47;&#47;          onUpdateError: (Map message) async {
+&#47;&#47;        print(message);
+&#47;&#47;        &#47;&#47;下载失败
+&#47;&#47;        if (message["code"] == 4000) {
+&#47;&#47;          FlutterXUpdate.showRetryUpdateTipDialog(
+&#47;&#47;              retryContent: "Github被墙无法继续下载，是否考虑切换蒲公英下载？",
+&#47;&#47;              retryUrl: "https:&#47;&#47;www.pgyer.com&#47;flutter_learn");
+&#47;&#47;        }
+&#47;&#47;        setState(() {
+&#47;&#47;          _message = "$message";
+&#47;&#47;        });
+&#47;&#47;      });
+
+&#47;&#47;      FlutterXUpdate.setCustomParseHandler(onUpdateParse: (String json) async {
+&#47;&#47;        &#47;&#47;这里是自定义json解析
+&#47;&#47;        return customParseJson(json);
+&#47;&#47;      });
+
+      FlutterXUpdate.setUpdateHandler(
+          onUpdateError: (Map message) async {
+        print(message);
+        &#47;&#47;下载失败
+        if (message["code"] == 4000) {
+          FlutterXUpdate.showRetryUpdateTipDialog(
+              retryContent: 'Github被墙无法继续下载，是否考虑切换蒲公英下载？',
+              retryUrl: 'https:&#47;&#47;www.pgyer.com&#47;flutter_learn');
+        }
+        setState(() {
+          _message = '$message';
+        });
+      }, onUpdateParse: (String json) async {
+        &#47;&#47;这里是自定义json解析
+        return customParseJson(json);
+      });
+    } else {
+      updateMessage('ios暂不支持XUpdate更新');
+    }
+  }
+
+  void updateMessage(String message) {
+    setState(() {
+      _message = message;
+    });
+  }
+
+  &#47;&#47;&#47;将自定义的json内容解析为UpdateEntity实体类
+  UpdateEntity customParseJson(String json) {
+    AppInfo appInfo = AppInfo.fromJson(json);
+    print(appInfo);
+    return UpdateEntity(
+        hasUpdate: appInfo.hasUpdate,
+        isIgnorable: appInfo.isIgnorable,
+        versionCode: appInfo.versionCode,
+        versionName: appInfo.versionName,
+        updateContent: appInfo.updateLog,
+        downloadUrl: appInfo.apkUrl,
+        apkSize: appInfo.apkSize);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('flutter_xupdate Demo'),
+        ),
+        body: SingleChildScrollView(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start, &#47;&#47;文本是起始端对齐
+              children: [
+                Container(
+                  alignment: Alignment.topLeft,
+                  height: 150,
+// ... (truncated)

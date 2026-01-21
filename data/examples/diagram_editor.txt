@@ -1,0 +1,125 @@
+import 'dart:math' as math;
+
+import 'package:diagram_editor&#47;diagram_editor.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(const DiagramApp());
+
+class DiagramApp extends StatefulWidget {
+  const DiagramApp({super.key});
+
+  @override
+  DiagramAppState createState() => DiagramAppState();
+}
+
+class DiagramAppState extends State {
+  MyPolicySet myPolicySet = MyPolicySet();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: SafeArea(
+          child: Stack(
+            children: [
+              const ColoredBox(color: Colors.grey),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: DiagramEditor(
+                  diagramEditorContext:
+                      DiagramEditorContext(policySet: myPolicySet),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4),
+                child: Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => myPolicySet.deleteAllComponents(),
+                      style:
+                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      child: const Text('delete all'),
+                    ),
+                    const Spacer(),
+                    ElevatedButton(
+                      onPressed: () => myPolicySet.serialize(),
+                      child: const Text('serialize'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () => myPolicySet.deserialize(),
+                      child: const Text('deserialize'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47; Custom component Data which you can assign to a component to dynamic data property.
+class MyComponentData {
+  MyComponentData();
+
+  bool isHighlightVisible = false;
+  Color color = Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
+      .withValues(alpha: 1.0);
+
+  void showHighlight() {
+    isHighlightVisible = true;
+  }
+
+  void hideHighlight() {
+    isHighlightVisible = false;
+  }
+
+  &#47;&#47; Function used to deserialize the diagram. Must be passed to `canvasWriter.model.deserializeDiagram` for proper deserialization.
+  MyComponentData.fromJson(Map json)
+      : isHighlightVisible = json['highlight'],
+        color = Color(int.parse(json['color'], radix: 16));
+
+  &#47;&#47; Function used to serialization of the diagram. E.g. to save to a file.
+  Map toJson() => {
+        'highlight': isHighlightVisible,
+        'color': (((color.a * 255).round() 
+              (connection is ConnectionOut) &&
+              (connection.otherComponentId == targetComponentId),
+        )) {
+      return false;
+    }
+
+    &#47;&#47; This connects two components (creates a link between), you can define the design of the link with LinkStyle.
+    canvasWriter.model.connectTwoComponents(
+      sourceComponentId: sourceComponentId,
+      targetComponentId: targetComponentId,
+      linkStyle: LinkStyle(
+        arrowType: ArrowType.pointedArrow,
+        lineWidth: 1.5,
+        backArrowType: ArrowType.centerCircle,
+      ),
+    );
+
+    return true;
+  }
+}
+
+&#47;&#47; You can create your own Policy to define own variables and functions with canvasReader and canvasWriter.
+mixin CustomPolicy implements PolicySet {
+  String? selectedComponentId;
+  String serializedDiagram = '{"components": [], "links": []}';
+
+  void highlightComponent(String componentId) {
+    canvasReader.model.getComponent(componentId).data.showHighlight();
+    canvasReader.model.getComponent(componentId).updateComponent();
+    selectedComponentId = componentId;
+  }
+
+  void hideComponentHighlight(String? componentId) {
+    if (componentId != null) {
+      canvasReader.model.getComponent(componentId).data.hideHighlight();
+      canvasReader.m
+// ... (truncated)

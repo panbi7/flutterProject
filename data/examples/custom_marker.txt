@@ -1,0 +1,72 @@
+import 'package:custom_marker&#47;marker_icon.dart';
+import 'package:flutter&#47;rendering.dart';
+import 'package:google_maps_flutter&#47;google_maps_flutter.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  Set _markers = {};
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: GoogleMap(
+        initialCameraPosition: CameraPosition(target: LatLng(32.4279, 53.6880), zoom: 15),
+        markers: _markers,
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        label: FittedBox(child: Text('Add Markers')),
+        onPressed: () async {
+          _markers.add(
+            Marker(
+              markerId: MarkerId('svgAsset'),
+              icon: await MarkerIcon.svgAsset(assetName: 'example&#47;lib&#47;asset&#47;car.svg', context: context, size: 50),
+              position: LatLng(35.8400, 50.9391),
+            ),
+          );
+
+          _markers.add(
+            Marker(
+              markerId: MarkerId('downloadResizePicture'),
+              icon: await MarkerIcon.downloadResizePicture(
+                  url: 'https:&#47;&#47;thegpscoordinates.net&#47;photos&#47;la&#47;tehran_iran_5u679ezi8f.jpg', imageSize: 150),
+              position: LatLng(35.6892, 51.3890),
+            ),
+          );
+          _markers.add(
+            Marker(
+              markerId: MarkerId('downloadResizePictureCircle'),
+              icon: await MarkerIcon.downloadResizePictureCircle(
+                  'https:&#47;&#47;thegpscoordinates.net&#47;photos&#47;la&#47;tehran_iran_5u679ezi8f.jpg',
+                  size: 150,
+                  addBorder: true,
+                  borderColor: Colors.white,
+                  borderSize: 15),
+              position: LatLng(34.6416, 50.8746),
+            ),
+          );
+
+          setState(() {});
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+}

@@ -1,0 +1,153 @@
+&#47;&#47; Copyright 2013 The Flutter Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Path Provider',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Path Provider'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  Future? _tempDirectory;
+  Future? _appSupportDirectory;
+  Future? _appLibraryDirectory;
+  Future? _appDocumentsDirectory;
+  Future? _appCacheDirectory;
+  Future? _externalDocumentsDirectory;
+  Future?>? _externalStorageDirectories;
+  Future?>? _externalCacheDirectories;
+  Future? _downloadsDirectory;
+
+  void _requestTempDirectory() {
+    setState(() {
+      _tempDirectory = getTemporaryDirectory();
+    });
+  }
+
+  Widget _buildDirectory(
+      BuildContext context, AsyncSnapshot snapshot) {
+    Text text = const Text('');
+    if (snapshot.connectionState == ConnectionState.done) {
+      if (snapshot.hasError) {
+        text = Text('Error: ${snapshot.error}');
+      } else if (snapshot.hasData) {
+        text = Text('path: ${snapshot.data!.path}');
+      } else {
+        text = const Text('path unavailable');
+      }
+    }
+    return Padding(padding: const EdgeInsets.all(16.0), child: text);
+  }
+
+  Widget _buildDirectories(
+      BuildContext context, AsyncSnapshot?> snapshot) {
+    Text text = const Text('');
+    if (snapshot.connectionState == ConnectionState.done) {
+      if (snapshot.hasError) {
+        text = Text('Error: ${snapshot.error}');
+      } else if (snapshot.hasData) {
+        final String combined =
+            snapshot.data!.map((Directory d) => d.path).join(', ');
+        text = Text('paths: $combined');
+      } else {
+        text = const Text('path unavailable');
+      }
+    }
+    return Padding(padding: const EdgeInsets.all(16.0), child: text);
+  }
+
+  void _requestAppDocumentsDirectory() {
+    setState(() {
+      _appDocumentsDirectory = getApplicationDocumentsDirectory();
+    });
+  }
+
+  void _requestAppSupportDirectory() {
+    setState(() {
+      _appSupportDirectory = getApplicationSupportDirectory();
+    });
+  }
+
+  void _requestAppLibraryDirectory() {
+    setState(() {
+      _appLibraryDirectory = getLibraryDirectory();
+    });
+  }
+
+  void _requestAppCacheDirectory() {
+    setState(() {
+      _appCacheDirectory = getApplicationCacheDirectory();
+    });
+  }
+
+  void _requestExternalStorageDirectory() {
+    setState(() {
+      _externalDocumentsDirectory = getExternalStorageDirectory();
+    });
+  }
+
+  void _requestExternalStorageDirectories(StorageDirectory type) {
+    setState(() {
+      _externalStorageDirectories = getExternalStorageDirectories(type: type);
+    });
+  }
+
+  void _requestExternalCacheDirectories() {
+    setState(() {
+      _externalCacheDirectories = getExternalCacheDirectories();
+    });
+  }
+
+  void _requestDownloadsDirectory() {
+    setState(() {
+      _downloadsDirectory = getDownloadsDirectory();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: ListView(
+          children: [
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ElevatedButton(
+                    onPressed: _requestTempDirectory,
+                    child: const Text(
+         
+// ... (truncated)

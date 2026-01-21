@@ -1,0 +1,133 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_swiper_null_safety&#47;flutter_swiper_null_safety.dart';
+
+import 'src&#47;ExampleCustom.dart';
+import 'src&#47;ExampleSwiperInScrollView.dart';
+import 'src&#47;config.dart';
+
+void main() => runApp(new MyApp());
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: new MyHomePage(title: 'Flutter Swiper'),
+      &#47;&#47;home: buildHome(),
+      routes: {
+        '&#47;example01': (BuildContext context) => new ExampleHorizontal(),
+        '&#47;example02': (BuildContext context) => new ExampleVertical(),
+        '&#47;example03': (BuildContext context) => new ExampleFraction(),
+        '&#47;example04': (BuildContext context) => new ExampleCustomPagination(),
+        '&#47;example05': (BuildContext context) => new ExamplePhone(),
+        '&#47;example06': (BuildContext context) => new ScaffoldWidget(
+            child: new ExampleSwiperInScrollView(), title: "ScrollView"),
+        '&#47;example07': (BuildContext context) => new ScaffoldWidget(
+              child: new ExampleCustom(),
+              title: "Custom All",
+            )
+      },
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, this.title}) : super(key: key);
+
+  final String? title;
+
+  @override
+  _MyHomePageState createState() => new _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  List render(BuildContext context, List children) {
+    return ListTile.divideTiles(
+        context: context,
+        tiles: children.map((dynamic data) {
+          return buildListTile(context, data[0], data[1], data[2]);
+        })).toList();
+  }
+
+  Widget buildListTile(
+      BuildContext context, String title, String subtitle, String url) {
+    return new ListTile(
+      onTap: () {
+        Navigator.of(context).pushNamed(url);
+      },
+      isThreeLine: true,
+      dense: false,
+      leading: null,
+      title: new Text(title),
+      subtitle: new Text(subtitle),
+      trailing: new Icon(
+        Icons.arrow_right,
+        color: Colors.blueAccent,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; DateTime moonLanding = DateTime.parse("1969-07-20");
+
+    return new Scaffold(
+      appBar: new AppBar(
+        title: Text(widget.title ?? ''),
+      ),
+      body: new ListView(
+        children: render(context, [
+          ["Horizontal", "Scroll Horizontal", "&#47;example01"],
+          ["Vertical", "Scroll Vertical", "&#47;example02"],
+          ["Fraction", "Fraction style", "&#47;example03"],
+          ["Custom Pagination", "Custom Pagination", "&#47;example04"],
+          ["Phone", "Phone view", "&#47;example05"],
+          ["ScrollView ", "In a ScrollView", "&#47;example06"],
+          ["Custom", "Custom all properties", "&#47;example07"]
+        ]),
+      ),
+    );
+  }
+}
+
+const List titles = [
+  "Flutter Swiper is awosome",
+  "Really nice",
+  "Yeap"
+];
+
+class ExampleHorizontal extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+        appBar: AppBar(
+          title: Text("ExampleHorizontal"),
+        ),
+        body: new Swiper(
+          itemBuilder: (BuildContext context, int index) {
+            return new Image.asset(
+              images[index],
+              fit: BoxFit.fill,
+            );
+          },
+          indicatorLayout: PageIndicatorLayout.SCALE,
+          autoplay: true,
+          autoplayDelay: 1000,
+          itemCount: images.length,
+          pagination: new SwiperPagination(),
+          control: new SwiperControl(),
+          fade: 1.0,
+          viewportFraction: 0.85,
+        ));
+  }
+}
+
+class ExampleVertical extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+// ... (truncated)

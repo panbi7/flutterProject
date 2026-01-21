@@ -1,0 +1,151 @@
+&#47;&#47; Copyright 2021 The Chromium Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'dart:async';
+
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:firebase_database&#47;firebase_database.dart';
+import 'package:firebase_database&#47;ui&#47;firebase_animated_list.dart';
+import 'package:flutter&#47;foundation.dart' show defaultTargetPlatform, kIsWeb;
+import 'package:flutter&#47;material.dart';
+
+import 'firebase_options.dart';
+
+&#47;&#47; Change to false to use live database instance.
+const USE_DATABASE_EMULATOR = true;
+&#47;&#47; The port we've set the Firebase Database emulator to run on via the
+&#47;&#47; `firebase.json` configuration file.
+const emulatorPort = 9000;
+&#47;&#47; Android device emulators consider localhost of the host machine as 10.0.2.2
+&#47;&#47; so let's use that if running on Android.
+final emulatorHost =
+    (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
+        ? '10.0.2.2'
+        : 'localhost';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  if (USE_DATABASE_EMULATOR) {
+    FirebaseDatabase.instance.useDatabaseEmulator(emulatorHost, emulatorPort);
+  }
+
+  runApp(
+    const MaterialApp(
+      title: 'Flutter Database Example',
+      home: MyHomePage(),
+    ),
+  );
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int _counter = 0;
+  late DatabaseReference _counterRef;
+  late DatabaseReference _messagesRef;
+  late StreamSubscription _counterSubscription;
+  late StreamSubscription _messagesSubscription;
+  bool _anchorToBottom = false;
+
+  String _kTestKey = 'Hello';
+  String _kTestValue = 'world!';
+  FirebaseException? _error;
+  bool initialized = false;
+
+  @override
+  void initState() {
+    init();
+    super.initState();
+  }
+
+  Future init() async {
+    _counterRef = FirebaseDatabase.instance.ref('counter');
+
+    final database = FirebaseDatabase.instance;
+
+    _messagesRef = database.ref('messages');
+
+    database.setLoggingEnabled(false);
+
+    if (!kIsWeb) {
+      database.setPersistenceEnabled(true);
+      database.setPersistenceCacheSizeBytes(10000000);
+    }
+
+    if (!kIsWeb) {
+      await _counterRef.keepSynced(true);
+    }
+
+    setState(() {
+      initialized = true;
+    });
+
+    try {
+      final counterSnapshot = await _counterRef.get();
+
+      print(
+        'Connected to directly configured database and read '
+        '${counterSnapshot.value}',
+      );
+    } catch (err) {
+      print(err);
+    }
+
+    _counterSubscription = _counterRef.onValue.listen(
+      (DatabaseEvent event) {
+        setState(() {
+          _error = null;
+          _counter = (event.snapshot.value ?? 0) as int;
+        });
+      },
+      onError: (Object o) {
+        final error = o as FirebaseException;
+        setState(() {
+          _error = error;
+        });
+      },
+    );
+
+    final messagesQuery = _messagesRef.limitToLast(10);
+
+    _messagesSubscription = messagesQuery.onChildAdded.listen(
+      (DatabaseEvent event) {
+        print('Child added: ${event.snapshot.value}');
+      },
+      onError: (Object o) {
+        final error = o as FirebaseException;
+        print('Error: ${error.code} ${error.message}');
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _messagesSubscription.cancel();
+    _counterSubscription.cancel();
+  }
+
+  Future _increment() async {
+    await _counterRef.set(ServerValue.increment(1));
+
+    await _messagesRef
+        .push()
+        .set({_kTestKey: '$_kTestValue $_counter'});
+  }
+
+  Future _incrementAsTransaction() async {
+    try {
+      final transactionResult = await _counterRef.runTransaction((mutableData) {
+        return Transaction.success((mutab
+// ... (truncated)

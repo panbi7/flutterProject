@@ -1,0 +1,73 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:listen_sharing_intent&#47;listen_sharing_intent.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late StreamSubscription _intentSub;
+  final _sharedFiles = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47; Listen to media sharing coming from outside the app while the app is in the memory.
+    _intentSub = ReceiveSharingIntent.instance.getMediaStream().listen((value) {
+      setState(() {
+        _sharedFiles.clear();
+        _sharedFiles.addAll(value);
+
+        print(_sharedFiles.map((f) => f.toMap()));
+      });
+    }, onError: (err) {
+      print("getIntentDataStream error: $err");
+    });
+
+    &#47;&#47; Get the media sharing coming from outside the app while the app is closed.
+    ReceiveSharingIntent.instance.getInitialMedia().then((value) {
+      setState(() {
+        _sharedFiles.clear();
+        _sharedFiles.addAll(value);
+        print(_sharedFiles.map((f) => f.toMap()));
+
+        &#47;&#47; Tell the library that we are done processing the intent.
+        ReceiveSharingIntent.instance.reset();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _intentSub.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const textStyleBold = const TextStyle(fontWeight: FontWeight.bold);
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: Column(
+            children: [
+              Text("Shared files:", style: textStyleBold),
+              Text(_sharedFiles
+                  .map((f) => f.toMap())
+                  .join(",\n****************\n")),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

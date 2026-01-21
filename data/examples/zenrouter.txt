@@ -1,0 +1,144 @@
+import 'package:flutter&#47;material.dart';
+import 'package:zenrouter&#47;zenrouter.dart';
+import 'package:zenrouter_devtools&#47;zenrouter_devtools.dart';
+
+void main() {
+  runApp(const MainApp());
+}
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(routerConfig: appCoordinator);
+  }
+}
+
+&#47;&#47; ============================================================================
+&#47;&#47; Coordinator
+&#47;&#47; ============================================================================
+
+final appCoordinator = AppCoordinator();
+
+class AppCoordinator extends Coordinator with CoordinatorDebug {
+  late final tabPath = IndexedStackPath.createWith(
+    coordinator: this,
+    label: 'tabs',
+    [HomeTab(), SearchTab(), ProfileTab()],
+  );
+
+  @override
+  void defineLayout() {
+    RouteLayout.defineLayout(TabLayout, TabLayout.new);
+  }
+
+  @override
+  List get paths => [...super.paths, tabPath];
+
+  @override
+  List get debugRoutes => [HomeTab(), SearchTab(), ProfileTab()];
+
+  @override
+  AppRoute parseRouteFromUri(Uri uri) {
+    return switch (uri.pathSegments) {
+      [] || ['home'] => HomeTab(),
+      ['search'] => SearchTab(),
+      ['profile'] => ProfileTab(),
+      ['settings'] => SettingsRoute(),
+      _ => HomeTab(),
+    };
+  }
+}
+
+&#47;&#47; ============================================================================
+&#47;&#47; Route Base
+&#47;&#47; ============================================================================
+
+abstract class AppRoute extends RouteTarget with RouteUnique {}
+
+&#47;&#47; ============================================================================
+&#47;&#47; Tab Layout
+&#47;&#47; ============================================================================
+
+class TabLayout extends AppRoute with RouteLayout {
+  @override
+  IndexedStackPath resolvePath(AppCoordinator coordinator) =>
+      coordinator.tabPath;
+
+  @override
+  Widget build(AppCoordinator coordinator, BuildContext context) {
+    final path = coordinator.tabPath;
+    return Scaffold(
+      body: buildPath(coordinator),
+      bottomNavigationBar: ListenableBuilder(
+        listenable: path,
+        builder: (context, _) => BottomNavigationBar(
+          currentIndex: path.activeIndex,
+          onTap: (index) => path.goToIndexed(index),
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47; ============================================================================
+&#47;&#47; Tab Routes
+&#47;&#47; ============================================================================
+
+class SettingsRoute extends AppRoute {
+  @override
+  Uri toUri() => Uri.parse('&#47;settings');
+
+  @override
+  Widget build(AppCoordinator coordinator, BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: const Center(
+        child: Text('Settings', style: TextStyle(fontSize: 24)),
+      ),
+    );
+  }
+}
+
+class HomeTab extends AppRoute {
+  @override
+  Type get layout => TabLayout;
+
+  @override
+  Uri toUri() => Uri.parse('&#47;home');
+
+  @override
+  Widget build(AppCoordinator coordinator, BuildContext context) {
+    return const Center(child: Text('Home', style: TextStyle(fontSize: 24)));
+  }
+}
+
+class SearchTab extends AppRoute {
+  @override
+  Type get layout => TabLayout;
+
+  @override
+  Uri toUri() => Uri.parse('&#47;search');
+
+  @override
+  Widget build(AppCoordinator coordinator, BuildContext context) {
+    return const Center(child: Text('Search', style: TextStyle(fontSize: 24)));
+  }
+}
+
+class ProfileTab extends AppRoute {
+  @override
+  Type get layout => TabLayout;
+
+  @override
+  Uri toUri() => Uri.parse('&#47;profile');
+
+  @override
+  Widget build(AppCoo
+// ... (truncated)

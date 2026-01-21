@@ -1,0 +1,118 @@
+&#47;&#47; Copyright 2013 The Flutter Authors
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'dart:async';
+import 'dart:io';
+
+import 'package:camera&#47;camera.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;scheduler.dart';
+import 'package:video_player&#47;video_player.dart';
+
+&#47;&#47;&#47; Camera example home widget.
+class CameraExampleHome extends StatefulWidget {
+  &#47;&#47;&#47; Default Constructor
+  const CameraExampleHome({super.key});
+
+  @override
+  State createState() {
+    return _CameraExampleHomeState();
+  }
+}
+
+&#47;&#47;&#47; Returns a suitable camera icon for [direction].
+IconData getCameraLensIcon(CameraLensDirection direction) {
+  switch (direction) {
+    case CameraLensDirection.back:
+      return Icons.camera_rear;
+    case CameraLensDirection.front:
+      return Icons.camera_front;
+    case CameraLensDirection.external:
+      return Icons.camera;
+  }
+  &#47;&#47; This enum is from a different package, so a new value could be added at
+  &#47;&#47; any time. The example should keep working if that happens.
+  &#47;&#47; ignore: dead_code
+  return Icons.camera;
+}
+
+void _logError(String code, String? message) {
+  &#47;&#47; ignore: avoid_print
+  print('Error: $code${message == null ? '' : '\nError Message: $message'}');
+}
+
+class _CameraExampleHomeState extends State
+    with WidgetsBindingObserver, TickerProviderStateMixin {
+  CameraController? controller;
+  XFile? imageFile;
+  XFile? videoFile;
+  VideoPlayerController? videoController;
+  VoidCallback? videoPlayerListener;
+  bool enableAudio = true;
+  double _minAvailableExposureOffset = 0.0;
+  double _maxAvailableExposureOffset = 0.0;
+  double _currentExposureOffset = 0.0;
+  late final AnimationController _flashModeControlRowAnimationController;
+  late final CurvedAnimation _flashModeControlRowAnimation;
+  late final AnimationController _exposureModeControlRowAnimationController;
+  late final CurvedAnimation _exposureModeControlRowAnimation;
+  late final AnimationController _focusModeControlRowAnimationController;
+  late final CurvedAnimation _focusModeControlRowAnimation;
+  double _minAvailableZoom = 1.0;
+  double _maxAvailableZoom = 1.0;
+  double _currentScale = 1.0;
+  double _baseScale = 1.0;
+
+  &#47;&#47; Counting pointers (number of user fingers on screen)
+  int _pointers = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    _flashModeControlRowAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _flashModeControlRowAnimation = CurvedAnimation(
+      parent: _flashModeControlRowAnimationController,
+      curve: Curves.easeInCubic,
+    );
+    _exposureModeControlRowAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _exposureModeControlRowAnimation = CurvedAnimation(
+      parent: _exposureModeControlRowAnimationController,
+      curve: Curves.easeInCubic,
+    );
+    _focusModeControlRowAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _focusModeControlRowAnimation = CurvedAnimation(
+      parent: _focusModeControlRowAnimationController,
+      curve: Curves.easeInCubic,
+    );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _flashModeControlRowAnimationController.dispose();
+    _flashModeControlRowAnimation.dispose();
+    _exposureModeControlRowAnimationController.dispose();
+    _exposureModeControlRowAnimation.dispose();
+    _focusModeControlRowAnimationController.dispose();
+    _focusModeControlRowAnimation.dispose();
+    super.dispose();
+  }
+
+  &#47;&#47; #docregion AppLifecycle
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final CameraController? camera
+// ... (truncated)

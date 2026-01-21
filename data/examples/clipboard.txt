@@ -1,0 +1,147 @@
+import 'package:clipboard&#47;clipboard.dart';
+import 'package:flutter&#47;foundation.dart' show kIsWeb;
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:image_picker&#47;image_picker.dart';
+import 'dart:ui' as ui;
+import 'dart:io' show Platform;
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Clipboard Enhanced',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  TextEditingController textController = TextEditingController();
+  TextEditingController htmlController = TextEditingController();
+  String pasteValue = '';
+  String clipboardStatus = 'Ready';
+  bool isMonitoring = false;
+  Map debugInfo = {'info': 'Tap "Load Debug Info" to fetch'};
+  List clipboardHistory = [];
+  Uint8List? selectedImageBytes;
+  Uint8List? pastedImageBytes;
+  final ImagePicker _imagePicker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    _setupClipboardListener();
+  }
+
+  @override
+  void dispose() {
+    FlutterClipboard.stopMonitoring();
+    FlutterClipboard.removeListener(_onClipboardChanged);
+    super.dispose();
+  }
+
+  void _setupClipboardListener() {
+    FlutterClipboard.addListener(_onClipboardChanged);
+  }
+
+  void _onClipboardChanged(EnhancedClipboardData data) {
+    setState(() {
+      if (data.hasText) {
+        clipboardHistory.insert(
+            0, '${data.text} (${DateTime.now().toString().substring(11, 19)})');
+        if (clipboardHistory.length > 10) {
+          clipboardHistory.removeLast();
+        }
+      } else if (data.hasImage) {
+        clipboardHistory.insert(0,
+            'Image (${data.imageBytes?.length ?? 0} bytes) - ${DateTime.now().toString().substring(11, 19)}');
+        if (clipboardHistory.length > 10) {
+          clipboardHistory.removeLast();
+        }
+      }
+    });
+  }
+
+  Future _loadDebugInfo() async {
+    final info = await FlutterClipboard.getDebugInfo();
+    setState(() {
+      debugInfo = info;
+    });
+  }
+
+  Future _copyText() async {
+    if (textController.text.trim().isEmpty) {
+      _showSnackBar('Please enter text to copy');
+      return;
+    }
+
+    try {
+      await FlutterClipboard.copy(textController.text);
+      setState(() {
+        clipboardStatus = 'Text copied successfully!';
+      });
+      _showSnackBar('Text copied to clipboard');
+      _loadDebugInfo();
+    } catch (e) {
+      setState(() {
+        clipboardStatus = 'Copy failed: $e';
+      });
+      _showSnackBar('Copy failed: $e');
+    }
+  }
+
+  Future _copyRichText() async {
+    if (textController.text.trim().isEmpty &&
+        htmlController.text.trim().isEmpty) {
+      _showSnackBar('Please enter text or HTML to copy');
+      return;
+    }
+
+    try {
+      await FlutterClipboard.copyRichText(
+        text: textController.text,
+        html: htmlController.text.isNotEmpty ? htmlController.text : null,
+      );
+      setState(() {
+        clipboardStatus = 'Rich text copied successfully!';
+      });
+      _showSnackBar('Rich text copied to clipboard');
+      _loadDebugInfo();
+    } catch (e) {
+      setState(() {
+        clipboardStatus = 'Rich text copy failed: $e';
+      });
+      _showSnackBar('Rich text copy failed: $e');
+    }
+  }
+
+  Future _copyWithCallback() async {
+    if (textController.text.trim().isEmpty) {
+      _showSnackBar('Please enter text to copy');
+      return;
+    }
+
+    await FlutterClipboard.copyWithCallback(
+      text: textController.text,
+      onSuccess: () {
+        setState(() {
+          clipboardStatus = 'Copy successful with callback!';
+        });
+        _showSnackBar('Copy successful with callback');
+ 
+// ... (truncated)

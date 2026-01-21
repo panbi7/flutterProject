@@ -1,0 +1,100 @@
+import 'package:csc_picker_plus&#47;csc_picker_plus.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'CSC Picker Plus Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const MyHomePage(title: 'CSC Picker Plus'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  &#47;&#47;&#47; Variables to store country state city data in onChanged method.
+  String countryValue = "";
+  String stateValue = "";
+  String cityValue = "";
+  String address = "";
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.title)),
+      body: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          height: 600,
+          child: Column(
+            children: [
+              &#47;&#47;&#47; Adding CSC Picker Plus Widget in app
+              CSCPickerPlus(
+                &#47;&#47;&#47; Enable disable state dropdown [OPTIONAL PARAMETER]
+                showStates: true,
+
+                &#47;&#47;&#47; Enable disable city drop down [OPTIONAL PARAMETER]
+                showCities: true,
+
+                &#47;&#47;&#47; Enable (get flag with country name) &#47; Disable (Disable flag) &#47; ShowInDropdownOnly (display flag in dropdown only) [OPTIONAL PARAMETER]
+                flagState: CountryFlag.ENABLE,
+
+                &#47;&#47;&#47; Control the language of the country and state list [OPTIONAL PARAMETER]
+                countryStateLanguage: CountryStateLanguage.englishOrNative,
+
+                &#47;&#47;&#47; Control the language of the country and state list [OPTIONAL PARAMETER]
+                cityLanguage: CityLanguage.native,
+
+                &#47;&#47;&#47; Dropdown box decoration to style your dropdown selector [OPTIONAL PARAMETER] (USE with disabledDropdownDecoration)
+                dropdownDecoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey.shade300, width: 1),
+                ),
+
+                &#47;&#47;&#47; Disabled Dropdown box decoration to style your dropdown selector [OPTIONAL PARAMETER]  (USE with disabled dropdownDecoration)
+                disabledDropdownDecoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  color: Colors.grey.shade200,
+                  border: Border.all(color: Colors.grey.shade300, width: 1),
+                ),
+
+                &#47;&#47;&#47; placeholders for dropdown search field [OPTIONAL PARAMETERS]
+                &#47;&#47; countrySearchPlaceholder: "Country",
+                &#47;&#47; stateSearchPlaceholder: "State",
+                &#47;&#47; citySearchPlaceholder: "City",
+
+                &#47;&#47;&#47; labels for dropdown [OPTIONAL PARAMETERS]
+                countryDropdownLabel: "Country",
+                stateDropdownLabel: "State",
+                cityDropdownLabel: "City",
+
+                &#47;&#47;&#47; Default Country [OPTIONAL PARAMETER]
+                &#47;&#47; defaultCountry: CscCountry.Yemen,
+
+                &#47;&#47;&#47; Country Filter [OPTIONAL PARAMETER]
+                &#47;&#47; countryFilter: const [
+                &#47;&#47;   CscCountry.Yemen,
+                &#47;&#47;   CscCountry.Saudi_Arabia,
+                &#47;&#47;
+// ... (truncated)

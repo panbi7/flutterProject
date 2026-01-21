@@ -1,0 +1,8 @@
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'package:very_good_test_runner&#47;very_good_test_runner.dart';
+
+void main() {
+  &#47;&#47; React to `TestEvent` instances.
+  flutterTest().listen(print);
+}

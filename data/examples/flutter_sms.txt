@@ -1,0 +1,165 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_sms&#47;flutter_sms.dart';
+
+void main() {
+  runApp(const SmsApp());
+}
+
+class SmsApp extends StatelessWidget {
+  const SmsApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.deepPurple,
+        brightness: Brightness.light,
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.deepPurple,
+        brightness: Brightness.dark,
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+      themeMode: ThemeMode.system,
+      home: const SmsHomePage(),
+    );
+  }
+}
+
+class SmsViewModel extends ChangeNotifier {
+  final List _recipients = [];
+  String _message = '';
+  String? _status;
+  bool _canSendSms = false;
+  bool _isLoading = false;
+
+  List get recipients => List.unmodifiable(_recipients);
+  String get message => _message;
+  String? get status => _status;
+  bool get canSendSms => _canSendSms;
+  bool get isLoading => _isLoading;
+
+  SmsViewModel() {
+    _init();
+  }
+
+  Future _init() async {
+    _setLoading(true);
+    try {
+      _canSendSms = await canSendSMS();
+    } catch (e, t) {
+      debugPrint('Error checking capability: $e\n$t');
+      _status = 'Error checking capability: $e';
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  void addRecipient(String recipient) {
+    if (recipient.trim().isNotEmpty &&
+        !_recipients.contains(recipient.trim())) {
+      _recipients.add(recipient.trim());
+      notifyListeners();
+    }
+  }
+
+  void removeRecipient(String recipient) {
+    _recipients.remove(recipient);
+    notifyListeners();
+  }
+
+  void updateMessage(String newMessage) {
+    _message = newMessage;
+    notifyListeners();
+  }
+
+  Future send() async {
+    if (_recipients.isEmpty || _message.isEmpty) {
+      _status = 'Please add at least one recipient and a message.';
+      notifyListeners();
+      return;
+    }
+
+    _setLoading(true);
+    _status = null;
+    notifyListeners();
+
+    try {
+      final result = await sendSMS(
+        message: _message,
+        recipients: _recipients,
+      );
+      _status = result;
+    } catch (e, t) {
+      debugPrint('Error sending SMS: $e\n$t');
+      _status = e.toString();
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  void _setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+}
+
+class SmsHomePage extends StatefulWidget {
+  const SmsHomePage({super.key});
+
+  @override
+  State createState() => _SmsHomePageState();
+}
+
+class _SmsHomePageState extends State {
+  late final SmsViewModel _viewModel;
+  final TextEditingController _recipientController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = SmsViewModel();
+    &#47;&#47; Sync text controller with view model just in case, though mainly one-way here
+    _messageController.addListener(() {
+      _viewModel.updateMessage(_messageController.text);
+    });
+  }
+
+  @override
+  void dispose() {
+    _recipientController.dispose();
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  void _addRecipient() {
+    _viewModel.addRecipient(_recipientController.text);
+    _recipientController.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      
+// ... (truncated)

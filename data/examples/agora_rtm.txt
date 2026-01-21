@@ -1,0 +1,51 @@
+import 'package:agora_rtm_example&#47;src&#47;rtm_api_demo.dart';
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'src&#47;log_sink.dart';
+
+void main() {
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    logSink.log(details.toString());
+  };
+
+  &#47;&#47; TODO(littlegnal): The newer version of Flutter SDK doc shows use of the
+  &#47;&#47; `PlatformDispatcher.instance.onError` but not `runZonedGuarded` to
+  &#47;&#47; handle "Errors not caught by Flutter",
+  &#47;&#47; see: https:&#47;&#47;docs.flutter.dev&#47;testing&#47;errors#handling-all-types-of-errors,
+  &#47;&#47; follow the Flutter SDK doc after we can bump the mini supported Flutter SDK (currently 2.10.x)
+  &#47;&#47; to the newer version of Flutter SDK.
+  runZonedGuarded(() {
+    runApp(const MyApp());
+  }, (error, stackTrace) {
+    logSink.log(error.toString());
+  });
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('RTM example app'),
+          actions: const [LogActionWidget()],
+        ),
+        body: const RtmApiDemo(),
+      ),
+    );
+  }
+}

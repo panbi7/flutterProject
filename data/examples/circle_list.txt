@@ -1,0 +1,4 @@
+import 'package:circle_list_demo&#47;pages&#47;demo_page.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(MaterialApp(home: ShowDemoPage()));

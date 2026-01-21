@@ -1,0 +1,15 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_flavor&#47;flutter_flavor.dart';
+
+import 'app.dart';
+
+void main() {
+  FlavorConfig(
+    variables: {
+      "counter": 0,
+      "baseUrl": "https:&#47;&#47;www.example1.com",
+    },
+  );
+
+  runApp(const MyApp());
+}

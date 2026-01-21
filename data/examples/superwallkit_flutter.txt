@@ -1,0 +1,119 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:app_links&#47;app_links.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:superwallkit_flutter&#47;superwallkit_flutter.dart';
+import 'MySuperwallDelegate.dart';
+import 'RCPurchaseController.dart';
+import 'home.dart';
+import 'launchedFeature.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final logging = Logging();
+  StreamSubscription? _subscription;
+  final appLinks = AppLinks();
+  @override
+  void initState() {
+    const useRevenueCat = true;
+
+    super.initState();
+    configureSuperwall(useRevenueCat);
+  }
+
+  void listenForPurchases() {
+&#47;*    _subscription = Superwall.shared.subscriptionStatus.listen((status) {
+      logging.info('subscriptionStatusDidChange listener: $status');
+    });*&#47;
+  }
+
+  void _handleIncomingLinks() {
+    appLinks.uriLinkStream.listen((Uri uri) {
+      debugPrint('uri: $uri');
+      Superwall.shared.handleDeepLink(uri);
+    }, onError: (Object err) {
+      print('Error receiving incoming link: $err');
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
+  &#47;&#47; Configure Superwall
+  Future configureSuperwall(bool useRevenueCat) async {
+    try {
+      &#47;&#47; MARK: Step 1 - Create your Purchase Controller
+      &#47;&#47;&#47; Create an `RCPurchaseController()` wherever Superwall and RevenueCat are being initialized.
+      final purchaseController = RCPurchaseController();
+      final delegate = MySuperwallDelegate();
+
+      &#47;&#47; Get Superwall API Key
+      final apiKey = Platform.isIOS
+          ? 'pk_e361c8a9662281f4249f2fa11d1a63854615fa80e15e7a4d'
+          : 'pk_0ff90006c5c2078e1ce832bd2343ba2f806ca510a0a1696a';
+
+      final logging = Logging();
+      logging.level = LogLevel.info;
+      logging.scopes = {LogScope.all};
+
+      final options = SuperwallOptions();
+      options.paywalls.shouldPreload = true;
+      options.paywalls.shouldShowWebRestorationAlert = false;
+      &#47;&#47; options.logging = logging;
+
+      &#47;&#47; MARK: Step 2 - Configure Superwall
+      &#47;&#47;&#47; Always configure Superwall first. Pass in the `purchaseController` you just created.
+      Superwall.configure(apiKey,
+          purchaseController: useRevenueCat ? purchaseController : null,
+          options: options, completion: () {
+        logging.info('Executing Superwall configure completion block');
+        print('Executing Superwall configure completion block');
+        listenForPurchases();
+      });
+
+      _handleIncomingLinks();
+      Superwall.shared.setDelegate(delegate);
+      &#47;&#47; MARK: Step 3 – Configure RevenueCat and Sync Subscription Status
+      &#47;&#47;&#47; Always configure RevenueCat after Superwall and keep Superwall's
+      &#47;&#47;&#47; subscription status up-to-date with RevenueCat's.
+      if (useRevenueCat) {
+        await purchaseController.configure();
+        purchaseController.syncSubscriptionStatus();
+      }
+    } catch (e) {
+      &#47;&#47; Handle any errors that occur during configuration
+      logging.error('Failed to configure Superwall:', e);
+    }
+  }
+
+  &#47;&#47; &#47;&#47; Method to call when the button is tapped
+  &#47;&#47; Future onRegisterTapped() async {
+  &#47;&#47;   try {
+  &#47;&#47;     final handler = PaywallPresentationHandler();
+  &#47;&#47;     handler
+  &#47;&#47;       ..onPresent((paywallInfo) async {
+  &#47;&#47;         final name = await paywallInfo.name;
+  &#47;&#47;         logging.info('Handler (onPresent): $name');
+  &#47;&#47;       })
+  &#47;&#47;       ..onDismiss((paywallInfo) async {
+  &#47;&#47;         final name = await paywallInfo.name;
+  &#47;&#47;         logging.info('Handler (onDismiss): $name');
+  &#47;&#47;       })
+  &#47;&#47;       ..onError((error) {
+  &#47;&#47;         logging.error('Handler (onError):', error);
+  &#47;&
+// ... (truncated)

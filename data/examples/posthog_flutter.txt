@@ -1,0 +1,133 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:posthog_flutter&#47;posthog_flutter.dart';
+
+Future main() async {
+  &#47;&#47; &#47;&#47; init WidgetsFlutterBinding if not yet
+
+  WidgetsFlutterBinding.ensureInitialized();
+  final config =
+      PostHogConfig('phc_QFbR1y41s5sxnNTZoyKG2NJo2RlsCIWkUfdpawgb40D');
+  config.onFeatureFlags = () {
+    debugPrint('[PostHog] Feature flags loaded!');
+  };
+  config.debug = true;
+  config.captureApplicationLifecycleEvents = false;
+  config.host = 'https:&#47;&#47;us.i.posthog.com';
+  config.surveys = true;
+  config.sessionReplay = true;
+  config.sessionReplayConfig.maskAllTexts = false;
+  config.sessionReplayConfig.maskAllImages = false;
+  config.sessionReplayConfig.throttleDelay = const Duration(milliseconds: 1000);
+  config.flushAt = 1;
+
+  &#47;&#47; Configure error tracking and exception capture
+  config.errorTrackingConfig.captureFlutterErrors =
+      true; &#47;&#47; Capture Flutter framework errors
+  config.errorTrackingConfig.capturePlatformDispatcherErrors =
+      true; &#47;&#47; Capture Dart runtime errors
+  config.errorTrackingConfig.captureIsolateErrors =
+      true; &#47;&#47; Capture isolate errors
+
+  await Posthog().setup(config);
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PostHogWidget(
+      child: MaterialApp(
+        navigatorObservers: [PosthogObserver()],
+        title: 'Flutter App',
+        home: const InitialScreen(),
+      ),
+    );
+  }
+}
+
+class InitialScreen extends StatefulWidget {
+  const InitialScreen({Key? key}) : super(key: key);
+
+  @override
+  InitialScreenState createState() => InitialScreenState();
+}
+
+class InitialScreenState extends State {
+  final _posthogFlutterPlugin = Posthog();
+  dynamic _result = "";
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('PostHog Flutter App'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SecondRoute(),
+                          settings: const RouteSettings(name: 'second_route')),
+                    );
+                  },
+                  child: const PostHogMaskWidget(
+                    child: Text(
+                      'Go to Second Route',
+                    ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "Capture",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        _posthogFlutterPlugin
+                            .screen(screenName: "my screen", properties: {
+                          "foo": "bar",
+                        });
+                      },
+                      child: const Text("Capture Screen manually"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        _posthogFlutterPlugin
+                            .capture(eventName: "eventName", properties: {
+                          "foo": "bar",
+                        });
+                      },
+       
+// ... (truncated)

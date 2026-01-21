@@ -1,0 +1,57 @@
+import 'dart:convert';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:native_file_preview&#47;native_file_preview.dart';
+import 'dart:io';
+import 'package:path_provider&#47;path_provider.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Native File Preview Demo',
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      home: const FilePreviewDemo(),
+    );
+  }
+}
+
+class FilePreviewDemo extends StatefulWidget {
+  const FilePreviewDemo({super.key});
+
+  @override
+  State createState() => _FilePreviewDemoState();
+}
+
+class _FilePreviewDemoState extends State {
+  final _nativeFilePreviewPlugin = NativeFilePreview();
+  List sampleFiles = [];
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _createSampleFiles();
+  }
+
+  Future _createSampleFiles() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+
+      final imageFile = File('${directory.path}&#47;sample.png');
+      final base64Image =
+          'iVBORw0KGgoAAAANSUhEUgAAAEAAAABAEAYAAAD6+a2dAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP&#47;&#47;&#47;&#47;&#47;&#47;&#47;wlY99wAAAAHdElNRQfpBxILNC7eBrI3AAAgIUlEQVR42u1bZ1hU19Z+YZgZ2jAgvQ9tEASMghEVjCaiKKCoAUsUWywkxhBLbLHEEo1ijSZGLIkd0CR2JbmCRCzBEhVQYIY+tKEPnTmzvh&#47;IPRNNrvrdmOS58P4Z9lrrrLPPXi97r7P2Phr0BOhCp4Tm392BLvy96CJAJ0cXATo5ugjQydFFgE6OLgJ0cnQRoJOjiwCdHF0E6OToIkAnRxcBOjn+fAIQCC+ys9Bhp4IKqpfwz4AB8wr68zy8bD9ftZ+XHec&#47;wJ9PAA1oQANAD7jDHWBGMUFMEMAYM0JGCKiWq5aolqjZaUITmkCrUatuqy5QUlnysOQhkPdxXlheGFCmW1pXWgcow5ShylAAHHDAURvPGlWVqgpgLBlTxhRgXBknxgmg65RCKex96DXqST0BxpqxYCwAxpGxZ+wBSqJESgToR7pMlwFGzDgyjgDjwjgwDgBtp620le0nPNADPQAmmAlkAgHGlrFkLAE6TsfoGECX6AJdYPvBuDNiRgzQKTpJJ9X8OMMZzmp+XBlnxhlQVasqVZUAs5xZwiwBGHPGmDEGVO4qV5UrgFzkIlftua5RMiUDjIixYWwA5S3lNeU1gF4nH&#47;JRG+c&#47;JMgrQsrsFI8UD6IxX44uHV1KNLJfyGchnxEd&#47;fHo1KNT1ewup6xMWUk06oORP478kUg8wGWKyxQi219tKmwqiFzHipeKlxJN+2Wa+zR3ouJpxcOKhxHRATpAB4g2HdrkscmDKMQveGPwRqJ3fnnH5R0XIqmRpEpSxd5nl&#47;iLhC8SiEImBZ8IPkE0wWX8ivEriLImZb2e9TpR3Pw4mzgbopFrQ+6H3CcauT+kPKScKA6xsbGxrJ+kBUneSd5Eo11DPw79mGhcaPix8GNEGfMzAjMCieK6x96PvU80cmVIakgq0cgfQpgQhihuU5xPnA&#47;rJ7E58WLiRaLRwtApoVOIxu8ZVzOuhihpUVKfpD5E7&#47;WLPBR5iCikR&#47;Di4MVEi8QL9y7cS9Ro1Mhv5BPRfPqIPiLalr5txrYZRCGi4LnBc4kiFk1+MPkBUe5HuaG5oc+P0ysjwBaP6MvRlzu2mdnfr732XN9znahoR9HHRR8T9bT1CvIKetbuj36&#47;WPuF6RemRE3rm1Y0rSDq18s30jeS1dtst463jifKm5Tnl+dH1Mq0Nrc2EwWcGFIxpIK1M3cx62&#47;WnygzLnNt5lqi6c3TJ0yf8Oz9ZhnOXDhzIftc6w6vE68Ts3rjyG7Luy0nSstPO592nmh69fTR00f&#47;jp+pM1Nmpqj5GbX2wdoHrN7kvPFN45tEybOT3ZLdiLwueBZ6FrL6Hofd77jfIaruVS2qFhEVHC3YULCByKnKydDJkLUbujogJSCFqEGzvqm+6flxemVJoMRa0ihpZNs6vbR9tX0BcY5YS6wFxE2I04zTBO4XPjj&#47;4DygcQM3cAPwDuv9We&#47;PgD49fWb4zAA0h2kM0xjG+slelTUxayJQEVexu2I3UKosLSotYvV20+xX2a8CTLaZHDE5AtSsqplXMw+QWcsgU+ufrbttoG0goM&#47;XN9Y3BnL&#47;lbMvZ9+zz5Efm785fzPQMqklrCUMkJ6X7JTsZPU2j2zqbOoAg3UGOw12Arlnc3bk7HjWT8Hxgs8LPgdaZrdMbZkKSL6XbpZuZvXWp6xvWN8AHOMd7jjcAczumcnM1DrcatZq2GoItD1ufdj6EEjwT2hKaAJy7XOYHAbQ2sLZxtkGRFRMCZoSBOgyetp62gDa0Ia2P47Tn06AljUty1uWA9J1OdNzprNyw9WGOwx3AIbLjDYbbQYuP7i86fImVm8&#47;2f4T+0+AY7nHNxzfAGyZuLV0aymgG6m7UHcha8cZxBnCGQIUv13cv7g&#47;UOlRaVlpyeodVogOiA4AeiZ69nr2QOnq0sjSSKBcVK5brsvaiYaLIkWRgPKs8gflD0DRlqKooqhnn0fWp9iq2AooNShtKG0Acsfm9s7trdZvb&#47;ux9mMBRpvhMlygaFPRB0Uf&#47;I4fJxlfxgdKhaWNpY1A3uzcYblqxLa7Z1dlVwWYnDJNNk0GTPmmNqY2auPa2FLdUg3IW+RF8iLg1LSTgpMCQKUgBSkAT4mnrqcuEBAZ8F3Ad2o35oIL7l9IgNrVNVE1UUChbkFFQQUrtwy2mmk1E2gb2zaybSTwKDXjUMYhVt&#47;7rLfMWwaIU8V14jpA2V3prHQGGC6jwaglMabxZklmSUD+u&#47;kB+QFAQ3zDwYaDrN75LZfZLrPZdkFRwfWC60DdrbqEugRW7tJH&#47;I74HaByaeXMypmAfJ98o3wj8HTCVMGrqKuoA7LyshKyEoDivOLrxdfV&#47;Ox1SXRJBKrmV02tmgrId8pXyFcA6okqAFQoK8oqyoCsrKxzWeeA4tLiu8V3Wb0Tz8nNyQ3gD+IP4w8DzMMt5l
+// ... (truncated)

@@ -1,0 +1,31 @@
+import 'package:flutter&#47;material.dart';
+import 'package:splash_master&#47;splash_master.dart';
+import 'package:splash_master_example&#47;assets.dart';
+import 'package:splash_master_example&#47;home.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SplashMaster.initialize();
+  runApp(
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: SplashScreen(),
+    ),
+  );
+}
+
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SplashMaster.video(
+      source: AssetSource(Assets.simformSplashVideo),
+      videoConfig: const VideoConfig(
+        videoVisibilityEnum: VisibilityEnum.useAspectRatio,
+      ),
+      backGroundColor: Colors.white,
+      nextScreen: const Home(),
+    );
+  }
+}

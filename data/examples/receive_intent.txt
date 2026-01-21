@@ -1,0 +1,77 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart' hide Intent;
+import 'package:receive_intent&#47;receive_intent.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; Example app widget for the plugin.
+class MyApp extends StatefulWidget {
+  &#47;&#47;&#47; Constructor of MyApp widget.
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  Intent? _initialIntent;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future _init() async {
+    final receivedIntent = await ReceiveIntent.getInitialIntent();
+
+    if (!mounted) return;
+
+    setState(() {
+      _initialIntent = receivedIntent;
+    });
+  }
+
+  Widget _buildFromIntent(String label, Intent? intent) {
+    return Center(
+      child: Column(
+        children: [
+          Text(label),
+          Text(
+              "fromPackage: ${intent?.fromPackageName}\nfromSignatures: ${intent?.fromSignatures}"),
+          Text(
+              'action: ${intent?.action}\ndata: ${intent?.data}\ncategories: ${intent?.categories}'),
+          Text("extras: ${intent?.extra}")
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildFromIntent("INITIAL", _initialIntent),
+              StreamBuilder(
+                stream: ReceiveIntent.receivedIntentStream,
+                builder: (context, snapshot) =>
+                    _buildFromIntent("STREAMED", snapshot.data),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

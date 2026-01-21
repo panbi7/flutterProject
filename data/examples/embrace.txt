@@ -1,0 +1,124 @@
+import 'package:embrace&#47;embrace.dart';
+import 'package:embrace_example&#47;breadcrumbs.dart';
+import 'package:embrace_example&#47;current_session.dart';
+import 'package:embrace_example&#47;errors.dart';
+import 'package:embrace_example&#47;isolates.dart';
+import 'package:embrace_example&#47;last_run_end_state.dart';
+import 'package:embrace_example&#47;logs.dart';
+import 'package:embrace_example&#47;navigation.dart';
+import 'package:embrace_example&#47;network.dart';
+import 'package:embrace_example&#47;push_notifications.dart';
+import 'package:embrace_example&#47;session_properties.dart';
+import 'package:embrace_example&#47;tracing_api.dart';
+import 'package:embrace_example&#47;user.dart';
+import 'package:embrace_example&#47;views.dart';
+import 'package:flutter&#47;material.dart';
+
+Future main() async {
+  await Embrace.instance.start(() => runApp(const EmbraceDemo()));
+}
+
+class EmbraceDemo extends StatelessWidget {
+  const EmbraceDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(home: EmbraceMenu());
+  }
+}
+
+class EmbraceMenu extends StatefulWidget {
+  const EmbraceMenu({super.key});
+
+  @override
+  State createState() => _EmbraceMenuState();
+}
+
+class _EmbraceMenuState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Embrace Example App'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Center(
+          child: ListView(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BreadcrumbDemo(),
+                    ),
+                  );
+                },
+                child: const Text('Breadcrumbs'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PushNotificationsDemo(),
+                    ),
+                  );
+                },
+                child: const Text('Push Notifications'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LogsDemo(),
+                    ),
+                  );
+                },
+                child: const Text('Logs'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ViewsDemo(),
+                    ),
+                  );
+                },
+                child: const Text('Views'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EmbraceNavigationDemo(),
+                    ),
+                  );
+                },
+                child: const Text('Navigation'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UserDemo(),
+                    ),
+                  );
+                },
+                child: const Text('User'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SessionPropertiesDemo(),
+                    ),
+                  );
+                },
+// ... (truncated)

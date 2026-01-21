@@ -1,0 +1,136 @@
+import 'dart:io';
+
+import 'package:ffmpeg_kit_flutter_new&#47;ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_new&#47;log.dart';
+import 'package:ffmpeg_kit_flutter_new&#47;session.dart';
+import 'package:ffmpeg_kit_flutter_new&#47;statistics.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'FFmpeg Kit',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: const MyHomePage(title: 'FFmpeg Kit Example'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  String logString = 'Logs will appear here...';
+  bool isProcessing = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 16),
+                    Text(
+                      logString,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (isProcessing)
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: LinearProgressIndicator(),
+            ),
+        ],
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: [
+            ElevatedButton(
+              onPressed:
+                  isProcessing ? null : () => executeFFmpegCommand('software'),
+              child: const Text('Software'),
+            ),
+            ElevatedButton(
+              onPressed:
+                  isProcessing ? null : () => executeFFmpegCommand('hardware'),
+              child: const Text('Hardware'),
+            ),
+            ElevatedButton(
+              onPressed:
+                  isProcessing ? null : () => executeFFmpegCommand('test'),
+              child: const Text('Test HW'),
+            ),
+            if (Platform.isIOS || Platform.isMacOS)
+              ElevatedButton(
+                onPressed:
+                    isProcessing
+                        ? null
+                        : () => executeFFmpegCommand('videotoolbox'),
+                child: const Text('VideoToolbox'),
+              ),
+            ElevatedButton(
+              onPressed:
+                  isProcessing
+                      ? null
+                      : () => executeFFmpegCommand('list_codecs'),
+              child: const Text('List Codecs'),
+            ),
+            ElevatedButton(
+              onPressed:
+                  isProcessing
+                      ? null
+                      : () => executeFFmpegCommand('mediacodec'),
+              child: const Text('MediaCodec'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void executeFFmpegCommand(String mode) async {
+    setState(() {
+      isProcessing = true;
+      logString = 'Starting FFmpeg processing...\n\n';
+    });
+
+    try {
+      final tempDir = await getTemporaryDirectory();
+      final sampleVideoRoot 
+// ... (truncated)

@@ -1,0 +1,132 @@
+import 'package:flutter&#47;material.dart';
+import 'package:scroll_to_id&#47;scroll_to_id.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  ScrollToId? scrollToId;
+  final ScrollController scrollController = ScrollController();
+
+  List _colorList = [
+    Colors.green,
+    Colors.red,
+    Colors.yellow,
+    Colors.blue
+  ];
+
+  void _scrollListener() {
+    print(scrollToId!.idPosition());
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47;&#47; Create ScrollToId instance
+    scrollToId = ScrollToId(scrollController: scrollController);
+
+    scrollController.addListener(_scrollListener);
+  }
+
+  &#47;&#47;&#47; Generate 10 Container
+  &#47;&#47;&#47; Case [Axis.horizontal] set buildStackHorizontal() to body
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Scroll to id',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Scroll to id'),
+        ),
+        body: buildStackVertical(),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.navigate_next),
+          onPressed: () {
+            scrollToId!.animateToNext(
+                duration: Duration(milliseconds: 500), curve: Curves.ease);
+          },
+        ),
+      ),
+    );
+  }
+
+  &#47;&#47;&#47; [Axis.vertical]
+  &#47;&#47;&#47; https:&#47;&#47;raw.githubusercontent.com&#47;wiki&#47;yusukeinouehatchout&#47;scroll_to_id&#47;gif&#47;scroll_to_id_vertical.gif
+  Widget buildStackVertical() {
+    return Stack(
+      alignment: Alignment.topRight,
+      children: [
+        InteractiveScrollViewer(
+          scrollToId: scrollToId,
+          children: List.generate(10, (index) {
+            return ScrollContent(
+              id: '$index',
+              child: Container(
+                alignment: Alignment.center,
+                width: double.infinity,
+                height: 200,
+                child: Text(
+                  '$index',
+                  style: TextStyle(color: Colors.white, fontSize: 50),
+                ),
+                color: _colorList[index % _colorList.length],
+              ),
+            );
+          }),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white, width: 3),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(10, (index) {
+              return GestureDetector(
+                child: Container(
+                  width: 100,
+                  alignment: Alignment.center,
+                  height: 50,
+                  child: Text(
+                    '$index',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  color: _colorList[index % _colorList.length],
+                ),
+                onTap: () {
+                  &#47;&#47;&#47; scroll with animation
+                  scrollToId!.animateTo('$index',
+                      duration: Duration(milliseconds: 500),
+                      curve: Curves.ease);
+
+                  &#47;&#47;&#47; scroll with jump
+                  &#47;&#47; scrollToId.jumpTo('$index');
+                },
+              );
+            }),
+          ),
+        )
+      ],
+    );
+  }
+
+  &#47;&#47;&#47; [Axis.horizontal]
+  &#47;&#47;&#47; https:&#47;&#47;raw.githubusercontent.com&#47;wiki&#47;yusukeinouehatchout&#47;scroll_to_id&#47;gif&#47;scroll_to_id_horizontal.gif
+  Widget buildStackHorizontal() {
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white
+// ... (truncated)

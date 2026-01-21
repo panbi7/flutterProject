@@ -1,0 +1,122 @@
+import 'package:adoptive_calendar&#47;adoptive_calendar.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Example Adoptive Calendar',
+      theme: ThemeData(
+        &#47;&#47; colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const ExampleAdoptiveCalendar(),
+    );
+  }
+}
+
+class ExampleAdoptiveCalendar extends StatefulWidget {
+  const ExampleAdoptiveCalendar({super.key});
+
+  @override
+  State createState() =>
+      _ExampleAdoptiveCalendarState();
+}
+
+class _ExampleAdoptiveCalendarState extends State {
+  DateTime? pickedDate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.deepPurpleAccent,
+        title: const Text(
+          "Adoptive Calendar Example",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Center(
+                child: ElevatedButton(
+              onPressed: () async {
+                pickedDate = await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AdoptiveCalendar(
+                      initialDate: DateTime.now(),
+                      brandIcon: Image.asset(
+                        'android&#47;app&#47;src&#47;main&#47;res&#47;mipmap-xxhdpi&#47;ic_launcher.png',
+                        color: Colors.blue,
+                      ),
+                    );
+                  },
+                );
+                setState(() {});
+              },
+              child: const Text("Open Default Calendar"),
+            )),
+          ),
+          const SizedBox(height: 10),
+          Flexible(
+            child: Center(
+                child: ElevatedButton(
+              onPressed: () async {
+                pickedDate = await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AdoptiveCalendar(
+                      initialDate: DateTime.now(),
+                      brandIcon: Image.asset(
+                        'android&#47;app&#47;src&#47;main&#47;res&#47;mipmap-xxhdpi&#47;ic_launcher.png',
+                        color: Colors.blue,
+                      ),
+                      action: true,
+                    );
+                  },
+                );
+                setState(() {});
+              },
+              child: const Text("Open Default Calendar with action"),
+            )),
+          ),
+          const SizedBox(height: 10),
+          Flexible(
+            child: Center(
+                child: ElevatedButton(
+              onPressed: () async {
+                pickedDate = await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AdoptiveCalendar(
+                      initialDate: DateTime.now(),
+                      use24hFormat: true,
+                    );
+                  },
+                );
+                setState(() {});
+              },
+              child: const Text("Open 24 Hours Format Calendar"),
+            )),
+          ),
+          const SizedBox(height: 10),
+          Flexible(
+            child: Center(
+                child: ElevatedButton(
+              onPressed: () async {
+                pickedDate = await showDialog(
+                  context: context,
+                  builde
+// ... (truncated)

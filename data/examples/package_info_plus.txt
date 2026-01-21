@@ -1,0 +1,101 @@
+&#47;&#47; Copyright 2017 The Chromium Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:package_info_plus&#47;package_info_plus.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'PackageInfoPlus Demo',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: const Color(0x9f4376f8),
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+    installerStore: 'Unknown',
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _initPackageInfo();
+  }
+
+  Future _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
+  }
+
+  Widget _infoTile(String title, String subtitle) {
+    return ListTile(
+      title: Text(title),
+      subtitle: Text(subtitle.isEmpty ? 'Not set' : subtitle),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('PackageInfoPlus example'),
+        elevation: 4,
+      ),
+      body: ListView(
+        children: [
+          _infoTile('App name', _packageInfo.appName),
+          _infoTile('Package name', _packageInfo.packageName),
+          _infoTile('App version', _packageInfo.version),
+          _infoTile('Build number', _packageInfo.buildNumber),
+          _infoTile('Build signature', _packageInfo.buildSignature),
+          _infoTile(
+            'Installer store',
+            _packageInfo.installerStore ?? 'not available',
+          ),
+          _infoTile(
+            'Install time',
+            _packageInfo.installTime?.toIso8601String() ??
+                'Install time not available',
+          ),
+          _infoTile(
+            'Update time',
+            _packageInfo.updateTime?.toIso8601String() ??
+                'Update time not available',
+          ),
+        ],
+      ),
+    );
+  }
+}

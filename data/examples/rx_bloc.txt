@@ -1,0 +1,134 @@
+import 'package:rx_bloc&#47;rx_bloc.dart';
+import 'package:rxdart&#47;rxdart.dart';
+
+void main() async {
+  print('----------RX_BLOC----------');
+
+  &#47;&#47;&#47; Create a `CounterBloc` instance.
+  final bloc = CounterBloc(ServerSimulator());
+
+  &#47;&#47;&#47; Listen to the `count` state.
+  bloc.states.count.listen((int number) {
+    print('onChange -- Count state changed to $number');
+  });
+
+  &#47;&#47;&#47; Listen to the `error` state.
+  bloc.states.errors.listen((String error) {
+    print('onError -- $error');
+  });
+
+  &#47;&#47;&#47; Listen to the `loading` state.
+  bloc.states.isLoading.listen((bool isLoading) {
+    print(isLoading ? 'Loading...' : 'Loaded ✔ \n');
+  });
+
+  await Future.delayed(const Duration(milliseconds: 500));
+
+  &#47;&#47;&#47; Fire the increment event.
+  bloc.events.increment(); &#47;&#47; 1
+
+  await Future.delayed(const Duration(milliseconds: 500));
+
+  &#47;&#47;&#47; Decrementing.
+  bloc.events.decrement(); &#47;&#47; 0
+
+  &#47;&#47;&#47; Decrementing one more time will cause an error.
+  await Future.delayed(const Duration(milliseconds: 500));
+  bloc.events.decrement(); &#47;&#47; Exception.
+}
+
+&#47;&#47;&#47; This BloC and its event and state contracts usually
+&#47;&#47;&#47; resides in `counter_bloc.dart`
+&#47;&#47;&#47; A contract class containing all events.
+abstract class CounterBlocEvents {
+  &#47;&#47;&#47; Increment the count event.
+  void increment();
+
+  &#47;&#47;&#47; Decrement the count event.
+  void decrement();
+}
+
+&#47;&#47;&#47; A contract class containing all states for our multi state BloC.
+abstract class CounterBlocStates {
+  &#47;&#47;&#47; The count of the Counter
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; It can be controlled by executing [CounterBlocEvents.increment] and
+  &#47;&#47;&#47; [CounterBlocEvents.decrement]
+  &#47;&#47;&#47;
+  Stream get count;
+
+  &#47;&#47;&#47; Loading state
+  Stream get isLoading;
+
+  &#47;&#47;&#47; Error messages
+  Stream get errors;
+
+  &#47;&#47;&#47; ... state n
+  &#47;&#47;&#47; You can have as many states as you need.
+  &#47;&#47;&#47; You're not limited to 1 state for a bloc class.
+}
+
+&#47;&#47;&#47; A RX `CounterBloc` which maps multiple events with multiple states.
+class CounterBloc extends $CounterBloc {
+  CounterBloc(this._server);
+
+  final ServerSimulator _server;
+
+  &#47;&#47;&#47; Map increment and decrement events to `count` state.
+  @override
+  Stream _mapToCountState() => Rx.merge>([
+        &#47;&#47; On increment.
+        _$incrementEvent.flatMap((_) => _server.increment().asResultStream()),
+        &#47;&#47; On decrement.
+        _$decrementEvent.flatMap((_) => _server.decrement().asResultStream()),
+      ])
+          &#47;&#47; This automatically handles the error and loading state.
+          .setResultStateHandler(this)
+          &#47;&#47; Provide success response only.
+          .whereSuccess()
+          &#47;&#47;emit 0 as initial value
+          .startWith(0);
+
+  &#47;&#47;&#47; Transform any exception into a readable string.
+  @override
+  Stream _mapToErrorsState() =>
+      errorState.map((result) => result.toString());
+
+  @override
+  Stream _mapToIsLoadingState() => loadingState;
+}
+
+&#47;&#47;&#47; This will simulate a server with 100 milliseconds response time.
+class ServerSimulator {
+  int _counter = 0;
+
+  static const delay = Duration(milliseconds: 100);
+  static const delayTest = Duration(milliseconds: 110);
+
+  Future increment() async {
+    &#47;&#47; Server response time.
+    await Future.delayed(delay);
+
+    if (_counter >= 3) {
+      throw Exception('Maximum number is reached!');
+    }
+
+    return ++_counter;
+  }
+
+  Future decrement() async {
+    &#47;&#47; Server response time.
+    await Future.delayed(delay);
+    &#47;&#47; Simulate an error from the server when the counter goes less than 1.
+    if (_counter ();
+
+  @override
+  void decrement() => _$decrementEvent.add(null);
+
+  final _$incrementEvent = PublishSubject();
+
+  @override
+  void increment() => _$incrementEvent.add(null);
+
+  late final Stream _countState 
+// ... (truncated)

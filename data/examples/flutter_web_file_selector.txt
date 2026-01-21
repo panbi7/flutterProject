@@ -1,0 +1,131 @@
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_web_file_selector&#47;flutter_web_file_selector.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  bool _disabled = false;
+
+  Future _processFiles(List files) async {
+    for (final XFile file in files) {
+      debugPrint('File: ${file.name} (MIME type: ${file.mimeType})');
+
+      &#47;&#47; You can get bytes from the file with these methods:
+      &#47;&#47; final Uint8List bytes = await file.readAsBytes();
+      &#47;&#47; final Stream stream = file.openRead();
+      &#47;&#47; ...
+    }
+  }
+
+  Future _selectFiles() {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Not using flutter_web_file_selector'),
+          content: const Text(
+            'You can use other packages like file_selector or file_picker',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; 1. To use the flutter_web_file_selector package on all web browsers,
+    &#47;&#47;    you can just use kIsWeb.
+    const bool useWebFileSelector = kIsWeb;
+    &#47;&#47; 2. To use the package only for web browsers running on iOS&#47;iPadOS,
+    &#47;&#47;    you can use WebFileSelector.isIOSWeb instead.
+    &#47;&#47; final useWebFileSelector = WebFileSelector.isIOSWeb;
+
+    &#47;&#47; The "accept" argument in WebFileSelector accepts the same value as the
+    &#47;&#47; accept attribute in .
+    &#47;&#47; https:&#47;&#47;developer.mozilla.org&#47;en-US&#47;docs&#47;Web&#47;HTML&#47;Element&#47;input&#47;file#accept
+    const String acceptedFileTypes = '.pdf, .png, .jpg, .jpeg, .tif, .tiff';
+
+    &#47;&#47; The "multiple" aregument controls whether to let users select
+    &#47;&#47; multiple files or not.
+    const bool multipleFiles = true;
+
+    &#47;&#47; onPress event handler for buttons
+    void Function()? onPressed;
+    if (!_disabled) {
+      onPressed = () {
+        if (!useWebFileSelector) {
+          &#47;&#47; Not using the WebFileSelector.
+          &#47;&#47; Use other packages like file_selector or file_picker.
+          _selectFiles();
+        }
+      };
+    }
+
+    &#47;&#47; onData event handler for WebFileSelector widget
+    void Function(List files)? onData;
+    if (!_disabled) {
+      onData = (files) => _processFiles(files);
+    }
+
+    &#47;&#47; Create a "Select Files" button
+    Widget selectFilesButton = ElevatedButton(
+      onPressed: onPressed,
+      child: const Text('Select Files'),
+    );
+
+    if (useWebFileSelector) {
+      &#47;&#47; Wrap the "Select Files" button with WebFileSelector widget
+      selectFilesButton = WebFileSelector(
+        onData: onData,
+        accept: acceptedFileTypes,
+        multiple: multipleFiles,
+        child: selectFilesButton,
+      );
+    }
+
+    &#47;&#47; Create a floating action button
+    Widget? floatingActionButton;
+    if (!_disabled) {
+      floatingActionButton = FloatingActionButton(
+        onPressed: onPressed,
+        tooltip: 'Select Files',
+        child: const Icon(Icons.add),
+      );
+
+      if (useWebFileSelector) {
+        &#47;&#47; Wrap the floating action button 
+// ... (truncated)

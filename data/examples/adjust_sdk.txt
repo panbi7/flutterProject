@@ -1,0 +1,123 @@
+import 'package:adjust_sdk&#47;adjust.dart';
+import 'package:adjust_sdk&#47;adjust_attribution.dart';
+import 'package:adjust_sdk&#47;adjust_config.dart';
+import 'package:adjust_sdk&#47;adjust_event.dart';
+import 'package:adjust_sdk&#47;adjust_event_failure.dart';
+import 'package:adjust_sdk&#47;adjust_event_success.dart';
+import 'package:adjust_sdk&#47;adjust_session_failure.dart';
+import 'package:adjust_sdk&#47;adjust_session_success.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+void main() {
+  runApp(const AdjustExampleApp());
+}
+
+&#47;&#47;&#47; main application widget for Adjust Flutter Example App
+class AdjustExampleApp extends StatelessWidget {
+  const AdjustExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Adjust Example',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+&#47;&#47;&#47; home page showcasing Adjust SDK functionality
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State with WidgetsBindingObserver {
+  &#47;&#47; event tokens for demonstration
+  static const String _eventTokenSimple = 'g3mfiw';
+  static const String _eventTokenRevenue = 'a4fd35';
+  static const String _eventTokenCallback = '34vgg9';
+  static const String _eventTokenPartner = 'w788qs';
+  
+  &#47;&#47; adjust configuration constants
+  static const String _appToken = '2fm9gkqubvpc';
+  static const AdjustEnvironment _environment = AdjustEnvironment.sandbox;
+  static const AdjustLogLevel _logLevel = AdjustLogLevel.verbose;
+  
+  &#47;&#47; adjust brand colors
+  static const Color _adjustNavy = Color(0xFF1B2951);
+  static const Color _adjustNavyLight = Color(0xFF2A3A5C);
+  
+  &#47;&#47; ui state
+  String _toggleButtonText = 'Toggle SDK';
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _initializeAdjustSdk();
+    _updateToggleButtonText();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  &#47;&#47;&#47; initialize the Adjust SDK with configuration
+  Future _initializeAdjustSdk() async {
+    setState(() => _isLoading = true);
+    
+    try {
+      final config = AdjustConfig(_appToken, _environment);
+      config.logLevel = _logLevel;
+
+      &#47;&#47; configure attribution callback
+      config.attributionCallback = _handleAttributionCallback;
+      
+      &#47;&#47; configure session callbacks
+      config.sessionSuccessCallback = _handleSessionSuccess;
+      config.sessionFailureCallback = _handleSessionFailure;
+      
+      &#47;&#47; configure event callbacks
+      config.eventSuccessCallback = _handleEventSuccess;
+      config.eventFailureCallback = _handleEventFailure;
+      
+      &#47;&#47; configure deeplink callback
+      config.deferredDeeplinkCallback = _handleDeferredDeeplink;
+      
+      &#47;&#47; configure SKAN callback
+      config.skanUpdatedCallback = _handleSkanUpdate;
+
+      &#47;&#47; setup global parameters for demonstration
+      _setupGlobalParameters();
+
+      &#47;&#47; initialize the SDK
+      Adjust.initSdk(config);
+      
+      print('[AdjustExample]: SDK initialized successfully');
+    } catch (e) {
+      print('[AdjustExample]: Failed to initialize SDK: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  &#47;&#47;&#47; setup global callback and partner parameters
+  void _setupGlobalParameters() {
+    &#47;&#47; add global parameters
+    Adjust.addGlobalCallbackParameter('scp_foo_1', 'scp_bar');
+    Adjust.addGlobalCallbackParameter('scp_foo_2', 'scp_value');
+    Adjust.addG
+// ... (truncated)

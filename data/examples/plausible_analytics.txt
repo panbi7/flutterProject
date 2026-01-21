@@ -1,0 +1,21 @@
+import 'package:plausible_analytics&#47;plausible_analytics.dart';
+
+String analyticsUrl = "https:&#47;&#47;youranalyticsurl.com";
+const String analyticsName = "yourappname"; &#47;&#47; this is actually the site name
+
+void main() {
+  Plausible plausible = Plausible(analyticsUrl, analyticsName);
+  &#47;&#47; Send goal
+  plausible.event(name: 'Device', props: {
+    'app_version': 'v1.0.0',
+    'app_platform': 'windows',
+    'app_locale': 'de-DE',
+    'app_theme': 'darkmode',
+  });
+
+  &#47;&#47; Page open event
+  plausible.event(name: "settings_page");
+
+  &#47;&#47; Click event
+  plausible.event();
+}

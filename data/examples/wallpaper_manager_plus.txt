@@ -1,0 +1,147 @@
+import 'dart:async';
+
+import 'package:cached_network_image&#47;cached_network_image.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_cache_manager&#47;flutter_cache_manager.dart';
+import 'package:wallpaper_manager_plus&#47;wallpaper_manager_plus.dart';
+import 'package:file_picker&#47;file_picker.dart';
+
+void main() {
+  runApp(
+    MaterialApp(
+      home: const HomeScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(),
+    ),
+  );
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State {
+  final WallpaperManagerPlus wallpaperManagerPlus = WallpaperManagerPlus();
+  final imageurl =
+      'https:&#47;&#47;unsplash.com&#47;photos&#47;AnBzL_yOWBc&#47;download?force=true&w=2400';
+
+  &#47;&#47; Pexels video URL for live wallpaper example
+  final videoUrl = 'https:&#47;&#47;www.pexels.com&#47;download&#47;video&#47;7121778&#47;';
+
+  String? selectedVideoPath;
+  bool isPickingFile = false;
+  bool isDownloadingVideo = false;
+  double downloadProgress = 0.0;
+
+  Future _setWallpaper(int location) async {
+    final file = await DefaultCacheManager().getSingleFile(imageurl);
+    try {
+      final result = await wallpaperManagerPlus.setWallpaper(file, location);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result ?? 'Wallpaper set successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+      debugPrint(e.toString());
+    }
+  }
+
+  Future _pickVideoFile() async {
+    setState(() {
+      isPickingFile = true;
+    });
+
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.video,
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        setState(() {
+          selectedVideoPath = result.files.single.path!;
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Video selected: ${result.files.single.name}')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error picking file: $e')),
+        );
+      }
+    } finally {
+      setState(() {
+        isPickingFile = false;
+      });
+    }
+  }
+
+  Future _setLiveWallpaper() async {
+    if (selectedVideoPath == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a video file first')),
+      );
+      return;
+    }
+
+    try {
+      final result =
+          await wallpaperManagerPlus.setLiveWallpaper(selectedVideoPath!);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result ?? 'Live wallpaper picker opened')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+      debugPrint(e.toString());
+    }
+  }
+
+  Future _downloadAndSetLiveWallpaper() async {
+    setState(() {
+      isDownloadingVideo = true;
+      downloadProgress = 0.0;
+    });
+
+    try {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Downloading video from Pexels...')),
+      );
+
+      &#47;&#47; Download the video file using cache manager
+      final fileInfo = await DefaultCacheManager().downloadFile(
+        videoUrl,
+        authHeaders: null,
+      );
+
+      if (!mounted) return;
+
+      if (fileInfo.file.existsSync()) {
+        final videoPath = fileInfo.file.path;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Video do
+// ... (truncated)

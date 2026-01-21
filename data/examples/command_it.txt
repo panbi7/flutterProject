@@ -1,0 +1,27 @@
+import 'package:command_it&#47;command_it.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_weather_demo&#47;weather_manager.dart';
+
+import 'homepage.dart';
+
+void main() {
+  Command.reportAllExceptions = true;
+  Command.globalExceptionHandler = (ex, stack) {
+    print(ex.toString());
+    print(stack.toString());
+  };
+
+  runApp(MyApp());
+}
+
+&#47;&#47;&#47; In a real app you would use some locator like get_it or provider
+&#47;&#47;&#47; to access your business objects. To keep the focus on the commands we use here
+&#47;&#47;&#47; a global variable.
+WeatherManager weatherManager = WeatherManager();
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(title: 'Flutter Demo', home: HomePage());
+  }
+}

@@ -1,0 +1,151 @@
+import 'dart:ui' as ui;
+import 'dart:typed_data';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;rendering.dart';
+import 'package:super_clipboard&#47;super_clipboard.dart';
+import 'package:flutter_layout_grid&#47;flutter_layout_grid.dart';
+
+import 'widget_for_reader.dart';
+
+void main() async {
+  runApp(const MyApp());
+}
+
+const _notAvailableMessage =
+    'Clipboard is not available on this platform. Use ClipboardEvents API instead.';
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'SuperClipboard Example',
+      theme: ThemeData(
+        snackBarTheme: const SnackBarThemeData(
+          behavior: SnackBarBehavior.floating,
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 16)),
+        ),
+        primarySwatch: Colors.blue,
+        useMaterial3: false,
+      ),
+      home: const MyHomePage(title: 'SuperClipboard Example'),
+    );
+  }
+}
+
+class Expand extends SingleChildRenderObjectWidget {
+  const Expand({super.key, required super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderExpanded();
+}
+
+class _RenderExpanded extends RenderProxyBox {
+  @override
+  void layout(Constraints constraints, {bool parentUsesSize = false}) {
+    final boxConstraints = constraints as BoxConstraints;
+    super.layout(
+        boxConstraints.tighten(
+          width: boxConstraints.maxWidth,
+          height: boxConstraints.maxHeight,
+        ),
+        parentUsesSize: parentUsesSize);
+  }
+}
+
+class HomeLayout extends StatelessWidget {
+  const HomeLayout({
+    super.key,
+    required this.mainContent,
+    required this.buttons,
+  });
+
+  final List mainContent;
+  final List buttons;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth  Expand(child: e)).toList(),
+            ),
+            const SizedBox(height: 16),
+            ...mainContent,
+          ],
+        );
+      } else {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: IntrinsicWidth(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: buttons
+                        .intersperse(const SizedBox(height: 10))
+                        .toList(growable: false),
+                  ),
+                ),
+              ),
+            ),
+            VerticalDivider(
+              color: Colors.blueGrey.shade100,
+              thickness: 1,
+              width: 1,
+            ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: mainContent,
+              ),
+            )
+          ],
+        );
+      }
+    });
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State
+    with SingleTickerProviderStateMixin {
+  void showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(milliseconds: 1500),
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    ClipboardEvents.instance?.registerPasteEventListener(_onPasteEvent);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    ClipboardEvents.instance?.unregisterPasteEventListener(_onPasteEvent);
+  }
+
+  void copyText() async {
+    final clipboard = SystemClipboard
+// ... (truncated)

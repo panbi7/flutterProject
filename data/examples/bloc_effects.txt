@@ -1,0 +1,72 @@
+import 'package:bloc_effects&#47;bloc_effects.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_bloc&#47;flutter_bloc.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+abstract class DemoEffect {}
+
+class ShowBottomSheet implements DemoEffect {
+  const ShowBottomSheet();
+}
+
+class DemoCubit extends Cubit with Effects {
+  DemoCubit() : super(null);
+
+  void onButtonPressed() => emitEffect(const ShowBottomSheet());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late DemoCubit _demoCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _demoCubit = DemoCubit();
+  }
+
+  @override
+  void dispose() {
+    _demoCubit.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: BlocEffectListener(
+          effector: _demoCubit,
+          listener: (context, effect) {
+            if (effect is ShowBottomSheet) {
+              showBottomSheet(
+                context: context,
+                builder: (c) => Material(
+                  child: Container(
+                    color: Colors.black12,
+                    height: 150,
+                  ),
+                ),
+              );
+            }
+          },
+          child: Center(
+            child: ElevatedButton(
+              onPressed: _demoCubit.onButtonPressed,
+              child: const Icon(Icons.upload),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

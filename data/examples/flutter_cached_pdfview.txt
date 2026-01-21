@@ -1,0 +1,134 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_cached_pdfview&#47;flutter_cached_pdfview.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        home: MyHomePage(),
+        debugShowCheckedModeBanner: false,
+      );
+}
+
+class MyHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('flutter_cached_pdfview Demo'),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const PDFViewerFromUrl(
+                  url:
+                      'https:&#47;&#47;ontheline.trincoll.edu&#47;images&#47;bookdown&#47;sample-local-pdf.pdf',
+                ),
+              ),
+            ),
+            child: const Text('PDF From Url'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const PDFViewerCachedFromUrl(
+                  url:
+                      'https:&#47;&#47;ontheline.trincoll.edu&#47;images&#47;bookdown&#47;sample-local-pdf.pdf',
+                ),
+              ),
+            ),
+            child: const Text('Cashed PDF From Url'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PDFViewerFromAsset(
+                  pdfAssetPath: 'assets&#47;pdf&#47;file-example.pdf',
+                ),
+              ),
+            ),
+            child: const Text('PDF From Asset'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class PDFViewerFromUrl extends StatelessWidget {
+  const PDFViewerFromUrl({Key? key, required this.url}) : super(key: key);
+
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('PDF From Url'),
+      ),
+      body: const PDF().fromUrl(
+        url,
+        placeholder: (double progress) => Center(child: Text('$progress %')),
+        errorWidget: (dynamic error) => Center(child: Text(error.toString())),
+      ),
+    );
+  }
+}
+
+class PDFViewerCachedFromUrl extends StatelessWidget {
+  const PDFViewerCachedFromUrl({Key? key, required this.url}) : super(key: key);
+
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Cached PDF From Url'),
+      ),
+      body: const PDF().cachedFromUrl(
+        url,
+        placeholder: (double progress) => Center(child: Text('$progress %')),
+        errorWidget: (dynamic error) => Center(child: Text(error.toString())),
+      ),
+    );
+  }
+}
+
+class PDFViewerFromAsset extends StatelessWidget {
+  PDFViewerFromAsset({Key? key, required this.pdfAssetPath}) : super(key: key);
+  final String pdfAssetPath;
+  final Completer _pdfViewController =
+      Completer();
+  final StreamController _pageCountController =
+      StreamController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('PDF From Asset'),
+        actions: [
+          StreamBuilder(
+              stream: _pageCountController.stream,
+              builder: (_, AsyncSnapshot snapshot) {
+                if (snapshot.hasData) {
+                  return Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.blue[900],
+                      ),
+                      child: Text(snapshot.data!),
+// ... (truncated)

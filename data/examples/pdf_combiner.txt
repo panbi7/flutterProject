@@ -1,0 +1,22 @@
+import 'package:flutter&#47;material.dart';
+import 'package:pdf_combiner_example&#47;utils&#47;theme.dart';
+import 'package:pdf_combiner_example&#47;views&#47;pdf_combiner_screen.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'PDF Combiner Example',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+      home: const PdfCombinerScreen(),
+    );
+  }
+}

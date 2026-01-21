@@ -1,0 +1,133 @@
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:keyboard_detection&#47;keyboard_detection.dart';
+
+void main() {
+  runApp(const MaterialApp(home: MyApp()));
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  KeyboardState keyboardState = KeyboardState.unknown;
+  bool? stateAsBool;
+  bool? stateAsBoolWithParamTrue;
+
+  StreamSubscription? _sub;
+
+  late KeyboardDetectionController keyboardDetectionController;
+
+  @override
+  void initState() {
+    keyboardDetectionController = KeyboardDetectionController(
+      onChanged: (value) {
+        print('Keyboard visibility changed: $value');
+        setState(() {
+          keyboardState = value;
+          stateAsBool = keyboardDetectionController.stateAsBool();
+          stateAsBoolWithParamTrue =
+              keyboardDetectionController.stateAsBool(true);
+        });
+      },
+    );
+
+    &#47;&#47; Listen to the stream
+    _sub = keyboardDetectionController.stream.listen((state) {
+      print('Stream update: $state');
+    });
+
+    &#47;&#47; Add one-time callback 1
+    keyboardDetectionController.registerCallback((state) {
+      print('One-time callback 1: $state');
+      return false;
+    });
+
+    &#47;&#47; Add one-time callback 2
+    keyboardDetectionController.registerCallback((state) {
+      print('One-time callback 2: $state');
+      return false;
+    });
+
+    &#47;&#47; Add one-time callback 2 again to test removal
+    keyboardDetectionController.registerCallback((state) {
+      print('One-time callback 2: $state');
+      return false;
+    });
+
+    &#47;&#47; Add looped callback
+    keyboardDetectionController.registerCallback((state) {
+      print('Looped callback: $state');
+      return true;
+    });
+
+    &#47;&#47; Add looped future callback
+    keyboardDetectionController.registerCallback((state) async {
+      await Future.delayed(const Duration(milliseconds: 100));
+      print('Looped future callback: $state');
+      return true;
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyboardDetection(
+      controller: keyboardDetectionController,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Keyboard Detection'),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('State: $keyboardState'),
+                Text(
+                    'State as bool (includeTransitionalState = false): $stateAsBool'),
+                Text(
+                    'State as bool (includeTransitionalState = true): $stateAsBoolWithParamTrue'),
+                FutureBuilder(
+                  future: keyboardDetectionController.ensureSizeLoaded,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Text(
+                          'Keyboard size loaded: ${keyboardDetectionController.size}');
+                    }
+                    return const Text('Loading keyboard size...');
+                  },
+                ),
+                const TextField(),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const MyApp(),
+                      ),
+                    );
+                  },
+                  child: const Text('Navigate to another page'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPage
+// ... (truncated)

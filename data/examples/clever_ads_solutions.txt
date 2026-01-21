@@ -1,0 +1,133 @@
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'dart:io' show Platform;
+
+import 'package:cas_example&#47;native_factory_example.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:clever_ads_solutions&#47;clever_ads_solutions.dart';
+
+import 'adaptive_banner_example.dart';
+import 'inline_banner_example.dart';
+import 'native_template_example.dart';
+import 'multi_banners_example.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  &#47;&#47; If you encounter any problems, simply share the `CAS.AI` debug logs with your account manager.
+  if (kDebugMode) {
+    CASMobileAds.setDebugLoggingEnabled(true);
+  }
+
+  &#47;&#47; The 'demo' ID is valid for test advertising
+  &#47;&#47; but don't forget to set your registered IDs for each platform.
+  CASMobileAds.initialize(
+    casId: Platform.isAndroid ? 'demo' : 'demo',
+    showConsentFormIfRequired: true,
+    forceTestAds: kDebugMode || kProfileMode,
+    testDeviceIds: [
+      &#47;&#47; You can also test in release build by registering your device as a test device.
+      &#47;&#47; Check the logs for your device's ID value.
+    ],
+    debugPrivacyGeography: PrivacyGeography.europeanEconomicArea,
+  ).then((InitializationStatus status) {
+    if (status.error != null) {
+      &#47;&#47; If an error occurs, the SDK will attempt automatic reinitialization internally.
+      print('CAS Mobile Ads SDK initialization failed: ${status.error}');
+    } else {
+      print('CAS Mobile Ads SDK initialized in ${status.countryCode} country');
+    }
+  });
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late CASAppOpen _appOpenAd;
+  late CASInterstitial _interstitialAd;
+  late CASRewarded _rewardedAd;
+
+  bool _isAppOpenAdLoaded = false;
+  bool _isInterstitialAdLoaded = false;
+  bool _isRewardedAdLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    bool useAutoReloadAds = true;
+    _createAppOpenAd(useAutoReloadAds);
+    _createInterstitialAd(useAutoReloadAds);
+    _createRewardedAd(useAutoReloadAds);
+  }
+
+  void _createAppOpenAd(bool autoReload) {
+    _appOpenAd = CASAppOpen.createAndLoad(
+      autoReload: autoReload,
+      autoShow: true,
+      onAdLoaded: (AdScreenInstance ad) {
+        print('$ad loaded');
+        setState(() {
+          _isAppOpenAdLoaded = true;
+        });
+      },
+      onAdFailedToLoad: (AdInstance ad, AdError error) {
+        print('$ad failed to load: ${error.message}.');
+        if (autoReload) {
+          &#47;&#47; just wait for the automatic reload
+        } else {
+          Future.delayed(const Duration(seconds: 10), () {
+            _appOpenAd.load();
+          });
+        }
+      },
+      onAdFailedToShow: (AdInstance ad, AdError error) {
+        print('$ad failed to show: ${error.message}.');
+        if (autoReload) {
+          &#47;&#47; just wait for the automatic reload
+        } else {
+          _appOpenAd.load();
+        }
+      },
+      onAdShowed: (AdScreenInstance ad) {
+        print('$ad showed');
+      },
+      onAdImpression: (AdInstance ad, AdContentInfo contentInfo) {
+        print('$ad impression creative id: ${contentInfo.creativeId}');
+      },
+      onAdClicked: (AdInstance ad) {
+        print('$ad clicked');
+      },
+      onAdDismissed: (AdScreenInstance ad) {
+        print('$ad dismissed');
+        if (autoReload) {
+          &#47;&#47; just wait for the automatic reload
+        } else {
+          _appOpenAd.load();
+        }
+      },
+    );
+  }
+
+  &#47;&#47;&#47; The [CASAppOpen.onAdFailedToShow] callback will be fired if the ad
+  &#47;&#47;&#47; is not ready to show. Or check [CASAppOpen.isLoaded].
+  void _showAppOpenAd() {
+    setState(() {
+      _isAppOpenAdLoaded = false;
+    });
+    _appOpenAd.show();
+  }
+
+  void _createInterstitialAd(bool autoReload) {
+   
+// ... (truncated)

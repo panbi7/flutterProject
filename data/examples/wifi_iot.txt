@@ -1,0 +1,148 @@
+&#47;&#47; ignore_for_file: deprecated_member_use, package_api_docs, public_member_api_docs
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:wifi_iot&#47;wifi_iot.dart';
+import 'dart:io' show Platform;
+
+const String STA_DEFAULT_SSID = "STA_SSID";
+const String STA_DEFAULT_PASSWORD = "STA_PASSWORD";
+const NetworkSecurity STA_DEFAULT_SECURITY = NetworkSecurity.WPA;
+
+const String AP_DEFAULT_SSID = "AP_SSID";
+const String AP_DEFAULT_PASSWORD = "AP_PASSWORD";
+
+void main() => runApp(FlutterWifiIoT());
+
+class FlutterWifiIoT extends StatefulWidget {
+  @override
+  _FlutterWifiIoTState createState() => _FlutterWifiIoTState();
+}
+
+class _FlutterWifiIoTState extends State {
+  String? _sPreviousAPSSID = "";
+  String? _sPreviousPreSharedKey = "";
+
+  List? _htResultNetwork;
+  Map? _htIsNetworkRegistered = Map();
+
+  bool _isEnabled = false;
+  bool _isConnected = false;
+  bool _isWiFiAPEnabled = false;
+  bool _isWiFiAPSSIDHidden = false;
+  bool _isWifiAPSupported = true;
+  bool _isWifiEnableOpenSettings = false;
+  bool _isWifiDisableOpenSettings = false;
+
+  final TextStyle textStyle = TextStyle(color: Colors.white);
+
+  @override
+  initState() {
+    WiFiForIoTPlugin.isEnabled().then((val) {
+      _isEnabled = val;
+    });
+
+    WiFiForIoTPlugin.isConnected().then((val) {
+      _isConnected = val;
+    });
+
+    WiFiForIoTPlugin.isWiFiAPEnabled().then((val) {
+      _isWiFiAPEnabled = val;
+    }).catchError((val) {
+      _isWifiAPSupported = false;
+    });
+
+    super.initState();
+  }
+
+  storeAndConnect(String psSSID, String psKey) async {
+    await storeAPInfos();
+    await WiFiForIoTPlugin.setWiFiAPSSID(psSSID);
+    await WiFiForIoTPlugin.setWiFiAPPreSharedKey(psKey);
+  }
+
+  storeAPInfos() async {
+    String? sAPSSID;
+    String? sPreSharedKey;
+
+    try {
+      sAPSSID = await WiFiForIoTPlugin.getWiFiAPSSID();
+    } on PlatformException {
+      sAPSSID = "";
+    }
+
+    try {
+      sPreSharedKey = await WiFiForIoTPlugin.getWiFiAPPreSharedKey();
+    } on PlatformException {
+      sPreSharedKey = "";
+    }
+
+    setState(() {
+      _sPreviousAPSSID = sAPSSID;
+      _sPreviousPreSharedKey = sPreSharedKey;
+    });
+  }
+
+  restoreAPInfos() async {
+    WiFiForIoTPlugin.setWiFiAPSSID(_sPreviousAPSSID!);
+    WiFiForIoTPlugin.setWiFiAPPreSharedKey(_sPreviousPreSharedKey!);
+  }
+
+  &#47;&#47; [sAPSSID, sPreSharedKey]
+  Future> getWiFiAPInfos() async {
+    String? sAPSSID;
+    String? sPreSharedKey;
+
+    try {
+      sAPSSID = await WiFiForIoTPlugin.getWiFiAPSSID();
+    } on Exception {
+      sAPSSID = "";
+    }
+
+    try {
+      sPreSharedKey = await WiFiForIoTPlugin.getWiFiAPPreSharedKey();
+    } on Exception {
+      sPreSharedKey = "";
+    }
+
+    return [sAPSSID!, sPreSharedKey!];
+  }
+
+  Future getWiFiAPState() async {
+    int? iWiFiState;
+
+    WIFI_AP_STATE? wifiAPState;
+
+    try {
+      iWiFiState = await WiFiForIoTPlugin.getWiFiAPState();
+    } on Exception {
+      iWiFiState = WIFI_AP_STATE.WIFI_AP_STATE_FAILED.index;
+    }
+
+    if (iWiFiState == WIFI_AP_STATE.WIFI_AP_STATE_DISABLING.index) {
+      wifiAPState = WIFI_AP_STATE.WIFI_AP_STATE_DISABLING;
+    } else if (iWiFiState == WIFI_AP_STATE.WIFI_AP_STATE_DISABLED.index) {
+      wifiAPState = WIFI_AP_STATE.WIFI_AP_STATE_DISABLED;
+    } else if (iWiFiState == WIFI_AP_STATE.WIFI_AP_STATE_ENABLING.index) {
+      wifiAPState = WIFI_AP_STATE.WIFI_AP_STATE_ENABLING;
+    } else if (iWiFiState == WIFI_AP_STATE.WIFI_AP_STATE_ENABLED.index) {
+      wifiAPState = WIFI_AP_STATE.WIFI_AP_STATE_ENABLED;
+    } else if (iWiFiState == WIFI_AP_STATE.WIFI_AP_STATE_FAILED.index) {
+      wifiAPState = WIFI_AP_STATE.WIFI_AP_STATE_FAILED;
+    }
+
+    return wifiAPState!;
+  }
+
+  Future> getClientList(
+      bool onlyReachables, int reachableTimeout) async {
+    List htResultClient;
+
+    try {
+      htResultClient = await WiFiForIoTPlugin.getClientList(
+          onlyReachables, reachableTimeout);
+    } on PlatformException {
+      htResultClient = [];
+    }
+
+    return htResultCli
+// ... (truncated)

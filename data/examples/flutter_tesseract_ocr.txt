@@ -1,0 +1,101 @@
+import 'dart:async';
+import 'dart:typed_data';
+
+import 'package:flutter&#47;material.dart';
+import 'package:image_picker&#47;image_picker.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:flutter_tesseract_ocr&#47;flutter_tesseract_ocr.dart';
+import 'dart:io';
+import 'package:flutter&#47;foundation.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Tesseract Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Tesseract Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  String _ocrText = '';
+  String _ocrHocr = '';
+  Map tessimgs = {
+    "kor":
+        "https:&#47;&#47;raw.githubusercontent.com&#47;khjde1207&#47;tesseract_ocr&#47;master&#47;example&#47;assets&#47;test1.png",
+    "en": "https:&#47;&#47;tesseract.projectnaptha.com&#47;img&#47;eng_bw.png",
+    "ch_sim": "https:&#47;&#47;tesseract.projectnaptha.com&#47;img&#47;chi_sim.png",
+    "ru": "https:&#47;&#47;tesseract.projectnaptha.com&#47;img&#47;rus.png",
+  };
+  var LangList = ["kor", "eng", "deu", "chi_sim"];
+  var selectList = ["eng", "kor"];
+  String path = "";
+  bool bload = false;
+
+  bool bDownloadtessFile = false;
+  &#47;&#47; "https:&#47;&#47;img1.daumcdn.net&#47;thumb&#47;R1280x0&#47;?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FqCviW%2FbtqGWTUaYLo%2FwD3ZE6r3ARZqi4MkUbcGm0%2Fimg.png";
+  var urlEditController = TextEditingController()
+    ..text = "https:&#47;&#47;tesseract.projectnaptha.com&#47;img&#47;eng_bw.png";
+
+  Future writeToFile(ByteData data, String path) {
+    final buffer = data.buffer;
+    return new File(path).writeAsBytes(
+        buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
+  }
+
+  void runFilePiker() async {
+    &#47;&#47; android && ios only
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      _ocr(pickedFile.path);
+    }
+  }
+
+  void _ocr(url) async {
+    if (selectList.length = 0,
+                            onChanged: (v) async {
+                              &#47;&#47; dynamic add Tessdata
+                              if (kIsWeb == false) {
+                                Directory dir = Directory(
+                                    await FlutterTesseractOcr
+                                        .getTessdataPath());
+                                if (!dir.existsSync()) {
+                                  dir.create();
+                                }
+                                bool isInstalled = false;
+                                dir.listSync().forEach((element) {
+                                  String name = element.path.split('&#47;').last;
+                                  &#47;&#47; if (name == 'deu.traineddata') {
+                                  &#47;&#47;   element.delete();
+                                  &#47;&#47; }
+                                  isInstalled |= name == '$e.traineddata';
+                                });
+                                if (!isInstalled) {
+                                  bDownloadtessFile = true;
+                                  setState(() {});
+                                  HttpClient httpClient = new HttpClient();
+                                  HttpClientRequest request =
+                                      await httpClient.getUrl(Uri.parse(
+                                          'https:&#47;&#47;github.com&#47;tesseract-ocr&#47;tessdata&#47;raw&#47;main&#47;${e}.traineddata'));
+                                  HttpClientResponse response =
+                                      await request
+// ... (truncated)

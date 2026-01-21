@@ -1,0 +1,45 @@
+&#47;*
+ Copyright 2023 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https:&#47;&#47;www.apache.org&#47;licenses&#47;LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ *&#47;
+
+import 'package:flutter&#47;material.dart';
+import 'package:provider&#47;provider.dart';
+
+import 'pages&#47;posts_list&#47;posts_list_page.dart';
+import 'shared&#47;api.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; The main app.
+class MyApp extends StatelessWidget {
+  &#47;&#47;&#47; Creates a [MyApp].
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Provider.value(
+      value: Api(),
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const PostsListPage(),
+      ),
+    );
+  }
+}

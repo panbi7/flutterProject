@@ -1,0 +1,98 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+
+import 'package:flutter_pty&#47;flutter_pty.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final ptyOutout = StringBuffer();
+
+  final textEdit = TextEditingController();
+
+  final focusNode = FocusNode();
+
+  late final Pty pty;
+
+  @override
+  void initState() {
+    super.initState();
+
+    pty = Pty.start(shell);
+
+    pty.output.cast>().transform(const Utf8Decoder()).listen((text) {
+      ptyOutout.write(text);
+      setState(() {});
+    });
+
+    pty.exitCode.then((code) {
+      ptyOutout.writeln('the process exited with exit code $code');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Column(
+          children: [
+            Expanded(
+              child: Container(
+                constraints: const BoxConstraints.expand(),
+                child: SingleChildScrollView(
+                  child: Text(ptyOutout.toString()),
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            Container(
+              padding: const EdgeInsets.all(8),
+              child: TextField(
+                autofocus: true,
+                focusNode: focusNode,
+                decoration: const InputDecoration(
+                  prefix: Text(r'$ '),
+                  border: InputBorder.none,
+                ),
+                controller: textEdit,
+                onSubmitted: onEnter,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void onEnter(String text) {
+    final carriageReturn = Platform.isWindows ? '\r\n' : '\n';
+    pty.write(const Utf8Encoder().convert(text + carriageReturn));
+    textEdit.clear();
+    focusNode.requestFocus();
+  }
+}
+
+String get shell {
+  if (Platform.isMacOS || Platform.isLinux) {
+    return 'bash';
+    &#47;&#47; return Platform.environment['SHELL'] ?? 'bash';
+  }
+
+  if (Platform.isWindows) {
+    return 'cmd.exe';
+  }
+
+  return 'sh';
+}

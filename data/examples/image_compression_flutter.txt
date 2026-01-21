@@ -1,0 +1,127 @@
+import 'package:flimer&#47;flimer.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:image_compression_flutter&#47;image_compression_flutter.dart';
+
+void main() {
+  runApp(MaterialApp(home: MainPage()));
+}
+
+class MainPage extends StatefulWidget {
+  @override
+  _MainPageState createState() => _MainPageState();
+}
+
+class _MainPageState extends State {
+  Configuration config = Configuration();
+  ImageFile? image;
+  ImageFile? imageOutput;
+  bool processing = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final buttonGallery = ElevatedButton.icon(
+      onPressed: handleOpenGallery,
+      icon: Icon(Icons.photo_outlined),
+      label: Text('Pick an Image'),
+    );
+
+    final buttonCompress = Padding(
+      padding: const EdgeInsets.all(16),
+      child: ElevatedButton.icon(
+        onPressed: handleCompressImage,
+        icon: Icon(Icons.compress),
+        label: Text('Compress Image'),
+      ),
+    );
+
+    Widget body = Center(child: buttonGallery);
+    if (image != null) {
+      final inputImage = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Image.memory(image!.rawBytes),
+      );
+      final inputImageSizeType = ListTile(
+        title: Text('Image size-type :'),
+        subtitle: Text(
+            '${(image!.sizeInBytes &#47; 1024 &#47; 1024).toStringAsFixed(2)} MB - (${image!.width} x ${image!.height})'),
+        trailing: Text(image!.extension),
+      );
+      final inputImageName = ListTile(
+        title: Text('Image name :'),
+        subtitle: Text(image!.fileName),
+      );
+
+      body = SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: buttonGallery,
+            ),
+            ListTile(title: Text('INPUT IMAGE')),
+            inputImage,
+            inputImageSizeType,
+            inputImageName,
+            Divider(),
+            ListTile(title: Text('OUTPUT IMAGE')),
+            configOutputType,
+            configQuality,
+            nativeCompressorCheckBox,
+            buttonCompress,
+            processing
+                ? Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: LinearProgressIndicator(),
+                  )
+                : SizedBox.shrink(),
+            if (imageOutput != null && !processing)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Image.memory(imageOutput!.rawBytes),
+              ),
+            if (imageOutput != null && !processing)
+              ListTile(
+                title: Text('Image size-type :'),
+                subtitle: Text(
+                    '${(imageOutput!.sizeInBytes &#47; 1024 &#47; 1024).toStringAsFixed(2)} MB - (${imageOutput!.width} x ${imageOutput!.height})'),
+                trailing: Text(imageOutput!.contentType ?? '-'),
+              ),
+          ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Image Compression'),
+      ),
+      body: body,
+    );
+  }
+
+  Widget get nativeCompressorCheckBox {
+    return CheckboxListTile(
+      title: Text('Native compressor for JPG&#47;PNG'),
+      value: config.useJpgPngNativeCompressor,
+      onChanged: (flag) {
+        setState(() {
+          config = Configuration(
+            outputType: config.outputType,
+            useJpgPngNativeCompressor: flag ?? false,
+            quality: config.quality,
+          );
+        });
+      },
+    );
+  }
+
+  Widget get configOutputType {
+    return ListTile(
+      title: Text('Select output type'),
+      subtitle: Text(config.outputType.toString()),
+      trailing: PopupMenuButton(
+        itemBuilder: (context) {
+          return ImageOutputType.values
+       
+// ... (truncated)

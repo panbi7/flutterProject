@@ -1,0 +1,6 @@
+import 'package:chewie_example&#47;app&#47;app.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const ChewieDemo());
+}

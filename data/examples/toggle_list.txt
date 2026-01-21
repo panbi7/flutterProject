@@ -1,0 +1,117 @@
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'package:flutter&#47;material.dart';
+import 'package:toggle_list&#47;toggle_list.dart';
+
+const Color appColor = Color.fromRGBO(225, 195, 64, 1);
+
+void main() {
+  runApp(const ExampleApp());
+}
+
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: 'Toggle List Example',
+      color: appColor,
+      debugShowCheckedModeBanner: false,
+      home: ExampleAppPage(),
+    );
+  }
+}
+
+class ExampleAppPage extends StatefulWidget {
+  const ExampleAppPage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _ExampleAppPageState();
+}
+
+class _ExampleAppPageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Toggle List Example'),
+        foregroundColor: Colors.white,
+        backgroundColor: appColor,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: ToggleList(
+          divider: const SizedBox(height: 10),
+          toggleAnimationDuration: const Duration(milliseconds: 400),
+          scrollPosition: AutoScrollPosition.begin,
+          trailing: const Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(Icons.expand_more),
+          ),
+          children: List.generate(
+            30,
+            (index) => ToggleListItem(
+              leading: const Padding(
+                padding: EdgeInsets.all(10),
+                child: Icon(Icons.sailing),
+              ),
+              title: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Hiding a square inside:',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge!
+                          .copyWith(fontSize: 17),
+                    ),
+                    Text(
+                      '$index^2',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+              divider: const Divider(
+                color: Colors.white,
+                height: 2,
+                thickness: 2,
+              ),
+              content: Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(20),
+                  ),
+                  color: appColor.withOpacity(0.15),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$index^2 is ${index * index}',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    Text(
+                      'Properties of n^2:\nGeometric figure: parabola\nRoot: n=0\nDiscriminant: Δ = 0\nParity: even',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    const Divider(
+                      color: Colors.white,
+                      height: 2,
+                      thickness: 2,
+                    ),
+                    ButtonBar(
+                      alignment: MainAxisAlignment.spaceAround,
+                      buttonHe
+// ... (truncated)

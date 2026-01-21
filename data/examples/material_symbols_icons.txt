@@ -1,0 +1,98 @@
+import 'package:flutter&#47;gestures.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:material_symbols_icons&#47;symbols.dart';
+import 'package:material_symbols_icons&#47;material_symbols_icons.dart';
+import 'package:material_symbols_icons&#47;symbols_map.dart';
+import 'package:splittable_flexible_row&#47;splittable_flexible_row.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+import 'package:flutter_colorpicker&#47;flutter_colorpicker.dart';
+
+&#47;&#47; ignore: depend_on_referenced_packages
+import 'package:flutter_web_plugins&#47;url_strategy.dart';
+import 'package:universal_html&#47;html.dart' show window;
+
+import 'package:device_preview_plus&#47;device_preview_plus.dart';
+
+&#47;&#47;&#47; Set [useDevicePreview] to allow testing layouts on virtual device screens
+const useDevicePreview = false;
+
+const outlinedColor = Colors.red;
+const roundedColor = Colors.blue;
+const sharpColor = Colors.teal;
+
+Map materialSymbolsOutlinedMap = {};
+Map materialSymbolsRoundedMap = {};
+Map materialSymbolsSharpMap = {};
+
+List renamedMaterialSymbolsMapKeys = [];
+
+const String materialSymbolsIconsSourceFontVersionNumber =
+    '2.892'; &#47;&#47; must update for each new font update
+const String materialSymbolsIconsSourceReleaseDate =
+    'Nov. 27, 2025'; &#47;&#47; must update for each new font update
+int totalMaterialSymbolsIcons = 0;
+
+void makeSymbolsByStyleMaps() {
+  for (final key in materialSymbolsMap.keys.toList()) {
+    if (key.endsWith('_rounded')) {
+      materialSymbolsRoundedMap[key] = materialSymbolsMap[key]!;
+    } else if (key.endsWith('_sharp')) {
+      materialSymbolsSharpMap[key] = materialSymbolsMap[key]!;
+    } else {
+      materialSymbolsOutlinedMap[key] = materialSymbolsMap[key]!;
+    }
+  }
+  &#47;&#47; make a list of renamed icons
+  renamedMaterialSymbolsMapKeys = renamedMaterialSymbolsMap.keys.toList();
+}
+
+Map? startupQueryParameters;
+
+void main() {
+  &#47;&#47; prevent engine from removing query url parameters
+  setUrlStrategy(PathUrlStrategy());
+
+  &#47;&#47; we need to grab these now because startup inside flutter will
+  &#47;&#47; throw exception for unknown route and clear our query parameters
+  startupQueryParameters = Uri.base.queryParameters;
+
+  debugPrint('Uri.base.queryParameters=${Uri.base.queryParameters}');
+  debugPrint('Uri.base.hasQuery=${Uri.base.hasQuery}');
+  debugPrint('Uri.base.query=${Uri.base.query}');
+  debugPrint('Uri.base.queryParametersAll=${Uri.base.queryParametersAll}');
+  debugPrint('Uri.base=${Uri.base}');
+
+  &#47;&#47; create separate iconname->icon map for each style
+  makeSymbolsByStyleMaps();
+
+  &#47;*
+    Here we can set default Icon VARIATIONS which can be specific to Outlined, Rounded or Sharp icons,
+    each with their own settings.  These will take PRIORITY over IconThemeData()
+    This is totally optional and IconThemeData() can just be used if you do not need to
+    have different variation settings for different icons from different font families.
+  *&#47;
+  MaterialSymbolsBase.setOutlinedVariationDefaults(
+      color: outlinedColor, fill: 0.0);
+  MaterialSymbolsBase.setRoundedVariationDefaults(
+      color: roundedColor, fill: 0.0);
+  MaterialSymbolsBase.setSharpVariationDefaults(color: sharpColor, fill: 0.0);
+
+  totalMaterialSymbolsIcons = (materialSymbolsMap.length &#47; 3).floor();
+
+  if (useDevicePreview) {
+    &#47;&#47;TEST various on various device screens&#47;&#47;
+    runApp(DevicePreview(
+      builder: (context) => const MyApp(), &#47;&#47; Wrap your app
+      enabled: true,
+    ));
+  } else {
+    runApp(const MyApp());
+  }
+
+  &#47;&#47; Example usage: show ColorPickerDialog after app starts (for demonstration)
+  &#47;&#47; WidgetsBinding.instance.addPostFrameCallback((_) {
+  &#47;&#47;   showDialog(
+  &#47;&#47;     context: navigatorKey.currentContext!,
+  &#47;&#47;     builder: (context) => ColorPickerD
+// ... (truncated)

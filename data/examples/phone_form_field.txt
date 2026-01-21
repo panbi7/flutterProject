@@ -1,0 +1,129 @@
+import 'package:flutter&#47;material.dart';
+import 'package:phone_form_field&#47;phone_form_field.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47; this example makes uses of lots of properties that would not be there
+&#47;&#47; in a real scenario for the sake of showing the features.
+&#47;&#47; For a simpler example see the README
+
+class PhoneFieldView extends StatelessWidget {
+  static const supportedLocales = [
+    Locale('ar'),
+    &#47;&#47; not supported by material yet
+    &#47;&#47; Locale('ckb'),
+    Locale('de'),
+    Locale('el'),
+    Locale('en'),
+    Locale('es'),
+    Locale('fa'),
+    Locale('fr'),
+    Locale('hi'),
+    Locale('hu'),
+    Locale('it'),
+    &#47;&#47; not supported by material yet
+    &#47;&#47; Locale('ku'),
+    Locale('nb'),
+    Locale('nl'),
+    Locale('pt'),
+    Locale('ru'),
+    Locale('sv'),
+    Locale('tr'),
+    Locale('uz'),
+    Locale('zh'),
+    &#47;&#47; ...
+  ];
+
+  final PhoneController controller;
+  final FocusNode focusNode;
+  final CountrySelectorNavigator selectorNavigator;
+  final bool withLabel;
+  final bool outlineBorder;
+  final bool isCountryButtonPersistant;
+  final bool mobileOnly;
+  final Locale locale;
+
+  const PhoneFieldView({
+    Key? key,
+    required this.controller,
+    required this.focusNode,
+    required this.selectorNavigator,
+    required this.withLabel,
+    required this.outlineBorder,
+    required this.isCountryButtonPersistant,
+    required this.mobileOnly,
+    required this.locale,
+  }) : super(key: key);
+
+  PhoneNumberInputValidator? _getValidator(BuildContext context) {
+    List validators = [];
+    if (mobileOnly) {
+      validators.add(PhoneValidator.validMobile(context));
+    } else {
+      validators.add(PhoneValidator.valid(context));
+    }
+    return validators.isNotEmpty ? PhoneValidator.compose(validators) : null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AutofillGroup(
+      child: Localizations.override(
+        context: context,
+        locale: locale,
+        child: Builder(
+          builder: (context) {
+            final label = PhoneFieldLocalization.of(context).phoneNumber;
+            return PhoneFormField(
+              focusNode: focusNode,
+              controller: controller,
+              isCountryButtonPersistent: isCountryButtonPersistant,
+              autofocus: false,
+              autofillHints: const [AutofillHints.telephoneNumber],
+              countrySelectorNavigator: selectorNavigator,
+              decoration: InputDecoration(
+                  label: withLabel ? Text(label) : null,
+                  border: outlineBorder
+                      ? OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50))
+                      : const UnderlineInputBorder(),
+                  hintText: withLabel ? '' : label,
+                  contentPadding: const EdgeInsets.all(0)),
+              enabled: true,
+              countryButtonStyle: CountryButtonStyle(
+                  showFlag: true,
+                  showIsoCode: false,
+                  showDialCode: true,
+                  showDropdownIcon: true,
+                  borderRadius: BorderRadius.circular(50)),
+
+              validator: _getValidator(context),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              cursorColor: Theme.of(context).colorScheme.primary,
+              &#47;&#47; ignore: avoid_print
+              onSaved: (p) => print('saved $p'),
+              &#47;&#47; ignore: avoid_print
+              onChanged: (p) => print('changed $p'),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      localizationsDelegates: PhoneFieldLocalization.delegates,
+      supportedLocales: PhoneFieldView.supportedLocales,
+      locale: const Locale('en'),
+      title: 'Phone field demo',
+      theme: ThemeData(
+        brigh
+// ... (truncated)

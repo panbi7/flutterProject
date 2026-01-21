@@ -1,0 +1,135 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_reorderable_grid_view&#47;widgets&#47;custom_draggable.dart';
+import 'package:flutter_reorderable_grid_view&#47;widgets&#47;reorderable_builder.dart';
+import 'package:flutter_reorderable_grid_view_example&#47;widgets&#47;change_children_bar.dart';
+
+enum ReorderableType {
+  gridView,
+  gridViewCount,
+  gridViewExtent,
+  gridViewBuilder,
+}
+
+void main() {
+  runApp(
+    MaterialApp(
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          brightness: Brightness.dark,
+          seedColor: const Color(0xfffaa025),
+          surface: const Color(0xff271f16),
+        ),
+        useMaterial3: true,
+      ),
+      themeMode: ThemeMode.dark,
+      home: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  static const _startCounter = 200;
+
+  final lockedIndices = [0, 4];
+  final nonDraggableIndices = [0, 2, 3];
+
+  int keyCounter = _startCounter;
+  List children = List.generate(_startCounter, (index) => index);
+  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
+
+  var _scrollController = ScrollController();
+  var _gridViewKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: DropdownButton(
+          value: reorderableType,
+          icon: const Icon(Icons.arrow_drop_down_rounded),
+          onChanged: (ReorderableType? reorderableType) {
+            setState(() {
+              _scrollController = ScrollController();
+              _gridViewKey = GlobalKey();
+              this.reorderableType = reorderableType!;
+            });
+          },
+          items: ReorderableType.values.map((e) {
+            return DropdownMenuItem(
+              value: e,
+              child: Text(e.toString()),
+            );
+          }).toList(),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        child: Stack(
+          children: [
+            _getReorderableWidget(),
+            ChangeChildrenBar(
+              onTapAddChild: () {
+                setState(() {
+                  &#47;&#47; children = children..add(keyCounter++);
+                  children.insert(0, keyCounter++);
+                });
+              },
+              onTapRemoveChild: () {
+                if (children.isNotEmpty) {
+                  setState(() {
+                    &#47;&#47; children = children..removeLast();
+                    children.removeAt(0);
+                  });
+                }
+              },
+              onTapClear: () {
+                if (children.isNotEmpty) {
+                  setState(() {
+                    children = [];
+                  });
+                }
+              },
+              onTapUpdateChild: () {
+                if (children.isNotEmpty) {
+                  children[0] = 999;
+                  setState(() {
+                    children = children;
+                  });
+                }
+              },
+              onTapSwap: () {
+                final child1 = children[0];
+                final child2 = children[1];
+                children[0] = child2;
+                children[1] = child1;
+                setState(() {});
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _getReorderableWidget() {
+    switch (reorderableType) {
+      case ReorderableType.gridView:
+        final generatedChildren = _getGeneratedChildren();
+        return ReorderableBuilder(
+          key: Key(_gridViewKey.toString()),
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
+          nonDraggableIndices: nonDraggableIndices,
+          onDragStarted: _handleDragStarted,
+          onUpdatedDraggedChild: _handleUpdatedDraggedChild,
+          onDragEnd: _handleDragEnd,
+          scrollController: _scrollController,
+          reverse: tr
+// ... (truncated)

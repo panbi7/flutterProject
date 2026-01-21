@@ -1,0 +1,28 @@
+import 'package:connectivity_plus&#47;connectivity_plus.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;semantics.dart';
+import 'package:watch_it&#47;watch_it.dart';
+import 'package:yaru&#47;yaru.dart';
+
+import 'example_home.dart';
+import 'example_model.dart';
+import 'pages&#47;icons_page&#47;provider&#47;icon_view_model.dart';
+
+Future main() async {
+  await YaruWindowTitleBar.ensureInitialized();
+
+  WidgetsFlutterBinding.ensureInitialized();
+  SemanticsBinding.instance.ensureSemantics();
+
+  di
+    ..registerLazySingleton(Connectivity.new)
+    ..registerLazySingleton(IconViewModel.new)
+    ..registerLazySingleton(
+      () => ExampleModel(di()),
+      dispose: (m) => m.dispose(),
+    );
+
+  await di().init();
+
+  runApp(const ExampleHome());
+}

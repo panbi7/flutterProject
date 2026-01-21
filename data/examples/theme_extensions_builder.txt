@@ -1,0 +1,11 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;scheduler.dart';
+
+import 'app.dart';
+
+void main() {
+  timeDilation = 2.0;
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(const App());
+}

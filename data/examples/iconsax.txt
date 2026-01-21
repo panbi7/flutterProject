@@ -1,0 +1,19 @@
+import 'package:flutter&#47;material.dart';
+
+import 'package:iconsax&#47;iconsax.dart'; &#47;&#47;  runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Example Iconsax',
+      home: Scaffold(
+        body: Center(
+          child: Container(
+            child: Icon(Iconsax.volume_slash), &#47;&#47; <---- Use
+          ),
+        ),
+      ),
+    );
+  }
+}

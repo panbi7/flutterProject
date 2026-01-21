@@ -1,0 +1,112 @@
+import 'package:flutter&#47;material.dart';
+import 'package:inject_annotation&#47;inject_annotation.dart';
+import 'package:inject_flutter&#47;inject_flutter.dart';
+
+import 'main.inject.dart' as g;
+
+void main() {
+  final mainComponent = AppComponent.create();
+  final app = mainComponent.exampleAppFactory.create();
+  runApp(app);
+}
+
+&#47;&#47;&#47; The main component of the application.
+&#47;&#47;&#47; Responsible for creating and managing dependencies of the application.
+&#47;&#47;&#47; Root of the dependency graph.
+@component
+abstract class AppComponent {
+  &#47;&#47;&#47; A factory method to create a new instance of [AppComponent].
+  static const create = g.AppComponent$Component.create;
+
+  &#47;&#47;&#47; Returns an instance of [ExampleAppFactory] to create the [ExampleApp] widget.
+  @inject
+  ExampleAppFactory get exampleAppFactory;
+}
+
+&#47;&#47;&#47; Factory to create the [ExampleApp] widget with the [HomePageFactory] injected.
+@assistedFactory
+abstract class ExampleAppFactory {
+  ExampleApp create({Key? key});
+}
+
+&#47;&#47;&#47; The App.
+class ExampleApp extends StatelessWidget {
+  @assistedInject
+  const ExampleApp({
+    @assisted super.key,
+    required this.homePageFactory,
+  });
+
+  &#47;&#47;&#47; The factory to create the [HomePage] widget.
+  final HomePageFactory homePageFactory;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      home: homePageFactory.create(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+&#47;&#47;&#47; The ViewModel.
+@inject
+class HomePageViewModel extends ChangeNotifier {
+  int count = 0;
+
+  void incrementCounter() {
+    count++;
+    notifyListeners();
+  }
+}
+
+&#47;&#47;&#47; Factory to create the [HomePage] widget with the [MyHomePageFactory] injected.
+&#47;&#47;&#47; [key] and [title] can be, but don't have to be provided at runtime.
+@assistedFactory
+abstract class HomePageFactory {
+  HomePage create({
+    Key? key,
+    required String title,
+  });
+}
+
+&#47;&#47;&#47; The HomePage.
+class HomePage extends StatelessWidget {
+  @assistedInject
+  const HomePage({
+    @assisted super.key,
+    @assisted required this.title,
+    required this.viewModelFactory,
+  });
+
+  final String title;
+
+  &#47;&#47;&#47; Factory to create the [HomePageViewModel] which also handles the lifecycle of it
+  &#47;&#47;&#47; and rebuilds the body when the [HomePageViewModel] gets updated.
+  final ViewModelFactory viewModelFactory;
+
+  @override
+  Widget build(BuildContext context) {
+    return viewModelFactory(builder: (context, viewModel, _) {
+      return Scaffold(
+        appBar: AppBar(title: Text(title)),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('You have pushed the button this many times:'),
+              Text(
+                '${viewModel.count}',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: viewModel.incrementCounter,
+          child: const Icon(Icons.add),
+        ),
+      );
+    });
+  }
+}

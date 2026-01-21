@@ -1,0 +1,118 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_rating_bar&#47;flutter_rating_bar.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late final _ratingController;
+  late double _rating;
+
+  double _userRating = 3.0;
+  int _ratingBarMode = 1;
+  double _initialRating = 2.0;
+  bool _isRTLMode = false;
+  bool _isVertical = false;
+
+  IconData? _selectedIcon;
+
+  @override
+  void initState() {
+    super.initState();
+    _ratingController = TextEditingController(text: '3.0');
+    _rating = _initialRating;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.amber,
+        appBarTheme: AppBarTheme(
+          titleTextStyle: Theme.of(context)
+              .textTheme
+              .headline6
+              ?.copyWith(color: Colors.white),
+        ),
+      ),
+      home: Builder(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: Text('Flutter Rating Bar'),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.settings),
+                color: Colors.white,
+                onPressed: () async {
+                  _selectedIcon = await showDialog(
+                    context: context,
+                    builder: (context) => IconAlert(),
+                  );
+                  _ratingBarMode = 1;
+                  setState(() {});
+                },
+              ),
+            ],
+          ),
+          body: Directionality(
+            textDirection: _isRTLMode ? TextDirection.rtl : TextDirection.ltr,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: 40.0,
+                  ),
+                  _heading('Rating Bar'),
+                  _ratingBar(_ratingBarMode),
+                  SizedBox(height: 20.0),
+                  Text(
+                    'Rating: $_rating',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 40.0),
+                  _heading('Rating Indicator'),
+                  RatingBarIndicator(
+                    rating: _userRating,
+                    itemBuilder: (context, index) => Icon(
+                      _selectedIcon ?? Icons.star,
+                      color: Colors.amber,
+                    ),
+                    itemCount: 5,
+                    itemSize: 50.0,
+                    unratedColor: Colors.amber.withAlpha(50),
+                    direction: _isVertical ? Axis.vertical : Axis.horizontal,
+                  ),
+                  SizedBox(height: 20.0),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: TextFormField(
+                      controller: _ratingController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Enter rating',
+                        labelText: 'Enter rating',
+                        suffixIcon: MaterialButton(
+                          onPressed: () {
+                            _userRating =
+                                double.parse(_ratingController.text ?? '0.0');
+                            setState(() {});
+                          },
+                          child: Text('Rate'),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 40.0),
+                  _heading('Scrollable Rating Indicator'),
+                  RatingBarIndicator(
+                    rating: 8.2,
+         
+// ... (truncated)

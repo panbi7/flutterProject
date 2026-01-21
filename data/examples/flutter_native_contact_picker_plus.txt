@@ -1,0 +1,139 @@
+&#47;&#47; ignore_for_file: use_build_context_synchronously
+
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+import 'package:flutter_native_contact_picker_plus&#47;flutter_native_contact_picker_plus.dart';
+import 'package:flutter_native_contact_picker_plus&#47;model&#47;contact_model.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+
+void main() {
+  runApp(const ContactPickerApp());
+}
+
+class ContactPickerApp extends StatelessWidget {
+  const ContactPickerApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Contact Picker',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const MyApp(),
+      localizationsDelegates: const [
+        DefaultMaterialLocalizations.delegate,
+        DefaultWidgetsLocalizations.delegate,
+      ],
+    );
+  }
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State {
+  final FlutterContactPickerPlus _contactPicker = FlutterContactPickerPlus();
+  List? _contacts;
+  bool _permissionGranted = false;
+
+  Future checkPermission(Permission permission) async {
+    PermissionStatus status = await permission.status;
+    debugPrint(status.toString());
+    switch (status) {
+      case PermissionStatus.denied:
+        var result = await permission.request();
+        if (result == PermissionStatus.granted ||
+            result == PermissionStatus.limited) {
+          return true;
+        } else {
+          _showDeniedDialog();
+          return false;
+        }
+
+      case PermissionStatus.granted:
+      case PermissionStatus.limited:
+        return true;
+
+      case PermissionStatus.permanentlyDenied:
+      case PermissionStatus.restricted:
+        _showDeniedDialog();
+        return false;
+
+      default:
+        _showDeniedDialog();
+        return false;
+    }
+  }
+
+  void _showDeniedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Permission Required'),
+        content: const Text(
+            'Contacts permission is needed to access your contacts. Please enable it in app settings.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              openAppSettings();
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  &#47;&#47; With permission checks
+  Future _selectSingleContactWithPermission() async {
+    final hasPermission = await checkPermission(Permission.contacts);
+    setState(() {
+      _permissionGranted = hasPermission;
+    });
+    if (!hasPermission) return;
+    await _selectSingleContact();
+  }
+
+  Future _selectMultipleContactsWithPermission() async {
+    final hasPermission = await checkPermission(Permission.contacts);
+    setState(() {
+      _permissionGranted = hasPermission;
+    });
+    if (!hasPermission) return;
+    await _selectMultipleContacts();
+  }
+
+  &#47;&#47; Without permission checks
+  Future _selectSingleContact() async {
+    try {
+      Contact? contact = await _contactPicker.selectContact();
+      setState(() {
+        _contacts = contact == null ? null : [contact];
+      });
+    } on PlatformException catch (e) {
+      _handleContactError(e);
+    }
+  }
+
+  Future _selectMultipleContacts() async {
+    try {
+      if (Platform.isIOS) {
+        List? contacts = await _contactPicker.selectContacts();
+   
+// ... (truncated)

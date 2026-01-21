@@ -1,0 +1,46 @@
+import 'package:chart_sparkline_example&#47;demo&#47;animation.dart';
+import 'package:chart_sparkline_example&#47;logo_widget.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:chart_sparkline_example&#47;demo&#47;x_labels.dart';
+import 'package:chart_sparkline_example&#47;demo&#47;max_line.dart';
+import 'package:chart_sparkline_example&#47;demo&#47;all_points.dart';
+import 'package:chart_sparkline_example&#47;demo&#47;average_line.dart';
+import 'package:chart_sparkline_example&#47;demo&#47;fill_above.dart';
+import 'package:chart_sparkline_example&#47;demo&#47;fill_below.dart';
+import 'package:chart_sparkline_example&#47;demo&#47;grid_line.dart';
+import 'package:chart_sparkline_example&#47;demo&#47;kline.dart';
+import 'package:chart_sparkline_example&#47;demo&#47;lineopts.dart';
+import 'package:chart_sparkline_example&#47;demo&#47;points.dart';
+import 'package:chart_sparkline_example&#47;demo&#47;quick_start.dart';
+import 'package:chart_sparkline_example&#47;demo&#47;smoothing.dart';
+import 'package:chart_sparkline_example&#47;demo&#47;threshold.dart';
+
+void main() {
+  runApp(
+    MaterialApp(
+      title: 'Chart Sparkline',
+      home: Scaffold(
+        backgroundColor: Colors.grey[200],
+        body: ListView(
+          children: [
+            LogoWidget(),
+            QuickStart(),
+            AnimationChart(),
+            XLabels(),
+            MaxLine(),
+            Lineopts(),
+            Points(),
+            AllPoints(),
+            FillBelow(),
+            FillAbove(),
+            Smoothing(),
+            AverageLine(),
+            Kline(),
+            GridLine(),
+            ThresholdX(),
+          ],
+        ),
+      ),
+    ),
+  );
+}

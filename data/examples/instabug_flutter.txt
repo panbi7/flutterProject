@@ -1,0 +1,115 @@
+import 'dart:async';
+import 'dart:developer';
+import 'dart:io';
+import 'dart:convert';
+
+import 'package:dio&#47;dio.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:instabug_dio_interceptor&#47;instabug_dio_interceptor.dart';
+import 'package:instabug_flutter&#47;instabug_flutter.dart';
+import 'package:instabug_flutter_example&#47;src&#47;components&#47;apm_switch.dart';
+import 'package:instabug_flutter_example&#47;src&#47;components&#47;apm_switch.dart';
+import 'package:instabug_flutter_example&#47;src&#47;screens&#47;private_view_page.dart';
+import 'package:instabug_http_client&#47;instabug_http_client.dart';
+import 'package:instabug_flutter_example&#47;src&#47;app_routes.dart';
+import 'package:instabug_flutter_example&#47;src&#47;widget&#47;nested_view.dart';
+
+import 'src&#47;native&#47;instabug_flutter_example_method_channel.dart';
+import 'src&#47;widget&#47;instabug_button.dart';
+import 'src&#47;widget&#47;instabug_clipboard_input.dart';
+import 'src&#47;widget&#47;instabug_text_field.dart';
+import 'package:instabug_flutter&#47;src&#47;utils&#47;screen_loading&#47;screen_loading_manager.dart';
+
+import 'src&#47;widget&#47;section_title.dart';
+
+part 'src&#47;screens&#47;crashes_page.dart';
+part 'src&#47;screens&#47;user_steps_page.dart';
+
+part 'src&#47;screens&#47;complex_page.dart';
+
+part 'src&#47;screens&#47;apm_page.dart';
+
+part 'src&#47;screens&#47;screen_capture_premature_extension_page.dart';
+
+part 'src&#47;screens&#47;screen_loading_page.dart';
+
+part 'src&#47;screens&#47;my_home_page.dart';
+
+part 'src&#47;components&#47;fatal_crashes_content.dart';
+
+part 'src&#47;components&#47;non_fatal_crashes_content.dart';
+
+part 'src&#47;components&#47;network_content.dart';
+
+part 'src&#47;components&#47;page.dart';
+
+part 'src&#47;components&#47;flows_content.dart';
+
+void main() {
+  runZonedGuarded(
+    () {
+      WidgetsFlutterBinding.ensureInitialized();
+
+      Instabug.init(
+          token: 'ed6f659591566da19b67857e1b9d40ab',
+          invocationEvents: [InvocationEvent.floatingButton],
+          debugLogsLevel: LogLevel.verbose,
+          appVariant: 'variant 1');
+
+      FlutterError.onError = (FlutterErrorDetails details) {
+        Zone.current.handleUncaughtError(details.exception, details.stack!);
+      };
+
+      NetworkLogger.obfuscateLog((networkData) {
+        try {
+          final decoded = jsonDecode(networkData.requestBody);
+
+          if (decoded is Map) {
+            &#47;&#47; Clone to avoid modifying original
+            final result = Map.from(decoded);
+            if (result.containsKey('password')) {
+              result['password'] = '';
+              return networkData.copyWith(requestBody: jsonEncode(result));
+            }
+          } else {
+            print("Not Map");
+            &#47;&#47; Not a JSON object
+          }
+        } catch (e, stactrace) {
+          debugPrintStack(stackTrace: stactrace);
+          &#47;&#47; Invalid JSON
+        }
+
+        return networkData;
+      });
+
+      runApp(
+        const InstabugWidget(automasking: [
+          AutoMasking.labels,
+          AutoMasking.textInputs,
+          AutoMasking.media
+        ], child: MyApp()),
+      );
+    },
+    CrashReporting.reportCrash,
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      navigatorObservers: [
+        InstabugNavigatorObserver(),
+      ],
+      routes: APM.wrapRoutes(appRoutes, exclude: [CrashesPage.screenName]),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+    );
+  }
+}

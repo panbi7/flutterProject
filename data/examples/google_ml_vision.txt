@@ -1,0 +1,64 @@
+&#47;&#47; Copyright 2018 The Chromium Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+&#47;&#47; @dart=2.9
+
+import 'package:flutter&#47;material.dart';
+
+import 'camera_preview_scanner.dart';
+import 'material_barcode_scanner.dart';
+import 'picture_scanner.dart';
+
+void main() {
+  runApp(
+    MaterialApp(
+      routes: {
+        '&#47;': (BuildContext context) => _ExampleList(),
+        '&#47;$PictureScanner': (BuildContext context) => const PictureScanner(),
+        '&#47;$CameraPreviewScanner': (BuildContext context) =>
+            const CameraPreviewScanner(),
+        '&#47;$MaterialBarcodeScanner': (BuildContext context) =>
+            const MaterialBarcodeScanner(),
+      },
+    ),
+  );
+}
+
+class _ExampleList extends StatefulWidget {
+  @override
+  State createState() => _ExampleListState();
+}
+
+class _ExampleListState extends State {
+  static final List _exampleWidgetNames = [
+    '$PictureScanner',
+    '$CameraPreviewScanner',
+    '$MaterialBarcodeScanner',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Example List'),
+      ),
+      body: ListView.builder(
+        itemCount: _exampleWidgetNames.length,
+        itemBuilder: (BuildContext context, int index) {
+          final String widgetName = _exampleWidgetNames[index];
+
+          return Container(
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: Colors.grey)),
+            ),
+            child: ListTile(
+              title: Text(widgetName),
+              onTap: () => Navigator.pushNamed(context, '&#47;$widgetName'),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}

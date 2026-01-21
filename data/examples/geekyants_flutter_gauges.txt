@@ -1,0 +1,78 @@
+import 'package:example&#47;gauge_vertical.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:geekyants_flutter_gauges&#47;geekyants_flutter_gauges.dart';
+
+void main() {
+  runApp(
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: MyVerticalGauge(),
+    ),
+  );
+}
+
+&#47;&#47;&#47;
+&#47;&#47;&#47; The following code  is a Simple Example of [LinearGauge] Widget.
+&#47;&#47;&#47; You can customize the [LinearGauge] Widget as per your need.
+&#47;&#47;&#47;
+class LinearGaugeExample extends StatefulWidget {
+  const LinearGaugeExample({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _LinearGaugeExampleState();
+}
+
+class _LinearGaugeExampleState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: LinearGauge(
+          gaugeOrientation: GaugeOrientation.horizontal,
+          enableGaugeAnimation: true,
+          rulers: RulerStyle(
+            rulerPosition: RulerPosition.bottom,
+          ),
+          pointers: const [
+            Pointer(
+              value: 50,
+              shape: PointerShape.circle,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47;
+&#47;&#47;&#47; The following code  is a Simple Example of [RadialGauge] Widget.
+&#47;&#47;&#47; You can customize the [RadialGauge] Widget as per your need.
+&#47;&#47;&#47;
+
+class RadialGaugeExample extends StatefulWidget {
+  const RadialGaugeExample({super.key});
+
+  @override
+  State createState() => _RadialGaugeExampleState();
+}
+
+class _RadialGaugeExampleState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Colors.white,
+      body: RadialGauge(
+        track: RadialTrack(
+          start: 0,
+          end: 100,
+        ),
+        needlePointer: [
+          NeedlePointer(
+            value: 30,
+          ),
+        ],
+      ),
+    );
+  }
+}

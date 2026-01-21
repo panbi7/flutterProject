@@ -1,0 +1,129 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;services.dart';
+import 'package:audio_manager&#47;audio_manager.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _platformVersion = 'Unknown';
+  bool isPlaying = false;
+  Duration _duration;
+  Duration _position;
+  double _slider;
+  double _sliderVolume;
+  String _error;
+  num curIndex = 0;
+  PlayMode playMode = AudioManager.instance.playMode;
+
+  final list = [
+    {
+      "title": "Assets",
+      "desc": "assets playback",
+      "url": "assets&#47;xv.mp3",
+      "coverUrl": "assets&#47;ic_launcher.png"
+    },
+    {
+      "title": "network",
+      "desc": "network resouce playback",
+      "url": "https:&#47;&#47;dl.espressif.com&#47;dl&#47;audio&#47;ff-16b-2c-44100hz.m4a",
+      "coverUrl": "https:&#47;&#47;homepages.cae.wisc.edu&#47;~ece533&#47;images&#47;airplane.png"
+    }
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    initPlatformState();
+    setupAudio();
+    loadFile();
+  }
+
+  @override
+  void dispose() {
+    &#47;&#47; 释放所有资源
+    AudioManager.instance.release();
+    super.dispose();
+  }
+
+  void setupAudio() {
+    List _list = [];
+    list.forEach((item) => _list.add(AudioInfo(item["url"],
+        title: item["title"], desc: item["desc"], coverUrl: item["coverUrl"])));
+
+    AudioManager.instance.audioList = _list;
+    AudioManager.instance.intercepter = true;
+    AudioManager.instance.play(auto: false);
+
+    AudioManager.instance.onEvents((events, args) {
+      print("$events, $args");
+      switch (events) {
+        case AudioManagerEvents.start:
+          print(
+              "start load data callback, curIndex is ${AudioManager.instance.curIndex}");
+          _position = AudioManager.instance.position;
+          _duration = AudioManager.instance.duration;
+          _slider = 0;
+          setState(() {});
+          AudioManager.instance.updateLrc("audio resource loading....");
+          break;
+        case AudioManagerEvents.ready:
+          print("ready to play");
+          _error = null;
+          _sliderVolume = AudioManager.instance.volume;
+          _position = AudioManager.instance.position;
+          _duration = AudioManager.instance.duration;
+          setState(() {});
+          &#47;&#47; if you need to seek times, must after AudioManagerEvents.ready event invoked
+          &#47;&#47; AudioManager.instance.seekTo(Duration(seconds: 10));
+          break;
+        case AudioManagerEvents.seekComplete:
+          _position = AudioManager.instance.position;
+          _slider = _position.inMilliseconds &#47; _duration.inMilliseconds;
+          setState(() {});
+          print("seek event is completed. position is [$args]&#47;ms");
+          break;
+        case AudioManagerEvents.buffering:
+          print("buffering $args");
+          break;
+        case AudioManagerEvents.playstatus:
+          isPlaying = AudioManager.instance.isPlaying;
+          setState(() {});
+          break;
+        case AudioManagerEvents.timeupdate:
+          _position = AudioManager.instance.position;
+          _slider = _position.inMilliseconds &#47; _duration.inMilliseconds;
+          setState(() {});
+          AudioManager.instance.updateLrc(args["position"].toString());
+          break;
+        case AudioManagerEvents.error:
+          _error = args;
+          setState(() {});
+          break;
+        case AudioManagerEvents.ended:
+          AudioManager.instance.next();
+          break;
+        case AudioManagerEvents.volumeChange:
+          _sliderVolume = AudioManager.instance.volume;
+          setState(() {});
+          break;
+        default:
+          break;
+      }
+    });
+  }
+
+  void loadFile() async {
+    &#47;&#47; read bundle file to local path
+    final audioFile = await rootBundle.load("assets&#47;aLIEz.m4a");
+
+// ... (truncated)

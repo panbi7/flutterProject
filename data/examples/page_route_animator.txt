@@ -1,0 +1,122 @@
+import 'package:flutter&#47;material.dart';
+import 'package:page_route_animator&#47;page_route_animator.dart';
+
+void main(List args) => runApp(const MyApp());
+
+&#47;&#47;&#47; This widget is the root of your app.
+&#47;&#47;&#47; Note: Use "ctrl + F" to search in a page.
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Page Route Animator Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+      ),
+      home: const HomeScreen(),
+
+      &#47;&#47;&#47; using onGenerateRoute
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '&#47;second-screen':
+            return PageRouteAnimator(
+              child: const SecondScreen(),
+              routeAnimation: RouteAnimation.topToBottom,
+              settings: settings,
+              curve: Curves.linear,
+              duration: const Duration(milliseconds: 500),
+              reverseDuration: const Duration(milliseconds: 500),
+            );
+          default:
+            return null;
+        }
+      },
+    );
+  }
+}
+
+&#47;&#47;&#47; HomeScreen
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('HomeScreen'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            &#47;&#47;&#47; Push using onGenerateRoute
+            &#47;&#47;&#47; Navigator.pushNamed()
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  '&#47;second-screen',
+                  arguments: 'I am going',
+                );
+              },
+              child: getText('Top To Bottom - Using onGenerateRoute'),
+            ),
+
+            &#47;&#47;&#47; Navigator.push()
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageRouteAnimator(
+                    child: const SecondScreen(),
+                    routeAnimation: RouteAnimation.bottomToTop,
+                    settings: const RouteSettings(arguments: 'I am going'),
+                    curve: Curves.slowMiddle,
+                    duration: const Duration(milliseconds: 500),
+                    reverseDuration: const Duration(milliseconds: 500),
+                  ),
+                );
+              },
+              child: getText('Bottom To Top'),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageRouteAnimator(
+                    child: const SecondScreen(),
+                    routeAnimation: RouteAnimation.leftToRight,
+                    settings: const RouteSettings(arguments: 'I am going'),
+                    curve: Curves.easeOut,
+                  ),
+                );
+              },
+              child: getText('Left To Right'),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageRouteAnimator(
+                    child: const SecondScreen(),
+                    routeAnimation: RouteAnimation.rightToLeft,
+                    settings: const RouteSettings(arguments: 'I am going'),
+                    curve: Curves.easeOut,
+                  ),
+                );
+              },
+              child: getText('Right To left'),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageRouteAnimator(
+                    
+// ... (truncated)

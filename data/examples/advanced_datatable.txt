@@ -1,0 +1,129 @@
+import 'dart:convert';
+
+import 'package:advanced_datatable&#47;advanced_datatable_source.dart';
+import 'package:advanced_datatable&#47;datatable.dart';
+import 'package:example_adv_datatable&#47;company_contact.dart';
+import 'package:flutter&#47;gestures.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:http&#47;http.dart' as http;
+
+&#47;&#47;TODO Support server side filter in example
+&#47;&#47;First update server side to include a filter
+&#47;&#47;Add search bar
+&#47;&#47;Update remote data source to use filter
+
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  &#47;&#47; Override behavior methods and getters like dragDevices
+  @override
+  Set get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
+}
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      scrollBehavior: MyCustomScrollBehavior(),
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Advanced DataTable Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, this.title}) : super(key: key);
+  final String? title;
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  var _rowsPerPage = AdvancedPaginatedDataTable.defaultRowsPerPage;
+  final _source = ExampleSource();
+  var _sortIndex = 0;
+  var _sortAsc = true;
+  final _searchController = TextEditingController();
+  var _customFooter = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.text = '';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title!),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.table_chart_outlined),
+            tooltip: 'Change footer',
+            onPressed: () {
+              &#47;&#47; handle the press
+              setState(() {
+                _customFooter = !_customFooter;
+              });
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: const InputDecoration(
+                        labelText: 'Search by company',
+                      ),
+                      onSubmitted: (vlaue) {
+                        _source.filterServerSide(_searchController.text);
+                      },
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _searchController.text = '';
+                    });
+                    _source.filterServerSide(_searchController.text);
+                  },
+                  icon: const Icon(Icons.clear),
+                ),
+                IconButton(
+                  onPressed: () =>
+                      _source.filterServerSide(_searchController.text),
+                  icon: const Icon(Icons.search),
+                ),
+              ],
+            ),
+            AdvancedPaginatedDataTable(
+              addEmptyRows: false,
+              source: _source,
+              showHorizontalScrollbarAlways: true,
+              sortAscending: _sortAsc,
+              sortColumnIndex: _sortIndex,
+              showFirstLastButtons: true,
+              rowsPerPage: _rowsPerPage,
+              availableRowsPerPage: const [10, 20, 30, 50],
+              onRowsPerPageChanged: (newRowsPerPage) {
+                if (newRowsPerPage != null) {
+               
+// ... (truncated)

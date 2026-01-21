@@ -1,0 +1,105 @@
+import 'package:disk_space_plus_example&#47;model.dart';
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;services.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:disk_space_plus&#47;disk_space_plus.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  double _diskSpace = 0;
+  List _directorySpace = [];
+
+  String _platformVersion = 'Unknown';
+  final _diskSpacePlusPlugin = DiskSpacePlus();
+
+  @override
+  void initState() {
+    super.initState();
+    initDiskSpacePlus();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initDiskSpacePlus() async {
+    String platformVersion;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    &#47;&#47; We also handle the message potentially returning null.
+    try {
+      platformVersion =
+          await _diskSpacePlusPlugin.getPlatformVersion() ??
+          'Unknown platform version';
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+    DiskSpacePlus diskSpacePlus = DiskSpacePlus();
+    double diskSpace = 0;
+
+    diskSpace = await diskSpacePlus.getFreeDiskSpace ?? 0;
+
+    List directories;
+    List directorySpace = [];
+
+    if (Platform.isIOS) {
+      directories = [await getApplicationDocumentsDirectory()];
+    } else if (Platform.isAndroid) {
+      directories = await getExternalStorageDirectories(
+        type: StorageDirectory.movies,
+      ).then(
+        (list) async => list ?? [await getApplicationDocumentsDirectory()],
+      );
+    } else {
+      return;
+    }
+
+    for (var directory in directories) {
+      var space =
+          await diskSpacePlus.getFreeDiskSpaceForPath(directory.path) ?? 0;
+      directorySpace.add(DirectorySpace(directory: directory, space: space));
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+
+    if (!mounted) return;
+
+    setState(() {
+      _platformVersion = platformVersion;
+      _diskSpace = diskSpace;
+      _directorySpace = directorySpace;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Plugin example app')),
+        body: ListView(
+          children: [
+            Center(child: Text('Running on: $_platformVersion\n')),
+            Center(child: Text('Space on device (MB): $_diskSpace\n')),
+            for (final key in _directorySpace)
+              Center(
+                child: Text(
+                  'Space in ${key.directory.path} (MB): ${key.space}\n',
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

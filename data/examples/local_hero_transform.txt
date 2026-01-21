@@ -1,0 +1,138 @@
+import 'package:flutter&#47;material.dart';
+import 'package:local_hero_transform&#47;local_hero_transform.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final _themeNotifier = ValueNotifier(ThemeMode.light);
+
+  @override
+  void dispose() {
+    _themeNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: _themeNotifier,
+      builder: (_, themeMode, __) => MaterialApp(
+        title: 'Flutter Demo',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.light().copyWith(
+          scaffoldBackgroundColor: AppColors.backgroundColor,
+        ),
+        darkTheme: ThemeData.dark().copyWith(
+          scaffoldBackgroundColor: AppColors.darkBackgroundColor,
+        ),
+        themeMode: themeMode,
+        home: MyHomePage(themeNotifier: _themeNotifier),
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.themeNotifier});
+  final ValueNotifier themeNotifier;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+  late final ValueNotifier _viewModeNotifier;
+  late final ValueNotifier _languageNotifier;
+  late final ValueNotifier _loadingNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _viewModeNotifier = ValueNotifier(FavoriteShape.grid);
+    _languageNotifier = ValueNotifier(TextDirection.ltr);
+    _loadingNotifier = ValueNotifier(false);
+    _tabController = TabController(length: 2, vsync: this)..addListener(_handleTabChange);
+  }
+
+  void _handleTabChange() {
+    if (!_tabController.indexIsChanging) {
+      _viewModeNotifier.value = _tabController.index == 0 ? FavoriteShape.grid : FavoriteShape.list;
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController
+      ..removeListener(_handleTabChange)
+      ..dispose();
+    _viewModeNotifier.dispose();
+    _languageNotifier.dispose();
+    _loadingNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: _buildAppBar(context),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    return ValueListenableBuilder(
+      valueListenable: _languageNotifier,
+      builder: (context, textDirection, _) {
+        return Directionality(
+          textDirection: textDirection,
+          child: ValueListenableBuilder(
+              valueListenable: _loadingNotifier,
+              builder: (context, _, child) {
+                return LocalHeroViews(
+                  tabController: _tabController,
+                  onPressedCard: _handleCardPressed,
+                  textDirection: textDirection,
+                  itemCount: locations.length,
+                  itemsModel: _buildItemsModel,
+                );
+              }),
+        );
+      },
+    );
+  }
+
+  void _handleCardPressed(int index) {
+    final location = locations[index];
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DetailsScreen(name: location.name, imageUrl: location.imageUrl),
+      ),
+    );
+  }
+
+  ItemsModel _buildItemsModel(int index) {
+    final isDarkMode = widget.themeNotifier.value == ThemeMode.dark;
+    final location = locations[index];
+    final textTheme = _buildTextTheme();
+
+    return ItemsModel(
+      cardStyleMode: CardStyleMode(
+        isDarkMode: isDarkMode,
+        isLoading: _loadingNotifier.value,
+
+        &#47;&#47;&#47;Todo: Uncomment the following lines if you want to use custom colors
+        &#47;&#47; cardColor: isDarkMode ? AppColors.darkCardColor : Colors.white,
+        &#47;&#47; itemColor: isDarkMode ? AppColors.darkItemColor : AppColors.lightItemColor,
+        &#47;&#47; animationShimmerColor: isDarkMode ? AppC
+// ... (truncated)

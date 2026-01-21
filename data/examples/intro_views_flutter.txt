@@ -1,0 +1,124 @@
+import 'package:flutter&#47;material.dart';
+import 'package:intro_views_flutter&#47;intro_views_flutter.dart';
+
+&#47;&#47;&#47; This is the main method of app, from here execution starts.
+void main() => runApp(App());
+
+&#47;&#47;&#47; App widget class.
+class App extends StatelessWidget {
+  &#47;&#47; Making list of pages needed to pass in IntroViewsFlutter constructor.
+  final pages = [
+    PageViewModel(
+      pageColor: const Color(0xFF03A9F4),
+      &#47;&#47; iconImageAssetPath: 'assets&#47;air-hostess.png',
+      bubble: Image.asset('assets&#47;air-hostess.png'),
+      body: const Text(
+        'Hassle-free  booking  of  flight  tickets  with  full  refund  on  cancellation',
+      ),
+      title: const Text(
+        'Flights',
+      ),
+      titleTextStyle:
+          const TextStyle(fontFamily: 'MyFont', color: Colors.white),
+      bodyTextStyle: const TextStyle(fontFamily: 'MyFont', color: Colors.white),
+      mainImage: Image.asset(
+        'assets&#47;airplane.png',
+        height: 285.0,
+        width: 285.0,
+        alignment: Alignment.center,
+      ),
+    ),
+    PageViewModel(
+      pageColor: const Color(0xFF8BC34A),
+      iconImageAssetPath: 'assets&#47;waiter.png',
+      body: const Text(
+        'We  work  for  the  comfort ,  enjoy  your  stay  at  our  beautiful  hotels',
+      ),
+      title: const Text('Hotels'),
+      mainImage: Image.asset(
+        'assets&#47;hotel.png',
+        height: 285.0,
+        width: 285.0,
+        alignment: Alignment.center,
+      ),
+      titleTextStyle:
+          const TextStyle(fontFamily: 'MyFont', color: Colors.white),
+      bodyTextStyle: const TextStyle(fontFamily: 'MyFont', color: Colors.white),
+    ),
+    PageViewModel(
+      pageBackground: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            stops: [0.0, 1.0],
+            begin: FractionalOffset.topCenter,
+            end: FractionalOffset.bottomCenter,
+            tileMode: TileMode.repeated,
+            colors: [
+              Colors.orange,
+              Colors.pinkAccent,
+            ],
+          ),
+        ),
+      ),
+      iconImageAssetPath: 'assets&#47;taxi-driver.png',
+      body: const Text(
+        'Easy  cab  booking  at  your  doorstep  with  cashless  payment  system',
+      ),
+      title: const Text('Cabs'),
+      mainImage: Image.asset(
+        'assets&#47;taxi.png',
+        height: 285.0,
+        width: 285.0,
+        alignment: Alignment.center,
+      ),
+      titleTextStyle:
+          const TextStyle(fontFamily: 'MyFont', color: Colors.white),
+      bodyTextStyle: const TextStyle(fontFamily: 'MyFont', color: Colors.white),
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'IntroViews Flutter',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: Builder(
+        builder: (context) => IntroViewsFlutter(
+          pages,
+          showNextButton: true,
+          showBackButton: true,
+          onTapDoneButton: () {
+            &#47;&#47; Use Navigator.pushReplacement if you want to dispose the latest route
+            &#47;&#47; so the user will not be able to slide back to the Intro Views.
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => HomePage()),
+            );
+          },
+          pageButtonTextStyles: const TextStyle(
+            color: Colors.white,
+            fontSize: 18.0,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47; Home Page of our example app.
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
+      ),
+      body: const Center(
+        child: Text('This is the home page of the app'),
+      ),
+    );
+  }
+}

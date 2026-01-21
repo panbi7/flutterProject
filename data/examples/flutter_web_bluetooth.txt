@@ -1,0 +1,135 @@
+import "dart:async";
+
+import "package:flutter&#47;material.dart";
+import "package:flutter_web_bluetooth&#47;flutter_web_bluetooth.dart";
+import "package:flutter_web_bluetooth_example&#47;business&#47;bluetooth_business.dart";
+import "package:flutter_web_bluetooth_example&#47;model&#47;main_page_device.dart";
+import "package:flutter_web_bluetooth_example&#47;pages&#47;device_services_page.dart";
+import "package:flutter_web_bluetooth_example&#47;web_helpers&#47;web_helpers.dart";
+import "package:flutter_web_bluetooth_example&#47;widgets&#47;bluetooth_device_widget.dart";
+import "package:flutter_web_bluetooth_example&#47;widgets&#47;floating_action_buttons.dart";
+import "package:flutter_web_bluetooth_example&#47;widgets&#47;info_dialog.dart";
+
+const redirect = bool.fromEnvironment("redirectToHttps", defaultValue: false);
+
+void main() {
+  if (redirect) {
+    WebHelpers.redirectToHttps();
+  }
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(final BuildContext context) {
+    return StreamBuilder(
+      stream: FlutterWebBluetooth.instance.isAvailable,
+      initialData: false,
+      builder:
+          (final BuildContext context, final AsyncSnapshot snapshot) {
+            final available = snapshot.requireData;
+            return MaterialApp(
+              home: Scaffold(
+                appBar: AppBar(
+                  title: const SelectableText("Bluetooth web example app"),
+                  actions: [
+                    Builder(
+                      builder: (final BuildContext context) {
+                        return IconButton(
+                          onPressed: () async {
+                            await InfoDialog.showInfoDialog(context);
+                          },
+                          icon: const Icon(Icons.info),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                body: MainPage(isBluetoothAvailable: available),
+                floatingActionButtonLocation:
+                    FloatingActionButtonLocation.endDocked,
+                floatingActionButton: const FABS(),
+              ),
+            );
+          },
+    );
+  }
+}
+
+class MainPage extends StatefulWidget {
+  final bool isBluetoothAvailable;
+
+  const MainPage({required this.isBluetoothAvailable, super.key});
+
+  @override
+  State createState() {
+    return MainPageState();
+  }
+}
+
+class MainPageState extends State {
+  Stream>? _devicesStream;
+
+  Color? _getErrorColor() {
+    if (!mounted) {
+      return null;
+    }
+    final theme = Theme.of(context);
+    return theme.colorScheme.error;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _devicesStream = BluetoothBusiness.createDeviceStream();
+  }
+
+  Future handleDeviceTap(final MainPageDevice device) async {
+    DeviceServicesPage? page;
+    if (device is MainPageDevice) {
+      page = DeviceServicesPage(bluetoothDevice: device.device);
+    } else {
+      final state = await BluetoothBusiness.requestAdvertisementDevice(
+        device.device,
+      );
+
+      late String message;
+      switch (state.state) {
+        case RequestDeviceState.adapterNotAvailable:
+          message = "No bluetooth adapter available";
+          break;
+        case RequestDeviceState.userCancelled:
+          message = "User canceled the dialog";
+          break;
+        case RequestDeviceState.deviceNotFound:
+          message = "No devices found";
+          break;
+        case RequestDeviceState.ok:
+          message = "";
+          break;
+        case RequestDeviceState.other:
+        default:
+          message = "Unknown error";
+          break;
+      }
+
+      if (state.state == RequestDeviceState.ok && state.device == null) {
+        message = "Unknown error";
+      }
+
+      if (message.isNotEmpty && mounted) {
+ 
+// ... (truncated)

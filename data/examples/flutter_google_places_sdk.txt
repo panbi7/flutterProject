@@ -1,0 +1,141 @@
+import 'package:collection&#47;collection.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_google_places_sdk&#47;flutter_google_places_sdk.dart';
+import 'package:flutter_google_places_sdk_example&#47;constants.dart';
+import 'package:flutter_google_places_sdk_example&#47;google_places_img.dart'
+    if (dart.library.html) 'package:flutter_google_places_sdk_example&#47;google_places_img_web.dart'
+    as gpi;
+import 'package:flutter_google_places_sdk_example&#47;settings_page.dart';
+
+&#47;&#47;&#47; Title
+const title = 'Flutter Google Places SDK Example';
+
+void main() {
+  runApp(MyApp());
+}
+
+&#47;&#47;&#47; Main app
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: title,
+      theme: ThemeData(
+        primaryColor: Colors.blueAccent,
+      ),
+      home: MyHomePage(),
+    );
+  }
+}
+
+&#47;&#47;&#47; Main home page
+class MyHomePage extends StatefulWidget {
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  late final FlutterGooglePlacesSdk _places;
+
+  &#47;&#47;
+  String? _predictLastText;
+
+  List _placeTypesFilter = [PlaceTypeFilter.ESTABLISHMENT];
+
+  bool _locationBiasEnabled = true;
+  LatLngBounds _locationBias = LatLngBounds(
+      southwest: LatLng(lat: 32.0810305, lng: 34.785707),
+      northeast: LatLng(lat: 32.0935937, lng: 34.8013896));
+
+  bool _locationRestrictionEnabled = false;
+  LatLngBounds _locationRestriction = LatLngBounds(
+      southwest: LatLng(lat: 32.0583974, lng: 34.7633473),
+      northeast: LatLng(lat: 32.0876885, lng: 34.8040563));
+
+  List _countries = ['il'];
+  bool _countriesEnabled = true;
+
+  bool _predicting = false;
+  dynamic _predictErr;
+
+  List? _predictions;
+
+  &#47;&#47;
+  final TextEditingController _fetchPlaceIdController = TextEditingController();
+  List _placeFields = [
+    PlaceField.Address,
+    PlaceField.AddressComponents,
+    PlaceField.BusinessStatus,
+    PlaceField.Id,
+    PlaceField.Location,
+    PlaceField.Name,
+    PlaceField.OpeningHours,
+    PlaceField.PhoneNumber,
+    PlaceField.PhotoMetadatas,
+    PlaceField.PlusCode,
+    PlaceField.PriceLevel,
+    PlaceField.Rating,
+    PlaceField.Types,
+    PlaceField.UserRatingsTotal,
+    PlaceField.UTCOffset,
+    PlaceField.Viewport,
+    PlaceField.WebsiteUri,
+  ];
+
+  bool _fetchingPlace = false;
+  dynamic _fetchingPlaceErr;
+
+  bool _fetchingPlacePhoto = false;
+  dynamic _fetchingPlacePhotoErr;
+
+  Place? _place;
+  FetchPlacePhotoResponse? _placePhoto;
+  PhotoMetadata? _placePhotoMetadata;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _places = FlutterGooglePlacesSdk(INITIAL_API_KEY, locale: INITIAL_LOCALE);
+    _places.isInitialized().then((value) {
+      debugPrint('Places Initialized: $value');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final predictionsWidgets = _buildPredictionWidgets();
+    final fetchPlaceWidgets = _buildFetchPlaceWidgets();
+    final fetchPlacePhotoWidgets = _buildFetchPlacePhotoWidgets();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(title),
+        actions: [
+          new IconButton(
+              onPressed: _openSettingsModal, icon: const Icon(Icons.settings)),
+        ],
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(30),
+        child: ListView(
+          children: predictionsWidgets +
+              [
+                SizedBox(height: 16),
+              ] +
+              fetchPlaceWidgets +
+              [
+                SizedBox(height: 16),
+              ] +
+              fetchPlacePhotoWidgets,
+        ),
+      ),
+    );
+  }
+
+  void _onPlaceTypeFilterChanged(PlaceTypeFilter? value) {
+    if (value != null) {
+      setState(() {
+        _placeTypesFilter = [va
+// ... (truncated)

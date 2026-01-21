@@ -1,0 +1,128 @@
+&#47;&#47; Copyright (c) 2023- All flutter_graph_view authors. All rights reserved.
+&#47;&#47;
+&#47;&#47; This source code is licensed under Apache 2.0 License.
+
+import 'dart:async' show runZonedGuarded;
+
+import 'package:example&#47;demos&#47;custom_shape_demo&#47;er_graph&#47;er_graph_demo.dart';
+import 'package:example&#47;demos&#47;object_graph_demo.dart' show ObjectGraphDemo;
+import 'package:flutter&#47;material.dart';
+
+import 'demos&#47;custom_shape_demo&#47;execution_plan&#47;execution_plan_demo.dart';
+import 'demos&#47;persistence_demo.dart';
+import 'demos&#47;vertex_font_style_demo.dart';
+import 'demos&#47;decorator_demo.dart';
+import 'demos&#47;force_directed_demo.dart';
+import 'demos&#47;random_algorithm_demo.dart';
+import 'demos&#47;circle_layout_demo.dart';
+import 'demos&#47;self_loop_demo.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+
+void main() {
+  runZonedGuarded(() {
+    runApp(const Showroom());
+  }, (error, stackTrace) {
+    &#47;&#47; ... 错误处理
+    print(stackTrace);
+  });
+}
+
+class Showroom extends StatefulWidget {
+  const Showroom({super.key});
+
+  @override
+  State createState() => _ShowroomState();
+}
+
+class _ShowroomState extends State
+    with SingleTickerProviderStateMixin {
+  late TabController mainTabController;
+
+  final List tabNames = [
+    'ErGraphDemo',
+    'ObjectGraphDemo',
+    'DecoratorDemo',
+    'PersistenceDemo',
+    'ForceDirected',
+    'ExecutionPlan',
+    'CircleLayout',
+    'RandomLayout',
+    "SelfLoop",
+    "VertexFontStyleDemo",
+  ];
+  final List tabs = [
+    ErGraphDemo(),
+    const ObjectGraphDemo(),
+    const DecoratorDemo(),
+    const PersistenceDemo(),
+    ForceDirectedDemo(),
+    ExecutionPlanDemo(),
+    CircleLayoutDemo(),
+    RandomAlgorithmDemo(),
+    const SelfLoopDemo(),
+    const VertexFontStyleDemo(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    mainTabController =
+        TabController(initialIndex: 0, length: tabs.length, vsync: this);
+  }
+
+  Uri repo = Uri.parse('https:&#47;&#47;github.com&#47;graph-cn&#47;flutter_graph_view');
+
+  List buttons = [
+    {
+      'label': 'Repo',
+      'url': 'https:&#47;&#47;github.com&#47;graph-cn&#47;flutter_graph_view',
+      'icon': Icons.link,
+    },
+    {
+      'label': 'Demos',
+      'url':
+          'https:&#47;&#47;github.com&#47;graph-cn&#47;flutter_graph_view&#47;tree&#47;main&#47;example&#47;lib&#47;demos',
+      'icon': Icons.list,
+    }
+  ];
+
+  _launchUrl(String url) {
+    launchUrl(Uri.parse(url));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(useMaterial3: true),
+      home: Scaffold(
+        body: Column(
+          children: [
+            Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: buttons.map((button) {
+                  return ElevatedButton.icon(
+                    icon: Icon(button['icon']),
+                    label: Text(button['label']),
+                    onPressed: () => _launchUrl(button['url']),
+                  );
+                }).toList()),
+            Expanded(
+                child: TabBarView(
+              controller: mainTabController,
+              children: tabs,
+            ))
+          ],
+        ),
+        bottomNavigationBar: TabBar(
+          controller: mainTabController,
+          tabs: tabNames
+              .map((tabName) => Tab(
+                    child: Tooltip(message: tabName, child: Text(tabName)),
+                  ))
+              .toList(),
+        ),
+      ),
+    );
+  }
+}

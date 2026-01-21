@@ -1,0 +1,24 @@
+import 'package:dio&#47;dio.dart';
+import 'package:flutter_pretty_dio_logger&#47;flutter_pretty_dio_logger.dart';
+
+void main() {
+  final Dio dio = Dio();
+
+  dio.options.baseUrl = 'https:&#47;&#47;api.covid19api.com';
+
+  dio.interceptors.add(
+    PrettyDioLogger(
+      requestHeader: true,
+      queryParameters: true,
+      requestBody: true,
+      responseHeader: true,
+      responseBody: true,
+      error: true,
+      showProcessingTime: true,
+      showCUrl: true,
+      &#47;&#47; canShowLog: kDebugMode,
+    ),
+  );
+  &#47;&#47; Note: logPrint default is "log", it is work only when Debugging - https:&#47;&#47;github.com&#47;Dart-Code&#47;Dart-Code&#47;issues&#47;3653
+  dio.get('&#47;world&#47;total');
+}

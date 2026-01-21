@@ -1,0 +1,120 @@
+import 'package:flutter&#47;foundation.dart' show kIsWeb;
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:provider&#47;provider.dart';
+import 'package:tdesign_flutter&#47;src&#47;util&#47;log.dart';
+import 'package:tdesign_flutter&#47;tdesign_flutter.dart';
+
+import 'base&#47;example_route.dart';
+import 'base&#47;intl_resource_delegate.dart';
+import 'config.dart';
+import 'home.dart';
+import 'l10n&#47;app_localizations.dart';
+import 'provider&#47;locale_provider.dart';
+import 'provider&#47;theme_mode_provider.dart';
+import 'util&#47;web_theme_listener.dart';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  &#47;&#47; 禁止横屏
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  Log.setCustomLogPrinter((level, tag, msg) => print('[$level] $tag ==> $msg'));
+  runApp(const MyApp());
+
+  &#47;*SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+  ));*&#47;
+
+  exampleMap.forEach((key, value) {
+    value.forEach((model) {
+      examplePageList.add(model);
+    });
+  });
+  sideBarExamplePage.forEach(examplePageList.add);
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late TDThemeData _themeData;
+
+  @override
+  void initState() {
+    super.initState();
+    _themeData = TDThemeData.defaultData();
+    print('_darkThemeData.bgColorPage： ${_themeData.bgColorPage}，_themeData.dark?.bgColorPage: ${_themeData.dark?.bgColorPage}');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; 使用多套主题
+    TDTheme.needMultiTheme();
+    var delegate = IntlResourceDelegate(context);
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) {
+            final provider = ThemeModeProvider();
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              if (provider.themeMode == ThemeMode.system) {
+                await provider.initThemeMode();
+              }
+            });
+            return provider;
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (_) {
+            final provider = LocaleProvider();
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              await provider.initLocale();
+            });
+            return provider;
+          },
+        ),
+      ],
+      child: Consumer2(
+        builder: (context, themeModeProvider, localeProvider, child) {
+          &#47;&#47; 在 Web 平台设置 postMessage 监听
+          if (PlatformUtil.isWeb) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              &#47;&#47; 仅在 Web 平台执行
+              if (!kIsWeb) {
+                return;
+              }
+              setupThemeModeListener(themeModeProvider);
+            });
+          }
+
+          return MaterialApp(
+            title: 'TDesign Flutter Example',
+            theme: _themeData.systemThemeDataLight,
+            darkTheme: _themeData.systemThemeDataDark,
+            themeMode: themeModeProvider.themeMode,
+            home: PlatformUtil.isWeb
+                ? null
+                : Builder(
+                    builder: (context) {
+                      &#47;&#47; 设置文案代理,国际化需要在MaterialApp初始化完成之后才生效,而且需要每次更新context
+                      TDTheme.setResourceBuilder(
+                        (context) => delegate..updateContext(context),
+                        needAlwaysBuild: true,
+                      );
+                      return MyHomePage(
+                        title: AppLocalizations.of(context)?.components ?? '',
+                        onThemeChange: (themeData) {
+                          setState(() {
+                            _themeData = themeData;
+                          });
+                        },
+               
+// ... (truncated)

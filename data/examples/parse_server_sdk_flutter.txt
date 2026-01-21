@@ -1,0 +1,133 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_plugin_example&#47;data&#47;base&#47;api_response.dart';
+import 'package:flutter_plugin_example&#47;data&#47;model&#47;diet_plan.dart';
+import 'package:flutter_plugin_example&#47;data&#47;model&#47;user.dart';
+import 'package:flutter_plugin_example&#47;data&#47;repositories&#47;diet_plan&#47;repository_diet_plan.dart';
+import 'package:flutter_plugin_example&#47;data&#47;repositories&#47;user&#47;repository_user.dart';
+import 'package:flutter_plugin_example&#47;domain&#47;constants&#47;application_constants.dart';
+import 'package:flutter_plugin_example&#47;domain&#47;utils&#47;db_utils.dart';
+import 'package:flutter_plugin_example&#47;pages&#47;decision_page.dart';
+import 'package:parse_server_sdk_flutter&#47;parse_server_sdk_flutter.dart';
+
+void main() {
+  _setTargetPlatformForDesktop();
+
+  runApp(const MyApp());
+}
+
+void _setTargetPlatformForDesktop() {
+  TargetPlatform? targetPlatform;
+
+  if (Platform.isMacOS) {
+    targetPlatform = TargetPlatform.iOS;
+  } else if (Platform.isLinux || Platform.isWindows) {
+    targetPlatform = TargetPlatform.android;
+  }
+  if (targetPlatform != null) {
+    debugDefaultTargetPlatformOverride = targetPlatform;
+  }
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  DietPlanRepository? dietPlanRepo;
+  UserRepository? userRepo;
+
+  String text = '';
+
+  @override
+  void initState() {
+    super.initState();
+    initData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: const Center(
+          child: DecisionPage(),
+          &#47;&#47;child: HomePage(),
+        ),
+      ),
+    );
+  }
+
+  Future initData() async {
+    &#47;&#47; Initialize repository
+    await initRepository();
+
+    &#47;&#47; Initialize parse
+    await Parse().initialize(keyParseApplicationId, keyParseServerUrl,
+        clientKey: keyParseClientKey, debug: true);
+
+    &#47;&#47;parse serve with secure store and desktop support
+    &#47;&#47;    Parse().initialize(keyParseApplicationId, keyParseServerUrl,
+    &#47;&#47;        clientKey: keyParseClientKey,
+    &#47;&#47;        debug: true);
+
+    &#47;&#47; Check server is healthy and live - Debug is on in this instance so check logs for result
+    final ParseResponse response = await Parse().healthCheck();
+
+    if (response.success) {
+      await runTestQueries();
+      text += 'runTestQueries\n';
+      print(text);
+    } else {
+      text += 'Server health check failed';
+      print(text);
+    }
+  }
+
+  Future runTestQueries() async {
+    &#47;&#47; Basic repository example
+    &#47;&#47;await repositoryAddUser();
+    &#47;&#47; await repositoryAddItems();
+    await repositoryGetAllItems();
+
+    &#47;&#47;Basic usage
+    &#47;&#47;await createItem();
+    &#47;&#47;await getAllItems();
+    &#47;&#47;await getAllItemsByName();
+    &#47;&#47;await getSingleItem();
+    &#47;&#47;await getConfigs();
+    &#47;&#47;await query();
+    &#47;&#47;await initUser();
+    &#47;&#47;await initInstallation();
+    &#47;&#47;await function();
+    &#47;&#47;await functionWithParameters();
+    &#47;&#47;await test();
+  }
+
+  Future initInstallation() async {
+    final ParseInstallation installation =
+        await ParseInstallation.currentInstallation();
+    final ParseResponse response = await installation.create();
+    print(response);
+  }
+
+  Future test() async {
+    User user = User('test_user', 'test_password', 'test@gmail.com');
+    final ParseResponse signUpResponse = await user.signUp();
+
+    if (signUpResponse.success) {
+      user = signUpResponse.result;
+    } else {
+      final ParseResponse loginResponse = await user.login();
+
+      if (loginResponse.success) {
+  
+// ... (truncated)

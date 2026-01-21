@@ -1,0 +1,62 @@
+&#47;&#47; Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+&#47;&#47; SPDX-License-Identifier: Apache-2.0
+
+import 'package:amplify_flutter&#47;amplify_flutter.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool _amplifyConfigured = false;
+  var amplifyConfig = '''{"foo": "bar"}''';
+
+  @override
+  void initState() {
+    super.initState();
+    configureAmplify();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  void configureAmplify() async {
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+    await Amplify.configure(amplifyConfig);
+    try {
+      setState(() {
+        _amplifyConfigured = true;
+      });
+    } on Exception catch (e) {
+      safePrint(e);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Amplify Core example app')),
+        body: Center(
+          child: Text('Is Amplify Configured?: $_amplifyConfigured\n'),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(StringProperty('amplifyConfig', amplifyConfig));
+  }
+}

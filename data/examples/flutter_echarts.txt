@@ -1,0 +1,148 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter&#47;material.dart';
+
+import 'package:flutter_echarts&#47;flutter_echarts.dart';
+&#47;&#47; import 'package:number_display&#47;number_display.dart';
+
+import 'liquid_script.dart' show liquidScript;
+import 'gl_script.dart' show glScript;
+import 'dark_theme_script.dart' show darkThemeScript;
+
+&#47;&#47; final display = createDisplay(decimal: 2);
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final GlobalKey _scaffoldKey = new GlobalKey();
+
+  List> _data1 = [
+    {'name': 'Please wait', 'value': 0}
+  ];
+
+  getData1() async {
+    await Future.delayed(Duration(seconds: 4));
+
+    const dataObj = [
+      {
+        'name': 'Jan',
+        'value': 8726.2453,
+      },
+      {
+        'name': 'Feb',
+        'value': 2445.2453,
+      },
+      {
+        'name': 'Mar',
+        'value': 6636.2400,
+      },
+      {
+        'name': 'Apr',
+        'value': 4774.2453,
+      },
+      {
+        'name': 'May',
+        'value': 1066.2453,
+      },
+      {
+        'name': 'Jun',
+        'value': 4576.9932,
+      },
+      {
+        'name': 'Jul',
+        'value': 8926.9823,
+      }
+    ];
+
+    this.setState(() {
+      this._data1 = dataObj;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    this.getData1();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text('Echarts Demon'),
+      ),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            children: [
+              Padding(
+                child: Text('Reactive updating and tap event',
+                    style: TextStyle(fontSize: 20)),
+                padding: EdgeInsets.fromLTRB(0, 40, 0, 20),
+              ),
+              Text('- data will be fetched in a few seconds'),
+              Text('- tap the bar and trigger the snack'),
+              Container(
+                child: Echarts(
+                  option: '''
+                    {
+                      dataset: {
+                        dimensions: ['name', 'value'],
+                        source: ${jsonEncode(_data1)},
+                      },
+                      color: ['#3398DB'],
+                      legend: {
+                        data: ['直接访问', '背景'],
+                        show: false,
+                      },
+                      grid: {
+                        left: '0%',
+                        right: '0%',
+                        bottom: '5%',
+                        top: '7%',
+                        height: '85%',
+                        containLabel: true,
+                        z: 22,
+                      },
+                      xAxis: [{
+                        type: 'category',
+                        gridIndex: 0,
+                        axisTick: {
+                          show: false,
+                        },
+                        axisLine: {
+                          lineStyle: {
+                            color: '#0c3b71',
+                          },
+                        },
+                        axisLabel: {
+                          show: true,
+                          color: 'rgb(170,170,170)',
+                          formatter: function xFormatter(value, index) {
+                            if (index === 6) {
+                              return `\${value}\\n*`;
+                            }
+                            return value;
+// ... (truncated)

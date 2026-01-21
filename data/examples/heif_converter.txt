@@ -1,0 +1,75 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:heif_converter&#47;heif_converter.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final httpClient = HttpClient();
+  String heicUrl = 'https:&#47;&#47;filesamples.com&#47;samples&#47;image&#47;heic&#47;sample1.heic';
+  String? output;
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    String? tmp = await downloadAndConvert();
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      output = tmp;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: (output != null && output!.isNotEmpty)
+              ? Image.file(File(output!))
+              : const Text('No Image'),
+        ),
+      ),
+    );
+  }
+
+  Future downloadAndConvert() async {
+    File heicFile = await _downloadFile(heicUrl, 'sample.heic');
+    return HeifConverter.convert(heicFile.path, format: 'png');
+  }
+
+  Future _downloadFile(String url, String filename) async {
+    var request = await httpClient.getUrl(Uri.parse(url));
+    var response = await request.close();
+    var bytes = await consolidateHttpClientResponseBytes(response);
+    String dir = (await getTemporaryDirectory()).path;
+    File file = File('$dir&#47;$filename');
+    await file.writeAsBytes(bytes);
+    return file;
+  }
+}

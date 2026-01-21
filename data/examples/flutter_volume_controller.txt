@@ -1,0 +1,133 @@
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_volume_controller&#47;flutter_volume_controller.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Home(),
+    );
+  }
+}
+
+class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _HomeState();
+}
+
+class _HomeState extends State {
+  AudioStream _audioStream = AudioStream.music;
+  AudioSessionCategory? _audioSessionCategory;
+  double _currentVolume = 0.0;
+  bool _showSystemUI = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (Platform.isIOS) {
+        await _loadIOSAudioSessionCategory();
+      }
+      if (Platform.isAndroid) {
+        await _loadAndroidAudioStream();
+      }
+    });
+    FlutterVolumeController.addListener((volume) {
+      setState(() {
+        _currentVolume = volume;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    FlutterVolumeController.removeListener();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flutter Volume Controller Example'),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          if (Platform.isAndroid || Platform.isIOS)
+            Center(
+              child: ElevatedButton(
+                child: const Text('Show or hide system ui'),
+                onPressed: () async {
+                  await FlutterVolumeController.updateShowSystemUI(
+                      !FlutterVolumeController.showSystemUI);
+                  setState(() {
+                    _showSystemUI = FlutterVolumeController.showSystemUI;
+                  });
+                },
+              ),
+            ),
+          if (Platform.isAndroid) ...[
+            Center(
+              child: ElevatedButton(
+                child: const Text('Switch audio stream'),
+                onPressed: () async {
+                  final stream = await _pickAndroidAudioStream(context);
+                  if (stream != null) {
+                    setState(() {
+                      _audioStream = stream;
+                    });
+                    await FlutterVolumeController.setAndroidAudioStream(
+                      stream: stream,
+                    );
+                  }
+                },
+              ),
+            ),
+            Center(
+              child: ElevatedButton(
+                child: const Text('Get audio stream'),
+                onPressed: () async {
+                  final stream =
+                      await FlutterVolumeController.getAndroidAudioStream();
+                  _showSnackBar('Audio stream: $stream');
+                },
+              ),
+            ),
+          ],
+          if (Platform.isIOS) ...[
+            Center(
+              child: ElevatedButton(
+                child: const Text('Switch audio session category'),
+                onPressed: () async {
+                  final category = await _pickIOSAudioSessionCategory(context);
+                  if (category != null) {
+                    setState(() {
+                      _audioSessionCategory = category;
+                    });
+                    await FlutterVolumeController.setIOSAudioSessionCategory(
+                      category: category,
+                    );
+                  }
+                },
+              ),
+            ),
+            Center(
+              child: ElevatedButton(
+                child: const Text('Get audio session category'),
+                onPressed: () async {
+                  final category = await FlutterVolumeController
+                      .getIOSAudioSessionCategory();
+                  _showSnackBar('Audio session category: $category');
+              
+// ... (truncated)

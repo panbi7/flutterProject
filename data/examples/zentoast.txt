@@ -1,0 +1,141 @@
+import 'package:flutter&#47;material.dart';
+import 'package:oref&#47;oref.dart';
+import 'package:zentoast&#47;zentoast.dart';
+
+final toastAlignment = signal(null, Alignment.bottomRight);
+
+void main() {
+  runApp(ToastProvider.create(child: const MyApp()));
+}
+
+enum ToastVariant { success, info, warning }
+
+class SonnerToast extends StatelessWidget {
+  const SonnerToast({
+    super.key,
+    required this.variant,
+    required this.title,
+    required this.message,
+    required this.height,
+    required this.onClose,
+  });
+
+  final ToastVariant variant;
+  final String title;
+  final String message;
+  final double height;
+  final VoidCallback onClose;
+
+  Color get _accentColor => switch (variant) {
+    ToastVariant.success => const Color(0xFF16A34A),
+    ToastVariant.info => const Color(0xFF2563EB),
+    ToastVariant.warning => const Color(0xFFF59E0B),
+  };
+
+  IconData get _icon => switch (variant) {
+    ToastVariant.success => Icons.check_circle_rounded,
+    ToastVariant.info => Icons.info_rounded,
+    ToastVariant.warning => Icons.warning_amber_rounded,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      clipBehavior: Clip.none,
+      child: Container(
+        height: height,
+        width: double.maxFinite,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          borderRadius: BorderRadius.circular(8),
+          border: Border(left: BorderSide(color: _accentColor, width: 3)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(_icon, color: _accentColor, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    message,
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 12,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            InkWell(
+              onTap: onClose,
+              borderRadius: BorderRadius.circular(20),
+              child: const Padding(
+                padding: EdgeInsets.all(4),
+                child: Icon(
+                  Icons.close_rounded,
+                  color: Colors.black54,
+                  size: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class BrutalistToast extends StatelessWidget {
+  const BrutalistToast({
+    super.key,
+    required this.variant,
+    required this.title,
+    required this.message,
+    required this.height,
+    required this.onClose,
+  });
+
+  final ToastVariant variant;
+  final String title;
+  final String message;
+  final double height;
+  final VoidCallback onClose;
+
+  Color get _bgColor => switch (variant) {
+    ToastVariant.success => const Color(0xFFB8FF66),
+    ToastVariant.info => const Color(0xFF8AE1FF),
+    ToastVariant.warning => const Color(0xFFFFE666),
+  };
+
+  IconData get _icon => switch (variant) {
+    ToastVariant.success => Icons.task_alt,
+    ToastVariant.info => Icons.info_outline,
+    ToastVariant.warning => Icons.warning_amber_outlined,
+  };
+
+
+// ... (truncated)

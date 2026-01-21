@@ -1,0 +1,21 @@
+&#47;&#47; Copyright 2013 The Flutter Authors
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(const MyApp());
+
+&#47;&#47;&#47; App for testing
+class MyApp extends StatelessWidget {
+  &#47;&#47;&#47; Default Constructor
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Directionality(
+      textDirection: TextDirection.ltr,
+      child: Text('Testing... Look at the console output for results!'),
+    );
+  }
+}

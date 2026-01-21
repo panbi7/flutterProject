@@ -1,0 +1,126 @@
+&#47;&#47; Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+&#47;&#47; SPDX-License-Identifier: Apache-2.0
+
+import 'package:amplify_analytics_pinpoint&#47;amplify_analytics_pinpoint.dart';
+import 'package:amplify_auth_cognito&#47;amplify_auth_cognito.dart';
+import 'package:amplify_flutter&#47;amplify_flutter.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'amplify_outputs.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool _amplifyConfigured = false;
+
+  String _uniqueId = 'default';
+  String _globalProp = 'default';
+  String _userId = 'default';
+
+  @override
+  void initState() {
+    super.initState();
+    _configureAmplify();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  void _configureAmplify() async {
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    &#47;&#47; FIXME: In your app, make sure to remove this line and set up
+    &#47;&#47;&#47; Keychain Sharing in Xcode as described in the docs:
+    &#47;&#47;&#47; https:&#47;&#47;docs.amplify.aws&#47;lib&#47;project-setup&#47;platform-setup&#47;q&#47;platform&#47;flutter&#47;#enable-keychain
+    final storageFactory = AmplifySecureStorage.factoryFrom(
+      &#47;&#47; ignore: invalid_use_of_visible_for_testing_member
+      macOSOptions: MacOSSecureStorageOptions(useDataProtection: false),
+    );
+
+    await Amplify.addPlugins([
+      AmplifyAuthCognito(secureStorageFactory: storageFactory),
+      AmplifyAnalyticsPinpoint(
+        &#47;&#47; ignore: invalid_use_of_visible_for_testing_member
+        secureStorageFactory: storageFactory,
+        options: const AnalyticsPinpointPluginOptions(
+          autoFlushEventsInterval: Duration(seconds: 10),
+        ),
+      ),
+    ]);
+
+    try {
+      await Amplify.configure(amplifyConfig);
+      setState(() {
+        _amplifyConfigured = true;
+      });
+    } on AnalyticsException catch (e) {
+      safePrint(e.toString());
+    }
+  }
+
+  void _recordEvent() async {
+    final event = AnalyticsEvent(_uniqueId);
+
+    event.customProperties.addBoolProperty('boolKey', true);
+    event.customProperties.addDoubleProperty('doubleKey', 10.1);
+    event.customProperties.addIntProperty('intKey', 10);
+    event.customProperties.addStringProperty('stringKey', 'stringValue');
+
+    await Amplify.Analytics.recordEvent(event: event);
+  }
+
+  void _flushEvents() async {
+    await Amplify.Analytics.flushEvents();
+  }
+
+  void _registerGlobalProperties() async {
+    safePrint('register global properties: $_globalProp');
+
+    final properties = CustomProperties();
+    properties.addIntProperty('${_globalProp}_1numKey', 1);
+    properties.addBoolProperty('${_globalProp}_boolKey', true);
+    properties.addDoubleProperty('${_globalProp}_doubleKey', 10);
+    properties.addIntProperty('${_globalProp}_intKey', 10);
+    properties.addStringProperty('${_globalProp}_stringKey', 'stringValue');
+
+    await Amplify.Analytics.registerGlobalProperties(
+      globalProperties: properties,
+    );
+    safePrint('registered global properties: $_globalProp');
+  }
+
+  void _unregisterGlobalProperties() async {
+    safePrint('unregister global properties: $_globalProp');
+
+    await Amplify.Analytics.unregisterGlobalProperties(
+      propertyNames: [_globalProp],
+    );
+  }
+
+  void _unregisterAllGlobalProperties() async {
+    await Amplify.Analytics.unregisterGlobalProperties();
+  }
+
+  void _enable() async {
+    await Amplify.Analytics.enable();
+  }
+
+  void _disable() async {
+    await Amplify.Analytics.disable();
+  }
+
+  void _identifyUser() async {
+    final analyticsUserProfile = AWSPinpointUserProfile(
+      name: '${_userId}_name',
+     
+// ... (truncated)

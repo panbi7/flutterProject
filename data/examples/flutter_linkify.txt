@@ -1,0 +1,60 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_linkify&#47;flutter_linkify.dart';
+import 'package:linkify&#47;linkify.dart';
+import 'dart:async';
+
+import 'package:url_launcher&#47;url_launcher.dart';
+
+void main() => runApp(LinkifyExample());
+
+class LinkifyExample extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'flutter_linkify example',
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('flutter_linkify example'),
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Center(
+              child: Column(
+                children: [
+                  Linkify(
+                    onOpen: _onOpen,
+                    text:
+                        "Made by https:&#47;&#47;cretezy.com\n\nMail: example@gmail.com",
+                  ),
+                  SizedBox(height: 64),
+                  SelectableLinkify(
+                    onOpen: _onOpen,
+                    text:
+                        "Made by https:&#47;&#47;cretezy.com\n\nMail: example@gmail.com",
+                  ),
+                  SizedBox(height: 64),
+                  Linkify(
+                    onOpen: print,
+                    text: "@Cretezy +123456789",
+                    linkifiers: [
+                      const UserTagLinkifier(),
+                      const PhoneNumberLinkifier(),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future _onOpen(LinkableElement link) async {
+    if (!await launchUrl(Uri.parse(link.url))) {
+      throw Exception('Could not launch ${link.url}');
+    }
+  }
+}

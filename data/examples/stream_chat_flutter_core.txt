@@ -1,0 +1,114 @@
+import 'package:flutter&#47;material.dart';
+import 'package:stream_chat_flutter_core&#47;stream_chat_flutter_core.dart';
+
+Future main() async {
+  &#47;&#47;&#47; Create a new instance of [StreamChatClient] passing the apikey obtained
+  &#47;&#47;&#47; from your project dashboard.
+  final client = StreamChatClient('b67pax5b2wdq');
+
+  &#47;&#47;&#47; Set the current user. In a production scenario, this should be done using
+  &#47;&#47;&#47; a backend to generate a user token using our server SDK.
+  &#47;&#47;&#47; Please see the following for more information:
+  &#47;&#47;&#47; https:&#47;&#47;getstream.io&#47;chat&#47;docs&#47;ios_user_setup_and_tokens&#47;
+  await client.connectUser(
+    User(
+      id: 'cool-shadow-7',
+      image:
+          'https:&#47;&#47;getstream.io&#47;random_png&#47;?id=cool-shadow-7&amp;name=Cool+shadow',
+    ),
+    '''eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiY29vbC1zaGFkb3ctNyJ9.gkOlCRb1qgy4joHPaxFwPOdXcGvSPvp6QY0S4mpRkVo''',
+  );
+
+  runApp(
+    StreamExample(
+      client: client,
+    ),
+  );
+}
+
+&#47;&#47;&#47; Example application using Stream Chat core widgets.
+&#47;&#47;&#47; Stream Chat Core is a set of Flutter wrappers which provide basic
+&#47;&#47;&#47; functionality for building Flutter applications using Stream.
+&#47;&#47;&#47;
+&#47;&#47;&#47; If you'd prefer using pre-made UI widgets for your app, please see our other
+&#47;&#47;&#47; package, `stream_chat_flutter`.
+class StreamExample extends StatelessWidget {
+  &#47;&#47;&#47; Minimal example using Stream's core Flutter package.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; If you'd prefer using pre-made UI widgets for your app, please see our
+  &#47;&#47;&#47; other package, `stream_chat_flutter`.
+  const StreamExample({
+    Key? key,
+    required this.client,
+  }) : super(key: key);
+
+  &#47;&#47;&#47; Instance of Stream Client.
+  &#47;&#47;&#47; Stream's [StreamChatClient] can be used to connect to our servers and
+  &#47;&#47;&#47; set the default user for the application. Performing these actions
+  &#47;&#47;&#47; trigger a websocket connection allowing for real-time updates.
+  final StreamChatClient client;
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Stream Chat Core Example',
+        home: HomeScreen(),
+        builder: (context, child) => StreamChatCore(
+          client: client,
+          child: child!,
+        ),
+      );
+}
+
+&#47;&#47;&#47; Basic layout displaying a list of [Channel]s the user is a part of.
+&#47;&#47;&#47; This is implemented using a [StreamChannelListController].
+&#47;&#47;&#47;
+&#47;&#47;&#47; [StreamChannelListController] is a controller that lets you manage a list of
+&#47;&#47;&#47; channels.
+class HomeScreen extends StatefulWidget {
+  &#47;&#47;&#47; Builds a basic layout displaying a list of [Channel]s the user is a
+  &#47;&#47;&#47; part of.
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State {
+  &#47;&#47;&#47; Controller used for loading more data and controlling pagination in
+  &#47;&#47;&#47; [StreamChannelListController].
+  late final channelListController = StreamChannelListController(
+    client: StreamChatCore.of(context).client,
+    filter: Filter.and([
+      Filter.equal('type', 'messaging'),
+      Filter.in_(
+        'members',
+        [
+          StreamChatCore.of(context).currentUser!.id,
+        ],
+      ),
+    ]),
+  );
+
+  @override
+  void initState() {
+    channelListController.doInitialLoad();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    channelListController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Channels'),
+        ),
+        body: PagedValueListenableBuilder(
+          valueListenable: channelListController,
+          builder: (context, value, child) {
+            return value.when(
+              (channels, nextPageKey, error) =
+// ... (truncated)

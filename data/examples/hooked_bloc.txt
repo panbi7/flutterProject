@@ -1,0 +1,55 @@
+import 'package:example&#47;di&#47;injector.dart';
+import 'package:example&#47;page&#47;home_page.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:hooked_bloc&#47;hooked_bloc.dart';
+
+void main() async {
+  &#47;&#47; With GetIt or Injectable
+  await configureDependencies();
+
+  runApp(
+    HookedBlocConfigProvider(
+      injector: () => getIt.get,
+      builderCondition: (state) => state != null, &#47;&#47; Global build condition
+      listenerCondition: (state) => state != null, &#47;&#47; Global listen condition
+      child: const MyApp(),
+    ),
+  );
+}
+
+&#47;&#47; Quickstart example counter page
+&#47;&#47; Remember to inherit from HookWidget
+&#47;&#47; class MyApp extends HookWidget {
+&#47;&#47;   const MyApp({Key? key}) : super(key: key);
+&#47;&#47;
+&#47;&#47;   @override
+&#47;&#47;   Widget build(BuildContext context) {
+&#47;&#47;     &#47;&#47; At start obtain a cubit instance
+&#47;&#47;     final cubit = useBloc();
+&#47;&#47;     &#47;&#47; Then observe state's updates
+&#47;&#47;     &#47;&#47;`buildWhen` param will override builderCondition locally
+&#47;&#47;     final state = useBlocBuilder(cubit, buildWhen: (state) => state  cubit.increment(), &#47;&#47; Access cubit in tree
+&#47;&#47;           child: const Icon(Icons.add),
+&#47;&#47;         ),
+&#47;&#47;         &#47;&#47; Consume state without BlocBuilder
+&#47;&#47;         body: Center(child: Text("The button has been pressed $state times")),
+&#47;&#47;       ),
+&#47;&#47;     );
+&#47;&#47;   }
+&#47;&#47; }
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  final appName = "Hooked Bloc";
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: appName,
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: HomePage(title: appName),
+    );
+  }
+}

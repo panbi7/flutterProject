@@ -1,0 +1,50 @@
+import 'package:flutter&#47;material.dart';
+import 'package:syncfusion_flutter_pdfviewer&#47;pdfviewer.dart';
+
+void main() {
+  runApp(
+    const MaterialApp(title: 'Syncfusion PDF Viewer Demo', home: HomePage()),
+  );
+}
+
+&#47;&#47;&#47; Represents Homepage for Navigation
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  _HomePage createState() => _HomePage();
+}
+
+class _HomePage extends State {
+  final GlobalKey _pdfViewerKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Syncfusion Flutter PDF Viewer'),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.bookmark,
+              color: Colors.white,
+              semanticLabel: 'Bookmark',
+            ),
+            onPressed: () {
+              _pdfViewerKey.currentState?.openBookmarkView();
+            },
+          ),
+        ],
+      ),
+      body: SfPdfViewer.network(
+        'https:&#47;&#47;cdn.syncfusion.com&#47;content&#47;PDFViewer&#47;flutter-succinctly.pdf',
+        key: _pdfViewerKey,
+      ),
+    );
+  }
+}

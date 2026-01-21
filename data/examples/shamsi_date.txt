@@ -1,0 +1,98 @@
+import 'package:shamsi_date&#47;shamsi_date.dart';
+
+void main() {
+  &#47;&#47; Gregorian to Jalali conversion
+  Gregorian g1 = Gregorian(2013, 1, 10, 12, 56, 34, 585);
+  Jalali j1 = g1.toJalali();
+  print('$g1 == $j1');
+  &#47;&#47; prints: Gregorian(2013,1,10) == Jalali(1391,10,21)
+  &#47;&#47; you can write Jalali.fromGregorian(g1) instead of g1.toJalali()
+
+  &#47;&#47; access year, month and day through getters
+  &#47;&#47; for Jalali:
+  int j1y = j1.year; &#47;&#47; j1y = 1391
+  int j1m = j1.month; &#47;&#47; j1m = 10
+  int j1d = j1.day; &#47;&#47; j1d = 21
+  int j1th = j1.hour; &#47;&#47; j1th = 12
+  int j1tm = j1.minute; &#47;&#47; j1tm = 56
+  int j1ts = j1.second; &#47;&#47; j1ts = 34
+  int j1tms = j1.millisecond; &#47;&#47; j1tms = 585
+  print('j1 is $j1y-$j1m-$j1d:$j1th-$j1tm-$j1ts-$j1tms');
+  &#47;&#47; prints: j1 is 1397-10-21:12-56-34-585
+  &#47;&#47; NOTE: use formatters for formatting dates
+  &#47;&#47; and for Gregorian:
+  int g1y = g1.year; &#47;&#47; g1y = 2013
+  int g1m = g1.month; &#47;&#47; g1m = 1
+  int g1d = g1.day; &#47;&#47; g1d = 10
+  print('g1 is $g1y-$g1m-$g1d'); &#47;&#47; prints: g1 is 2013-1-10
+  &#47;&#47; NOTE: use formatters for formatting dates
+
+  &#47;&#47; Jalali to Gregorian conversion
+  Jalali j2 = Jalali(1391, 10, 21);
+  Gregorian g2 = j1.toGregorian();
+  print('$j2 == $g2');
+  &#47;&#47; prints: Jalali(1391,10,21) == Gregorian(2013,1,10)
+  &#47;&#47; also can use Gregorian.fromJalali(j1) instead of j1.toGregorian()
+
+  &#47;&#47; find weekDay
+  print('$j1 has weekDay ${j1.weekDay}'); &#47;&#47; -> 6
+  &#47;&#47; 6 means "پنج شنیه"
+  print('$g1 has weekDay ${g1.weekDay}'); &#47;&#47; -> 4
+  &#47;&#47; 4 means "Thursday"
+
+  &#47;&#47; find month length
+  print('Jalali 1390&#47;12 month length? '
+      '${Jalali(1390, 12).monthLength}'); &#47;&#47; -> 29
+  print('Gregorian 2000&#47;2 month length? '
+      '${Gregorian(2000, 2).monthLength}'); &#47;&#47; -> 29
+
+  &#47;&#47; check leap year
+  print('1390 Jalali is leap year? '
+      '${Jalali(1390).isLeapYear()}'); &#47;&#47; -> false
+  print('2000 Gregorian is leap year? '
+      '${Gregorian(2000).isLeapYear()}'); &#47;&#47; -> true
+
+  &#47;&#47; validity:
+  &#47;&#47; ALL created instances are considered VALID
+  &#47;&#47; if you think a date might invalid, use try-catch:
+  try {
+    Jalali jv = Jalali(1398, 13, 1); &#47;&#47; not valid!
+    print(jv); &#47;&#47; this line is not reached
+  } on DateException catch (e) {
+    &#47;&#47; prints: DateException: Jalali month is out of valid range.
+    print(e);
+  }
+  &#47;&#47; making leap crash will also throw exception:
+  &#47;&#47; for ex: Jalali(1394, 12, 30) will crash, since
+  &#47;&#47;  1394 is not leap year
+  &#47;&#47; creating dates out of computable range also throws DateException.
+
+  &#47;&#47; convert DateTime object to Jalali and Gregorian
+  DateTime dateTime = DateTime.now();
+  print('now is $dateTime');
+  print('now is ${Gregorian.fromDateTime(dateTime)} in Gregorian');
+  print('now is ${Jalali.fromDateTime(dateTime)} in Jalali');
+  &#47;&#47; convert to DateTime
+  print('$j1 is ${j1.toDateTime()}');
+  print('$g1 is ${g1.toDateTime()}');
+
+  &#47;&#47; convert Jalali and Gregorian to DateTime
+  print('$j1 as DateTime is ${j1.toDateTime()}');
+  print('$g1 as DateTime is ${g1.toDateTime()}');
+
+  &#47;&#47; find today with now() factory method
+  print('now is ${Gregorian.now()} in Gregorian');
+  print('now is ${Jalali.now()} in Jalali');
+  &#47;&#47; find out which jalali year is this year:
+  int thisJalaliYear = Jalali.now().year;
+  print('this Jalali year is $thisJalaliYear');
+
+  &#47;&#47; copy method
+  print('$j1 with year = 1300 is ${j1.copy(year: 1300)}');
+  print('$j1 with hour = 23 is ${j1.copy(hour: 23)}');
+  &#47;&#47; prints: 1391&#47;10&#47;21 with year = 1300 is 1300&#47;10&#47;21
+  print('$g1 with month = 1 and day = 2 is ${g1.copy(month: 1, day: 2)}');
+  &#47;&#47; prints: 2013&#47;1&#47;10 with month = 1 and day = 2 is 2013&#47;1&#47;2
+
+  &#47;&#47; withYear, withMont
+// ... (truncated)

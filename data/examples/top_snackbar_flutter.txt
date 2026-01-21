@@ -1,0 +1,104 @@
+import 'package:flutter&#47;material.dart';
+import 'package:top_snackbar_flutter&#47;custom_snack_bar.dart';
+import 'package:top_snackbar_flutter&#47;tap_bounce_container.dart';
+import 'package:top_snackbar_flutter&#47;top_snack_bar.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State {
+  late AnimationController localAnimationController;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(primaryColor: Colors.orangeAccent),
+      home: Builder(
+        builder: (BuildContext context) {
+          return Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TapBounceContainer(
+                    onTap: () {
+                      showTopSnackBar(
+                        Overlay.of(context),
+                        const CustomSnackBar.info(
+                          message:
+                              'There is some information. You need to do something with that',
+                        ),
+                      );
+                    },
+                    child: buildButton(context, 'Show info'),
+                  ),
+                  const SizedBox(height: 24),
+                  TapBounceContainer(
+                    onTap: () {
+                      showTopSnackBar(
+                        Overlay.of(context),
+                        const CustomSnackBar.success(
+                          message:
+                              'Good job, your release is successful. Have a nice day',
+                        ),
+                      );
+                    },
+                    child: buildButton(context, 'Show success'),
+                  ),
+                  const SizedBox(height: 24),
+                  TapBounceContainer(
+                    onTap: () {
+                      showTopSnackBar(
+                        Overlay.of(context),
+                        const CustomSnackBar.error(
+                          message:
+                              'Something went wrong. Please check your credentials and try again',
+                        ),
+                      );
+                    },
+                    child: buildButton(context, 'Show error'),
+                  ),
+                  const SizedBox(height: 48),
+                  TapBounceContainer(
+                    onTap: () {
+                      showTopSnackBar(
+                        Overlay.of(context),
+                        const CustomSnackBar.info(
+                          message: 'Persistent SnackBar',
+                        ),
+                        persistent: true,
+                        onAnimationControllerInit: (controller) {
+                          localAnimationController = controller;
+                        },
+                      );
+                    },
+                    child: buildButton(context, 'Show persistent SnackBar'),
+                  ),
+                  const SizedBox(height: 24),
+                  TapBounceContainer(
+                    onTap: () => localAnimationController.reverse(),
+                    child: buildButton(context, 'Dismiss persistent SnackBar'),
+                  ),
+                  const SizedBox(height: 24),
+                  TapBounceContainer(
+                    onTap: () {
+                      showTopSnackBar(
+                        Overlay.of(context),
+                        const CustomSnackBar.info(
+                          message: 'Try to swipe me left',
+                        ),
+                        dismissType: DismissType.onSwipe,
+                        dismissDirection: [DismissDirection.endToStart],
+                      );
+                    },
+                    child
+// ... (truncated)

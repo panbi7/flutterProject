@@ -1,0 +1,126 @@
+&#47;*
+ * Copyright (c) 2022-present New Relic Corporation. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ *&#47;
+
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:dio&#47;dio.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:graphql_flutter&#47;graphql_flutter.dart';
+import 'package:newrelic_mobile&#47;loglevel.dart';
+import 'package:newrelic_mobile&#47;metricunit.dart';
+import 'package:newrelic_mobile&#47;config.dart';
+import 'package:newrelic_mobile&#47;network_failure.dart';
+import 'package:newrelic_mobile&#47;newrelic_mobile.dart';
+import 'package:newrelic_mobile&#47;newrelic_navigation_observer.dart';
+import 'package:newrelic_mobile&#47;utils&#47;platform_manager.dart';
+import 'package:http&#47;http.dart' as http;
+import 'package:newrelic_mobile_example&#47;app_config.dart';
+
+&#47;&#47; Conditional imports for platform-specific functionality
+import 'dart:io' if (dart.library.js_interop) 'io_stub.dart';
+import 'dart:isolate' if (dart.library.js_interop) 'isolate_stub.dart';
+
+const String readCounters = """
+   query (\$id: Int) { # Define which variables will be used in the query (id)
+  Media (id: \$id, type: ANIME) { # Insert our variables into the query arguments (id) (type: ANIME is hard-coded in the query)
+    id
+    title {
+      romaji
+      english
+      native
+    }
+  }
+}
+""";
+
+void main() {
+  var appToken = "";
+
+  if (PlatformManager.instance.isAndroid()) {
+    appToken = AppConfig.androidToken;
+  } else if (PlatformManager.instance.isIOS()) {
+    appToken = AppConfig.iOSToken;
+  }
+
+  Config config = Config(
+    accessToken: appToken,
+    analyticsEventEnabled: true,
+    networkErrorRequestEnabled: true,
+    networkRequestEnabled: true,
+    crashReportingEnabled: true,
+    interactionTracingEnabled: true,
+    httpResponseBodyCaptureEnabled: true,
+    loggingEnabled: true,
+    webViewInstrumentation: true,
+    printStatementAsEventsEnabled: true,
+    httpInstrumentationEnabled: true,
+    distributedTracingEnabled: true,
+    logLevel: LogLevel.VERBOSE,
+    collectorAddress: "",
+    crashCollectorAddress: "",
+    newEventSystemEnabled: true,
+    fedRampEnabled: false,
+  );
+
+  NewrelicMobile.instance.start(config, () {
+    _testFetch();
+    runApp(const MyApp());
+  });
+  NewrelicMobile.instance.setMaxEventPoolSize(3000);
+  NewrelicMobile.instance.setMaxEventBufferTime(200);
+  NewrelicMobile.instance.setMaxOfflineStorageSize(200);
+  NewrelicMobile.instance.addHTTPHeadersTrackingFor(["Car", "Music"]);
+}
+
+Future _testFetch() async {
+  final response = await http.get(Uri.parse('https:&#47;&#47;api.github.com'));
+  print(response.body);
+}
+
+&#47;&#47;&#47; The main app.
+class MyApp extends StatelessWidget {
+  &#47;&#47;&#47; Creates an [App].
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorObservers: [NewRelicNavigationObserver()],
+      routes: {
+        'pageone': (context) => const Page1Screen(),
+        'pagetwo': (context) => Page2Screen(),
+        'pagethree': (context) => const Page3Screen(),
+        'pagefour': (context) => const Page4Screen()
+      },
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      initialRoute: 'pageone',
+    );
+  }
+}
+
+&#47;&#47;&#47; The screen of the first page.
+class Page1Screen extends StatelessWidget {
+  &#47;&#47;&#47; Creates a [Page1Screen].
+  const Page1Screen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => GraphQLProvider(
+        client: client,
+        child: Scaffold(
+          appBar: AppBar(title: const Text("Http Demo")),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                    onPressed: () async {
+                      debugPrint(null);
+                  
+// ... (truncated)

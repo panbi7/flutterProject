@@ -1,0 +1,103 @@
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_genius_scan&#47;flutter_genius_scan.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:open_filex&#47;open_filex.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+
+    &#47;&#47; This code shows how to initialize the SDK with a license key.
+    &#47;&#47; Without a license key, the SDK runs for 60 seconds and then the app needs to be restarted.
+    &#47;&#47;
+    &#47;&#47; FlutterGeniusScan.setLicenseKey('');
+
+    return MaterialApp(
+      home: Scaffold(
+          appBar: AppBar(
+            title: const Text('GS SDK Flutter Demo'),
+          ),
+          body: MyScaffoldBody()),
+    );
+  }
+}
+
+class MyScaffoldBody extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  &#47;&#47; Start scan flow
+                  var scanConfiguration = {
+                    'source': 'camera',
+                    'multiPage': true,
+                    'ocrConfiguration': {
+                      'languages': ['en-US']
+                    }
+                  };
+                  var scanResult = await FlutterGeniusScan.scanWithConfiguration(scanConfiguration);
+                  debugPrint('scanResult: $scanResult');
+
+                  &#47;&#47; Here is how you can display the resulting document:
+                  String documentUrl = scanResult['multiPageDocumentUrl'];
+                  await OpenFilex.open(documentUrl.replaceAll("file:&#47;&#47;", ''));
+
+                  &#47;&#47; You can also generate your document separately from selected pages:
+                  &#47;*
+                  var appFolder = await getApplicationDocumentsDirectory();
+                  var documentUrl = appFolder.path + '&#47;mydocument.pdf';
+                  var document = {
+                    'pages': [{
+                      'imageUrl': scanResult['scans'][0]['enhancedUrl'] ,
+                      'hocrTextLayout': scanResult['scans'][0]['ocrResult']['hocrTextLayout']
+                    }]
+                  };
+                  var documentGenerationConfiguration = { 'outputFileUrl': documentUrl };
+                  await FlutterGeniusScan.generateDocument(document, documentGenerationConfiguration);
+                  await OpenFilex.open(documentUrl);
+                  *&#47;
+
+                } on PlatformException catch (error) {
+                  displayError(context, error);
+                }
+              },
+              child: Text("Scan documents"),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  &#47;&#47; Start readable code scanning
+                  var readableCodeConfiguration = {
+                    'isBatchModeEnabled': true,
+                    'supportedCodeTypes': ['qr', 'code128', 'ean13']
+                  };
+                  var result = await FlutterGeniusScan.scanReadableCodesWithConfiguration(readableCodeConfiguration);
+                  debugPrint('readableCodeResult: $result');
+
+                  &#47;&#47; Display the detected codes
+                  List codes = result['readableCodes'];
+                  String codesText = codes.map((code) => '${code['type']}: ${code['value']}').join('\n');
+
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Detected Codes'),
+                        content: Text(codesText.isEm
+// ... (truncated)

@@ -1,0 +1,80 @@
+&#47;&#47; ignore_for_file: avoid-late-keyword
+
+import "package:flutter&#47;material.dart";
+import "package:flutter_localizations&#47;flutter_localizations.dart";
+import "package:world_countries&#47;world_countries.dart";
+
+import "app_navigator.dart";
+import "model&#47;world_data.dart";
+import "routing&#47;delegate.dart";
+import "routing&#47;parser.dart";
+import "routing&#47;route_state.dart";
+import "theme&#47;flag_theme_controller.dart";
+import "theme&#47;flag_theme_scope.dart";
+import "theme&#47;theme_manager.dart";
+import "theme&#47;theme_provider.dart";
+
+void main() => runApp(const ThemeManager(child: Main()));
+
+class Main extends StatefulWidget {
+  const Main({super.key});
+
+  @override
+  State createState() => _MainState();
+}
+
+class _MainState extends State {
+  &#47;&#47;&#47; Also [CurrencyTileThemeData], [LanguageTileThemeData],
+  &#47;&#47;&#47; [CountryTileThemeData], [FlagThemeData], etc.
+  static const pickersExtensions = [PickersThemeData(primary: true)];
+
+  final _flagThemeController = FlagThemeController();
+  final _navigatorKey = GlobalKey();
+  final _routeParser = TemplateRouteParser(allowedPaths: WorldData.paths);
+
+  late final _routeState = RouteState(_routeParser);
+  late final _routerDelegate = SimpleRouterDelegate(
+    routeState: _routeState,
+    builder: (_) => AppNavigator(_navigatorKey),
+    navigatorKey: _navigatorKey,
+  );
+
+  @override
+  void dispose() {
+    _flagThemeController.dispose();
+    _routerDelegate.dispose();
+    _routeState.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => RouteStateScope(
+    notifier: _routeState,
+    child: FlagThemeScope(
+      _flagThemeController,
+      child: ListenableBuilder(
+        listenable: _flagThemeController,
+        builder: (bc, _) => MaterialApp.router(
+          routerDelegate: _routerDelegate,
+          routeInformationParser: _routeParser,
+          theme: ThemeProvider.maybeOf(bc)?.theme.copyWith(
+            extensions: [...pickersExtensions, _flagThemeController.theme],
+          ),
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            TypedLocaleDelegate(), &#47;&#47; <- Add for pickers L10N & improved search.
+          ],
+          supportedLocales: [
+            ...const [
+              Locale.fromSubtags(languageCode: "bs", scriptCode: "Cyrl"),
+              Locale.fromSubtags(languageCode: "bs", scriptCode: "Latn"),
+              TypedLocale(LangPor(), country: CountryBra()), &#47;&#47; Typed one.
+            ],
+            for (final locale in kMaterialSupportedLanguages) Locale(locale),
+          ],
+        ),
+      ),
+    ),
+  );
+}

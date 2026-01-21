@@ -1,0 +1,53 @@
+import 'package:flutter_azure_tts&#47;flutter_azure_tts.dart';
+import 'package:flutter_azure_tts&#47;src&#47;ssml&#47;style_ssml.dart';
+
+void main() async {
+  try {
+    &#47;&#47;Load configs
+    FlutterAzureTts.init(
+      subscriptionKey: "YOUR SUBSCRIPTION KEY",
+      region: "YOUR REGION",
+      withLogs: true,
+    );
+
+    &#47;&#47; Get available voices
+    final voicesResponse = await FlutterAzureTts.getAvailableVoices();
+    final voices = voicesResponse.voices;
+
+    &#47;&#47;Print all available voices
+    print("$voices");
+
+    &#47;&#47;Pick an English Neural Voice that supports styles and roles
+    final voice = voicesResponse.voices
+        .where((element) =>
+            element.locale.startsWith("en-") &&
+            element.roles.isNotEmpty &&
+            element.styles.isNotEmpty)
+        .toList(growable: false)
+        .first;
+
+    &#47;&#47;Generate Audio for a text
+    final text = "Microsoft Speech Service Text-to-Speech API is awesome";
+
+    TtsParams params = TtsParams(
+        voice: voice,
+        audioFormat: AudioOutputFormat.audio16khz32kBitrateMonoMp3,
+        rate: 1.5,
+        &#47;&#47; optional prosody rate (default is 1.0)
+        style: StyleSsml(style: voice.styles.first, styleDegree: 1.5),
+        &#47;&#47; optional speech style, degree defaults to 1 (not supported by all voices)
+        role: VoiceRole.OlderAdultMale,
+        &#47;&#47; optional imitates a certain person's pitch (not supported by all voices)
+        text: text);
+
+    final ttsResponse = await FlutterAzureTts.getTts(params);
+
+    &#47;&#47;Get the audio bytes.
+    final audioBytes = ttsResponse.audio.buffer
+        .asByteData(); &#47;&#47; you can save to a file for playback
+    print(
+        "Audio size: ${(audioBytes.lengthInBytes &#47; (1024 * 1024)).toStringAsPrecision(2)} Mb");
+  } catch (e) {
+    print("Something went wrong: $e");
+  }
+}

@@ -1,0 +1,118 @@
+import 'package:board_datetime_picker&#47;board_datetime_picker.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() async {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Board DateTime Picker Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: const Color.fromARGB(255, 235, 235, 241),
+        useMaterial3: false,
+      ),
+      &#47;&#47; home: const Home(),
+      home: const MySampleApp(),
+    );
+  }
+}
+
+class MySampleApp extends StatefulWidget {
+  const MySampleApp({super.key});
+
+  @override
+  State createState() => _MySampleAppState();
+}
+
+class _MySampleAppState extends State {
+  final scrollController = ScrollController();
+  final controller = BoardDateTimeController();
+
+  final ValueNotifier builderDate = ValueNotifier(DateTime.now());
+
+  final List> singleDates = [
+    ValueNotifier(DateTime.now()),
+    ValueNotifier(DateTime.now()),
+    ValueNotifier(DateTime.now()),
+    ValueNotifier(DateTime.now()),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    Widget scaffold() {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Board DateTime Picker Example'),
+        ),
+        backgroundColor: const Color.fromARGB(255, 245, 245, 250),
+        body: SingleChildScrollView(
+          controller: scrollController,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 560,
+              ),
+              child: Column(
+                children: [
+                  SectionWidget(
+                    title: 'Form',
+                    items: [InputFieldWidget()],
+                  ),
+                  const SizedBox(height: 24),
+                  SectionWidget(
+                    title: 'Picker (Single Selection)',
+                    items: [
+                      PickerItemWidget(
+                        pickerType: DateTimePickerType.datetime,
+                        date: singleDates[0],
+                      ),
+                      PickerItemWidget(
+                        pickerType: DateTimePickerType.date,
+                        date: singleDates[1],
+                      ),
+                      PickerItemWidget(
+                        pickerType: DateTimePickerType.time,
+                        date: singleDates[2],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  SectionWidget(
+                    title: 'Picker (Multi Selection)',
+                    items: [
+                      PickerMultiSelectionItemWidget(
+                        pickerType: DateTimePickerType.datetime,
+                      ),
+                      PickerMultiSelectionItemWidget(
+                        pickerType: DateTimePickerType.date,
+                      ),
+                      PickerMultiSelectionItemWidget(
+                        pickerType: DateTimePickerType.time,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  SectionWidget(
+                    title: 'Builder Picker',
+                    items: [
+                      PickerBuilderItemWidget(
+                        pickerType: DateTimePickerType.datetime,
+                        date: builderDate,
+                        onOpen: () async {
+                          controller.open(
+                            DateTimePickerType.datetime,
+                            builderDate.value,
+                          );
+                          await Future.delayed(
+                              const Duration(milliseconds: 300));
+                          scrollController.animateTo(
+       
+// ... (truncated)

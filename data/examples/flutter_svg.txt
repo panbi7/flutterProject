@@ -1,0 +1,38 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_svg&#47;flutter_svg.dart';
+
+&#47;&#47;&#47; The SVG to display in the example.
+const String svgString = '''
+
+  
+    
+      
+      
+    
+    
+      
+      
+    
+  
+  
+  
+  
+  
+    
+    
+  
+  
+
+''';
+
+void main() {
+  runApp(
+    MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: SvgPicture.string(svgString, width: 500, height: 500),
+        ),
+      ),
+    ),
+  );
+}

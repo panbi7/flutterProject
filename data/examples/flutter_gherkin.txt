@@ -1,0 +1,132 @@
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Counter App',
+      home: MyHomePage('Counter App Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage(this.title) : super();
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int _counter = 0;
+  bool hasLongPressedText = false;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      drawer: Drawer(
+        key: const Key('drawer'),
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: const Text('Drawer Header'),
+            ),
+            ListTile(
+              title: const Text('Item 1'),
+              onTap: () {
+                &#47;&#47; Update the state of the app
+                &#47;&#47; ...
+                &#47;&#47; Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Item 2'),
+              onTap: () {
+                &#47;&#47; Update the state of the app
+                &#47;&#47; ...
+                &#47;&#47; Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'You have pushed the button this many times:',
+            ),
+            Text(
+              '$_counter',
+              &#47;&#47; Provide a Key to this specific Text Widget. This allows us
+              &#47;&#47; to identify this specific Widget from inside our test suite and
+              &#47;&#47; read the text.
+              key: const Key('counter'),
+              style: Theme.of(context).textTheme.headline4,
+            ),
+            TextButton(
+              key: Key('openPage2'),
+              onLongPress: () {
+                Future.delayed(
+                    Duration(seconds: 12),
+                    () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => PageTwo()),
+                        ));
+              },
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PageTwo()),
+                );
+              },
+              child: Text('Open page 2'),
+            ),
+            GestureDetector(
+              onLongPress: () {
+                setState(() {
+                  hasLongPressedText = true;
+                });
+              },
+              child: Container(
+                color:
+                    hasLongPressedText ? Colors.blueGrey : Colors.transparent,
+                child: Text(
+                  hasLongPressedText
+                      ? 'Text has been long pressed!'
+                      : 'Text that has not been long pressed',
+                  key: const Key('longPressText'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        &#47;&#47; Provide a Key to this the button. This allows us to find this
+        &#47;&#47; specific button and tap it inside the test suite.
+        key: const Key('increment'),
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+       
+// ... (truncated)

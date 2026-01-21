@@ -1,0 +1,8 @@
+import 'package:lehttp_overrides/lehttp_overrides.dart';
+
+void main() {
+  if (Platform.isAndroid) {
+    HttpOverrides.global = LEHttpOverrides();
+  }
+  runApp(const MyApp());
+}

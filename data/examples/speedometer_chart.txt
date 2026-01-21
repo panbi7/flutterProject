@@ -1,0 +1,64 @@
+import 'package:flutter&#47;material.dart';
+import 'package:speedometer_chart&#47;speedometer_chart.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double value = 30;
+
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 100,
+            runSpacing: 50,
+            children: [
+              SpeedometerChart(
+                value: value,
+                graphColor: const [Colors.blueAccent, Colors.lightBlueAccent],
+              ),
+              SpeedometerChart.tick(
+                value: value,
+              ),
+              SpeedometerChart.tick(
+                value: value,
+                valueWidget: Text(value.toString()),
+                hasTickSpace: true,
+                hasIconPointer: false,
+              ),
+              SpeedometerChart(
+                value: value,
+                valueWidget: Text(value.toString()),
+                hasIconPointer: false,
+                pointerColor: Colors.tealAccent,
+                graphColor: const [Colors.deepPurple, Colors.orange],
+                minWidget: const Text("Min value: 0"),
+                maxWidget: const Text("Max value: 100"),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

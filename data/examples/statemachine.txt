@@ -1,0 +1,2 @@
+dart pub global activate webdev
+webdev serve example:8080

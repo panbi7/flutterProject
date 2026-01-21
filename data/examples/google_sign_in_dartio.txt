@@ -1,0 +1,136 @@
+&#47;&#47; Copyright 2019 The Flutter Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:async';
+
+import 'package:collection&#47;collection.dart';
+import 'package:extension_google_sign_in_as_googleapis_auth&#47;extension_google_sign_in_as_googleapis_auth.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:google_sign_in&#47;google_sign_in.dart';
+import 'package:google_sign_in_dartio&#47;google_sign_in_dartio.dart';
+import 'package:googleapis&#47;gmail&#47;v1.dart';
+import 'package:googleapis&#47;people&#47;v1.dart';
+import 'package:googleapis_auth&#47;googleapis_auth.dart';
+import 'package:html_unescape&#47;html_unescape.dart';
+
+import 'platform_js.dart' if (dart.library.io) 'platform_io.dart';
+
+GoogleSignIn _googleSignIn = GoogleSignIn(scopes: [
+  'email',
+  'profile',
+  PeopleServiceApi.contactsReadonlyScope
+]);
+
+Future main() async {
+  if (isDesktop) {
+    await GoogleSignInDart.register(
+      exchangeEndpoint:
+          'https:&#47;&#47;us-central1-flutter-sdk.cloudfunctions.net&#47;authHandler',
+      clientId:
+          '233259864964-go57eg1ones74e03adlqvbtg2av6tivb.apps.googleusercontent.com',
+    );
+  }
+
+  runApp(
+    MaterialApp(
+      title: 'Google Sign In',
+      home: SignInDemo(),
+    ),
+  );
+}
+
+class SignInDemo extends StatefulWidget {
+  @override
+  State createState() => SignInDemoState();
+}
+
+class SignInDemoState extends State {
+  late StreamSubscription sub;
+  late AuthClient _client;
+  GoogleSignInAccount? _currentUser;
+  String? _contactText;
+  String? _emailText;
+
+  @override
+  void initState() {
+    super.initState();
+    sub = _googleSignIn.onCurrentUserChanged.listen(_onUserChanged);
+    _test();
+  }
+
+  Future _test() async {
+    final GoogleSignInAccount? result = await _googleSignIn.signInSilently();
+    print('result: $result');
+  }
+
+  Future _onUserChanged(GoogleSignInAccount? account) async {
+    setState(() => _currentUser = account);
+    if (_currentUser != null) {
+      _client = (await _googleSignIn.authenticatedClient())!;
+      await _handleGetContact();
+    }
+  }
+
+  Future _handleGetContact() async {
+    setState(() => _contactText = 'Loading contact info...');
+
+    final PeopleConnectionsResource connectionsApi =
+        PeopleServiceApi(_client).people.connections;
+
+    final ListConnectionsResponse listResult = await connectionsApi.list(
+      'people&#47;me',
+      requestMask_includeField: 'person.names',
+    );
+
+    String? contact;
+    final List? connections = listResult.connections;
+    if (connections != null && connections.isNotEmpty) {
+      connections.shuffle();
+      final Person? person = connections &#47;&#47;
+          .where((Person person) => person.names != null)
+          .firstWhereOrNull(
+        (Person person) {
+          return person.names! &#47;&#47;
+              .any((Name name) => name.displayName != null);
+        },
+      );
+
+      if (person != null) {
+        final Name? name = person.names!
+            .firstWhereOrNull((Name name) => name.displayName != null);
+        contact = name?.displayName;
+      }
+    }
+
+    setState(() {
+      if (contact != null) {
+        _contactText = contact;
+      } else {
+        _contactText = 'No contacts to display.';
+      }
+    });
+  }
+
+  Future _handleGetEmail() async {
+    setState(() => _emailText = 'Loading emails...');
+
+    final bool granted = await _googleSignIn
+        .requestScopes([GmailApi.gmailReadonlyScope]);
+
+    if (!granted) {
+      setState(() => _emailText = 'Gmail scope was not granted by the user.');
+      return;
+    }
+
+    _client = (await _googleSignIn.authenticatedClient())!;
+    final UsersMessagesResource messagesApi = GmailApi(_client).users.messages;
+
+    final ListMessagesResponse listResult = await messagesApi.list('me');
+
+    String? messageSnippet;
+    if (listRe
+// ... (truncated)

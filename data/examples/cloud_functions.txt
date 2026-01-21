@@ -1,0 +1,131 @@
+&#47;&#47; Copyright 2019 The Chromium Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'dart:core';
+import 'dart:io';
+
+import 'package:cloud_functions&#47;cloud_functions.dart';
+import 'package:cloud_functions_example&#47;firebase_options.dart';
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  &#47;&#47; You should have the Functions Emulator running locally to use it
+  &#47;&#47; https:&#47;&#47;firebase.google.com&#47;docs&#47;functions&#47;local-emulator
+  FirebaseFunctions.instance.useFunctionsEmulator('localhost', 5001);
+
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  MyApp({Key? key}) : super(key: key);
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  List fruit = [];
+  List streamResult = [];
+
+  @override
+  void initState() {
+    super.initState();
+    streamFunction();
+  }
+
+  void streamFunction() {
+    fruit.clear();
+    FirebaseFunctions.instance
+        .httpsCallable('testStreamResponse')
+        .stream>()
+        .listen(
+      (data) {
+        switch (data) {
+          case Chunk>(:final partialData):
+            setState(() {
+              &#47;&#47; adds individual stream values to list
+              fruit.add(partialData);
+            });
+          case Result>(:final result):
+            setState(() {
+              &#47;&#47; stores complete stream result
+              streamResult = List.from(result.data);
+            });
+        }
+      },
+      onError: (e) {
+        debugPrint('Error: $e');
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final localhostMapped =
+        kIsWeb || !Platform.isAndroid ? 'localhost' : '10.0.2.2';
+
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Firebase Functions Example'),
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: fruit.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text('${fruit[index]}'),
+                  );
+                },
+              ),
+            ),
+            Visibility(
+              visible: streamResult.isNotEmpty,
+              child: const Text(
+                "Stream's Complete Result: ",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: streamResult.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text('${streamResult[index]}'),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        floatingActionButton: Builder(
+          builder: (context) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                FloatingActionButton.extended(
+                  onPressed: streamFunction,
+                  label: const Text('Call Stream Function'),
+                  icon: const Icon(Icons.cloud),
+                  backgroundColor: Colors.deepOrange,
+                ),
+                const SizedBox(height: 10),
+                FloatingActionButton.extended(
+                  onPressed: () async {
+                    &#47;&#47; See .github&#47;workflows&#47;scripts&#47;functions&#47;src&#47;index.ts for the example function we
+                    &#
+// ... (truncated)

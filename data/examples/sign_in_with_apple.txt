@@ -1,0 +1,94 @@
+import 'dart:io';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:http&#47;http.dart' as http;
+import 'package:sign_in_with_apple&#47;sign_in_with_apple.dart';
+
+&#47;&#47; Needed because we can't import `web` into a mobile app,
+&#47;&#47; while on the flip-side access to `dart:io` throws at runtime (hence the `kIsWeb` check below)
+import 'html_shim.dart' if (dart.library.js_interop) 'package:web&#47;web.dart'
+    show window;
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      onGenerateRoute: ((settings) {
+        &#47;&#47; This is also invoked for incoming deep links
+
+        &#47;&#47; ignore: avoid_print
+        print('onGenerateRoute: $settings');
+
+        return null;
+      }),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Example app: Sign in with Apple'),
+        ),
+        body: Container(
+          padding: const EdgeInsets.all(10),
+          child: Center(
+            child: SignInWithAppleButton(
+              onPressed: () async {
+                final credential = await SignInWithApple.getAppleIDCredential(
+                  scopes: [
+                    AppleIDAuthorizationScopes.email,
+                    AppleIDAuthorizationScopes.fullName,
+                  ],
+                  webAuthenticationOptions: WebAuthenticationOptions(
+                    &#47;&#47; TODO: Set the `clientId` and `redirectUri` arguments to the values you entered in the Apple Developer portal during the setup
+                    clientId:
+                        'de.lunaone.flutter.signinwithappleexample.service',
+                    redirectUri:
+                        &#47;&#47; For web your redirect URI needs to be the host of the "current page",
+                        &#47;&#47; while for Android you will be using the API server that redirects back into your app via a deep link
+                        &#47;&#47; NOTE(tp): For package local development use (as described in `Development.md`)
+                        &#47;&#47; Uri.parse('https:&#47;&#47;siwa-flutter-plugin.dev&#47;')
+                        kIsWeb
+                            ? Uri.parse('https:&#47;&#47;${window.location.host}&#47;')
+                            : Uri.parse(
+                                'https:&#47;&#47;flutter-sign-in-with-apple-example.glitch.me&#47;callbacks&#47;sign_in_with_apple',
+                              ),
+                  ),
+                  &#47;&#47; TODO: Remove these if you have no need for them
+                  nonce: 'example-nonce',
+                  state: 'example-state',
+                );
+
+                &#47;&#47; ignore: avoid_print
+                print(credential);
+
+                &#47;&#47; This is the endpoint that will convert an authorization code obtained
+                &#47;&#47; via Sign in with Apple into a session in your system
+                final signInWithAppleEndpoint = Uri(
+                  scheme: 'https',
+                  host: 'flutter-sign-in-with-apple-example.glitch.me',
+                  path: '&#47;sign_in_with_apple',
+                  queryParameters: {
+                    'code': credential.authorizationCode,
+                    if (credential.givenName != null)
+                      'firstName': credential.givenName!,
+                    if (credential.familyName != null)
+                      'lastName': credential.familyName!,
+                    'useBundleId':
+                        !kIsWeb && (Platform.isIOS || Platform.isMacOS)
+                            ? 'true'
+                            : 'false',
+                    if (credential.state != null) 'state': credential.state!,
+                  },
+                );
+
+                final session = await http.Client()
+// ... (truncated)

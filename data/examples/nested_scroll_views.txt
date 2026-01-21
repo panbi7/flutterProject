@@ -1,0 +1,148 @@
+import 'package:flutter&#47;gestures.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:nested_scroll_views&#47;material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Nested View Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Nested View Home Page'),
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: PointerDeviceKind.values.toSet(),
+      ),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int _currentIndex = 0;
+  int _warpUnderwayCount = 0;
+  late List childrenWithKey;
+  final _pageController = PageController();
+
+  Future _animateToPage(int page) async {
+    if (_warpUnderwayCount > 0 || _currentIndex == page) {
+      return;
+    }
+    const duration = kTabScrollDuration;
+    if ((_currentIndex - page).abs() == 1) {
+      _warpUnderwayCount += 1;
+      await _pageController.animateToPage(
+        page,
+        duration: duration,
+        curve: Curves.ease,
+      );
+      _warpUnderwayCount -= 1;
+      return Future.value();
+    }
+
+    final int initialPage = page > _currentIndex ? page - 1 : page + 1;
+    final List originalChildren = childrenWithKey;
+    setState(() {
+      _warpUnderwayCount += 1;
+
+      childrenWithKey = List.of(childrenWithKey, growable: false);
+      final Widget temp = childrenWithKey[initialPage];
+      childrenWithKey[initialPage] = childrenWithKey[_currentIndex];
+      childrenWithKey[_currentIndex] = temp;
+    });
+    _pageController.jumpToPage(initialPage);
+    await _pageController.animateToPage(
+      page,
+      duration: duration,
+      curve: Curves.ease,
+    );
+    setState(() {
+      _warpUnderwayCount -= 1;
+      childrenWithKey = originalChildren;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    childrenWithKey = KeyedSubtree.ensureUniqueKeysForList(const [
+      FirstPage(),
+      SecondPage(),
+      ThirdPage(),
+    ]);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (page) => _animateToPage(page),
+        items: const [
+          BottomNavigationBarItem(
+            label: '1',
+            icon: Icon(Icons.mode_night),
+          ),
+          BottomNavigationBarItem(
+            label: '2',
+            icon: Icon(Icons.cloud),
+          ),
+          BottomNavigationBarItem(
+            label: '3',
+            icon: Icon(Icons.light_mode),
+          ),
+        ],
+      ),
+      body: NestedPageView(
+        controller: _pageController,
+        physics: const BouncingScrollPhysics(),
+        onPageChanged: (index) => setState(() => _currentIndex = index),
+        children: childrenWithKey,
+      ),
+    );
+  }
+}
+
+class FirstPage extends StatefulWidget {
+  const FirstPage({super.key});
+
+  @override
+  State createState() => _FirstPageState();
+}
+
+class _FirstPageState extends State {
+  final _tabs = ['Tab 1.1', 'Tab 1.2', 'Tab 1.3', 'Tab 1.4', 'Tab 1.5'];
+  final _subTabs = ['1', '2', '3'];
+  final _items = List.generate(100, (i) => 'Item $i');
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: _tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('First Page'),
+          bottom: TabBar(
+         
+// ... (truncated)

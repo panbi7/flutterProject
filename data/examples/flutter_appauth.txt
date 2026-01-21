@@ -1,0 +1,111 @@
+import 'dart:convert';
+import 'dart:io' show Platform;
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_appauth&#47;flutter_appauth.dart';
+import 'package:http&#47;http.dart' as http;
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool _isBusy = false;
+  final FlutterAppAuth _appAuth = const FlutterAppAuth();
+
+  String? _codeVerifier;
+  String? _nonce;
+  String? _authorizationCode;
+  String? _refreshToken;
+  String? _accessToken;
+  String? _idToken;
+  String? _error;
+
+  final TextEditingController _authorizationCodeTextController =
+      TextEditingController();
+  final TextEditingController _accessTokenTextController =
+      TextEditingController();
+  final TextEditingController _accessTokenExpirationTextController =
+      TextEditingController();
+
+  final TextEditingController _idTokenTextController = TextEditingController();
+  final TextEditingController _refreshTokenTextController =
+      TextEditingController();
+  String? _userInfo;
+
+  &#47;&#47; For a list of client IDs, go to https:&#47;&#47;demo.duendesoftware.com
+  final String _clientId = 'interactive.public';
+  final String _redirectUrl = 'com.duendesoftware.demo:&#47;oauthredirect';
+  final String _issuer = 'https:&#47;&#47;demo.duendesoftware.com';
+  final String _discoveryUrl =
+      'https:&#47;&#47;demo.duendesoftware.com&#47;.well-known&#47;openid-configuration';
+  final String _postLogoutRedirectUrl = 'com.duendesoftware.demo:&#47;';
+  final List _scopes = [
+    'openid',
+    'profile',
+    'email',
+    'offline_access',
+    'api'
+  ];
+
+  final AuthorizationServiceConfiguration _serviceConfiguration =
+      const AuthorizationServiceConfiguration(
+    authorizationEndpoint: 'https:&#47;&#47;demo.duendesoftware.com&#47;connect&#47;authorize',
+    tokenEndpoint: 'https:&#47;&#47;demo.duendesoftware.com&#47;connect&#47;token',
+    endSessionEndpoint: 'https:&#47;&#47;demo.duendesoftware.com&#47;connect&#47;endsession',
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Visibility(
+                  visible: _isBusy,
+                  child: const LinearProgressIndicator(),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  child: const Text('Sign in with no code exchange'),
+                  onPressed: () => _signInWithNoCodeExchange(),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  child: const Text(
+                      'Sign in with no code exchange and generated nonce'),
+                  onPressed: () => _signInWithNoCodeExchangeAndGeneratedNonce(),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: _authorizationCode != null ? _exchangeCode : null,
+                  child: const Text('Exchange code'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  child: const Text('Sign in with auto code exchange'),
+                  onPressed: () => _signInWithAutoCodeExchange(),
+                ),
+                if (Platform.isIOS || Platform.isMacOS)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      child: const Text(
+                        'Sign in with auto code exchange using ephemeral '
+                        'session',
+                        textAlign: TextAlign.center,
+                      ),
+               
+// ... (truncated)

@@ -1,0 +1,126 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_bootstrap&#47;flutter_bootstrap.dart';
+
+void main() => runApp(Application());
+
+class Application extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'flutter_bootstrap Demo',
+      home: DemoPage(),
+    );
+  }
+}
+
+class DemoPage extends StatefulWidget {
+  @override
+  _DemoPageState createState() => _DemoPageState();
+}
+
+class _DemoPageState extends State {
+  @override
+  void initState() {
+    super.initState();
+    bootstrapGridParameters(
+      gutterSize: 30,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('flutter_bootstrap Demo', style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        child: BootstrapContainer(
+          fluid: true,
+          decoration: BoxDecoration(color: Colors.blue),
+          children: [
+            BootstrapContainer(
+              fluid: false,
+              decoration: BoxDecoration(color: Colors.white),
+              padding: const EdgeInsets.only(top: 50),
+              children: [
+                BootstrapRow(
+                  height: 60,
+                  children: [
+                    BootstrapCol(
+                      sizes: 'col-6',
+                      child: ContentWidget(
+                        text: 'col 1 of 2',
+                        color: Colors.red,
+                      ),
+                    ),
+                    BootstrapCol(
+                      sizes: 'col-6',
+                      child: ContentWidget(
+                        text: 'col 2 of 2',
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8),
+                BootstrapRow(
+                  height: 60,
+                  children: [
+                    BootstrapCol(
+                      sizes: 'col-3',
+                      child: ContentWidget(
+                        text: 'col 1 of 3',
+                        color: Colors.green,
+                      ),
+                    ),
+                    BootstrapCol(
+                      sizes: 'col-6',
+                      child: ContentWidget(
+                        text: 'col 2 of 3 (wider)',
+                        color: Colors.red,
+                      ),
+                    ),
+                    BootstrapCol(
+                      sizes: 'col-3',
+                      child: ContentWidget(
+                        text: 'col 3 of 3',
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8),
+                Divider(),
+                BootstrapRow(
+                  height: 120,
+                  children: [
+                    BootstrapCol(
+                      sizes: 'col-12 col-md-8',
+                      child: ContentWidget(
+                        text: 'col-12 col-md-8',
+                        color: Colors.yellow,
+                      ),
+                    ),
+                    BootstrapCol(
+                      sizes: 'col-6 col-md-4',
+                      child: ContentWidget(
+                        text: 'col-6 col-md-4',
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
+                Divider(),
+                BootstrapRow(
+                  height: 120,
+                  children: [
+                    BootstrapCol(
+                      sizes: 'col-9',
+                      child: ContentWidget(
+                        text: 'col-9',
+                        color: Colors.yellow,
+                      ),
+                    ),
+      
+// ... (truncated)

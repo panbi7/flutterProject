@@ -1,0 +1,107 @@
+&#47;&#47; import 'package:example&#47;text.dart';
+import '.&#47;darkMode.dart';
+import '.&#47;purplishMode.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_shimmer&#47;flutter_shimmer.dart';
+import 'custom_color.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool isDarkMode = false;
+  bool isPurplishMode = false;
+  bool isCustomColors = false;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      this.isCustomColors = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "flutter_shimmer",
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        &#47;&#47; backgroundColor: Colors.black,
+        appBar: AppBar(
+          title: Text("Flutter_Shimmer"),
+        ),
+        body: isCustomColors
+            ? CustomColors()
+            : isPurplishMode
+                ? PurplishMode()
+                : isDarkMode
+                    ? DarkMode()
+                    : ListView(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(16.0),
+                            child: Text(
+                              "ListTileShimmer ( onlyWithProfilePicture:true )",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              ListTileShimmer(
+                                bgColor: Colors.yellow,
+                                onlyShowProfilePicture: true,
+                                &#47;&#47; isRectBox: true,
+                                height: 20,
+                                &#47;&#47; isPurplishMode: true,
+                              ),
+                            ],
+                          ),
+                          Divider(),
+                          Container(
+                            padding: EdgeInsets.all(16.0),
+                            child: Text(
+                              "ListTileShimmer",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          ListTileShimmer(
+                            bgColor: Colors.pink,
+
+                            height: 20,
+                            &#47;&#47; isPurplishMode: true,
+                          ),
+                          Divider(),
+                          Container(
+                            padding: EdgeInsets.all(16.0),
+                            child: Text(
+                              "YoutubeShimmer",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          YoutubeShimmer(
+                              &#47;&#47; isPurplishMode: true,
+                              &#47;&#47; isDarkMode: true,
+                              ),
+                          Divider(),
+                          Container(
+                            padding: EdgeInsets.all(16.0),
+                            child: Text(
+                              "VideoShimmer",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          VideoShimmer(
+                              &#47;&#47; isPurplishMode: true,
+                              &#47;&#47; isDarkMode: true,
+                              ),
+                          Divider(),
+                          Container(
+                            padding: Edg
+// ... (truncated)

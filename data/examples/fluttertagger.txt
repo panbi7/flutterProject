@@ -1,0 +1,127 @@
+import 'package:example&#47;views&#47;widgets&#47;search_result_overlay.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:example&#47;models&#47;post.dart';
+import 'package:example&#47;views&#47;view_models&#47;home_view_model.dart';
+import 'package:example&#47;views&#47;view_models&#47;search_view_model.dart';
+import 'package:example&#47;views&#47;widgets&#47;comment_text_field.dart';
+import 'package:example&#47;views&#47;widgets&#47;post_widget.dart';
+import 'package:fluttertagger&#47;fluttertagger.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'FlutterTagger Demo',
+      theme: ThemeData(
+        textSelectionTheme: TextSelectionThemeData(
+          selectionColor: Colors.redAccent.withOpacity(.3),
+        ),
+        primarySwatch: Colors.red,
+      ),
+      home: const HomeView(),
+    );
+  }
+}
+
+class HomeView extends StatefulWidget {
+  const HomeView({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State with TickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation _animation;
+
+  double overlayHeight = 300;
+
+  late final homeViewModel = HomeViewModel();
+  late final _controller = FlutterTaggerController(
+    &#47;&#47;Initial text value with tag is formatted internally
+    &#47;&#47;following the construction of FlutterTaggerController.
+    &#47;&#47;After this controller is constructed, if you
+    &#47;&#47;wish to update its text value with raw tag string,
+    &#47;&#47;call (_controller.formatTags) after that.
+    text:
+        "Hey @11a27531b866ce0016f9e582#brad#. It's time to #93f27531f294jp0016f9k013#Flutter#!",
+  );
+  late final _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+
+    _animation = Tween(
+      begin: const Offset(0, 0.5),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _focusNode.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var insets = MediaQuery.of(context).viewInsets;
+    return GestureDetector(
+      onTap: _focusNode.unfocus,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.redAccent,
+          title: const Text("The Squad"),
+        ),
+        bottomNavigationBar: FlutterTagger(
+          triggerStrategy: TriggerStrategy.eager,
+          controller: _controller,
+          animationController: _animationController,
+          onSearch: (query, triggerChar) {
+            if (triggerChar == "@") {
+              searchViewModel.searchUser(query);
+            }
+            if (triggerChar == "#") {
+              searchViewModel.searchHashtag(query);
+            }
+          },
+          triggerCharacterAndStyles: const {
+            "@": TextStyle(color: Colors.pinkAccent),
+            "#": TextStyle(color: Colors.blueAccent),
+          },
+          tagTextFormatter: (id, tag, triggerCharacter) {
+            return "$triggerCharacter$id#$tag#";
+          },
+          overlayHeight: overlayHeight,
+          overlay: SearchResultOverlay(
+            animation: _animation,
+            tagController: _controller,
+          ),
+          builder: (context, containerKey) {
+            return CommentTextField(
+              focusNode: _focusNode,
+              containerKey: containerKey,
+              insets: insets,
+              controller: _controller,
+              onSend: () {
+                FocusScope.of(context).unfocus();
+                homeViewModel.addPost(_controller.forma
+// ... (truncated)

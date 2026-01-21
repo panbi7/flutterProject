@@ -1,0 +1,109 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:sqflite_sqlcipher&#47;sqflite.dart';
+import 'package:sqflite_sqlcipher_example&#47;batch_test_page.dart';
+import 'package:sqflite_sqlcipher_example&#47;deprecated_test_page.dart';
+import 'package:sqflite_sqlcipher_example&#47;exception_test_page.dart';
+import 'package:sqflite_sqlcipher_example&#47;exp_test_page.dart';
+import 'package:sqflite_sqlcipher_example&#47;manual_test_page.dart';
+import 'package:sqflite_sqlcipher_example&#47;sqlcipher_test_page.dart';
+import 'package:sqflite_sqlcipher_example&#47;src&#47;dev_utils.dart';
+
+import 'model&#47;main_item.dart';
+import 'open_test_page.dart';
+import 'raw_test_page.dart';
+import 'slow_test_page.dart';
+import 'src&#47;main_item_widget.dart';
+import 'todo_test_page.dart';
+import 'type_test_page.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+&#47;&#47;&#47; Sqflite test app
+class MyApp extends StatefulWidget {
+  &#47;&#47; This widget is the root of your application.
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+&#47;&#47;&#47; SqlCipher test page
+const String testSqlCipherRoute = '&#47;test&#47;sqlcipher';
+
+&#47;&#47;&#47; Simple test page.
+const String testRawRoute = '&#47;test&#47;simple';
+
+&#47;&#47;&#47; Open test page.
+const String testOpenRoute = '&#47;test&#47;open';
+
+&#47;&#47;&#47; Slow test page.
+const String testSlowRoute = '&#47;test&#47;slow';
+
+&#47;&#47;&#47; Type test page.
+const String testTypeRoute = '&#47;test&#47;type';
+
+&#47;&#47;&#47; Batch test page.
+const String testBatchRoute = '&#47;test&#47;batch';
+
+&#47;&#47;&#47; `todo` example test page.
+const String testTodoRoute = '&#47;test&#47;todo';
+
+&#47;&#47;&#47; Exception test page.
+const String testExceptionRoute = '&#47;test&#47;exception';
+
+&#47;&#47;&#47; Manual test page.
+const String testManualRoute = '&#47;test&#47;manual';
+
+&#47;&#47;&#47; Experiment test page.
+const String testExpRoute = '&#47;test&#47;exp';
+
+&#47;&#47;&#47; Deprecated test page.
+const String testDeprecatedRoute = '&#47;test&#47;deprecated';
+
+class _MyAppState extends State {
+  var routes = {
+    '&#47;test': (BuildContext context) => MyHomePage(),
+    testSqlCipherRoute: (BuildContext context) => SqlCipherTestPage(),
+    testRawRoute: (BuildContext context) => RawTestPage(),
+    testOpenRoute: (BuildContext context) => OpenTestPage(),
+    testSlowRoute: (BuildContext context) => SlowTestPage(),
+    testTodoRoute: (BuildContext context) => TodoTestPage(),
+    testTypeRoute: (BuildContext context) => TypeTestPage(),
+    testManualRoute: (BuildContext context) => ManualTestPage(),
+    testBatchRoute: (BuildContext context) => BatchTestPage(),
+    testExceptionRoute: (BuildContext context) => ExceptionTestPage(),
+    testExpRoute: (BuildContext context) => ExpTestPage(),
+    testDeprecatedRoute: (BuildContext context) => DeprecatedTestPage(),
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'Sqflite Demo',
+        theme: ThemeData(
+          &#47;&#47; This is the theme of your application.
+          &#47;&#47;
+          &#47;&#47; Try running your application with 'flutter run'. You'll see
+          &#47;&#47; the application has a blue toolbar. Then, without quitting
+          &#47;&#47; the app, try changing the primarySwatch below to Colors.green
+          &#47;&#47; and then invoke 'hot reload' (press 'r' in the console where
+          &#47;&#47; you ran 'flutter run', or press Run > Hot Reload App in IntelliJ).
+          &#47;&#47; Notice that the counter didn't reset back to zero -- the application
+          &#47;&#47; is not restarted.
+          primarySwatch: Colors.blue,
+        ),
+        home: MyHomePage(title: 'Sqflite Demo Home Page'),
+        routes: routes);
+  }
+}
+
+&#47;&#47;&#47; App home menu page.
+class MyHomePage extends StatefulWidget {
+  &#47;&#47;&#47; App home menu page.
+  MyHomePage({Key? key, this.title}) : super(key: key) {
+   
+// ... (truncated)

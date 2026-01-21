@@ -1,0 +1,26 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_map_marker_cluster_example&#47;clustering_many_markers_page.dart';
+import 'package:flutter_map_marker_cluster_example&#47;clustering_page.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Clustering Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const ClusteringPage(),
+      routes: {
+        ClusteringPage.route: (context) => const ClusteringPage(),
+        ClusteringManyMarkersPage.route: (context) =>
+            const ClusteringManyMarkersPage(),
+      },
+    );
+  }
+}

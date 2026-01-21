@@ -1,0 +1,23 @@
+import 'package:example&#47;screens&#47;home_screen.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:sizer&#47;sizer.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Sizer(
+      builder: (context, orientation, deviceType) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Sizer',
+          theme: ThemeData.light(),
+          home: HomeScreen() ,
+        );
+      },
+    );
+  }
+}

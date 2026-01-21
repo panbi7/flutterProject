@@ -1,0 +1,153 @@
+import 'dart:io';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:device_safety_info&#47;device_safety_info.dart';
+import 'package:device_safety_info&#47;new_version_check.dart';
+import 'package:device_safety_info&#47;vpn_check.dart';
+import 'package:device_safety_info&#47;vpn_state.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Device Safety Info',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+      ),
+      home: const DeviceSafetyHome(),
+    );
+  }
+}
+
+class DeviceSafetyHome extends StatefulWidget {
+  const DeviceSafetyHome({super.key});
+  @override
+  State createState() => _DeviceSafetyHomeState();
+}
+
+class _DeviceSafetyHomeState extends State {
+  bool? isRootedDevice;
+  bool? isScreenLock;
+  bool? isRealDevice;
+  bool? isExternalStorage;
+  bool? isDeveloperMode;
+  bool? isVPN;
+  bool? isInstalledFromStore;
+
+  bool _loading = false;
+  final VPNCheck _vpnCheck = VPNCheck();
+  late final Stream _vpnStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _vpnStream = _vpnCheck.vpnState;
+    _listenVpn();
+    _refreshAll();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void _listenVpn() {
+    _vpnStream.listen((state) {
+      final connected = state == VPNState.connectedState;
+      if (mounted) {
+        setState(() => isVPN = connected);
+      }
+    }, onError: (e) {
+      if (kDebugMode) debugPrint('VPN listen error: $e');
+    });
+  }
+
+  Future _refreshAll() async {
+    if (!mounted) return;
+    setState(() {
+      _loading = true;
+    });
+
+    try {
+      final futures = >[
+        DeviceSafetyInfo.isRootedDevice,
+        DeviceSafetyInfo.isScreenLock,
+        DeviceSafetyInfo.isRealDevice,
+      ];
+
+      if (Platform.isAndroid) {
+        futures.addAll([
+          DeviceSafetyInfo.isExternalStorage,
+          DeviceSafetyInfo.isDeveloperMode,
+        ]);
+      }
+
+      futures.add(DeviceSafetyInfo.isInstalledFromStore);
+
+      final results = await Future.wait(futures);
+
+      int idx = 0;
+      setState(() {
+        isRootedDevice = _boolFrom(results[idx++]);
+        isScreenLock = _boolFrom(results[idx++]);
+        isRealDevice = _boolFrom(results[idx++]);
+
+        if (Platform.isAndroid) {
+          isExternalStorage = _boolFrom(results[idx++]);
+          isDeveloperMode = _boolFrom(results[idx++]);
+        } else {
+          isExternalStorage = null;
+          isDeveloperMode = null;
+        }
+
+        isInstalledFromStore = _boolFrom(results[idx++]);
+      });
+    } catch (e) {
+      if (kDebugMode) debugPrint('Error fetching device info: $e');
+      if (mounted) {
+        setState(() {
+          isRootedDevice ??= false;
+          isScreenLock ??= false;
+          isRealDevice ??= true;
+          isExternalStorage ??= (Platform.isAndroid ? false : null);
+          isDeveloperMode ??= (Platform.isAndroid ? false : null);
+          isInstalledFromStore ??= false;
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
+    }
+  }
+
+  bool _boolFrom(Object? o) {
+    if (o is bool) return o;
+    if (o is int) return o != 0;
+    if (o is String) return o.toLowerCase() == 'true';
+    return false;
+  }
+
+  Future _checkAppVersion() async {
+    final checker = NewVersionChecker(iOSId: '', androidId: '');
+    try {
+      final status = await checker.getVersionStatus();
+      if (!mounted) return;
+      if (status != null && status.canUpdate) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('New version available: ${status.storeVersion}')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('App is up
+// ... (truncated)

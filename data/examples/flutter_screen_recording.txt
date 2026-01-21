@@ -1,0 +1,1 @@
+bool started = FlutterScreenRecording.startRecordScreen(videoName);

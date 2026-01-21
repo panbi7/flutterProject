@@ -1,0 +1,143 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:dio&#47;dio.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:graphql&#47;client.dart';
+import 'package:requests_inspector&#47;requests_inspector.dart';
+
+final navigatorKey = GlobalKey();
+
+void main() {
+  runApp(
+    RequestsInspector(
+      &#47;&#47; Add your `navigatorKey` to enable `Stopper` feature
+      navigatorKey: navigatorKey,
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  List posts = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    fetchPostsUsingInterceptor().then(
+      (value) => setState(() {
+        posts = value;
+        isLoading = false;
+      }),
+    );
+    &#47;*for restful apis Interceptor example use => fetchPostsUsingInterceptor() *&#47;
+    &#47;&#47; fetchPostsGraphQlUsingGraphQLFlutterInterceptor() &#47;*for graph ql Interceptor example *&#47;;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      debugShowCheckedModeBanner: false,
+      title: 'Fetch Data Example',
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: false),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Fetch Data Example'),
+          leading: InkWell(
+            child: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Icon(Icons.refresh),
+            ),
+            onTap: () {
+              setState(() => isLoading = true);
+              fetchPostsUsingInterceptor().then(
+                (value) => setState(() {
+                  posts = value;
+                  isLoading = false;
+                }),
+              );
+            },
+          ),
+        ),
+        body: Center(
+          child: () {
+            if (isLoading) return const CircularProgressIndicator();
+
+            if (posts.isNotEmpty) {
+              return PostsListWidget(
+                postsList: posts,
+                onRefresh: () => fetchPostsUsingInterceptor().then(
+                  (value) => setState(() => posts = value),
+                ),
+              );
+            }
+
+            return const Text('Empty list (error)');
+
+            &#47;&#47; By default, show a loading spinner.
+          }(),
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47; Fetching methods
+Future> fetchPosts() async {
+  final dio = Dio(BaseOptions(validateStatus: (_) => true));
+  final params = {'userId': 1};
+  final response = await dio.get(
+    'https:&#47;&#47;jsonplaceholder.typicode.com&#47;posts',
+    queryParameters: params,
+  );
+
+  final postsMap = response.data as List;
+  final posts = postsMap.map((postMap) => Post.fromMap(postMap)).toList();
+
+  InspectorController().addNewRequest(
+    RequestDetails(
+      requestName: 'Posts',
+      &#47;&#47; Optional
+      requestMethod: RequestMethod.GET,
+      url: 'https:&#47;&#47;jsonplaceholder.typicode.com&#47;posts',
+      queryParameters: params,
+      statusCode: response.statusCode ?? 0,
+      responseBody: response.data,
+      headers: {'language': 'en'},
+    ),
+  );
+
+  return posts;
+}
+
+Future> fetchPostsUsingInterceptor() async {
+  final dio = Dio(
+    BaseOptions(
+      validateStatus: (_) => true,
+      &#47;&#47; Headers added to bypass CloudFlare protection
+      headers: {
+        'User-Agent':
+            'Mozilla&#47;5.0 (Windows NT 10.0; Win64; x64) AppleWebKit&#47;537.36 '
+                '(KHTML, like Gecko) Chrome&#47;115.0.0.0 Safari&#47;537.36',
+        'Accept': 'application&#47;json, text&#47;plain, *&#47;*',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+    ),
+  )..interceptors.add(RequestsInspectorInterceptor());
+  final params = {'userId': 1};
+
+  final response = await dio.get(
+    'https:&#47;&#47;dummyjson.com&#47;posts',
+    queryParameters: params,
+    &
+// ... (truncated)

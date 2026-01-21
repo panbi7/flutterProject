@@ -1,0 +1,133 @@
+import 'dart:math';
+
+import 'package:audio_visualizer&#47;audio_visualizer.dart';
+import 'package:audio_visualizer&#47;utils.dart';
+import 'package:audio_visualizer&#47;visualizers&#47;audio_spectrum.dart';
+import 'package:audio_visualizer&#47;visualizers&#47;visualizers.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+void main() {
+  runApp(MaterialApp(
+    themeMode: ThemeMode.dark,
+    darkTheme: ThemeData.dark(useMaterial3: true),
+    home: const MyApp(),
+  ));
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() {
+    return _MyAppState();
+  }
+}
+
+class _MyAppState extends State {
+  final audioPlayer = VisualizerPlayer();
+
+  final sources = [
+    "https:&#47;&#47;www.soundhelix.com&#47;examples&#47;mp3&#47;SoundHelix-Song-4.mp3",
+    "https:&#47;&#47;files.testfile.org&#47;AUDIO&#47;C&#47;M4A&#47;sample1.m4a",
+  ];
+  var sourceIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+    audioPlayer.initialize();
+    audioPlayer.setDataSource(sources[sourceIndex]);
+    audioPlayer.addListener(onUpdate);
+  }
+
+  void onUpdate() {
+    if (audioPlayer.value.status == PlayerStatus.ready) {
+      audioPlayer.play(looping: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.removeListener(onUpdate);
+    audioPlayer.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Center(
+          child: Text('Audio Visualizer'),
+        ),
+      ),
+      body: Column(
+        children: [
+          const SizedBox(height: 32),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListenableBuilder(
+              listenable: audioPlayer,
+              builder: (context, child) {
+                final duration = audioPlayer.value.duration;
+                final position = audioPlayer.value.position;
+                final durationText = formatDuration(duration);
+                final positionText = formatDuration(position);
+                return Text(
+                  "$positionText &#47; $durationText",
+                  style: Theme.of(context).textTheme.headlineLarge,
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListenableBuilder(
+              listenable: audioPlayer,
+              builder: (context, child) {
+                return Text(
+                  audioPlayer.value.status == PlayerStatus.playing
+                      ? "Now Playing"
+                      : "",
+                  style: Theme.of(context).textTheme.bodyLarge,
+                );
+              },
+            ),
+          ),
+          Expanded(
+            child: ListenableBuilder(
+              listenable: audioPlayer,
+              builder: (context, child) {
+                final data = getMagnitudes(audioPlayer.value.fft);
+                return AudioSpectrum(
+                  fftMagnitudes: data,
+                  bandType: BandType.tenBand,
+                  builder: (context, value, child) {
+                    return RainbowBlockVisualizer(
+                      data: value.levels,
+                      maxSample: 32,
+                      blockHeight: 14,
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          ListenableBuilder(
+            listenable: audioPlayer,
+            builder: (context, child) {
+              final duration = audioPlayer.value.duration.inMilliseconds;
+              final position = audioPlayer.value.position.inMilliseconds;
+              return LinearProgressIndicator(
+                value: position &#47; max(1, duration),
+                minHeight: 8,
+              );
+            },
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomAppBar(
+ 
+// ... (truncated)

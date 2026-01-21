@@ -1,0 +1,105 @@
+&#47;&#47;&#47;Plugin used for detecting root device in android and jailbreak detection ios.
+library;
+
+&#47;&#47;&#47;It uses RootBeer on Android, and DTTJailbreakDetection on iOS.
+
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;services.dart';
+import 'package:root_checker_plus&#47;root_checker_plus.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  &#47;&#47;Initial Android root checker in set false value
+  bool rootedCheck = false;
+
+  &#47;&#47;Initial iOS jailbreak detection in set false value
+  bool jailbreak = false;
+
+  &#47;&#47;Initial Android Developer mode checker in set false value
+  bool devMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47;Android initState check status on root check and developer mode checking
+    if (Platform.isAndroid) {
+      androidRootChecker();
+      developerMode();
+    }
+
+    &#47;&#47;Android initState check status on jailbreak detection checking
+    if (Platform.isIOS) {
+      iosJailbreak();
+    }
+  }
+
+  &#47;&#47; Check the status display widgets
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Root checker example app')),
+        body: Center(
+          child: Platform.isAndroid
+              ? Text(
+                  'Running on Android\n\n Root Checker: $rootedCheck\n Developer Mode Enable:$devMode',
+                )
+              : Text('Running on iOS\n Jailbreak: $jailbreak \n'),
+        ),
+      ),
+    );
+  }
+
+  Future androidRootChecker() async {
+    try {
+      rootedCheck =
+          (await RootCheckerPlus.isRootChecker())!; &#47;&#47; return rootcheck status is true or false
+    } on PlatformException {
+      rootedCheck = false;
+    }
+    if (!mounted) return;
+    setState(() {
+      rootedCheck = rootedCheck;
+    });
+  }
+
+  Future developerMode() async {
+    try {
+      devMode =
+          (await RootCheckerPlus.isDeveloperMode())!; &#47;&#47; return Android developer mode status is true or false
+    } on PlatformException {
+      devMode = false;
+    }
+    if (!mounted) return;
+    setState(() {
+      devMode = devMode;
+    });
+  }
+
+  Future iosJailbreak() async {
+    try {
+      jailbreak =
+          (await RootCheckerPlus.isJailbreak())!; &#47;&#47; return iOS jailbreak status is true or false
+    } on PlatformException {
+      jailbreak = false;
+    }
+    if (!mounted) return;
+    setState(() {
+      jailbreak = jailbreak;
+    });
+  }
+}

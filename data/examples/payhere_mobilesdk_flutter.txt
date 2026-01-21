@@ -1,0 +1,127 @@
+import 'package:flutter&#47;material.dart';
+import 'package:payhere_mobilesdk_flutter&#47;payhere_mobilesdk_flutter.dart';
+
+void main() {
+  &#47;&#47; MaterialApp is being initialized like this,
+  &#47;&#47; instead of it being inside a separate class due
+  &#47;&#47; to a context issue when showing AlertDialog(s) later
+  &#47;&#47; in the app.
+  &#47;&#47;
+  &#47;&#47; See:
+  &#47;&#47; "No MaterialLocalizations found - MyApp widgets require MaterialLocalizations to be
+  &#47;&#47; provided by a Localizations widget ancestor"
+  &#47;&#47; https:&#47;&#47;stackoverflow.com&#47;questions&#47;56275595&#47;no-materiallocalizations-found-myapp-widgets-require-materiallocalizations-to
+
+  runApp(MaterialApp(home: App()));
+}
+
+class App extends StatefulWidget {
+  @override
+  _AppState createState() => _AppState();
+}
+
+class _AppState extends State {
+  &#47;&#47; String _platformVersion = 'Unknown';
+
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47; initPlatformState();
+  }
+
+  void showAlert(BuildContext context, String title, String msg) {
+    &#47;&#47; set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+
+    &#47;&#47; set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: Text(msg),
+      actions: [
+        okButton,
+      ],
+    );
+
+    &#47;&#47; show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void startOneTimePayment(BuildContext context) async {
+    Map paymentObject = {
+      "sandbox":true, &#47;&#47; true if using Sandbox Merchant ID
+      "merchant_id": "1223220", &#47;&#47; Replace your Merchant ID
+      "notify_url": "https:&#47;&#47;eokwyobr35ggdi5.m.pipedream.net",
+      "order_id": "ItemNo12345",
+      "items": "Hello from Flutter!",
+      "item_number_1": "001",
+      "item_name_1": "Test Item #1",
+      "amount_1": "5.00",
+      "quantity_1": "2",
+      "item_number_2": "002",
+      "item_name_2": "Test Item #2",
+      "amount_2": "20.00",
+      "quantity_2": "1",
+      "amount": 50.00,
+      "currency": "LKR",
+      "first_name": "Saman",
+      "last_name": "Perera",
+      "email": "samanp@gmail.com",
+      "phone": "0771234567",
+      "address": "No.1, Galle Road",
+      "city": "Colombo",
+      "country": "Sri Lanka",
+      "delivery_address": "No. 46, Galle road, Kalutara South",
+      "delivery_city": "Kalutara",
+      "delivery_country": "Sri Lanka",
+      "custom_1": "",
+      "custom_2": ""
+    };
+
+    PayHere.startPayment(paymentObject, (paymentId) {
+      print("One Time Payment Success. Payment Id: $paymentId");
+      showAlert(context, "Payment Success!", "Payment Id: $paymentId");
+    }, (error) {
+      print("One Time Payment Failed. Error: $error");
+      showAlert(context, "Payment Failed", "$error");
+    }, () {
+      print("One Time Payment Dismissed");
+      showAlert(context, "Payment Dismissed", "");
+    });
+  }
+
+  void startRecurringPayment(BuildContext context) async {
+    Map paymentObject = {
+      "sandbox":true, &#47;&#47; true if using Sandbox Merchant ID
+      "merchant_id": "1223220", &#47;&#47; Replace your Merchant ID
+      "notify_url": "https:&#47;&#47;eokwyobr35ggdi5.m.pipedream.net",
+      "order_id": "ItemNo12345",
+      "items": "Hello from Flutter!",
+      "item_number_1": "001",
+      "item_name_1": "Test Item #1",
+      "amount_1": 50.00,
+      "quantity_1": "1",
+      "item_number_2": "002",
+      "item_name_2": "Test Item #1",
+      "amount_2": "25.00",
+      "quantity_2": "2",
+      "amount": 100.00,
+      "recurrence": "1 Month", &#47;&#47; Recurring payment frequency
+      "duration": "1 Year", &#47;&#47; Recurring payment duration
+      "currency": "LKR",
+      "first_name": "Saman",
+      "last_name": "Perera",
+      "email": "samanp@gmail.com",
+      "phone": "0771234567",
+      "address": "No.1, Galle Road",
+      "cit
+// ... (truncated)

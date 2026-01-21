@@ -1,0 +1,155 @@
+import 'dart:isolate';
+import 'dart:ui';
+
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter_notification_listener&#47;flutter_notification_listener.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      home: NotificationsLog(),
+    );
+  }
+}
+
+class NotificationsLog extends StatefulWidget {
+  @override
+  _NotificationsLogState createState() => _NotificationsLogState();
+}
+
+class _NotificationsLogState extends State {
+  List _log = [];
+  bool started = false;
+  bool _loading = false;
+
+  ReceivePort port = ReceivePort();
+
+  @override
+  void initState() {
+    initPlatformState();
+    super.initState();
+  }
+
+  &#47;&#47; we must use static method, to handle in background
+  @pragma('vm:entry-point') &#47;&#47; prevent dart from stripping out this function on release build in Flutter 3.x
+  static void _callback(NotificationEvent evt) {
+    print("send evt to ui: $evt");
+    final SendPort? send = IsolateNameServer.lookupPortByName("_listener_");
+    if (send == null) print("can't find the sender");
+    send?.send(evt);
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    NotificationsListener.initialize(callbackHandle: _callback);
+
+    &#47;&#47; this can fix restart can't handle error
+    IsolateNameServer.removePortNameMapping("_listener_");
+    IsolateNameServer.registerPortWithName(port.sendPort, "_listener_");
+    port.listen((message) => onData(message));
+
+    &#47;&#47; don't use the default receivePort
+    &#47;&#47; NotificationsListener.receivePort.listen((evt) => onData(evt));
+
+    var isRunning = (await NotificationsListener.isRunning) ?? false;
+    print("""Service is ${!isRunning ? "not " : ""}already running""");
+
+    setState(() {
+      started = isRunning;
+    });
+  }
+
+  void onData(NotificationEvent event) {
+    setState(() {
+      _log.add(event);
+    });
+
+    print(event.toString());
+  }
+
+  void startListening() async {
+    print("start listening");
+    setState(() {
+      _loading = true;
+    });
+    var hasPermission = (await NotificationsListener.hasPermission) ?? false;
+    if (!hasPermission) {
+      print("no permission, so open settings");
+      NotificationsListener.openPermissionSettings();
+      return;
+    }
+
+    var isRunning = (await NotificationsListener.isRunning) ?? false;
+
+    if (!isRunning) {
+      await NotificationsListener.startService(
+          foreground: false,
+          title: "Listener Running",
+          description: "Welcome to having me");
+    }
+
+    setState(() {
+      started = true;
+      _loading = false;
+    });
+  }
+
+  void stopListening() async {
+    print("stop listening");
+
+    setState(() {
+      _loading = true;
+    });
+
+    await NotificationsListener.stopService();
+
+    setState(() {
+      started = false;
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Listener Example'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                print("TODO:");
+              },
+              icon: Icon(Icons.settings))
+        ],
+      ),
+      body: Center(
+          child: ListView.builder(
+              itemCount: _log.length,
+              reverse: true,
+              itemBuilder: (BuildContext context, int idx) {
+                final entry = _log[idx];
+                return ListTile(
+                    onTap: () {
+                      entry.tap();
+                    },
+                    &#47;&#47; trailing:
+                    &#47;&#47;     entry.hasLargeIcon ? Image.memory(entry.largeIcon, width: 80, height: 80) :
+                    &#47;&#47;       Text(entry.pack
+// ... (truncated)

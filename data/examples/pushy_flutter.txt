@@ -1,0 +1,140 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:io' show Platform;
+import 'dart:async';
+
+import 'package:pushy_flutter&#47;pushy_flutter.dart';
+
+void main() => runApp(Main());
+
+&#47;&#47; Please place this code in main.dart,
+&#47;&#47; After the import statements, and outside any Widget class (top-level)
+
+@pragma('vm:entry-point')
+void backgroundNotificationListener(Map data) {
+  &#47;&#47; Print notification payload data
+  print('Received notification: $data');
+
+  &#47;&#47; Notification title
+  String notificationTitle = 'MyApp';
+
+  &#47;&#47; Attempt to extract the "message" property from the payload: {"message":"Hello World!"}
+  String notificationText = data['message'] ?? 'Hello World!';
+
+  &#47;&#47; Android: Displays a system notification
+  &#47;&#47; iOS: Displays an alert dialog
+  Pushy.notify(notificationTitle, notificationText, data);
+
+  &#47;&#47; Clear iOS app badge number
+  Pushy.clearBadge();
+}
+
+class Main extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Pushy',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        &#47;&#47; Light theme with dark action bar
+        brightness: Brightness.light,
+        primaryColor: Colors.grey[900],
+        secondaryHeaderColor: Colors.redAccent,
+      ),
+      home: PushyDemo(),
+    );
+  }
+}
+
+class PushyDemo extends StatefulWidget {
+  @override
+  _PushyDemoState createState() => _PushyDemoState();
+}
+
+class _PushyDemoState extends State {
+  String _deviceToken = 'Loading...';
+  String _instruction = '(please wait)';
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method
+  Future initPlatformState() async {
+    &#47;&#47; Start the Pushy service
+    Pushy.listen();
+
+    &#47;&#47; Set Pushy app ID (required for Web Push)
+    Pushy.setAppId('550ee57c5b5d72117f51e801');
+
+    try {
+      &#47;&#47; Register the device for push notifications
+      String deviceToken = await Pushy.register();
+
+      &#47;&#47; Print token to console&#47;logcat
+      print('Device token: $deviceToken');
+
+      &#47;&#47; Send the token to your backend server
+      &#47;&#47; ...
+
+      &#47;&#47; Update UI with token
+      setState(() {
+        _deviceToken = deviceToken;
+        _instruction =
+            isAndroid() ? '(copy from logcat)' : '(copy from console)';
+      });
+    } catch (error) {
+      &#47;&#47; Print to console&#47;logcat
+      print('Error: ${error.toString()}');
+
+      &#47;&#47; Show error
+      setState(() {
+        _deviceToken = 'Registration failed';
+        _instruction = '(restart app to try again)';
+      });
+    }
+
+    &#47;&#47; Enable in-app notification banners (iOS 10+)
+    Pushy.toggleInAppBanner(true);
+
+    &#47;&#47; Listen for push notifications received
+    Pushy.setNotificationListener(backgroundNotificationListener);
+
+    &#47;&#47; Listen for push notification clicked
+    Pushy.setNotificationClickListener((Map data) {
+      &#47;&#47; Print notification payload data
+      print('Notification clicked: $data');
+
+      &#47;&#47; Extract notification messsage
+      String message = data['message'] ?? 'Hello World!';
+
+      &#47;&#47; Display an alert with the "message" payload value
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: Text('Notification clicked'),
+              content: Text(message),
+              actions: [
+                ElevatedButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop('dialog');
+                  },
+                )
+              ]);
+        },
+      );
+
+      &#47;&#47; Clear iOS app badge number
+      Pushy.clearBadge();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; Demo app UI
+    return Scaffold(
+      appBar:
+// ... (truncated)

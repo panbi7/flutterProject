@@ -1,0 +1,11 @@
+&#47;&#47; Copyright (c) 2022, the Dart project authors.  Please see the AUTHORS file
+&#47;&#47; for details. All rights reserved. Use of this source code is governed by a
+&#47;&#47; BSD-style license that can be found in the LICENSE file.
+
+import 'package:leak_tracker&#47;leak_tracker.dart';
+
+void main(List arguments) {
+  LeakTracking.start();
+  print('Hello, world!');
+  LeakTracking.stop();
+}

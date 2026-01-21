@@ -1,0 +1,88 @@
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:google_maps_widget&#47;google_maps_widget.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  MyApp({super.key});
+
+  &#47;&#47; can create a controller, and call methods to update source loc,
+  &#47;&#47; destination loc, interact with the google maps controller to
+  &#47;&#47; show&#47;hide markers programmatically etc.
+  final mapsWidgetController = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: SafeArea(
+        child: Scaffold(
+          body: Column(
+            children: [
+              Expanded(
+                child: GoogleMapsWidget(
+                  apiKey: "YOUR GOOGLE MAPS API KEY HERE",
+                  key: mapsWidgetController,
+                  sourceLatLng: LatLng(
+                    40.484000837597925,
+                    -3.369978368282318,
+                  ),
+                  destinationLatLng: LatLng(
+                    40.48017307700204,
+                    -3.3618026599287987,
+                  ),
+
+                  &#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;
+                  &#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;    OPTIONAL PARAMETERS    &#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;
+                  &#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;&#47;
+
+                  routeWidth: 2,
+                  sourceMarkerIconInfo: MarkerIconInfo(
+                    infoWindowTitle: "This is source name",
+                    onTapInfoWindow: (_) {
+                      debugPrint("Tapped on source info window");
+                    },
+                    assetPath: "assets&#47;images&#47;house-marker-icon.png",
+                    assetMarkerSize: Size.square(50),
+                  ),
+                  destinationMarkerIconInfo: MarkerIconInfo(
+                    assetPath: "assets&#47;images&#47;restaurant-marker-icon.png",
+                    assetMarkerSize: Size.square(50),
+                  ),
+                  driverMarkerIconInfo: MarkerIconInfo(
+                    infoWindowTitle: "Alex",
+                    assetPath: "assets&#47;images&#47;driver-marker-icon.png",
+                    onTapMarker: (currentLocation) {
+                      debugPrint("Driver is currently at $currentLocation");
+                    },
+                    assetMarkerSize: Size.square(50),
+                    rotation: 90,
+                  ),
+                  onPolylineUpdate: (p) {
+                    debugPrint("Polyline updated: ${p.points}");
+                  },
+                  updatePolylinesOnDriverLocUpdate: true,
+                  &#47;&#47; mock stream
+                  driverCoordinatesStream: Stream.periodic(
+                    Duration(milliseconds: 500),
+                    (i) => LatLng(
+                      40.47747872288886 + i &#47; 10000,
+                      -3.368043154478073 - i &#47; 10000,
+                    ),
+                  ),
+                  totalTimeCallback: (time) => debugPrint(time),
+                  totalDistanceCallback: (distance) => debugPrint(distance),
+                ),
+              ),
+              &#47;&#47; demonstrates how to interact with the controller
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed
+// ... (truncated)

@@ -1,0 +1,123 @@
+&#47;&#47; Copyright 2013 The Flutter Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'dart:async';
+import 'dart:convert' show json;
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:google_sign_in&#47;google_sign_in.dart';
+import 'package:http&#47;http.dart' as http;
+
+import 'src&#47;web_wrapper.dart' as web;
+
+&#47;&#47;&#47; To run this example, replace this value with your client ID, and&#47;or
+&#47;&#47;&#47; update the relevant configuration files, as described in the README.
+String? clientId;
+
+&#47;&#47;&#47; To run this example, replace this value with your server client ID, and&#47;or
+&#47;&#47;&#47; update the relevant configuration files, as described in the README.
+String? serverClientId;
+
+&#47;&#47;&#47; The scopes required by this application.
+&#47;&#47; #docregion CheckAuthorization
+const List scopes = [
+  'https:&#47;&#47;www.googleapis.com&#47;auth&#47;contacts.readonly',
+];
+&#47;&#47; #enddocregion CheckAuthorization
+
+void main() {
+  runApp(const MaterialApp(title: 'Google Sign In', home: SignInDemo()));
+}
+
+&#47;&#47;&#47; The SignInDemo app.
+class SignInDemo extends StatefulWidget {
+  &#47;&#47;&#47;
+  const SignInDemo({super.key});
+
+  @override
+  State createState() => _SignInDemoState();
+}
+
+class _SignInDemoState extends State {
+  GoogleSignInAccount? _currentUser;
+  bool _isAuthorized = false; &#47;&#47; has granted permissions?
+  String _contactText = '';
+  String _errorMessage = '';
+  String _serverAuthCode = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47; #docregion Setup
+    final GoogleSignIn signIn = GoogleSignIn.instance;
+    unawaited(
+      signIn.initialize(clientId: clientId, serverClientId: serverClientId).then((
+        _,
+      ) {
+        signIn.authenticationEvents
+            .listen(_handleAuthenticationEvent)
+            .onError(_handleAuthenticationError);
+
+        &#47;&#47;&#47; This example always uses the stream-based approach to determining
+        &#47;&#47;&#47; which UI state to show, rather than using the future returned here,
+        &#47;&#47;&#47; if any, to conditionally skip directly to the signed-in state.
+        signIn.attemptLightweightAuthentication();
+      }),
+    );
+    &#47;&#47; #enddocregion Setup
+  }
+
+  Future _handleAuthenticationEvent(
+    GoogleSignInAuthenticationEvent event,
+  ) async {
+    &#47;&#47; #docregion CheckAuthorization
+    final GoogleSignInAccount? user = &#47;&#47; ...
+    &#47;&#47; #enddocregion CheckAuthorization
+    switch (event) {
+      GoogleSignInAuthenticationEventSignIn() => event.user,
+      GoogleSignInAuthenticationEventSignOut() => null,
+    };
+
+    &#47;&#47; Check for existing authorization.
+    &#47;&#47; #docregion CheckAuthorization
+    final GoogleSignInClientAuthorization? authorization = await user
+        ?.authorizationClient
+        .authorizationForScopes(scopes);
+    &#47;&#47; #enddocregion CheckAuthorization
+
+    setState(() {
+      _currentUser = user;
+      _isAuthorized = authorization != null;
+      _errorMessage = '';
+    });
+
+    &#47;&#47; If the user has already granted access to the required scopes, call the
+    &#47;&#47; REST API.
+    if (user != null && authorization != null) {
+      unawaited(_handleGetContact(user));
+    }
+  }
+
+  Future _handleAuthenticationError(Object e) async {
+    setState(() {
+      _currentUser = null;
+      _isAuthorized = false;
+      _errorMessage =
+          e is GoogleSignInException
+              ? _errorMessageFromSignInException(e)
+              : 'Unknown error: $e';
+    });
+  }
+
+  &#47;&#47; Calls the People API REST endpoint for the signed-in user to retrieve information.
+  Future _handleGetContact(GoogleSignInAccount user) async {
+    setState(() {
+      _contactText = 'Loading contact info...';
+    });
+    final Map? headers = awai
+// ... (truncated)

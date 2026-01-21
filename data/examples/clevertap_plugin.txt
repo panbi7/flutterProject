@@ -1,0 +1,118 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io' show Platform, sleep;
+import 'dart:math';
+import 'package:example&#47;notification_button.dart';
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:flutter&#47;foundation.dart' show kIsWeb;
+
+import 'package:clevertap_plugin&#47;clevertap_plugin.dart';
+import 'package:example&#47;deeplink_page.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_styled_toast&#47;flutter_styled_toast.dart';
+import 'package:firebase_messaging&#47;firebase_messaging.dart';
+import 'custom_template.dart';
+
+final GlobalKey navigatorKey = GlobalKey();
+
+final int TEST_RUN_APP_DELAY = 0;
+final int CLEVERTAP_LISTENER_ATTACH_DELAY = 0;
+final bool testWithWorkManager = false;
+
+@pragma('vm:entry-point')
+void onKilledStateNotificationClickedHandler(Map map) async {
+  print("onKilledStateNotificationClickedHandler called from headless task!");
+  print("Notification Payload received: " + map.toString());
+}
+
+Future _firebaseBackgroundMessageHandler(RemoteMessage message) async {
+  &#47;&#47; This is a dummy firebase integration to test usecases with background isolates
+  await Firebase.initializeApp();
+  print("_firebaseBackgroundMessageHandler Background");
+  &#47;&#47; CleverTapPlugin.createNotification(jsonEncode(message.data));
+}
+
+&#47;&#47;&#47; Handles foreground messages of FCM
+void _firebaseForegroundMessageHandler(RemoteMessage remoteMessage) {
+  print('_firebaseForegroundMessageHandler called');
+  &#47;&#47; CleverTapPlugin.createNotification(jsonEncode(remoteMessage.data));
+}
+
+void main() async {
+  print("CleverTapPlugin main pre ensure");
+  WidgetsFlutterBinding.ensureInitialized();
+  if (!kIsWeb && !Platform.isIOS && testWithWorkManager) {
+    await Firebase.initializeApp();
+    FirebaseMessaging.onMessage.listen(_firebaseForegroundMessageHandler);
+    FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessageHandler);
+  }
+
+  CleverTapPlugin.onKilledStateNotificationClicked(
+      onKilledStateNotificationClickedHandler);
+
+  print("CleverTapPlugin main pre runapp");
+
+  Future.delayed(Duration(seconds: TEST_RUN_APP_DELAY), () {
+    runApp(MaterialApp(
+      navigatorKey: navigatorKey,
+      title: 'Home Page',
+      home: MyApp(),
+    ));
+    print("CleverTapPlugin main POSTTT runapp");
+  });
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late CleverTapPlugin _clevertapPlugin;
+
+  var inboxInitialized = false;
+  var offLine = false;
+  var firstMsgId = "";
+
+  var enableDeviceNetworkingInfo = false;
+
+  void _handleKilledStateNotificationInteraction() async {
+    CleverTapAppLaunchNotification appLaunchNotification =
+        await CleverTapPlugin.getAppLaunchNotification();
+    print(
+        "_handleKilledStateNotificationInteraction => $appLaunchNotification");
+
+    if (appLaunchNotification.didNotificationLaunchApp) {
+      Map notificationPayload = appLaunchNotification.payload!;
+      handleDeeplink(notificationPayload);
+    }
+  }
+
+  @override
+  void initState() {
+    print("CleverTapPlugin initState");
+    super.initState();
+    initPlatformState();
+    Future.delayed(Duration(seconds: CLEVERTAP_LISTENER_ATTACH_DELAY), () {
+      activateCleverTapFlutterPluginHandlers();
+    });
+    CleverTapPlugin.setDebugLevel(3);
+    if (kIsWeb) {
+      CleverTapPlugin.init("CLEVERTAP_ACCOUNT_ID", "CLEVERTAP_REGION",
+          "CLEVERTAP_TARGET_DOMAIN");
+      CleverTapPlugin.setDebugLevel(3);
+      CleverTapPlugin.addKVDataChangeListener((obj) {
+        var kv = obj["kv"];
+        print(kv);
+      });
+      return;
+    }
+    if (Platform.isAndroid) {
+      _handleKilledStateNotificationInteraction();
+    }
+    CleverTapPlugin.createNotificationChannel(
+        "fluttertest", "Flutter Test", "Flutter Test", 3, true);
+    CleverTapPlugin.initializeInbox();
+    CleverTapPlugin.registerForPush(); &#47;&#47;only for iOS
+    &#47;&#47;var initialUrl = CleverTapPlugin.get
+// ... (truncated)

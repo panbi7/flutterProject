@@ -1,0 +1,79 @@
+&#47;&#47; Copyright 2013 The Flutter Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+&#47;&#47;&#47;
+&#47;&#47;&#47; The simplest use case that illustrates how to make use of the
+&#47;&#47;&#47; flutter_markdown_plus package is to include a Markdown widget in a widget tree
+&#47;&#47;&#47; and supply it with a character string of text containing Markdown formatting
+&#47;&#47;&#47; syntax. Here is a simple Flutter app that creates a Markdown widget that
+&#47;&#47;&#47; formats and displays the text in the string _markdownData. The resulting
+&#47;&#47;&#47; Flutter app demonstrates the use of headers, rules, and emphasis text from
+&#47;&#47;&#47; plain text Markdown syntax.
+&#47;&#47;&#47;
+&#47;&#47;&#47; import 'package:flutter&#47;material.dart';
+&#47;&#47;&#47; import 'package:flutter_markdown_plus&#47;flutter_markdown_plus.dart';
+&#47;&#47;&#47;
+&#47;&#47;&#47; const String _markdownData = """
+&#47;&#47;&#47; # Minimal Markdown Test
+&#47;&#47;&#47; ---
+&#47;&#47;&#47; This is a simple Markdown test. Provide a text string with Markdown tags
+&#47;&#47;&#47; to the Markdown widget and it will display the formatted output in a
+&#47;&#47;&#47; scrollable widget.
+&#47;&#47;&#47;
+&#47;&#47;&#47; ## Section 1
+&#47;&#47;&#47; Maecenas eget **arcu egestas**, mollis ex vitae, posuere magna. Nunc eget
+&#47;&#47;&#47; aliquam tortor. Vestibulum porta sodales efficitur. Mauris interdum turpis
+&#47;&#47;&#47; eget est condimentum, vitae porttitor diam ornare.
+&#47;&#47;&#47;
+&#47;&#47;&#47; ### Subsection A
+&#47;&#47;&#47; Sed et massa finibus, blandit massa vel, vulputate velit. Vestibulum vitae
+&#47;&#47;&#47; venenatis libero. **__Curabitur sem lectus, feugiat eu justo in, eleifend
+&#47;&#47;&#47; accumsan ante.__** Sed a fermentum elit. Curabitur sodales metus id mi
+&#47;&#47;&#47; ornare, in ullamcorper magna congue.
+&#47;&#47;&#47; """;
+&#47;&#47;&#47;
+&#47;&#47;&#47; void main() {
+&#47;&#47;&#47;   runApp(
+&#47;&#47;&#47;     MaterialApp(
+&#47;&#47;&#47;       title: "Markdown Demo",
+&#47;&#47;&#47;       home: Scaffold(
+&#47;&#47;&#47;         appBar: AppBar(
+&#47;&#47;&#47;           title: const Text('Simple Markdown Demo'),
+&#47;&#47;&#47;         ),
+&#47;&#47;&#47;         body: SafeArea(
+&#47;&#47;&#47;           child: Markdown(
+&#47;&#47;&#47;             data: _markdownData,
+&#47;&#47;&#47;           ),
+&#47;&#47;&#47;         ),
+&#47;&#47;&#47;       ),
+&#47;&#47;&#47;     ),
+&#47;&#47;&#47;   );
+&#47;&#47;&#47; }
+&#47;&#47;&#47;
+&#47;&#47;&#47; The flutter_markdown_plus package has options for customizing and extending the
+&#47;&#47;&#47; parsing of Markdown syntax and building of the formatted output. The demos
+&#47;&#47;&#47; in this example app illustrate some of the potentials of the
+&#47;&#47;&#47; flutter_markdown_plus package.
+library;
+
+import 'package:flutter&#47;material.dart';
+import 'screens&#47;demo_screen.dart';
+import 'screens&#47;home_screen.dart';
+import 'shared&#47;markdown_demo_widget.dart';
+
+void main() {
+  runApp(
+    MaterialApp(
+      title: 'Markdown Demos',
+      initialRoute: '&#47;',
+      home: HomeScreen(),
+      onGenerateRoute: (RouteSettings settings) {
+        return MaterialPageRoute(
+          builder: (_) => DemoScreen(
+            child: settings.arguments as MarkdownDemoWidget?,
+          ),
+        );
+      },
+    ),
+  );
+}

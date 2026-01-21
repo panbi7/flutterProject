@@ -1,0 +1,132 @@
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:animated_sidebar&#47;animated_sidebar.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int activeTab = 0;
+
+  final List items = [
+    SidebarItem(
+      icon: Icons.home,
+      text: 'Home',
+    ),
+    SidebarItem(
+      icon: Icons.notifications,
+      text: 'Notifications',
+    ),
+    SidebarItem(
+      icon: Icons.person,
+      text: 'Management',
+      children: [
+        SidebarChildItem(
+          icon: Icons.person,
+          text: 'Users',
+        ),
+        SidebarChildItem(
+          icon: Icons.verified_user,
+          text: 'Roles',
+        ),
+        SidebarChildItem(
+          icon: Icons.key,
+          text: 'Permissions',
+        ),
+      ],
+    ),
+    SidebarItem(
+      icon: Icons.abc,
+      text: 'Integrations',
+    ),
+    SidebarItem(
+      icon: Icons.settings,
+      text: 'Settings',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Row(
+          children: [
+            AnimatedSidebar(
+              margin: const EdgeInsets.fromLTRB(16, 24, 0, 24),
+              expanded: MediaQuery.of(context).size.width > 600,
+              items: items,
+              &#47;&#47; use this to set the active tab if you want to control it from outside
+              &#47;&#47; combined with autoSelectedIndex set to false
+              &#47;&#47; if you don't set autoSelectedIndex to false, the widget will
+              &#47;&#47; automatically set the active tab and selected item is used only
+              &#47;&#47; to set the initial value
+              selectedIndex: activeTab,
+              autoSelectedIndex: false,
+              onItemSelected: (index) => setState(() => activeTab = index),
+              duration: const Duration(milliseconds: 1000),
+              frameDecoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  tileMode: TileMode.repeated,
+                  colors: [
+                    Color.fromRGBO(66, 66, 74, 1),
+                    Color.fromRGBO(25, 25, 25, 1),
+                  ],
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color.fromRGBO(66, 66, 66, 0.75),
+                    spreadRadius: 0,
+                    blurRadius: 20,
+                    offset: Offset(0, 10),
+                  ),
+                ],
+              ),
+              minSize: 90,
+              maxSize: 250,
+              itemIconSize: 26,
+              itemIconColor: Colors.white,
+              itemHoverColor: Colors.grey.withOpacity(0.3),
+              itemSelectedColor: Colors.grey.withOpacity(0.3),
+              itemTextStyle: const TextStyle(color: Colors.white, fontSize: 20),
+              itemSelectedBorder: const BorderRadius.all(
+                Radius.circular(5),
+              ),
+              itemMargin: 16,
+              itemSpaceBetween: 10,
+              headerIcon: Icons.ac_unit_sharp,
+              headerIconSize: 30,
+              headerIconColor: Colors.amberAccent,
+              headerTextStyle: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w60
+// ... (truncated)

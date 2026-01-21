@@ -1,0 +1,76 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_animarker&#47;flutter_map_marker_animation.dart';
+import 'package:google_maps_flutter&#47;google_maps_flutter.dart';
+
+&#47;&#47;Setting dummies values
+const kStartPosition = LatLng(18.488213, -69.959186);
+const kSantoDomingo = CameraPosition(target: kStartPosition, zoom: 15);
+const kMarkerId = MarkerId('MarkerId1');
+const kDuration = Duration(seconds: 2);
+const kLocations = [
+  kStartPosition,
+  LatLng(18.488101, -69.957995),
+  LatLng(18.489210, -69.952459),
+  LatLng(18.487307, -69.952759),
+  LatLng(18.487308, -69.952759),
+];
+
+class SimpleMarkerAnimationExample extends StatefulWidget {
+  @override
+  SimpleMarkerAnimationExampleState createState() =>
+      SimpleMarkerAnimationExampleState();
+}
+
+class SimpleMarkerAnimationExampleState
+    extends State {
+  final markers = {};
+  final controller = Completer();
+  final stream = Stream.periodic(kDuration, (count) => kLocations[count])
+      .take(kLocations.length);
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Google Maps Markers Animation Example',
+      home: Animarker(
+        curve: Curves.bounceOut,
+        rippleRadius: 0.2,
+        useRotation: false,
+        duration: Duration(milliseconds: 2300),
+        mapId: controller.future
+            .then((value) => value.mapId), &#47;&#47;Grab Google Map Id
+        markers: markers.values.toSet(),
+        child: GoogleMap(
+            mapType: MapType.normal,
+            initialCameraPosition: kSantoDomingo,
+            onMapCreated: (gController) {
+              stream.forEach((value) => newLocationUpdate(value));
+              controller.complete(gController);
+              &#47;&#47;Complete the future GoogleMapController
+            }),
+      ),
+    );
+  }
+
+  void newLocationUpdate(LatLng latLng) {
+    var marker = RippleMarker(
+        markerId: kMarkerId,
+        position: latLng,
+        ripple: true,
+        onTap: () {
+          print('Tapped! $latLng');
+        });
+    setState(() => markers[kMarkerId] = marker);
+  }
+}
+
+void main() {
+  runApp(SimpleMarkerAnimationExample());
+}

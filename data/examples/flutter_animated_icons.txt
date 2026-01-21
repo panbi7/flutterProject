@@ -1,0 +1,129 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_animated_icons&#47;icons8.dart';
+import 'package:flutter_animated_icons&#47;lottiefiles.dart';
+import 'package:flutter_animated_icons&#47;useanimations.dart';
+import 'package:lottie&#47;lottie.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Animated Icons',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Animated Icons'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State with TickerProviderStateMixin {
+  late AnimationController _settingController;
+  late AnimationController _favoriteController;
+  late AnimationController _menuController;
+  late AnimationController _bellController;
+  late AnimationController _bookController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _settingController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _favoriteController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _menuController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _bellController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1))
+          ..repeat();
+    _bookController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+  }
+
+  @override
+  void dispose() {
+    _settingController.dispose();
+    _favoriteController.dispose();
+    _menuController.dispose();
+    _bellController.dispose();
+    _bookController.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              &#47;&#47;&#47; Tap with animation example
+              Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Tap'),
+                  ),
+                  IconButton(
+                    splashRadius: 50,
+                    iconSize: 100,
+                    onPressed: () {
+                      _settingController.reset();
+                      _settingController.forward();
+                    },
+                    icon: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Lottie.asset(Icons8.adjust,
+                          controller: _settingController),
+                    ),
+                  ),
+                ],
+              ),
+
+              &#47;&#47;&#47; Toggle example
+              Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Toggle'),
+                  ),
+                  IconButton(
+                    splashRadius: 50,
+                    iconSize: 100,
+                    onPressed: () {
+                      if (_favoriteController.status ==
+                          AnimationStatus.dismissed) {
+                        _favoriteController.reset();
+                        _favoriteController.animateTo(0.6);
+                      } else {
+                        _favoriteController.reverse();
+                      }
+                    },
+                    icon: Lottie.asset(Icons8.heart_color,
+                        controller: _favoriteController),
+                  ),
+                ],
+              )
+// ... (truncated)

@@ -1,0 +1,103 @@
+import 'dart:convert';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:ids_material_sdk&#47;ids_api_manager.dart';
+import 'package:ids_material_sdk&#47;public&#47;index.dart';
+import 'package:ids_material_sdk&#47;src&#47;cryptos&#47;ids_crypto_configuration.dart';
+import 'package:ids_material_sdk&#47;src&#47;cryptos&#47;ids_crypto_manager.dart';
+import 'package:ids_material_sdk&#47;ui&#47;widget&#47;fields&#47;ids_field_title.dart';
+import 'package:ids_material_sdk&#47;ui&#47;widget&#47;fields&#47;ids_text_area_title.dart';
+import 'package:ids_material_sdk&#47;ui&#47;widget&#47;fields&#47;ids_uitextfield.dart';
+import 'package:ids_material_sdk&#47;ui&#47;widget&#47;ids_dropdown.dart';
+import 'package:ids_material_sdk&#47;ui&#47;widget&#47;ids_dropdown_string.dart';
+import 'package:ids_material_sdk&#47;ui&#47;widget&#47;ids_dropdown_title.dart';
+import 'package:ids_material_sdk&#47;ui&#47;widget&#47;ids_multiselect_drop_down.dart';
+import 'package:ids_material_sdk&#47;ui&#47;widget&#47;theme.dart';
+import 'package:ids_material_sdk&#47;utilities&#47;ids_enum_common.dart';
+import 'package:ids_material_sdk&#47;utilities&#47;ids_helper.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  MyHomePageState createState() => MyHomePageState();
+}
+
+class MyHomePageState extends State {
+  final TextEditingController _editingController = TextEditingController();
+  List selectedJobRole = [];
+  List jobRole = []; &#47;&#47; Placeholder for job role list
+  String _selectedValue = "";
+
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47; Example network request when the widget initializes
+    makeApiCalls();
+  }
+
+  &#47;&#47;&#47;[07-04-2025] Example: AES-256-CBC Encryption and Decryption Using IDSCryptoManager
+  &#47;&#47;&#47; IDSCryptoConfiguration
+  void cryptoExample() {
+    &#47;&#47; Sample payload to encrypt
+    Map param = {
+      "username": "8967564321",
+      "countryCode": "+91"
+    };
+    &#47;&#47; Step 1: Convert your data to JSON string
+    final jsonData = jsonEncode(param);
+    debugPrint("Sending this JSON to be encrypted: $jsonData");
+
+    &#47;&#47; Step 2: Create an instance of IDSCryptoConfiguration with a secure password
+    final crypto = IDSCryptoConfiguration(
+      password: 'b6edf65dd8e3db',
+    );
+
+    &#47;&#47; Step 3: Use the high-level manager to handle encryption&#47;decryption
+    final cryptoManager = IDSCryptoManager(crypto: crypto);
+
+    &#47;&#47; Step 4: Encrypt the data
+    final encrypted = cryptoManager.encryptText(jsonData);
+    debugPrint('\nEncrypted Text:\n$encrypted\n');
+
+    &#47;&#47; Step 5: Decrypt the data back to its original form
+    final decrypted = cryptoManager.decryptText(encrypted);
+    debugPrint('Decrypted Text:\n$decrypted');
+  }
+
+  &#47;&#47; Example of form data based API call
+  void makeApiCalls() {
+    var request = {"UserName": "ddd", "Password": "ddd"};
+    &#47;&#47; Example: Upload form data (POST)
+    final Future> apiResponse = IDSApiManager()
+        .uploadFormData("http:&#47;&#47;ids.com&#47;api&#47;v1&#47;login", request,
+            "local-url-path-of-file", {"Connection": "keep-alive"});
+    apiResponse.then((response) {
+      IDSHelper.debugJSON(response);
+    });
+
+    &#47;&#47; Example: POST form data (returns array)
+    &#47;**
+     * Example code of networking api. use case is that when api return the array response. use the below sample code snippet in your project, This code snipped is for form data based api.
+     *&#47;
+    final Future> apiResponse1 = IDSApiManager()
+        .postFormDataInBgArray("http:&#47;&#47;ids.com&#47;api&#47;v1&#47;login", request,
+            {"Connection": "keep-alive"});
+    apiRes
+// ... (truncated)

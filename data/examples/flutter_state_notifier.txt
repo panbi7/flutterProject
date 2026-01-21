@@ -1,0 +1,96 @@
+import 'package:example&#47;my_state_notifier.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_state_notifier&#47;flutter_state_notifier.dart';
+import 'package:provider&#47;provider.dart';
+
+&#47;&#47; This is the default counter example reimplemented using StateNotifier + provider
+&#47;&#47; It will print in the console the counter whenever it changes
+&#47;&#47; The state change is also animated.
+
+&#47;&#47; The "print to console" feature is abstracted through a "Logger" class like
+&#47;&#47; we would do in production.
+
+&#47;&#47; This showcase how our custom MyStateNotifier does not depend on Flutter,
+&#47;&#47; but is still able to read providers and be used as usual in a Flutter app.
+
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider(create: (_) => ConsoleLogger()),
+        StateNotifierProvider(
+          create: (_) => MyStateNotifier(),
+          &#47;&#47; Override MyState to make it animated
+          builder: (context, child) {
+            return TweenAnimationBuilder(
+              duration: const Duration(milliseconds: 500),
+              tween: MyStateTween(end: context.watch()),
+              builder: (context, state, _) {
+                return Provider.value(value: state, child: child);
+              },
+            );
+          },
+        ),
+      ],
+      child: MyApp(),
+    ),
+  );
+}
+
+&#47;&#47;&#47; A [MyStateTween].
+&#47;&#47;&#47;
+&#47;&#47;&#47; This will apply an [IntTween] on [MyState.count].
+class MyStateTween extends Tween {
+  MyStateTween({MyState? begin, MyState? end}) : super(begin: begin, end: end);
+
+  @override
+  MyState lerp(double t) {
+    final countTween = IntTween(begin: begin?.count, end: end?.count);
+    &#47;&#47; Tween the count
+    return MyState(
+      countTween.lerp(t),
+    );
+  }
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: 'Flutter Demo',
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Counter example'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'You have pushed the button this many times:',
+            ),
+            Text(
+              context.select((MyState value) => value.count).toString(),
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: context.watch().increment,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}

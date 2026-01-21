@@ -1,0 +1,144 @@
+import 'dart:async';
+
+import 'package:draggable_float_widget&#47;draggable_float_widget.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Test DraggableFloatWidget',
+      home: TestDraggableFloatWidget(),
+    );
+  }
+}
+
+&#47;&#47;&#47; root page of test
+class TestDraggableFloatWidget extends StatefulWidget {
+  @override
+  State createState() => _TestDraggableFloatState();
+}
+
+class _TestDraggableFloatState extends State {
+  static const double bottomBarHeight = 50;
+  late StreamController eventStreamController;
+
+  int _selectedIndex = 0;
+  List _pages = [];
+  PageController _pageController = PageController();
+
+  @override
+  void initState() {
+    super.initState();
+    eventStreamController = StreamController.broadcast();
+    _pages
+      ..add(StackModePage(
+        child: defaultDragWidget,
+        listView: defaultList,
+        navigatorBarHeight: bottomBarHeight,
+        eventStreamController: eventStreamController,
+      ))
+      ..add(OverlayModePage(
+        child: defaultDragWidget,
+        listView: defaultList,
+        navigatorBarHeight: bottomBarHeight,
+        eventStreamController: eventStreamController,
+      ));
+  }
+
+  Widget get defaultDragWidget => Container(
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(5),
+        child: Material(
+          color: Colors.transparent,
+          child: Text(
+            "Drag\nWidget",
+            style: TextStyle(
+              fontSize: 15,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+
+  Widget get defaultList => Container(
+        child: NotificationListener(
+          onNotification: (notification) {
+            if (notification is ScrollStartNotification) {
+              eventStreamController.add(OperateEvent.OPERATE_HIDE);
+            } else if (notification is ScrollEndNotification) {
+              eventStreamController.add(OperateEvent.OPERATE_SHOW);
+            }
+            return true;
+          },
+          child: ListView.builder(
+            itemCount: Colors.accents.length,
+            itemBuilder: (context, index) {
+              Color _color = Colors.accents[index].shade100;
+              String _strColor =
+                  "Color(0x${_color.value.toRadixString(16).padLeft(8, '0')})";
+              return Container(
+                height: 50,
+                color: _color,
+                alignment: Alignment.center,
+                child: Text(
+                  "$index. $_strColor",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 13,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+
+  @override
+  void dispose() {
+    eventStreamController.close();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: PageView(
+        children: _pages,
+        controller: _pageController,
+        onPageChanged: (index) {
+          if (mounted) setState(() => _selectedIndex = index);
+        },
+        physics: NeverScrollableScrollPhysics(),
+      ),
+      bottomNavigationBar: _buildBottomAppBar(),
+    );
+  }
+
+  Widget _buildBottomAppBar() {
+    return BottomAppBar(
+      elevation: 0,
+      child: Container(
+        height: bottomBarHeight,
+        child: BottomNavigationBar(
+          items: [
+            _navigationBarItem(
+              Icons.view_compact_outlined,
+              Icons.view_compact,
+              "Stack",
+            ),
+            _navigationBarItem(
+              Icons.amp_stories_outlined,
+              Icons.amp_stori
+// ... (truncated)

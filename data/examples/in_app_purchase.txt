@@ -1,0 +1,131 @@
+&#47;&#47; Copyright 2013 The Flutter Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:in_app_purchase&#47;in_app_purchase.dart';
+import 'package:in_app_purchase_android&#47;billing_client_wrappers.dart';
+import 'package:in_app_purchase_android&#47;in_app_purchase_android.dart';
+import 'package:in_app_purchase_storekit&#47;in_app_purchase_storekit.dart';
+import 'package:in_app_purchase_storekit&#47;store_kit_wrappers.dart';
+
+import 'consumable_store.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(_MyApp());
+}
+
+&#47;&#47; Auto-consume must be true on iOS.
+&#47;&#47; To try without auto-consume on another platform, change `true` to `false` here.
+final bool _kAutoConsume = Platform.isIOS || true;
+
+const String _kConsumableId = 'consumable';
+const String _kUpgradeId = 'upgrade';
+const String _kSilverSubscriptionId = 'subscription_silver';
+const String _kGoldSubscriptionId = 'subscription_gold';
+const List _kProductIds = [
+  _kConsumableId,
+  _kUpgradeId,
+  _kSilverSubscriptionId,
+  _kGoldSubscriptionId,
+];
+
+class _MyApp extends StatefulWidget {
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
+  late StreamSubscription> _subscription;
+  List _notFoundIds = [];
+  List _products = [];
+  List _purchases = [];
+  List _consumables = [];
+  bool _isAvailable = false;
+  bool _purchasePending = false;
+  bool _loading = true;
+  String? _queryProductError;
+
+  @override
+  void initState() {
+    final Stream> purchaseUpdated =
+        _inAppPurchase.purchaseStream;
+    _subscription =
+        purchaseUpdated.listen((List purchaseDetailsList) {
+      _listenToPurchaseUpdated(purchaseDetailsList);
+    }, onDone: () {
+      _subscription.cancel();
+    }, onError: (Object error) {
+      &#47;&#47; handle error here.
+    });
+    initStoreInfo();
+    super.initState();
+  }
+
+  Future initStoreInfo() async {
+    final bool isAvailable = await _inAppPurchase.isAvailable();
+    if (!isAvailable) {
+      setState(() {
+        _isAvailable = isAvailable;
+        _products = [];
+        _purchases = [];
+        _notFoundIds = [];
+        _consumables = [];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+
+    if (Platform.isIOS) {
+      final InAppPurchaseStoreKitPlatformAddition iosPlatformAddition =
+          _inAppPurchase
+              .getPlatformAddition();
+      await iosPlatformAddition.setDelegate(ExamplePaymentQueueDelegate());
+    }
+
+    final ProductDetailsResponse productDetailResponse =
+        await _inAppPurchase.queryProductDetails(_kProductIds.toSet());
+    if (productDetailResponse.error != null) {
+      setState(() {
+        _queryProductError = productDetailResponse.error!.message;
+        _isAvailable = isAvailable;
+        _products = productDetailResponse.productDetails;
+        _purchases = [];
+        _notFoundIds = productDetailResponse.notFoundIDs;
+        _consumables = [];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+
+    if (productDetailResponse.productDetails.isEmpty) {
+      setState(() {
+        _queryProductError = null;
+        _isAvailable = isAvailable;
+        _products = productDetailResponse.productDetails;
+        _purchases = [];
+        _notFoundIds = productDetailResponse.notFoundIDs;
+        _consumables = [];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+
+    final List consumables = await ConsumableStore.load();
+    setState(() {
+      _isAvailable = isAvailable;
+      _products = productDetailResponse.productDetails;
+      _notFoundIds = productDetailResponse.notFoundIDs;
+      _consumables = consumables;
+      _purchasePending = false;
+      _loading =
+// ... (truncated)

@@ -1,0 +1,139 @@
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:bluetooth_print_plus&#47;bluetooth_print_plus.dart';
+import 'package:flutter&#47;services.dart';
+
+import 'function_page.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; TODO: implement build
+    return MaterialApp(
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  BluetoothDevice? _device;
+  late StreamSubscription _isScanningSubscription;
+  late StreamSubscription _blueStateSubscription;
+  late StreamSubscription _connectStateSubscription;
+  late StreamSubscription _receivedDataSubscription;
+  late StreamSubscription> _scanResultsSubscription;
+  List _scanResults = [];
+
+  @override
+  void initState() {
+    super.initState();
+    initBluetoothPrintPlusListen();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _isScanningSubscription.cancel();
+    _blueStateSubscription.cancel();
+    _connectStateSubscription.cancel();
+    _receivedDataSubscription.cancel();
+    _scanResultsSubscription.cancel();
+    _scanResults.clear();
+  }
+
+  Future initBluetoothPrintPlusListen() async {
+    &#47;&#47;&#47; listen scanResults
+    _scanResultsSubscription = BluetoothPrintPlus.scanResults.listen((event) {
+      if (mounted) {
+        setState(() {
+          _scanResults = event;
+        });
+      }
+    });
+
+    &#47;&#47;&#47; listen isScanning
+    _isScanningSubscription = BluetoothPrintPlus.isScanning.listen((event) {
+      print('********** isScanning: $event **********');
+      if (mounted) {
+        setState(() {});
+      }
+    });
+
+    &#47;&#47;&#47; listen blue state
+    _blueStateSubscription = BluetoothPrintPlus.blueState.listen((event) {
+      print('********** blueState change: $event **********');
+      if (mounted) {
+        setState(() {});
+      }
+    });
+
+    &#47;&#47;&#47; listen connect state
+    _connectStateSubscription = BluetoothPrintPlus.connectState.listen((event) {
+      print('********** connectState change: $event **********');
+      switch (event) {
+        case ConnectState.connected:
+          setState(() {
+            if (_device == null) return;
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => FunctionPage(_device!)));
+          });
+          break;
+        case ConnectState.disconnected:
+          setState(() {
+            _device = null;
+          });
+          break;
+      }
+    });
+
+    &#47;&#47;&#47; listen received data
+    _receivedDataSubscription = BluetoothPrintPlus.receivedData.listen((data) {
+      print('********** received data: $data **********');
+
+      &#47;&#47;&#47; do something...
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('BluetoothPrintPlus'),
+        ),
+        body: SafeArea(
+            child: BluetoothPrintPlus.isBlueOn
+                ? ListView(
+                    children: _scanResults
+                        .map((device) => Container(
+                              padding: EdgeInsets.only(
+                                  left: 10, right: 10, bottom: 5),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                      child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(device.name),
+                                      Text
+// ... (truncated)

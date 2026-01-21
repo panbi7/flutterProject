@@ -1,0 +1,22 @@
+import 'package:directus&#47;directus.dart';
+
+&#47;&#47; class Article {}
+
+&#47;&#47; class ConverterNew extends ItemsConverter {
+&#47;&#47;   @override
+&#47;&#47;   Article fromJson(Map data) {
+&#47;&#47;     throw UnimplementedError();
+&#47;&#47;   }
+
+&#47;&#47;   @override
+&#47;&#47;   Map toJson(Article data) {
+&#47;&#47;     throw UnimplementedError();
+&#47;&#47;   }
+&#47;&#47; }
+
+void main() async {
+  final sdk = await Directus('http:&#47;&#47;localhost:8055').init();
+  final results = await sdk.items('posts').readMany();
+  &#47;&#47; ignore: avoid_print
+  print(results);
+}

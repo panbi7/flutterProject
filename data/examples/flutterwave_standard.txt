@@ -1,0 +1,119 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutterwave_standard&#47;flutterwave.dart';
+import 'package:uuid&#47;uuid.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Standard Demo',
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final formKey = GlobalKey();
+  final amountController = TextEditingController();
+  final currencyController = TextEditingController();
+  final emailController = TextEditingController();
+  final phoneNumberController = TextEditingController();
+
+  String selectedCurrency = "NGN";
+  bool isLoading = false;
+  bool isTestMode = true;
+
+  @override
+  Widget build(BuildContext context) {
+    currencyController.text = selectedCurrency;
+
+    return Scaffold(
+      appBar: AppBar(title: Text('Flutterwave Payment Demo')),
+      body: Container(
+        width: double.infinity,
+        margin: EdgeInsets.fromLTRB(20, 10, 20, 10),
+        child: Form(
+          key: formKey,
+          child: ListView(
+            children: [
+              Container(
+                margin: EdgeInsets.fromLTRB(0, 20, 0, 10),
+                child: TextFormField(
+                  controller: amountController,
+                  textInputAction: TextInputAction.next,
+                  keyboardType: TextInputType.number,
+                  style: TextStyle(color: Colors.black),
+                  decoration: InputDecoration(hintText: "Amount"),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Amount is required';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.fromLTRB(0, 20, 0, 10),
+                child: TextFormField(
+                  controller: currencyController,
+                  textInputAction: TextInputAction.next,
+                  style: TextStyle(color: Colors.black),
+                  readOnly: true,
+                  onTap: _openBottomSheet,
+                  decoration: InputDecoration(hintText: "Currency"),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Currency is required';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.fromLTRB(0, 20, 0, 10),
+                child: TextFormField(
+                  controller: emailController,
+                  textInputAction: TextInputAction.next,
+                  style: TextStyle(color: Colors.black),
+                  decoration: InputDecoration(hintText: "Email"),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter an email';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.fromLTRB(0, 20, 0, 10),
+                child: TextFormField(
+                  controller: phoneNumberController,
+                  textInputAction: TextInputAction.next,
+                  style: TextStyle(color: Colors.black),
+                  decoration: InputDecoration(
+                    hintText: "Phone Number",
+                  ),
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                margin: EdgeInsets.fromLTRB(0, 20, 0, 10),
+                child: Row(
+                  children: [
+                    Text("Use Debug"),
+                    Switch(
+// ... (truncated)

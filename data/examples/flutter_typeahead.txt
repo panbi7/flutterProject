@@ -1,0 +1,114 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_typeahead&#47;flutter_typeahead.dart';
+import 'package:flutter_typeahead_example&#47;checkout.dart';
+import 'package:flutter_typeahead_example&#47;frame.dart';
+import 'package:flutter_typeahead_example&#47;settings.dart';
+import 'package:flutter_typeahead_example&#47;product.dart';
+import 'package:flutter_typeahead_example&#47;options.dart';
+
+void main() => runApp(const App());
+
+class App extends StatefulWidget {
+  const App({super.key});
+
+  @override
+  State createState() => _AppState();
+}
+
+class _AppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialCupertinoFrame(
+      exampleBuilder: (context, controller, products, settings) =>
+          ExampleTypeAhead(
+        controller: controller,
+        products: products,
+        settings: settings,
+      ),
+      settingsBuilder: (context, controller, settings) => SettingsTypeAhead(
+        controller: controller,
+        settings: settings,
+      ),
+      cupertinoExampleBuilder: (context, controller, products, settings) =>
+          CupertinoExampleTypeAhead(
+        controller: controller,
+        products: products,
+        settings: settings,
+      ),
+      cupertinoSettingsBuilder: (context, controller, settings) =>
+          CupertinoSettingsTypeAhead(
+        controller: controller,
+        settings: settings,
+      ),
+    );
+  }
+}
+
+class ExampleTypeAhead extends StatelessWidget
+    with SharedExampleTypeAheadConfig {
+  ExampleTypeAhead({
+    super.key,
+    required this.controller,
+    required this.products,
+    required this.settings,
+  });
+
+  @override
+  final TextEditingController controller;
+  @override
+  final ProductController products;
+  @override
+  final FieldSettings settings;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: products,
+      builder: (context, value, child) {
+        return Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: maybeReversed([
+              TypeAheadField(
+                direction: settings.direction.value,
+                controller: controller,
+                builder: (context, controller, focusNode) => TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  autofocus: true,
+                  style: DefaultTextStyle.of(context)
+                      .style
+                      .copyWith(fontStyle: FontStyle.italic),
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    hintText: hintText,
+                  ),
+                ),
+                decorationBuilder: (context, child) => Material(
+                  type: MaterialType.card,
+                  elevation: 4,
+                  borderRadius: borderRadius,
+                  child: child,
+                ),
+                itemBuilder: (context, product) => ListTile(
+                  title: Text(product.name),
+                  subtitle: product.description != null
+                      ? Text(
+                          '${product.description!} - \$${product.price}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      : Text('\$${product.price}'),
+                ),
+                debounceDuration: debounceDuration,
+                hideOnSelect: settings.hideOnSelect.value,
+                hideOnUnfocus: settings.hideOnUnfocus.value,
+                hideWithKeyboard: settings.hideOnUnfocus.value,
+                retainOnLoading: settings.retainOnLoading.value,
+                onSelected: onSuggestionSelected,
+                suggestionsCallback: suggestionsCallback,
+                itemSeparatorBuilder: itemSeparatorBuilder,
+                
+// ... (truncated)

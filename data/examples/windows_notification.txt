@@ -1,0 +1,116 @@
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:windows_notification&#47;notification_message.dart';
+import 'package:windows_notification&#47;windows_notification.dart';
+import 'package:example&#47;templates&#47;alarm_template.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:http&#47;http.dart' as http;
+import 'package:example&#47;templates&#47;meeting_template.dart';
+
+void main() {
+  runApp(const MaterialApp(
+    home: MyApp(),
+    color: Colors.red,
+    themeMode: ThemeMode.light,
+  ));
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  Future getImageBytes(String url) async {
+    final supportDir = await getApplicationSupportDirectory();
+    final cl = http.Client();
+    final resp = await cl.get(Uri.parse(url));
+    final bytes = resp.bodyBytes;
+    final imageFile =
+        File("${supportDir.path}&#47;${DateTime.now().millisecond}.png");
+    await imageFile.create();
+    await imageFile.writeAsBytes(bytes);
+    return imageFile.path;
+  }
+
+  void showWithLargeImage() async {
+    const String url =
+        "https:&#47;&#47;user-images.githubusercontent.com&#47;56779182&#47;205485419-4303fdca-9f96-48e8-b6af-6f0df2ce8419.png";
+
+    final imageDir = await getImageBytes(url);
+
+    NotificationMessage message = NotificationMessage.fromPluginTemplate(
+      "moon",
+      "fly to the moon",
+      "we are ready!",
+      largeImage: imageDir,
+      launch: "https:&#47;&#47;en.wikipedia.org&#47;wiki&#47;Japanese_language",
+    );
+    _winNotifyPlugin.showNotificationPluginTemplate(message);
+  }
+
+  void showWithSmallImage() async {
+    const String url =
+        "https:&#47;&#47;www.wikipedia.org&#47;portal&#47;wikipedia.org&#47;assets&#47;img&#47;Wikipedia-logo-v2@1.5x.png";
+
+    final imageDir = await getImageBytes(url);
+
+    NotificationMessage message = NotificationMessage.fromPluginTemplate(
+        "Japanese language", "Japanese language", "how to read",
+        image: imageDir,
+        launch: "https:&#47;&#47;en.wikipedia.org&#47;wiki&#47;Japanese_language");
+    _winNotifyPlugin.showNotificationPluginTemplate(message);
+  }
+
+  void showWithLargeAndSmalImage() async {
+    const String url =
+        "https:&#47;&#47;www.wikipedia.org&#47;portal&#47;wikipedia.org&#47;assets&#47;img&#47;Wikipedia-logo-v2@1.5x.png";
+
+    final imageDir = await getImageBytes(url);
+
+    NotificationMessage message = NotificationMessage.fromPluginTemplate(
+        "Japanese language", "Japanese language", "how to read",
+        image: imageDir,
+        launch: "https:&#47;&#47;en.wikipedia.org&#47;wiki&#47;Japanese_language",
+        largeImage: imageDir);
+    _winNotifyPlugin.showNotificationPluginTemplate(message);
+  }
+
+  void showAlarm() {
+    NotificationMessage message =
+        NotificationMessage.fromCustomTemplate("test1", group: "jj");
+    _winNotifyPlugin.showNotificationCustomTemplate(message, alarmtTemplate);
+  }
+
+  void showMeetingTemplate() {
+    NotificationMessage message =
+        NotificationMessage.fromCustomTemplate("test1", group: "jj");
+    _winNotifyPlugin.showNotificationCustomTemplate(message, meetingTemplate);
+  }
+
+  final _winNotifyPlugin = WindowsNotification(
+      applicationId:
+          r"{D65231B0-B2F1-4857-A4CE-A8E7C6EA7D27}\WindowsPowerShell\v1.0\powershell.exe");
+
+  @override
+  void initState() {
+    _winNotifyPlugin.initNotificationCallBack((s) {
+      print(s.argrument);
+      print(s.userInput);
+      print(s.eventType);
+    });
+    super.initState();
+  }
+
+  void sendWithPluginTemplate() {
+    NotificationMessage message = NotificationMessage.fromPluginTemplate(
+        "test1", "TEXT", "TEXT",
+        image: r"C:\in_work\mrt_logo\large.png",
+        payload: {"action": "open_center"});
+    _wi
+// ... (truncated)

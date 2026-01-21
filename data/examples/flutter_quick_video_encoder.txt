@@ -1,0 +1,139 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:math';
+import 'dart:ui' as ui;
+import 'package:flutter&#47;material.dart';
+import 'package:share_plus&#47;share_plus.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:flutter_quick_video_encoder&#47;flutter_quick_video_encoder.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+enum ExportMode {
+  videoAndAudio,
+  videoOnly,
+  audioOnly,
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FqveApp();
+  }
+}
+
+class FqveApp extends StatefulWidget {
+  @override
+  _FqveAppState createState() => _FqveAppState();
+}
+
+class _FqveAppState extends State {
+  static const int width = 480;
+  static const int height = 854;
+  static const int fps = 30;
+  static const int audioChannels = 1;
+  static const int sampleRate = 44100;
+
+  BuildContext? _context;
+
+  double _progress = 1;
+  bool _shouldCancel = false;
+
+  @override
+  void initState() {
+    super.initState();
+    FlutterQuickVideoEncoder.setLogLevel(LogLevel.verbose);
+  }
+
+  Future _generateVideoFrame(int frameIndex) async {
+    const int boxSize = 50; &#47;&#47; Size of the moving box
+
+    &#47;&#47; Calculate the box position
+    int boxX = (frameIndex * 5) % width;
+    int boxY = (frameIndex * 5) % height;
+
+    &#47;&#47; Paint the moving box
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    final paint = Paint();
+
+    &#47;&#47; Draw a white background
+    paint.color = Colors.white;
+    canvas.drawRect(Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()), paint);
+
+    &#47;&#47; Draw the blue box
+    paint.color = Colors.blue;
+    canvas.drawRect(Rect.fromLTWH(boxX.toDouble(), boxY.toDouble(), boxSize.toDouble(), boxSize.toDouble()), paint);
+
+    &#47;&#47; Convert canvas to image
+    final picture = recorder.endRecording();
+    final img = await picture.toImage(width, height);
+
+    &#47;&#47; Convert the image to a byte array
+    final byteData = await img.toByteData(format: ui.ImageByteFormat.rawRgba);
+    return byteData!.buffer.asUint8List();
+  }
+
+  &#47;&#47; generate 1 frame worth of audio samples
+  Uint8List _generateAudioFrame(int frameIndex) {
+    const int bytesPerSample = 2;
+    const double htz = 220.0; &#47;&#47; sine wave htz
+    const int sampleCount = sampleRate ~&#47; fps;
+
+    &#47;&#47; Calculate the phase shift for this frame to maintain continuity
+    double phaseShift = 2 * pi * htz * frameIndex &#47; fps;
+
+    &#47;&#47; Create a ByteData buffer for the audio data
+    ByteData byteData = ByteData(sampleCount * bytesPerSample * audioChannels);
+
+    &#47;&#47; Fill in the buffer
+    for (int i = 0; i  export({required ExportMode mode}) async {
+    try {
+      _shouldCancel = false;
+
+      setState(() {
+        _progress = 0;
+      });
+
+      Directory appDir = await getApplicationDocumentsDirectory();
+
+      &#47;&#47; setup
+      if (mode == ExportMode.audioOnly) {
+        await FlutterQuickVideoEncoder.setup(
+          width: 0,
+          height: 0,
+          fps: fps,
+          videoBitrate: 0,
+          profileLevel: ProfileLevel.any,
+          audioBitrate: 64000,
+          audioChannels: audioChannels,
+          sampleRate: sampleRate,
+          filepath: '${appDir.path}&#47;exportAudioOnly.m4a',
+        );
+      } else if (mode == ExportMode.videoOnly) {
+        await FlutterQuickVideoEncoder.setup(
+          width: width,
+          height: height,
+          fps: fps,
+          videoBitrate: 1000000,
+          profileLevel: ProfileLevel.any,
+          audioBitrate: 0,
+          audioChannels: 0,
+          sampleRate: 0,
+          filepath: '${appDir.path}&#47;exportVideoOnly.mp4',
+        );
+      } else {
+        await FlutterQuickVideoEncoder.setup(
+          width: width,
+          height: height,
+          fps: fps,
+          videoBitrate: 1000000,
+          profileLevel: ProfileLevel.any,
+          audioBitrate: 64000,
+   
+// ... (truncated)

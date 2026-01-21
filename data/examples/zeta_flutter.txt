@@ -1,0 +1,13 @@
+return ZetaProvider(
+    initialThemeMode: initialThemeMode,
+    initialContrast: initialContrast,
+    builder: (context, lightTheme, darkTheme, themeMode) {
+        /// The following is just an example of how you can use the theme in your app.
+        return MaterialApp.router(
+            routerConfig: router,
+            themeMode: themeMode,
+            theme: lightTheme,
+            darkTheme: darkTheme,
+        );
+    },
+);

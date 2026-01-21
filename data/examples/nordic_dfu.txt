@@ -1,0 +1,153 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:collection&#47;collection.dart';
+import 'package:file_picker&#47;file_picker.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_blue_plus&#47;flutter_blue_plus.dart';
+import 'package:nordic_dfu&#47;nordic_dfu.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+
+void main() => runApp(const MyApp());
+
+final dfuService = Guid('0000FE59-0000-1000-8000-00805F9B34FB');
+
+class DfuEvent {
+  DfuEvent({
+    required this.timestamp,
+    required this.eventName,
+    required this.message,
+    this.isError = false,
+  });
+  final DateTime timestamp;
+  final String eventName;
+  final String message;
+  final bool isError;
+}
+
+class ExampleDfuState {
+  ExampleDfuState({
+    required this.dfuRunning,
+    this.progressPercent,
+    this.filePath,
+    this.lastError,
+  });
+  bool dfuRunning = false;
+  int? progressPercent;
+  String? filePath;
+  String? lastError;
+  final List events = [];
+
+  void addEvent(String eventName, String message, {bool isError = false}) {
+    events.insert(
+      0,
+      DfuEvent(
+        timestamp: DateTime.now(),
+        eventName: eventName,
+        message: message,
+        isError: isError,
+      ),
+    );
+  }
+
+  void clearEvents() {
+    events.clear();
+  }
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State {
+  static const tag = 'nordic_dfu_example:';
+  StreamSubscription? scanSubscription;
+  StreamSubscription? dfuScanSubscription;
+  List scanResults = [];
+  Map dfuStateMap = {};
+  bool get anyDfuRunning => dfuStateMap.values.any((state) => state.dfuRunning);
+
+  &#47;&#47; If true, only show devices advertising the DFU service
+  bool onlyDfuService = true;
+
+  Future doDfu(BuildContext context, String deviceId) async {
+    final messenger = ScaffoldMessenger.of(context);
+    stopScan();
+
+    &#47;&#47; Pick ZIP file from device storage
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['zip'],
+      dialogTitle: 'Select DFU firmware file (.zip)',
+    );
+
+    if (result == null) {
+      debugPrint('$tag File selection cancelled');
+      return;
+    }
+
+    final filePath = result.files.single.path;
+    if (filePath == null || filePath.isEmpty) {
+      debugPrint('$tag Invalid file path');
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Invalid file path'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    debugPrint('$tag Selected firmware file: $filePath');
+
+    if (!context.mounted) return;
+
+    &#47;&#47; Start DFU with the selected file
+    await _startDfu(context, deviceId, filePath);
+  }
+
+  Future retryDfu(BuildContext context, String deviceId) async {
+    final state = dfuStateMap[deviceId];
+    if (state?.filePath == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No previous file path found'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    debugPrint('$tag Retrying DFU with file: ${state!.filePath}');
+    await _startDfu(context, deviceId, state.filePath!);
+  }
+
+  Future _startDfu(
+    BuildContext context,
+    String deviceId,
+    String filePath,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context)
+      ..showSnackBar(
+        SnackBar(
+          content: Text('Starting DFU with file: ${filePath.split('&#47;').last}'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+    setState(() {
+      dfuStateMap[deviceId] = ExampleDfuState(
+        dfuRunning: true,
+        filePath: filePath,
+      );
+      dfuStateMap[deviceId]?.clearEvents();
+      dfuStateMap[deviceId]
+          ?.addEvent('File Selected', 'File: ${filePath.split('&#47;').last}');
+    });
+
+    &#47;&#47; Auto-open timeline dialog when DFU starts
+    Future.delayed(const Duration(milliseconds: 3
+// ... (truncated)

@@ -1,0 +1,128 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:fleather&#47;fleather.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+import 'package:image_picker&#47;image_picker.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+
+void main() {
+  runApp(const FleatherApp());
+}
+
+class FleatherApp extends StatelessWidget {
+  const FleatherApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        localizationsDelegates: const [
+          FleatherLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate
+        ],
+        supportedLocales: FleatherLocalizations.supportedLocales,
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
+        title: 'Fleather - rich-text editor for Flutter',
+        home: const HomePage(),
+      );
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  final FocusNode _focusNode = FocusNode();
+  final GlobalKey _editorKey = GlobalKey();
+  FleatherController? _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    if (kIsWeb) BrowserContextMenu.disableContextMenu();
+    _initController();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (kIsWeb) BrowserContextMenu.enableContextMenu();
+  }
+
+  Future _initController() async {
+    try {
+      final result = await rootBundle.loadString('assets&#47;welcome.json');
+      final heuristics = ParchmentHeuristics(
+        formatRules: [],
+        insertRules: [
+          ForceNewlineForInsertsAroundInlineImageRule(),
+        ],
+        deleteRules: [],
+      ).merge(ParchmentHeuristics.fallback);
+      final doc = ParchmentDocument.fromJson(
+        jsonDecode(result),
+        heuristics: heuristics,
+      );
+      _controller = FleatherController(document: doc);
+    } catch (err, st) {
+      if (kDebugMode) {
+        print('Cannot read welcome.json: $err\n$st');
+      }
+      _controller = FleatherController();
+    }
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(elevation: 0, title: const Text('Fleather Demo')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final picker = ImagePicker();
+          final image = await picker.pickImage(source: ImageSource.gallery);
+          if (image != null) {
+            final selection = _controller!.selection;
+            _controller!.replaceText(
+              selection.baseOffset,
+              selection.extentOffset - selection.baseOffset,
+              EmbeddableObject('image', inline: false, data: {
+                'source_type': kIsWeb ? 'url' : 'file',
+                'source': image.path,
+              }),
+            );
+            _controller!.replaceText(
+              selection.baseOffset + 1,
+              0,
+              '\n',
+              selection:
+                  TextSelection.collapsed(offset: selection.baseOffset + 2),
+            );
+          }
+        },
+        child: const Icon(Icons.add_a_photo),
+      ),
+      body: _controller == null
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                FleatherToolbar.basic(
+                    controller: _controller!, editorKey: _editorKey),
+                Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+                Expanded(
+                  child: FleatherEditor(
+                    controller: _controller!,
+                    focusNode: _focusNode,
+                    editorKey: _editorKey,
+                    padding: EdgeInsets.only(
+     
+// ... (truncated)

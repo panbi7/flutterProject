@@ -1,0 +1,126 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+import 'package:android_path_provider&#47;android_path_provider.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _alarmsPath = 'Unknown';
+  &#47;&#47; String _audiobooksPath = 'Unknown';
+  String _dcimPath = 'Unknown';
+  String _documentsPath = 'Unknown';
+  String _downloadsPath = 'Unknown';
+  String _moviesPath = 'Unknown';
+  String _musicPath = 'Unknown';
+  String _notificationsPath = 'Unknown';
+  String _picturesPath = 'Unknown';
+  String _podcastsPath = 'Unknown';
+  String _ringtonesPath = 'Unknown';
+  &#47;&#47; String _screenshotsPath = 'Unknown';
+
+  @override
+  void initState() {
+    super.initState();
+    initAndroidPaths();
+  }
+
+  Future initAndroidPaths() async {
+    String alarmsPath;
+    &#47;&#47; String audiobooksPath;
+    String dcimPath;
+    String documentsPath;
+    String downloadsPath;
+    String moviesPath;
+    String musicPath;
+    String notificationsPath;
+    String picturesPath;
+    String podcastsPath;
+    String ringtonesPath;
+    &#47;&#47; String screenshotsPath;
+
+    try {
+      alarmsPath = await AndroidPathProvider.alarmsPath;
+      &#47;&#47; audiobooksPath = await AndroidPathProvider.audiobooksPath;
+      dcimPath = await AndroidPathProvider.dcimPath;
+      documentsPath = await AndroidPathProvider.documentsPath;
+      downloadsPath = await AndroidPathProvider.downloadsPath;
+      moviesPath = await AndroidPathProvider.moviesPath;
+      musicPath = await AndroidPathProvider.musicPath;
+      notificationsPath = await AndroidPathProvider.notificationsPath;
+      picturesPath = await AndroidPathProvider.picturesPath;
+      podcastsPath = await AndroidPathProvider.podcastsPath;
+      ringtonesPath = await AndroidPathProvider.ringtonesPath;
+      &#47;&#47; screenshotsPath = await AndroidPathProvider.screenshotsPath;
+
+      setState(() {
+        _alarmsPath = alarmsPath;
+        &#47;&#47; _audiobooksPath = audiobooksPath;
+        _dcimPath = dcimPath;
+        _documentsPath = documentsPath;
+        _downloadsPath = downloadsPath;
+        _moviesPath = moviesPath;
+        _musicPath = musicPath;
+        _notificationsPath = notificationsPath;
+        _picturesPath = picturesPath;
+        _podcastsPath = podcastsPath;
+        _ringtonesPath = ringtonesPath;
+        &#47;&#47; _screenshotsPath = screenshotsPath;
+      });
+    } on PlatformException {}
+
+    if (!mounted) return;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('android_path_provider'),
+        ),
+        body: Column(
+          children: [
+            Center(
+              child: Text('alarmsPath: $_alarmsPath'),
+            ),
+            &#47;&#47; Center(
+            &#47;&#47;   child: Text('audiobooksPath: $_audiobooksPath'),
+            &#47;&#47; ),
+            Center(
+              child: Text('dcimPath: $_dcimPath'),
+            ),
+            Center(
+              child: Text('documentsPath: $_documentsPath'),
+            ),
+            Center(
+              child: Text('downloadsPath: $_downloadsPath'),
+            ),
+            Center(
+              child: Text('moviesPath: $_moviesPath'),
+            ),
+            Center(
+              child: Text('musicPath: $_musicPath'),
+            ),
+            Center(
+              child: Text('notificationsPath: $_notificationsPath'),
+            ),
+            Center(
+              child: Text('picturesPath: $_picturesPath'),
+            ),
+            Center(
+              child: Text('podcastsPath: $_podcastsPath'),
+            ),
+            Center(
+              child: Text('ringtonesPath: $_ringtonesPath'),
+            ),
+            &#47;&#47; Center(
+            &#47;&#47;   child: Text('screenshotsPath: $_screenshotsPath'),
+     
+// ... (truncated)

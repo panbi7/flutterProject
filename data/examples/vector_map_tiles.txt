@@ -1,0 +1,122 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;material.dart' as material show Theme;
+import 'package:flutter_map&#47;flutter_map.dart';
+import 'package:latlong2&#47;latlong.dart';
+import 'package:vector_map_tiles&#47;vector_map_tiles.dart';
+import 'package:vector_tile_renderer&#47;vector_tile_renderer.dart' hide TileLayer;
+&#47;&#47; ignore: uri_does_not_exist
+import 'api_key.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'vector_map_tiles Example',
+      theme: ThemeData.light(),
+      home: const MyHomePage(title: 'vector_map_tiles Example'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final MapController _controller = MapController();
+  Style? _style;
+  Object? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _initStyle();
+  }
+
+  void _initStyle() async {
+    try {
+      _style = await _readStyle();
+    } catch (e, stack) {
+      &#47;&#47; ignore: avoid_print
+      print(e);
+      &#47;&#47; ignore: avoid_print
+      print(stack);
+      _error = e;
+    }
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final children = [];
+    if (_error != null) {
+      children.add(Expanded(child: Text(_error!.toString())));
+    } else if (_style == null) {
+      children.add(const Center(child: CircularProgressIndicator()));
+    } else {
+      children.add(Flexible(child: _map(_style!)));
+      children.add(Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [_statusText()]));
+    }
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: SafeArea(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: children)));
+  }
+
+&#47;&#47; alternates:
+&#47;&#47;   Mapbox - mapbox:&#47;&#47;styles&#47;mapbox&#47;streets-v12?access_token={key}
+&#47;&#47;   Maptiler - https:&#47;&#47;api.maptiler.com&#47;maps&#47;outdoor&#47;style.json?key={key}
+&#47;&#47;   Stadia Maps - https:&#47;&#47;tiles.stadiamaps.com&#47;styles&#47;outdoors.json?api_key={key}
+  Future _readStyle() => StyleReader(
+          uri: 'mapbox:&#47;&#47;styles&#47;mapbox&#47;streets-v12?access_token={key}',
+          &#47;&#47; ignore: undefined_identifier
+          apiKey: mapboxApiKey,
+          logger: const Logger.console())
+      .read();
+
+  Widget _map(Style style) => FlutterMap(
+        mapController: _controller,
+        options: MapOptions(
+            initialCenter: style.center ?? const LatLng(49.246292, -123.116226),
+            initialZoom: style.zoom ?? 10,
+            maxZoom: 22,
+            backgroundColor: material.Theme.of(context).canvasColor),
+        children: [
+          VectorTileLayer(
+              tileProviders: style.providers,
+              theme: style.theme,
+              sprites: style.sprites,
+              maximumZoom: 22,
+              tileOffset: TileOffset.mapbox,
+              layerMode: VectorTileLayerMode.vector)
+        ],
+      );
+
+  Widget _statusText() => Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: StreamBuilder(
+          stream: _controller.mapEventStream,
+          builder: (context, snapshot) {
+            return Text(
+                'Zoom: ${_controller.camera.zoom.toStringAsFixed(2)} Center: ${_controller.camera.center.latitude.toStringAsFixed(4)},${_controller.camera.center.longitude.toStringAsFixed(4)}');
+          }));
+}

@@ -1,0 +1,97 @@
+import 'package:example&#47;application&#47;bindings&#47;application_bindings.dart';
+import 'package:example&#47;application&#47;middleware&#47;print_middleware.dart';
+import 'package:example&#47;src&#47;auth&#47;repository&#47;auth_repository.dart';
+import 'package:example&#47;src&#47;auth&#47;view&#47;active_account&#47;active_account_controller.dart';
+import 'package:example&#47;src&#47;auth&#47;view&#47;active_account&#47;active_account_page.dart';
+import 'package:example&#47;src&#47;auth&#47;view&#47;active_account&#47;validate_email_controller.dart';
+import 'package:example&#47;src&#47;auth&#47;view&#47;login&#47;login_controller.dart';
+import 'package:example&#47;src&#47;auth&#47;view&#47;login&#47;login_page.dart';
+import 'package:example&#47;src&#47;auth&#47;view&#47;register&#47;register_controller.dart';
+import 'package:example&#47;src&#47;auth&#47;view&#47;register&#47;register_page.dart';
+import 'package:example&#47;src&#47;landing&#47;landing_module.dart';
+import 'package:example&#47;src&#47;loader&#47;load_dependencies.dart';
+import 'package:example&#47;src&#47;nav_bar&#47;nav_bar_module.dart';
+import 'package:example&#47;src&#47;products&#47;products_module.dart';
+import 'package:example&#47;src&#47;route_outlet_nav_bar&#47;my_nav_bar.dart';
+import 'package:example&#47;src&#47;splash&#47;splash_page.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_getit&#47;flutter_getit.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FlutterGetIt(
+      bindings: MyApplicationBindings(),
+      middlewares: [
+        PrintMiddleware(),
+      ],
+      modules: [
+        LandingModule(),
+        NavBarModule(),
+        ProductsModule(),
+      ],
+      modulesRouter: [
+        FlutterGetItModuleRouter(
+          name: '&#47;outlet',
+          pages: [
+            FlutterGetItPageRouter(
+              name: '&#47;',
+              builderAsync: (context, isReady, loader) => switch (isReady) {
+                true => const RouteOutletMyNavBar(),
+                false => loader ?? const WidgetLoadDependencies(),
+              },
+              bindings: [],
+            ),
+          ],
+        ),
+        FlutterGetItModuleRouter(
+          name: '&#47;Auth',
+          onInit: (i) => debugPrint('hi by &#47;Auth'),
+          onDispose: (i) => debugPrint('bye by &#47;Auth'),
+          bindings: [
+            Bind.lazySingleton(
+              (i) => AuthRepository(),
+            ),
+          ],
+          pages: [
+            FlutterGetItPageRouter(
+              name: '&#47;Login',
+              builderAsync: (context, isReady, loader) => switch (isReady) {
+                true => LoginPage(
+                    controller: context.get(),
+                  ),
+                false => loader ?? const WidgetLoadDependencies(),
+              },
+              bindings: [
+                Bind.lazySingleton(
+                  (i) => LoginController(
+                    name: 'Login',
+                    authRepository: i(),
+                  ),
+                ),
+              ],
+            ),
+            FlutterGetItModuleRouter(
+              name: '&#47;Register',
+              bindings: [
+                Bind.lazySingleton(
+                  (i) => RegisterController(),
+                ),
+              ],
+              onInit: (i) => debugPrint('hi by &#47;Register'),
+              onDispose: (i) => debugPrint('bye by &#47;Register'),
+              pages: [
+                FlutterGetItPageRouter(
+                  name: '&#47;Page',
+                  builderAsync: (context, isReady, loader) => switch (isReady) {
+                    true => RegisterPage(
+                        controller: context.get(),
+                      ),
+                    false => loader ?? const WidgetLoadDependencies(
+// ... (truncated)

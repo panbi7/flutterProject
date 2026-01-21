@@ -1,0 +1,137 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:pretty_animated_text&#47;pretty_animated_text.dart';
+import 'package:smooth_page_indicator&#47;smooth_page_indicator.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+
+const _loremText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const _style = TextStyle(
+  fontSize: 40,
+  fontWeight: FontWeight.bold,
+);
+const letterAnimationDuration = Duration(milliseconds: 500);
+const wordAnimationDuration = Duration(milliseconds: 1000);
+
+void main() {
+  runApp(
+    const MaterialApp(
+      home: HomeWidget(),
+    ),
+  );
+}
+
+class HomeWidget extends StatefulWidget {
+  const HomeWidget({super.key});
+
+  @override
+  State createState() => _HomeWidgetState();
+}
+
+class _HomeWidgetState extends State {
+  final PageController letterController = PageController();
+  final PageController wordController = PageController();
+  final pageTransitionDuration = const Duration(milliseconds: 200);
+  final curve = Curves.easeInOut;
+  int selectedValue = 0;
+  final int length = 12;
+  final GlobalKey springTextKey = GlobalKey();
+  final GlobalKey chimbellTextKey =
+      GlobalKey();
+  final GlobalKey scaleTextKey = GlobalKey();
+  final GlobalKey blurTextKey = GlobalKey();
+  final GlobalKey rotateTextKey = GlobalKey();
+  final GlobalKey rotateTextAntiKey =
+      GlobalKey();
+  final GlobalKey offsetTextTBKey =
+      GlobalKey();
+  final GlobalKey offsetTextBTKey =
+      GlobalKey();
+  final GlobalKey offsetTextAlternateTBKey =
+      GlobalKey();
+  final GlobalKey offsetTextLRKey =
+      GlobalKey();
+  final GlobalKey offsetTextRLKey =
+      GlobalKey();
+  final GlobalKey offsetTextAlternateLRKey =
+      GlobalKey();
+  @override
+  void dispose() {
+    letterController.dispose();
+    wordController.dispose();
+    super.dispose();
+  }
+
+  Future _launchUrl(String url) async {
+    if (!await launchUrl(Uri.parse(url))) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
+  void _previousPage() {
+    if (selectedValue == 0) {
+      letterController.previousPage(
+        duration: pageTransitionDuration,
+        curve: curve,
+      );
+    } else {
+      wordController.previousPage(
+        duration: pageTransitionDuration,
+        curve: curve,
+      );
+    }
+  }
+
+  void _nextPage() {
+    if (selectedValue == 0) {
+      letterController.nextPage(
+        duration: pageTransitionDuration,
+        curve: curve,
+      );
+    } else {
+      wordController.nextPage(
+        duration: pageTransitionDuration,
+        curve: curve,
+      );
+    }
+  }
+
+  int get currentLetterPage => letterController.page?.round() ?? 0;
+  int get currentWordPage => wordController.page?.round() ?? 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return SelectionArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Pretty Animated Text'),
+          actions: [
+            IconButton(
+              key: const ValueKey('pub.dev'),
+              onPressed: () => _launchUrl(
+                'https:&#47;&#47;pub.dev&#47;packages&#47;pretty_animated_text',
+              ),
+              icon: ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: Image.asset('assets&#47;pub.png')),
+            ),
+            const SizedBox(height: 8),
+            IconButton(
+              key: const ValueKey('github'),
+              onPressed: () => _launchUrl(
+                'https:&#47;&#47;github.com&#47;YeLwinOo-Steve&#47;pretty_animated_text',
+              ),
+              icon: ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: Image.asset('assets&#47;github.png')),
+            ),
+          ],
+        ),
+        floatingActionButton: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+    
+// ... (truncated)

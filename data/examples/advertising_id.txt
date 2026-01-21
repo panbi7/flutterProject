@@ -1,0 +1,69 @@
+import 'package:advertising_id&#47;advertising_id.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+void main() => runApp(new MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => new _MyAppState();
+}
+
+class _MyAppState extends State {
+  String? _advertisingId = '';
+  bool? _isLimitAdTrackingEnabled;
+
+  @override
+  initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  initPlatformState() async {
+    String? advertisingId;
+    bool? isLimitAdTrackingEnabled;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    try {
+      advertisingId = await AdvertisingId.id(true);
+    } on PlatformException {
+      advertisingId = 'Failed to get platform version.';
+    }
+
+    try {
+      isLimitAdTrackingEnabled = await AdvertisingId.isLimitAdTrackingEnabled;
+    } on PlatformException {
+      isLimitAdTrackingEnabled = false;
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _advertisingId = advertisingId;
+      _isLimitAdTrackingEnabled = isLimitAdTrackingEnabled;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Plugin example app'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Advertising Id: $_advertisingId'),
+              Text('isLimitAdTrackingEnabled : $_isLimitAdTrackingEnabled'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

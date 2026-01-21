@@ -1,0 +1,156 @@
+import 'package:animated_text_kit&#47;animated_text_kit.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  &#47;&#47;&#47; This widget is the root of your application.
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Animated Text Kit',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(),
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  MyHomePageState createState() => MyHomePageState();
+}
+
+class MyHomePageState extends State {
+  late List _examples;
+  int _index = 0;
+  int _tapCount = 0;
+
+  bool _isAnimationPaused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _examples = animatedTextExamples(onTap: () {
+      print('Tap Event');
+      setState(() {
+        _tapCount++;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final animatedTextExample = _examples[_index];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          animatedTextExample.label,
+          style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Container(),
+          ),
+          Container(
+            decoration: BoxDecoration(color: animatedTextExample.color),
+            height: 300.0,
+            width: 300.0,
+            child: Center(
+              key: ValueKey(animatedTextExample.label),
+              child: animatedTextExample.child,
+            ),
+          ),
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              child: Text('Taps: $_tapCount'),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              animatedTextExample.controller.reset();
+              setState(() {
+                _isAnimationPaused = false;
+                _tapCount = 0;
+              });
+            },
+            tooltip: 'Reset current animation',
+            child: const Icon(
+              Icons.replay_sharp,
+              size: 50.0,
+            ),
+          ),
+          const SizedBox(width: 16),
+          FloatingActionButton(
+              onPressed: () {
+                if (_isAnimationPaused) {
+                  animatedTextExample.controller.play();
+                  setState(() {
+                    _isAnimationPaused = false;
+                  });
+                } else {
+                  animatedTextExample.controller.pause();
+                  setState(() {
+                    _isAnimationPaused = true;
+                  });
+                }
+              },
+              tooltip: _isAnimationPaused ? 'Play' : 'Pause',
+              child: Icon(
+                _isAnimationPaused ? Icons.play_circle : Icons.pause_circle,
+                size: 50,
+              )),
+          const SizedBox(width: 16),
+          FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                _index = ++_index % _examples.length;
+                _tapCount = 0;
+              });
+            },
+            tooltip: 'Next',
+            child: const Icon(
+              Icons.arrow_right,
+              size: 50.0,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AnimatedTextExample {
+  final String label;
+  final Color? color;
+  final Widget child;
+  final AnimatedTextController controller;
+
+  const AnimatedTextExample(
+      {required this.label,
+      required this.color,
+      required this.child,
+      required this.controller});
+}
+
+&#47;&#47; Colorize Text Style
+const _colorizeTextStyle = TextStyle(
+  fontSize: 50.0,
+  fontFamily: 'H
+// ... (truncated)

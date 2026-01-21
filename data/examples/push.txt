@@ -1,0 +1,87 @@
+import 'package:flutter&#47;material.dart' hide Notification;
+import 'package:flutter_hooks&#47;flutter_hooks.dart';
+import 'package:flutter_local_notifications&#47;flutter_local_notifications.dart';
+import 'package:push&#47;push.dart';
+import 'package:push_example&#47;metadata_sliver.dart';
+import 'package:push_example&#47;platform_specific&#47;android.dart';
+import 'package:push_example&#47;remote_messages_widget.dart';
+import 'package:push_example&#47;stateful_widget_example.dart';
+import 'package:push_example&#47;text_row.dart';
+import 'notification_permission_sliver.dart';
+
+void main() async {
+  &#47;&#47; Need to "ensureInitialized" before initializing `flutter_local_notifications`
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp(await initializeFlutterLocalNotifications()));
+}
+
+&#47;&#47; Only needed for foreground notifications.
+Future
+    initializeFlutterLocalNotifications() async {
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+&#47;&#47; initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
+  &#47;&#47; 'mipmap&#47;ic_launcher' taken from https:&#47;&#47;github.com&#47;MaikuB&#47;flutter_local_notifications&#47;issues&#47;32#issuecomment-389542800
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('mipmap&#47;ic_launcher');
+  &#47;&#47; Prevent FLN from requesting permission from the user when the app launches.
+  const DarwinInitializationSettings initializationSettingsApple =
+      DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestSoundPermission: false,
+          requestBadgePermission: false);
+  const InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsApple,
+      macOS: initializationSettingsApple);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  return flutterLocalNotificationsPlugin;
+}
+
+class MyApp extends HookWidget {
+  const MyApp(this.flutterLocalNotificationsPlugin, {super.key});
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+  @override
+  Widget build(BuildContext context) {
+    final notificationWhichLaunchedApp = useState?>(null);
+    final messagesReceived = useState>([]);
+    final backgroundMessagesReceived = useState>([]);
+    final tappedNotificationPayloads =
+        useState>>([]);
+    final isForegroundNotificationsEnabled = useState(true);
+
+    useEffect(() {
+      configureAndroidPushNotificationChannels();
+
+      &#47;&#47; To be informed that the device's token has been updated by the operating system
+      &#47;&#47; You should update your servers with this token
+      final unsubscribeOnNewToken = Push.instance.addOnNewToken((token) {
+        print("Just got a new token: $token");
+      });
+
+      &#47;&#47; Handle notification launching app from terminated state
+      Push.instance.notificationTapWhichLaunchedAppFromTerminated.then((data) {
+        if (data == null) {
+          print("App was not launched by tapping a notification");
+        } else {
+          print('Notification tap launched app from terminated state:\n'
+              'Data: $data \n');
+        }
+        notificationWhichLaunchedApp.value = data;
+      });
+
+      &#47;&#47; Handle notification taps
+      final unsubscribeOnNotificationTap =
+          Push.instance.addOnNotificationTap((data) {
+        print('Notification was tapped:\n'
+            'Data: $data \n');
+        tappedNotificationPayloads.value += [data];
+      });
+
+      &#47;&#47; Handle push notifications
+      final unsubscribeOnMessage = Push.instance.addOnMessage((message) {
+        print('RemoteMessage received while app is in foreground:\n'
+            'RemoteMessage.Notification: ${message.notification} \n'
+            ' title: ${message.notification?.title.toString()}\n'
+            ' body: ${message.notification?.
+// ... (truncated)

@@ -1,0 +1,121 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_advanced_switch&#47;flutter_advanced_switch.dart';
+&#47;&#47; import 'package:flutter_icons&#47;flutter_icons.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final _controller00 = ValueNotifier(false);
+  final _controller01 = ValueNotifier(false);
+  final _controller02 = ValueNotifier(false);
+  final _controller03 = ValueNotifier(false);
+  final _controller04 = ValueNotifier(false);
+  final _controller05 = ValueNotifier(false);
+  final _controller06 = ValueNotifier(false);
+  final _controller07 = ValueNotifier(false);
+  final _controller08 = ValueNotifier(false);
+  final _controller09 = ValueNotifier(false);
+  final _controller10 = ValueNotifier(false);
+  final _controller11 = ValueNotifier(false);
+  final _controller12 = ValueNotifier(false);
+  final _controller13 = ValueNotifier(false);
+  final _controller14 = ValueNotifier(false);
+  final _controller15 = ValueNotifier(false);
+
+  bool _enabled = false;
+  bool _themeDark = false;
+  bool _initialValue = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller00.addListener(() {
+      setState(() {
+        if (_controller00.value) {
+          _themeDark = true;
+        } else {
+          _themeDark = false;
+        }
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: _themeDark ? ThemeData.dark() : ThemeData.light(),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Advanced Switch Example'),
+        ),
+        body: Container(
+          width: double.infinity,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              vertical: 40,
+            ),
+            physics: ClampingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildLabel('Switch Theme'),
+                AdvancedSwitch(
+                  controller: _controller00,
+                  thumb: ValueListenableBuilder(
+                    valueListenable: _controller00,
+                    builder: (_, value, __) {
+                      return Icon(
+                          value ? Icons.lightbulb : Icons.lightbulb_outline);
+                    },
+                  ),
+                ),
+                UnconstrainedBox(
+                  child: AdvancedSwitch(
+                    controller: _controller01,
+                    width: 110,
+                    enabled: false,
+                    inactiveColor: Colors.red,
+                    activeColor: Colors.green,
+                    activeChild: Text(
+                      'File selected',
+                      style: TextStyle(
+                        color: Colors.black87,
+                      ),
+                    ),
+                    inactiveChild: Text(
+                      'No File Selected',
+                      style: TextStyle(
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                ),
+                _buildLabel('Default Switch'),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AdvancedSwitch(
+                      controller: _controller01,
+                    ),
+                    SizedBox(width: 25),
+                    AdvancedSwitch(
+                      controller: _controller01,
+                      thumb: ValueListenableBuilder(
+                        valueListenable: _controller01,
+                        builder: (_, value, __) {
+                          return Icon(value
+                              ? Icons.cloud_upload
+                              : Icons.cloud_download);
+                        },
+                      ),
+                    ),
+       
+// ... (truncated)

@@ -1,0 +1,37 @@
+&#47;*
+ * Copyright (c) 2019-2024 Larry Aasen. All rights reserved.
+ *&#47;
+
+import 'package:flutter&#47;material.dart';
+import 'package:upgrader&#47;upgrader.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  &#47;&#47; Only call clearSavedSettings() during testing to reset internal values.
+  await Upgrader.clearSavedSettings(); &#47;&#47; REMOVE this for release builds
+
+  &#47;&#47; On Android, the default behavior will be to use the Google Play Store
+  &#47;&#47; version of the app.
+  &#47;&#47; On iOS, the default behavior will be to use the App Store version of
+  &#47;&#47; the app, so update the Bundle Identifier in example&#47;ios&#47;Runner with a
+  &#47;&#47; valid identifier already in the App Store.
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Upgrader Example',
+      home: UpgradeAlert(
+        child: Scaffold(
+          appBar: AppBar(title: const Text('Upgrader Example')),
+          body: const Center(child: Text('Checking...')),
+        ),
+      ),
+    );
+  }
+}

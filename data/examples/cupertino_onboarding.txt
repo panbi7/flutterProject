@@ -1,0 +1,121 @@
+import 'package:cupertino_onboarding&#47;cupertino_onboarding.dart';
+import 'package:flutter&#47;cupertino.dart';
+import 'package:modal_bottom_sheet&#47;modal_bottom_sheet.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const CupertinoApp(
+      title: 'Onboarding Example',
+      home: CupertinoScaffold(
+        body: AppHome(),
+      ),
+    );
+  }
+}
+
+class AppHome extends StatelessWidget {
+  const AppHome({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(
+        middle: Text('Onboarding Example'),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CupertinoButton(
+              child: Text(
+                'Show Calendar Onboarding',
+                style: TextStyle(
+                  color: CupertinoColors.systemRed.resolveFrom(context),
+                ),
+              ),
+              onPressed: () => CupertinoScaffold.showCupertinoModalBottomSheet(
+                context: context,
+                builder: (_) => const CalendarOnboarding(),
+              ),
+            ),
+            CupertinoButton(
+              child: Text(
+                'Show Translator Onboarding',
+                style: TextStyle(
+                  color: CupertinoColors.systemTeal.resolveFrom(context),
+                ),
+              ),
+              onPressed: () => CupertinoScaffold.showCupertinoModalBottomSheet(
+                context: context,
+                builder: (_) => const TranslatorOnboarding(),
+              ),
+            ),
+            CupertinoButton(
+              child: Text(
+                'Show Onboarding Overview',
+                style: TextStyle(
+                  color: CupertinoColors.systemBlue.resolveFrom(context),
+                ),
+              ),
+              onPressed: () =>
+                  CupertinoScaffold.showCupertinoModalBottomSheet(
+                context: context,
+                builder: (_) => const OnboardingOverview(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class OnboardingOverview extends StatelessWidget {
+  const OnboardingOverview({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoOnboarding(
+      onPressedOnLastPage: () => Navigator.pop(context),
+      pages: [
+        WhatsNewPage(
+          scrollPhysics: const BouncingScrollPhysics(),
+          title: const Text("What's New Template"),
+          features: const [
+            WhatsNewFeature(
+              title: Text('Showcase your App Features'),
+              description: Text(
+                  'Clean and minimalistic iOS styled template for showing app features e.g. in a new update.'),
+              icon: Icon(CupertinoIcons.star),
+            ),
+            WhatsNewFeature(
+              title: Text("Styled Icons and Buttons"),
+              description: Text(
+                  "To create consistent look, icons and buttons are styled to match your CupertinoTheme's primaryColor. "),
+              icon: Icon(CupertinoIcons.paintbrush),
+            ),
+            WhatsNewFeature(
+              title: Text('Style Flexiblity'),
+              description: Text(
+                  "What's New Template can be styled to match new and old iOS versions of onboarding or your own preferences."),
+              icon: Icon(CupertinoIcons.gear),
+            ),
+          ],
+        ),
+        const CupertinoOnboardingPage(
+          title: Text('Support For Multiple Pages'),
+          body: Icon(
+            CupertinoIcons.square_stack_3d_down_right,
+            size: 200,
+          ),
+
+// ... (truncated)

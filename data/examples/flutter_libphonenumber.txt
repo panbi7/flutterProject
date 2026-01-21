@@ -1,0 +1,123 @@
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_libphonenumber&#47;flutter_libphonenumber.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State {
+  final phoneController = TextEditingController();
+  final countryController = TextEditingController(text: 'United States');
+  final manualFormatController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    updatePlaceholderHint();
+  }
+
+  &#47;&#47;&#47; Result when we call the parse method.
+  String? parsedData;
+
+  &#47;&#47;&#47; Used to format numbers as mobile or land line
+  var _globalPhoneType = PhoneNumberType.mobile;
+
+  &#47;&#47;&#47; Use international or national phone format
+  var _globalPhoneFormat = PhoneNumberFormat.international;
+
+  &#47;&#47;&#47; Current selected country
+  var _currentSelectedCountry = const CountryWithPhoneCode.us();
+
+  var _placeholderHint = '';
+
+  var _inputContainsCountryCode = true;
+
+  &#47;&#47;&#47; Keep cursor on the end
+  var _shouldKeepCursorAtEndOfInput = true;
+
+  void updatePlaceholderHint() {
+    late String newPlaceholder;
+
+    if (_globalPhoneType == PhoneNumberType.mobile) {
+      if (_globalPhoneFormat == PhoneNumberFormat.international) {
+        newPlaceholder = _currentSelectedCountry.exampleNumberMobileInternational;
+      } else {
+        newPlaceholder = _currentSelectedCountry.exampleNumberMobileNational;
+      }
+    } else {
+      if (_globalPhoneFormat == PhoneNumberFormat.international) {
+        newPlaceholder = _currentSelectedCountry.exampleNumberFixedLineInternational;
+      } else {
+        newPlaceholder = _currentSelectedCountry.exampleNumberFixedLineNational;
+      }
+    }
+
+    &#47;&#47;&#47; Strip country code from hint
+    if (!_inputContainsCountryCode) {
+      newPlaceholder = newPlaceholder.substring(_currentSelectedCountry.phoneCode.length + 2);
+    }
+
+    setState(() => _placeholderHint = newPlaceholder);
+  }
+
+  @override
+  Widget build(final BuildContext context) {
+    return MaterialApp(
+      home: FutureBuilder(
+        future: init(),
+        builder: (final context, final snapshot) {
+          if (snapshot.hasError) {
+            return Scaffold(
+              resizeToAvoidBottomInset: true,
+              appBar: AppBar(
+                title: const Text('flutter_libphonenumber'),
+              ),
+              body: Center(
+                child: Text('error: ${snapshot.error}'),
+              ),
+            );
+          } else if (snapshot.connectionState == ConnectionState.done) {
+            return GestureDetector(
+              onTap: () {
+                FocusScope.of(context).requestFocus(FocusNode());
+              },
+              child: Scaffold(
+                resizeToAvoidBottomInset: true,
+                appBar: AppBar(
+                  title: const Text('flutter_libphonenumber'),
+                ),
+                body: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.only(
+                      bottom: max(
+                        0,
+                        24 - MediaQuery.of(context).padding.bottom,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 10),
+
+                        &#47;&#47;&#47; Get all region codes
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  &#47;&#47;&#47; Print region data
+                          
+// ... (truncated)

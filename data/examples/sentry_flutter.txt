@@ -1,0 +1,108 @@
+&#47;&#47; ignore_for_file: library_private_types_in_public_api
+
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:dio&#47;dio.dart';
+import 'package:drift&#47;drift.dart' show ApplyInterceptor;
+import 'package:feedback&#47;feedback.dart' as feedback;
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:logging&#47;logging.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:provider&#47;provider.dart';
+import 'package:sentry_dio&#47;sentry_dio.dart';
+import 'package:sentry_drift&#47;sentry_drift.dart';
+import 'package:sentry_flutter&#47;sentry_flutter.dart';
+import 'package:sentry_hive&#47;sentry_hive.dart';
+import 'package:sentry_isar&#47;sentry_isar.dart';
+import 'package:sentry_logging&#47;sentry_logging.dart';
+import 'package:sentry_sqflite&#47;sentry_sqflite.dart';
+import 'package:sqflite&#47;sqflite.dart';
+&#47;&#47; import 'package:sqflite_common_ffi&#47;sqflite_ffi.dart';
+&#47;&#47; import 'package:sqflite_common_ffi_web&#47;sqflite_ffi_web.dart';
+import 'package:universal_platform&#47;universal_platform.dart';
+
+import 'auto_close_screen.dart';
+import 'drift&#47;connection&#47;connection.dart';
+import 'drift&#47;database.dart';
+import 'isar&#47;user.dart';
+
+&#47;&#47; ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
+const String exampleDsn =
+    'https:&#47;&#47;e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io&#47;5428562';
+
+&#47;&#47;&#47; This is an exampleUrl that will be used to demonstrate how http requests are captured.
+const String exampleUrl = 'https:&#47;&#47;jsonplaceholder.typicode.com&#47;todos&#47;';
+
+const _channel = MethodChannel('example.flutter.sentry.io');
+var _isIntegrationTest = false;
+
+final GlobalKey navigatorKey = GlobalKey();
+
+Future main() async {
+  await setupSentry(
+    () => runApp(
+      SentryWidget(
+        child: DefaultAssetBundle(
+          bundle: SentryAssetBundle(),
+          child: const MyApp(),
+        ),
+      ),
+    ),
+    exampleDsn,
+  );
+}
+
+Future setupSentryWithCustomInit(
+    AppRunner appRunner, OptionsConfiguration optionsConfiguration) async {
+  return SentryFlutter.init(optionsConfiguration, appRunner: appRunner);
+}
+
+Future setupSentry(
+  AppRunner appRunner,
+  String dsn, {
+  bool isIntegrationTest = false,
+  BeforeSendCallback? beforeSendCallback,
+}) async {
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = exampleDsn;
+      options.tracesSampleRate = 1.0;
+      options.profilesSampleRate = 1.0;
+      options.reportPackages = false;
+      options.addInAppInclude('sentry_flutter_example');
+      options.considerInAppFramesByDefault = false;
+      options.attachThreads = true;
+      options.enableWindowMetricBreadcrumbs = true;
+      options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
+      options.sendDefaultPii = true;
+      options.reportSilentFlutterErrors = true;
+      options.attachScreenshot = true;
+      options.attachViewHierarchy = true;
+      &#47;&#47; We can enable Sentry debug logging during development. This is likely
+      &#47;&#47; going to log too much for your app, but can be useful when figuring out
+      &#47;&#47; configuration issues, e.g. finding out why your events are not uploaded.
+      options.diagnosticLevel = SentryLevel.debug;
+      options.debug = kDebugMode;
+      options.spotlight = Spotlight(enabled: true);
+      options.enableTimeToFullDisplayTracing = true;
+
+      options.maxRequestBodySize = MaxRequestBodySize.always;
+      options.navigatorKey = navigatorKey;
+
+      options.replay.sessionSampleRate = 1.0;
+      options.replay.onErrorSampleRate = 1.0;
+
+      options.enableLogs = true;
+
+      _isIntegrationTest = isIntegrationTest;
+      if (_isIntegrationTest) {
+        options.dist = '1';
+        options.environment = 'integration';
+        options.beforeSend = beforeSendCallback;
+      }
+    },
+    &#47;&#47; I
+// ... (truncated)

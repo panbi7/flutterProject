@@ -1,0 +1,133 @@
+import 'package:flutter&#47;material.dart';
+import 'package:open_settings&#47;open_settings.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Open Setting',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.amber,
+      ),
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'App Settings',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+      ),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      OpenSettings.openWIFISetting();
+                    },
+                    child: Center(
+                      child: Text('Wi-fi'),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      OpenSettings.openDataRoamingSetting();
+                    },
+                    child: Center(
+                      child: Text('Data Roaming'),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      OpenSettings.openLocationSourceSetting();
+                    },
+                    child: Center(
+                      child: Text('Location Source'),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      OpenSettings.openAppSetting();
+                    },
+                    child: Center(
+                      child: Text('App Settings'),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      OpenSettings.openBluetoothSetting();
+                    },
+                    child: Center(
+                      child: Text('Bluetooth'),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      OpenSettings.openNotificationSetting();
+                    },
+                    child: Center(
+                      child: Text('Notification'),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      OpenSettings.openSecuritySetting();
+                    },
+                    child: Center(
+                      child: Text('Security'),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      OpenSettings.openSoundSetting();
+                    },
+                    child: Center(
+                      child: Text('Sound'),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+             
+// ... (truncated)

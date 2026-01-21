@@ -1,0 +1,117 @@
+&#47;&#47;&#47; 📱 KeyboardSafe Example App
+&#47;&#47;&#47;
+&#47;&#47;&#47; This is the entry point for the demo app.
+&#47;&#47;&#47; It shows a toggle between two pages:
+&#47;&#47;&#47;
+&#47;&#47;&#47; ✅ `WithKeyboardSafePage`
+&#47;&#47;&#47;     Demonstrates proper keyboard handling using the KeyboardSafe widget.
+&#47;&#47;&#47;
+&#47;&#47;&#47; 🚫 `WithoutKeyboardSafeScreen`
+&#47;&#47;&#47;     Shows the same UI without KeyboardSafe to illustrate common layout issues.
+&#47;&#47;&#47;
+&#47;&#47;&#47; 📂 You can find the source files in:
+&#47;&#47;&#47; - `example&#47;lib&#47;with_keyboard_safe.dart`
+&#47;&#47;&#47; - `example&#47;lib&#47;without_keyboard_safe.dart`
+&#47;&#47;&#47;
+&#47;&#47;&#47; 👉 To explore fully, consider cloning the repo:
+&#47;&#47;&#47; https:&#47;&#47;github.com&#47;ChathraNavoda&#47;keyboard_safe
+&#47;&#47;&#47;
+&#47;&#47;&#47; 💡 Run this demo using:
+&#47;&#47;&#47; flutter run example
+&#47;&#47;&#47;library;
+library;
+
+import 'package:example&#47;with_keyboard_safe.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:google_fonts&#47;google_fonts.dart';
+
+import 'without_keyboard_safe.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  static const primaryColor = Color.fromARGB(255, 1, 70, 124);
+  static const blueColor = Color(0xFF2192C5);
+  static const greenColor = Color(0xFF28A745);
+  static const ashColor = Color(0xFF585656);
+  static const ashDark = Color(0xFF3A3838);
+  static const ashLight = Color(0xFF8F8D8D);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Keyboard Safe Demo',
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: Colors.white,
+        primaryColor: primaryColor,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primaryColor,
+          primary: primaryColor,
+          secondary: blueColor,
+        ),
+        textTheme: GoogleFonts.poppinsTextTheme(),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: primaryColor,
+          centerTitle: true,
+          elevation: 3,
+          surfaceTintColor: Colors.transparent,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            foregroundColor: primaryColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              inherit: true,
+            ),
+          ),
+        ),
+      ),
+      home: const HomeScreen(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  static const primaryColor = MyApp.primaryColor;
+  static const blueColor = MyApp.blueColor;
+  static const greenColor = MyApp.greenColor;
+  static const redColor = MyApp.ashColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      &#47;&#47;backgroundColor: blueColor.withOpacity(0.1),
+      appBar: AppBar(
+        title: const Text('Keyboard Safe Demo'),
+        leading: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Image.network(
+            'https:&#47;&#47;upload.wikimedia.org&#47;wikipedia&#47;commons&#47;c&#47;c6&#47;Dart_logo.png',
+            fit: BoxFit.contain,
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+        
+// ... (truncated)

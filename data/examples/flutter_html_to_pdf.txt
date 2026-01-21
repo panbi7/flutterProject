@@ -1,0 +1,96 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_full_pdf_viewer&#47;flutter_full_pdf_viewer.dart';
+import 'package:flutter_html_to_pdf&#47;flutter_html_to_pdf.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+void main() {
+  runApp(MaterialApp(
+    home: MyApp(),
+  ));
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String generatedPdfFilePath;
+
+  @override
+  void initState() {
+    super.initState();
+    generateExampleDocument();
+  }
+
+  Future generateExampleDocument() async {
+    final htmlContent = """
+    
+    
+      
+        
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+        th, td, p {
+          padding: 5px;
+          text-align: left;
+        }
+        
+      
+      
+        PDF Generated with flutter_html_to_pdf plugin
+        
+        
+          Sample HTML Table
+          
+            Month
+            Savings
+          
+          
+            January
+            100
+          
+          
+            February
+            50
+          
+        
+        
+        Image loaded from web
+        
+      
+    
+    """;
+
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    final targetPath = appDocDir.path;
+    final targetFileName = "example-pdf";
+
+    final generatedPdfFile = await FlutterHtmlToPdf.convertFromHtmlContent(htmlContent, targetPath, targetFileName);
+    generatedPdfFilePath = generatedPdfFile.path;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        home: Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: ElevatedButton(
+          child: Text("Open Generated PDF Preview"),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PDFViewerScaffold(appBar: AppBar(title: Text("Generated PDF Document")), path: generatedPdfFilePath)),
+            );
+          },
+        ),
+      ),
+    ));
+  }
+}

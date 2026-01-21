@@ -1,0 +1,118 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;scheduler.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_displaymode&#47;flutter_displaymode.dart';
+
+void main() => runApp(MaterialApp(home: MyApp()));
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  List modes = [];
+  DisplayMode? active;
+  DisplayMode? preferred;
+
+  final ValueNotifier page = ValueNotifier(0);
+  late final PageController controller = PageController()
+    ..addListener(() {
+      page.value = controller.page!.round();
+    });
+
+  @override
+  void initState() {
+    super.initState();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      fetchAll();
+    });
+  }
+
+  Future fetchAll() async {
+    try {
+      modes = await FlutterDisplayMode.supported;
+      modes.forEach(print);
+
+      &#47;&#47;&#47; On OnePlus 7 Pro:
+      &#47;&#47;&#47; #1 1080x2340 @ 60Hz
+      &#47;&#47;&#47; #2 1080x2340 @ 90Hz
+      &#47;&#47;&#47; #3 1440x3120 @ 90Hz
+      &#47;&#47;&#47; #4 1440x3120 @ 60Hz
+
+      &#47;&#47;&#47; On OnePlus 8 Pro:
+      &#47;&#47;&#47; #1 1080x2376 @ 60Hz
+      &#47;&#47;&#47; #2 1440x3168 @ 120Hz
+      &#47;&#47;&#47; #3 1440x3168 @ 60Hz
+      &#47;&#47;&#47; #4 1080x2376 @ 120Hz
+    } on PlatformException catch (e) {
+      print(e);
+
+      &#47;&#47;&#47; e.code =>
+      &#47;&#47;&#47; noAPI - No API support. Only Marshmallow and above.
+      &#47;&#47;&#47; noActivity - Activity is not available. Probably app is in background
+    }
+
+    preferred = await FlutterDisplayMode.preferred;
+
+    active = await FlutterDisplayMode.active;
+
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Plugin example app')),
+        body: Padding(
+          padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+          child: PageView(
+            controller: controller,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Available modes',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      TextButton.icon(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: () {
+                          fetchAll();
+                        },
+                        label: const Text('Fetch'),
+                      ),
+                    ],
+                  ),
+                  if (modes.isEmpty) const Text('Nothing here'),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: modes.length,
+                      itemBuilder: (_, int i) {
+                        final DisplayMode mode = modes[i];
+                        return Row(
+                          children: [
+                            Radio(
+                              value: mode,
+                              groupValue: preferred,
+                              onChanged: (DisplayMode? newMode) async {
+                                await FlutterDisplayMode.setPreferredMode(
+                                    newMode!);
+                                await Future.delayed(
+                                  const Duration(milliseconds: 100),
+                                );
+                                await fetchAll();
+                                setState(() {});
+                              },
+                            ),
+                            if (mode == DisplayMode.auto)
+                              const Text('Automatic')
+                            else
+                              Text(mode.toString()),
+                            if (mode == active) const Text(' [ACTIVE]'),
+           
+// ... (truncated)

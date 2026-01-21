@@ -1,0 +1,30 @@
+&#47;&#47;&#47;These are some of red squiggly lines that you will enjoy
+void main() {
+  &#47;&#47;unused_local_variable
+  &#47;&#47;prefer_final_locals
+  var unused = 'test';
+
+  &#47;&#47;literal_only_boolean_expressions
+  if (true) {
+    &#47;&#47;dead_code
+  } else {}
+
+  &#47;&#47;omit_local_variable_types
+  &#47;&#47;deprecated_member_use_from_same_package
+  SomeDeprecatedClass deprecatedClass = SomeDeprecatedClass();
+}
+
+@deprecated
+class SomeDeprecatedClass {
+  &#47;&#47;prefer_expression_function_bodies
+  bool test() {
+    return true;
+  }
+
+  &#47;&#47;avoid_final_parameters
+  bool test2(final String test) => true;
+
+  &#47;&#47;implicit_dynamic_return
+  &#47;&#47;inference_failure_on_function_return_type
+  Test() => true;
+}

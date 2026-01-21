@@ -1,0 +1,123 @@
+import 'package:flutter&#47;material.dart';
+import 'package:funvas&#47;funvas.dart';
+import 'package:performance&#47;performance.dart';
+import 'package:performance_example&#47;widgets&#47;funvas.dart';
+import 'package:performance_example&#47;widgets&#47;link.dart';
+import 'package:url_strategy&#47;url_strategy.dart';
+
+void main() {
+  setPathUrlStrategy();
+  runApp(const ExampleApp());
+}
+
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'performance overlay demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSwatch(
+          brightness: Brightness.dark,
+          primarySwatch: Colors.amber,
+          accentColor: Colors.amberAccent,
+        ),
+      ),
+      home: const _HomePage(),
+    );
+  }
+}
+
+class _HomePage extends StatefulWidget {
+  const _HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  late final _funvas = ExampleFunvas();
+
+  var _funvasSize = 3 &#47; 4;
+  var _overlaySize = 1.0;
+  var _funvasPlaying = false;
+  var _overlayEnabled = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: CustomPerformanceOverlay(
+        enabled: _overlayEnabled,
+        scale: _overlaySize,
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: FractionallySizedBox(
+                      heightFactor: _funvasSize,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Expanded(
+                            child: AspectRatio(
+                              aspectRatio: 1,
+                              child: FunvasContainer(
+                                paused: !_funvasPlaying,
+                                funvas: _funvas,
+                              ),
+                            ),
+                          ),
+                          const Link(
+                            url: 'https:&#47;&#47;funvas.creativemaybeno.dev&#47;#&#47;32',
+                            body: Text('funvas animation'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 16,
+                    ),
+                    child: FractionallySizedBox(
+                      widthFactor: 5 &#47; 8,
+                      child: Slider(
+                        min: 5 &#47; 9,
+                        max: 8 &#47; 9,
+                        value: _funvasSize,
+                        onChanged: (value) {
+                          setState(() {
+                            _funvasSize = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Stack(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('play funvas'),
+                          Switch(
+                            activeColor:
+                                Theme.of(context).colorScheme.secondary,
+                            value: _funvasPlaying,
+                            onChanged: (value) {
+                              setState(() {
+                            
+// ... (truncated)

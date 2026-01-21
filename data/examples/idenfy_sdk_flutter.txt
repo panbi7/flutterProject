@@ -1,0 +1,109 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:idenfy_sdk_flutter&#47;idenfy_sdk_flutter.dart';
+import 'package:http&#47;http.dart' as http;
+import 'package:idenfy_sdk_flutter&#47;models&#47;document_camera_frame_visibility.dart';
+import 'package:idenfy_sdk_flutter&#47;models&#47;document_type_enum.dart';
+import 'package:idenfy_sdk_flutter&#47;models&#47;idenfy_document_selection_type.dart';
+import 'package:idenfy_sdk_flutter&#47;models&#47;idenfy_identification_results_ui_settings.dart';
+import 'package:idenfy_sdk_flutter&#47;models&#47;idenfy_identification_status.dart';
+import 'package:idenfy_sdk_flutter&#47;models&#47;idenfy_instructions_enum.dart';
+import 'package:idenfy_sdk_flutter&#47;models&#47;idenfy_locale_enum.dart';
+import 'package:idenfy_sdk_flutter&#47;models&#47;idenfy_onboarding_view_type.dart';
+import 'package:idenfy_sdk_flutter&#47;models&#47;idenfy_settings.dart';
+import 'package:idenfy_sdk_flutter&#47;models&#47;idenfy_ui_settings.dart';
+import 'package:idenfy_sdk_flutter&#47;models&#47;immediate_redirect_enum.dart';
+import 'constants.dart' as Constants;
+import 'face_authentication_start_screen.dart';
+
+void main() {
+  runApp(MaterialApp(
+      theme: ThemeData.light(useMaterial3: false),
+      debugShowCheckedModeBanner: false,
+      home: MyApp()));
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  IdenfyIdentificationResult? _idenfySDKresult;
+  Exception? _exception;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future getAuthTokenRequest() async {
+    final response = await http.post(
+      Uri.https(Constants.BASE_URL, '&#47;api&#47;v2&#47;token'),
+      headers: {
+        'Accept': 'application&#47;json',
+        'Content-Type': 'application&#47;json',
+        'Authorization':
+            'Basic ${base64Encode(utf8.encode('${Constants.apiKey}:${Constants.apiSecret}'))}',
+      },
+      body: jsonEncode({
+        "clientId": Constants.clientId,
+      }),
+    );
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body)["authToken"];
+    } else {
+      throw Exception('Failed to fetch token');
+    }
+  }
+
+  Future initIdenfySdk() async {
+    IdenfyIdentificationResult? idenfySDKresult;
+    Exception? localException;
+    try {
+      IdenfyUISettings idenfyUISettings = IdenfyUIBuilder()
+          .withAdditionalSupportView(true)
+          .withIdenfyDocumentSelectionType(
+              IdenfyDocumentSelectionType.navigateOnContinueButton)
+          .withOnBoardingViewType(IdenfyOnBoardingViewType.multipleStatic)
+          .withInstructions(IdenfyInstructionsEnum.none)
+          .withImmediateRedirect(ImmediateRedirectEnum.full)
+          .withLanguageSelection(false)
+          .withIdenfyIdentificationResultsUISettingsV2(
+              IdenfyIdentificationResultsUISettingsV2(true, true, true))
+          .withDocumentCameraFrameVisibility(
+              HiddenForSpecificCountriesAndDocumentTypes({
+            'US': [DocumentTypeEnum.PASSPORT.name]
+          }))
+          .withSkipInternalPrivacyPolicy(true)
+          .build();
+
+      IdenfySettings idenfySettings = IdenfyBuilder()
+          .withSelectedLocale(IdenfyLocaleEnum.EN)
+          .withUISettings(idenfyUISettings)
+          .withSSLPinning(true)
+          .build();
+
+      String authToken = await getAuthTokenRequest();
+      &#47;&#47; With IdenfySetting enabled
+      idenfySDKresult = await IdenfySdkFlutter.start(authToken,
+          idenfySettings: idenfySettings);
+      &#47;&#47; Without IdenfySetting enabled
+      &#47;&#47;idenfySDKresult = await IdenfySdkFlutter.start(authToken);
+    } on Exception catch (e) {
+      localException = e;
+    }
+
+    setState(() {
+      _idenfySDKresult = idenfySDKresult;
+      _exception = localException;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+  
+// ... (truncated)

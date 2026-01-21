@@ -1,0 +1,133 @@
+import 'dart:io';
+import 'package:path&#47;path.dart';
+import 'package:excel&#47;excel.dart';
+
+void main(List args) {
+  &#47;&#47;var file = "&#47;Users&#47;kawal&#47;Desktop&#47;excel&#47;test&#47;test_resources&#47;example.xlsx";
+  &#47;&#47;var bytes = File(file).readAsBytesSync();
+  var excel = Excel.createExcel();
+  &#47;&#47; or
+  &#47;&#47;var excel = Excel.decodeBytes(bytes);
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; reading excel file values
+  &#47;&#47;&#47;
+  &#47;&#47;&#47;
+  for (var table in excel.tables.keys) {
+    print(table);
+    print(excel.tables[table]!.maxColumns);
+    print(excel.tables[table]!.maxRows);
+    for (var row in excel.tables[table]!.rows) {
+      print("${row.map((e) => e?.value)}");
+    }
+  }
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; Change sheet from rtl to ltr and vice-versa i.e. (right-to-left -> left-to-right and vice-versa)
+  &#47;&#47;&#47;
+  var sheet1rtl = excel['Sheet1'].isRTL;
+  excel['Sheet1'].isRTL = false;
+  print(
+      'Sheet1: ((previous) isRTL: $sheet1rtl) ---> ((current) isRTL: ${excel['Sheet1'].isRTL})');
+
+  var sheet2rtl = excel['Sheet2'].isRTL;
+  excel['Sheet2'].isRTL = true;
+  print(
+      'Sheet2: ((previous) isRTL: $sheet2rtl) ---> ((current) isRTL: ${excel['Sheet2'].isRTL})');
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; declaring a cellStyle object
+  &#47;&#47;&#47;
+  &#47;&#47;&#47;
+  CellStyle cellStyle = CellStyle(
+    bold: true,
+    italic: true,
+    textWrapping: TextWrapping.WrapText,
+    fontFamily: getFontFamily(FontFamily.Comic_Sans_MS),
+    rotation: 0,
+  );
+
+  var sheet = excel['mySheet'];
+
+  var cell = sheet.cell(CellIndex.indexByString("A1"));
+  cell.value = TextCellValue("Heya How are you I am fine ok goood night");
+  cell.cellStyle = cellStyle;
+
+  var cell2 = sheet.cell(CellIndex.indexByString("E5"));
+  cell2.value = TextCellValue("Heya How night");
+  cell2.cellStyle = cellStyle;
+
+  &#47;&#47;&#47; printing cell-type
+  print("CellType: " +
+      switch (cell.value) {
+        null => 'empty',
+        TextCellValue() => 'text',
+        FormulaCellValue() => 'Formula',
+        IntCellValue() => 'int',
+        DoubleCellValue() => 'double',
+        DateCellValue() => 'date',
+        DateTimeCellValue() => 'date+time',
+        TimeCellValue() => 'time',
+        BoolCellValue() => 'bool',
+      });
+
+  &#47;&#47;&#47;
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; Iterating and changing values to desired type
+  &#47;&#47;&#47;
+  &#47;&#47;&#47;
+  for (int row = 0; row > list = List.generate(
+    9000,
+    (index) => List.generate(20, (index1) => TextCellValue('$index $index1')),
+  );
+
+  print('list creation executed in ${stopwatch.elapsed}');
+  stopwatch.reset();
+  list.forEach((row) {
+    sheet.appendRow(row);
+  });
+  print('appending executed in ${stopwatch.elapsed}');
+
+  sheet.appendRow([
+    IntCellValue(8),
+    DoubleCellValue(999.62221),
+    DateCellValue(
+      year: DateTime.now().year,
+      month: DateTime.now().month,
+      day: DateTime.now().day,
+    ),
+    DateTimeCellValue.fromDateTime(DateTime.now()),
+  ]);
+
+  bool isSet = excel.setDefaultSheet(sheet.sheetName);
+  &#47;&#47; isSet is bool which tells that whether the setting of default sheet is successful or not.
+  if (isSet) {
+    print("${sheet.sheetName} is set to default sheet.");
+  } else {
+    print("Unable to set ${sheet.sheetName} to default sheet.");
+  }
+
+  var columnIterableSheet = excel['ColumnIterables'];
+
+  var columnIterables = ['A', 'B', 'C', 'D', 'E'];
+  int columnIndex = 0;
+
+  columnIterables.forEach((columnValue) {
+    columnIterableSheet.cell(CellIndex.indexByColumnRow(
+      rowIndex: columnIterableSheet.maxRows,
+      columnIndex: columnIndex,
+    ))
+      ..value = TextCellValue(columnValue);
+  });
+
+  &#47;&#47; Saving the file
+
+  String outputFile = "&#47;Users&#47;kawal&#47;Desktop&#47;git_projects&#47;r.xlsx";
+
+  &#47;&#47;stopwatch.reset();
+  List? fileBytes = excel.save();
+  &#47;&#47;print('saving executed in ${stopwatch.elapsed}');
+  if (fileBytes != null)
+// ... (truncated)

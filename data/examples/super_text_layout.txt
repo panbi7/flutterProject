@@ -1,0 +1,133 @@
+import 'package:example&#47;typing_robot.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:super_text_layout&#47;super_text_layout.dart';
+import 'package:super_text_layout&#47;super_text_layout_logging.dart';
+
+import 'rainbow_builder.dart';
+import 'rainbow_character_supertext.dart';
+import 'user_label_layer.dart';
+
+void main() {
+  initLoggers(
+    Level.WARNING,
+    {
+      buildsLog,
+      robotLog,
+    },
+  );
+
+  runApp(const SuperTextExampleApp());
+}
+
+class SuperTextExampleApp extends StatelessWidget {
+  const SuperTextExampleApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: 'Super Text Example',
+      home: SuperTextExampleScreen(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class SuperTextExampleScreen extends StatefulWidget {
+  const SuperTextExampleScreen({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _SuperTextExampleScreenState();
+}
+
+class _SuperTextExampleScreenState extends State with TickerProviderStateMixin {
+  static const _text = TextSpan(
+    text: _textMessage,
+    style: _textStyle,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader("Welcome to super_text_layout"),
+                &#47;&#47; SuperTextWithSelection examples
+                _buildSubHeader("SuperTextWithSelection Widget"),
+                _buildDescription(
+                    "SuperTextWithSelection is a product-level widget that renders text with traditional user selections. If you want to build a custom text decoration experience, see SuperText."),
+                _buildSuperTextWithSelectionStaticSingle(),
+                _buildSuperTextWithSelectionRobot(),
+                _buildSuperTextWithSelectionStaticMulti(),
+                const SizedBox(height: 48),
+                &#47;&#47; SuperText examples
+                _buildSubHeader("SuperText Widget"),
+                _buildDescription(
+                    "SuperText is a platform, upon which you can build various text experiences. A SuperText widget allows you to build an arbitrary UI beneath the text, and above the text."),
+                _buildCharacterRainbow(),
+                _buildSingleCaret(),
+                _buildSingleSelectionHighlight(),
+                _buildSingleSelectionHighlightRainbow(),
+                _buildComposingRegionUnderline(),
+                _buildMultiUserSelections(),
+                _buildEmptySelection(),
+                const SizedBox(height: 48),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, bottom: 8.0),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Color(0xFF444444),
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubHeader(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 8.0),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Color(0xFF444444),
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDescription(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Color(0xFF444444),
+          fontSize: 14,
+          height: 1.4,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSuperTextWithSelectionRobot() {
+    return _buildExampleContainer(
+      child: const _TypingRobotExample()
+// ... (truncated)

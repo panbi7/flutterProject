@@ -1,0 +1,123 @@
+import 'package:charts_painter&#47;chart.dart';
+import 'package:example&#47;chart_types.dart';
+import 'package:example&#47;charts&#47;bar_target_chart_screen.dart';
+import 'package:example&#47;charts&#47;migration_chart_screen.dart';
+import 'package:example&#47;charts&#47;scrollable_visible_items_chart_screen.dart';
+import 'package:example&#47;complex&#47;complex_charts.dart';
+import 'package:example&#47;showcase&#47;ios_charts.dart';
+import 'package:example&#47;showcase&#47;showcase_charts.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'charts&#47;line_chart_screen.dart';
+import 'charts&#47;scrollable_chart_screen.dart';
+
+void main() {
+  runApp(MaterialApp(
+      theme: ThemeData.light().copyWith(
+        primaryColor: Colors.red,
+        colorScheme: ThemeData.light()
+            .colorScheme
+            .copyWith(
+              primary: Color(0xFFd8262C),
+              secondary: Color(0xFF353535),
+              error: Colors.lightBlue,
+            )
+            .copyWith(secondary: Color(0xFFd8262C)),
+      ),
+      home: ChartDemo()));
+}
+
+class ChartDemo extends StatefulWidget {
+  ChartDemo({Key? key}) : super(key: key);
+
+  @override
+  _ChartDemoState createState() => _ChartDemoState();
+}
+
+class _ChartDemoState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: true,
+        title: Text('Charts showcase'),
+      ),
+      body: ShowList(),
+    );
+  }
+}
+
+class ShowList extends StatelessWidget {
+  ShowList({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        SizedBox(
+          height: 8.0,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Text(
+            'Chart types',
+            style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14.0,
+                ),
+          ),
+        ),
+        Divider(),
+        ChartTypes(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Text(
+            'Chart Decorations',
+            style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14.0,
+                ),
+          ),
+        ),
+        Divider(),
+        ListTile(
+          title: Text('Migration from 2.0'),
+          onTap: () {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => MigrationChartScreen()));
+          },
+        ),
+        Divider(),
+        ListTile(
+          title: Text('Sparkline decoration'),
+          trailing: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Container(
+              width: 100.0,
+              child: Chart(
+                state: ChartState(
+                  data: ChartData.fromList(
+                    [2, 7, 2, 4, 7, 6, 2, 5, 4]
+                        .map((e) => BubbleValue(e.toDouble()))
+                        .toList(),
+                    axisMax: 9,
+                  ),
+                  itemOptions: BubbleItemOptions(
+                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                    bubbleItemBuilder: (_) => BubbleItem(
+                        color: Theme.of(context).colorScheme.secondary),
+                    maxBarWidth: 1.0,
+                  ),
+                  backgroundDecorations: [
+                    GridDecoration(
+                      showVerticalGrid: false,
+                      horizontalAxisStep: 3,
+                      gridColor: Theme.of(context).dividerColor,
+                    ),
+                    SparkLineDecoration(
+                      lineWidth: 2.0,
+                      lineColor: Theme.of(context).colorScheme.primary,
+                    ),
+                  ],
+          
+// ... (truncated)

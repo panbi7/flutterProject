@@ -1,0 +1,56 @@
+&#47;&#47; ignore_for_file: unused_local_variable
+
+import 'package:adyen_checkout&#47;adyen_checkout.dart';
+import 'package:adyen_checkout_example&#47;network&#47;service.dart';
+import 'package:adyen_checkout_example&#47;repositories&#47;adyen_apple_pay_component_repository.dart';
+import 'package:adyen_checkout_example&#47;repositories&#47;adyen_card_component_repository.dart';
+import 'package:adyen_checkout_example&#47;repositories&#47;adyen_cse_repository.dart';
+import 'package:adyen_checkout_example&#47;repositories&#47;adyen_drop_in_repository.dart';
+import 'package:adyen_checkout_example&#47;repositories&#47;adyen_google_pay_component_repository.dart';
+import 'package:adyen_checkout_example&#47;repositories&#47;adyen_instant_component_repository.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;api_only&#47;card_state_notifier.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;api_only&#47;custom_card_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;apple_pay&#47;apple_pay_advanced_component_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;apple_pay&#47;apple_pay_navigation_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;apple_pay&#47;apple_pay_session_component_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;card&#47;card_advanced_component_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;card&#47;card_bottom_sheet_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;card&#47;card_navigation_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;card&#47;card_session_component_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;google_pay&#47;google_pay_advanced_component_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;google_pay&#47;google_pay_navigation_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;google_pay&#47;google_pay_session_component_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;instant&#47;instant_advanced_component_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;instant&#47;instant_navigation_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;instant&#47;instant_session_component_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;multi_component&#47;multi_component_advanced_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;multi_component&#47;multi_component_navigation_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;component&#47;multi_component&#47;multi_component_session_screen.dart';
+import 'package:adyen_checkout_example&#47;screens&#47;drop_in&#47;drop_in_screen.dart';
+import 'package:adyen_checkout_example&#47;utils&#47;provider.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+
+void main() {
+  final service = Service();
+  final adyenGooglePayComponentRepository =
+      AdyenGooglePayComponentRepository(service: service);
+  final adyenApplePayComponentRepository =
+      AdyenApplePayComponentRepository(service: service);
+  final adyenCardComponentRepository =
+      AdyenCardComponentRepository(service: service);
+  final adyenInstantComponentRepository =
+      AdyenInstantComponentRepository(service: service);
+  final adyenCseRepository = AdyenCseRepository(service: service);
+
+  runApp(MaterialApp(
+    localizationsDelegates: const [
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: const [
+      Locale('en'), &#47;&#47; English
+      Locale('a
+// ... (truncated)

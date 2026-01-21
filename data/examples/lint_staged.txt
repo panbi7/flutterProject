@@ -1,0 +1,2 @@
+lint_staged:
+  'lib/**.dart': dart format --fix && dart fix --apply

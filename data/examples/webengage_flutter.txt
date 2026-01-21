@@ -1,0 +1,125 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:firebase_messaging&#47;firebase_messaging.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:intl&#47;intl.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+import 'package:webengage_flutter&#47;webengage_flutter.dart';
+
+import 'src&#47;screen&#47;screen_webview.dart';
+
+@pragma('vm:entry-point')
+Future _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  WebEngagePlugin.onPushMessageReceive(message.data);
+}
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  runApp(MaterialApp(home: MyApp()));
+}
+
+class _MyAppState extends State {
+  late WebEngagePlugin _webEngagePlugin;
+  late String os;
+
+  void _onPushClick(Map? message, String? s) {
+    print("This is a push click callback from native to flutter. Payload " +
+        message.toString());
+  }
+
+  void _onPushActionClick(Map? message, String? s) {
+    print(
+        "This is a Push action click callback from native to flutter. Payload " +
+            message.toString());
+    print(
+        "This is a Push action click callback from native to flutter. SelectedId " +
+            s.toString());
+  }
+
+  void _onInAppPrepared(Map? message) {
+    print("This is a inapp prepared callback from native to flutter. Payload " +
+        message.toString());
+  }
+
+  void _onInAppClick(Map? message, String? s) {
+    print("This is a inapp click callback from native to flutter. Payload " +
+        message.toString());
+  }
+
+  void _onInAppShown(Map? message) {
+    print("This is a callback on inapp shown from native to flutter. Payload " +
+        message.toString());
+  }
+
+  void _onInAppDismiss(Map? message) {
+    print(
+        "This is a callback on inapp dismiss from native to flutter. Payload " +
+            message.toString());
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+    initWebEngage();
+    getToken();
+  }
+
+  Future getToken() async {
+    var token = await FirebaseMessaging.instance.getToken();
+    if (token != null) {
+      WebEngagePlugin.setPushToken(token);
+    }
+    FirebaseMessaging.instance.onTokenRefresh.listen((token) {
+      WebEngagePlugin.setPushToken(token);
+    }).onError((err) {});
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      WebEngagePlugin.onPushMessageReceive(message.data);
+    });
+  }
+
+  void initWebEngage() {
+    _webEngagePlugin = new WebEngagePlugin();
+    _webEngagePlugin.setUpPushCallbacks(_onPushClick, _onPushActionClick);
+    _webEngagePlugin.setUpInAppCallbacks(
+        _onInAppClick, _onInAppShown, _onInAppDismiss, _onInAppPrepared);
+    _webEngagePlugin.tokenInvalidatedCallback(_onTokenInvalidated);
+    subscribeToPushCallbacks();
+    subscribeToTrackDeeplink();
+    subscribeToAnonymousIDCallback();
+    _listenToAnonymousID();
+  }
+
+  var data = "";
+
+  void _onTokenInvalidated(Map? message) {
+    print("tokenInvalidated callback received " + message.toString());
+    &#47;&#47; Reset with new Security Token in the callback
+    WebEngagePlugin.setSecureToken("USER_NAME", "REPLACE_JWT_TOKEN_HERE");
+  }
+
+  void _listenToAnonymousID() {
+    _webEngagePlugin.anonymousActionStream.listen((event) {
+      setState(() {
+        data = "${event}";
+      });
+    });
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    if (Platform.isAndroid) {
+      if (await Permission.notification.request().isGranted) {
+        &#47;&#47; Either the permission was already granted before or the user just granted it.
+        print("notification Permission is granted");
+        WebEngagePlugin.setUserDevicePushOptIn(true);
+      } else {
+        print("notification Permission is denied.");
+        WebEngagePlugin.setUserDevicePushOptIn(false);
+      }
+   
+// ... (truncated)

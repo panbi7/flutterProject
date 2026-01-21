@@ -1,0 +1,61 @@
+import 'package:example&#47;basic_animatio_3&#47;main.dart';
+import 'package:flutter&#47;material.dart';
+import 'basic_animation_0&#47;main.dart';
+import 'basic_animation_1&#47;main.dart';
+import 'basic_animation_2&#47;nested_animator.dart';
+&#47;&#47; import 'basic_animation_2&#47;nested_animator.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Animator Demo',
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text("Animator demo"),
+        ),
+        body: MyHomePage(),
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  goto(Widget page, BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => page,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            child: Text("Basic Animation 0"),
+            onPressed: () => goto(BasicAnimation0(), context),
+          ),
+          ElevatedButton(
+            child: Text("Basic Animation 1"),
+            onPressed: () => goto(BasicAnimation1(), context),
+          ),
+          ElevatedButton(
+            child: Text("Basic Animation 2"),
+            onPressed: () => goto(MyCustomPainterAnimation(), context),
+          ),
+          ElevatedButton(
+            child: Text("Implicit animation"),
+            onPressed: () => goto(BasicAnimation3(), context),
+          ),
+        ],
+      ),
+    );
+  }
+}

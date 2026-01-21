@@ -1,0 +1,124 @@
+&#47;&#47; Copyright 2017 The Chromium Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'dart:async';
+
+import 'package:firebase_analytics&#47;firebase_analytics.dart';
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'firebase_options.dart';
+import 'tabs_page.dart';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  static FirebaseAnalyticsObserver observer =
+      FirebaseAnalyticsObserver(analytics: analytics);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Firebase Analytics Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      navigatorObservers: [observer],
+      home: MyHomePage(
+        title: 'Firebase Analytics Demo',
+        analytics: analytics,
+        observer: observer,
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({
+    Key? key,
+    required this.title,
+    required this.analytics,
+    required this.observer,
+  }) : super(key: key);
+
+  final String title;
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  String _message = '';
+
+  void setMessage(String message) {
+    setState(() {
+      _message = message;
+    });
+  }
+
+  Future _setDefaultEventParameters() async {
+    if (kIsWeb) {
+      setMessage(
+        '"setDefaultEventParameters()" is not supported on web platform',
+      );
+    } else {
+      &#47;&#47; Only strings, numbers & null (longs & doubles for android, ints and doubles for iOS) are supported for default event parameters:
+      await widget.analytics.setDefaultEventParameters({
+        'string': 'string',
+        'int': 42,
+        'long': 12345678910,
+        'double': 42.0,
+        'bool': true.toString(),
+      });
+      setMessage('setDefaultEventParameters succeeded');
+    }
+  }
+
+  Future _sendAnalyticsEvent() async {
+    &#47;&#47; Only strings and numbers (longs & doubles for android, ints and doubles for iOS) are supported for GA custom event parameters:
+    &#47;&#47; https:&#47;&#47;firebase.google.com&#47;docs&#47;reference&#47;ios&#47;firebaseanalytics&#47;api&#47;reference&#47;Classes&#47;FIRAnalytics#+logeventwithname:parameters:
+    &#47;&#47; https:&#47;&#47;firebase.google.com&#47;docs&#47;reference&#47;android&#47;com&#47;google&#47;firebase&#47;analytics&#47;FirebaseAnalytics#public-void-logevent-string-name,-bundle-params
+    await widget.analytics.logEvent(
+      name: 'test_event',
+      parameters: {
+        'string': 'string',
+        'int': 42,
+        'long': 12345678910,
+        'double': 42.0,
+        &#47;&#47; Only strings and numbers (ints & doubles) are supported for GA custom event parameters:
+        &#47;&#47; https:&#47;&#47;developers.google.com&#47;analytics&#47;devguides&#47;collection&#47;analyticsjs&#47;custom-dims-mets#overview
+        'bool': true.toString(),
+      },
+    );
+
+    setMessage('logEvent succeeded');
+  }
+
+  Future _testSetUserId() async {
+    await widget.analytics.setUserId(id: 'some-user');
+    setMessage('setUserId succeeded');
+  }
+
+  Future _testSetAnalyticsCollectionEnabled() async {
+    await widget.analytics.setAnalyticsCollectionEnabled(false);
+    await widget.analytics.setAnalyticsCollectionEnabled(true);
+    setMessage('setAnalyticsCollectionEnabled succeeded');
+  }
+
+  Future _testSetSessionTimeoutDuration() async {
+    await widget.analytics
+        .setSessionTimeoutDuration(const Duration(millis
+// ... (truncated)

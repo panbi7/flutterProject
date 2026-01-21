@@ -1,0 +1,37 @@
+// Define an SvgController
+late final SvgController controller;
+
+@override
+void initState() {
+    // Initialize SvgController
+    controller = AnimatedSvgController();
+    super.initState();
+}
+
+@override
+void dispose() {
+    // Dispose SvgController
+    controller.dispose();
+    super.dispose();
+}
+
+@override
+Widget build(BuildContext context) {
+    // Call the AnimatedSvg widget anywhere in your widget tree.
+    return AnimatedSvg(
+        controller: controller,
+        duration: const Duration(milliseconds: 600),
+        onTap: () {},
+        size: 80,
+        clockwise: false,
+        isActive: true,
+        children: [
+            SvgPicture.asset(
+                'assets/play.svg',
+            ),
+            SvgPicture.asset(
+                'assets/pause.svg',
+            ),
+        ],
+    );
+}

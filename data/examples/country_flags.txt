@@ -1,0 +1,135 @@
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'package:country_flags&#47;country_flags.dart';
+import 'package:flutter&#47;material.dart';
+
+enum Tab {
+  image,
+  emoji;
+
+  FlagTheme getFlagTheme(Shape shape) => switch (this) {
+        Tab.image => ImageTheme(width: 80, height: 60, shape: shape),
+        Tab.emoji => const EmojiTheme(size: 60),
+      };
+}
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  Tab _tab = Tab.image;
+
+  void _onTabSelected(int index) {
+    setState(() {
+      _tab = Tab.values[index];
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      home: Scaffold(
+        backgroundColor: Colors.grey[200],
+        body: SafeArea(
+          child: CustomScrollView(
+            slivers: [
+              const SliverAppBar(
+                pinned: true,
+                backgroundColor: Colors.red,
+                title: Text(
+                  'Language flags',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (_, index) => _buildLanguageFlag(_languageCodes[index]),
+                  childCount: _languageCodes.length,
+                ),
+              ),
+              const SliverAppBar(
+                pinned: true,
+                backgroundColor: Colors.blue,
+                title: Text(
+                  'Country flags',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (_, index) => _buildCountryFlag(_countryCodes[index]),
+                  childCount: _countryCodes.length,
+                ),
+              ),
+              const SliverAppBar(
+                pinned: true,
+                backgroundColor: Colors.green,
+                title: Text(
+                  'Currency flags',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (_, index) => _buildCurrencyFlag(_currencyCodes[index]),
+                  childCount: _currencyCodes.length,
+                ),
+              ),
+              const SliverAppBar(
+                pinned: true,
+                backgroundColor: Colors.pink,
+                title: Text(
+                  'Phone prefix flags',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (_, index) => _buildDdiFlag(_phonePrefix[index]),
+                  childCount: _phonePrefix.length,
+                ),
+              )
+            ],
+          ),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _tab.index,
+          onTap: _onTabSelected,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.image),
+              label: 'Image',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.emoji_flags),
+              label: 'Emoji',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Wid
+// ... (truncated)

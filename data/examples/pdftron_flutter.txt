@@ -1,0 +1,117 @@
+import 'dart:async';
+import 'dart:io' show Platform;
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:pdftron_flutter&#47;pdftron_flutter.dart';
+&#47;&#47; If you are using local files, add the permission_handler
+&#47;&#47; dependency to pubspec.yaml and uncomment the line below.
+&#47;&#47; import 'package:permission_handler&#47;permission_handler.dart';
+
+&#47;&#47;set this value to view document via Widget
+var enableWidget = true;
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Viewer(),
+    );
+  }
+}
+
+class Viewer extends StatefulWidget {
+  @override
+  _ViewerState createState() => _ViewerState();
+}
+
+class _ViewerState extends State {
+  String _version = 'Unknown';
+  String _document =
+      "https:&#47;&#47;pdftron.s3.amazonaws.com&#47;downloads&#47;pl&#47;PDFTRON_mobile_about.pdf";
+  bool _showViewer = true;
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+    if (!enableWidget) {
+      showViewer();
+    }
+
+    &#47;&#47; If you are using local files:
+    &#47;&#47; * Remove the above line `showViewer();`.
+    &#47;&#47; * Change the _document field to your local filepath.
+    &#47;&#47; * Uncomment the section below, including launchWithPermission().
+    &#47;&#47; if (Platform.isIOS) {
+    &#47;&#47; showViewer(); &#47;&#47; Permission not required for iOS.
+    &#47;&#47; } else {
+    &#47;&#47; launchWithPermission(); &#47;&#47; Permission required for Android.
+    &#47;&#47; }
+  }
+
+  &#47;&#47; Uncomment this if you are using local files:
+  &#47;&#47; Future launchWithPermission() async {
+  &#47;&#47;  PermissionStatus permission = await Permission.storage.request();
+  &#47;&#47;  if (permission.isGranted) {
+  &#47;&#47;    showViewer();
+  &#47;&#47;  }
+  &#47;&#47; }
+
+  &#47;&#47; Platform messages are asynchronous, so initialize in an async method.
+  Future initPlatformState() async {
+    String version;
+    &#47;&#47; Platform messages may fail, so use a try&#47;catch PlatformException.
+    try {
+      &#47;&#47; Initializes the PDFTron SDK, it must be called before you can use
+      &#47;&#47; any functionality.
+      PdftronFlutter.initialize("your_pdftron_license_key");
+
+      version = await PdftronFlutter.version;
+    } on PlatformException {
+      version = 'Failed to get platform version.';
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, you want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _version = version;
+    });
+  }
+
+  void showViewer() async {
+    &#47;&#47; Opening without a config file will have all functionality enabled.
+    &#47;&#47; await PdftronFlutter.openDocument(_document);
+
+    var config = Config();
+    &#47;&#47; How to disable functionality:
+    &#47;&#47;      config.disabledElements = [Buttons.shareButton, Buttons.searchButton];
+    &#47;&#47;      config.disabledTools = [Tools.annotationCreateLine, Tools.annotationCreateRectangle];
+    &#47;&#47; Other viewer configurations:
+    &#47;&#47;      config.multiTabEnabled = true;
+    &#47;&#47;      config.customHeaders = {'headerName': 'headerValue'};
+
+    &#47;&#47; An event listener for document loading
+    var documentLoadedCancel = startDocumentLoadedListener((filePath) {
+      print("document loaded: $filePath");
+    });
+
+    await PdftronFlutter.openDocument(_document, config: config);
+
+    try {
+      &#47;&#47; The imported command is in XFDF format and tells whether to add,
+      &#47;&#47; modify or delete annotations in the current document.
+      PdftronFlutter.importAnnotationCommand(
+          "\n" +
+              "    \n" +
+              "      \n" +
+              "        \n" +
+              "      \n" +
+              "      \n" +
+       
+// ... (truncated)

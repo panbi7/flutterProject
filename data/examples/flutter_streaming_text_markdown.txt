@@ -1,0 +1,141 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_streaming_text_markdown&#47;flutter_streaming_text_markdown.dart';
+import 'dart:async';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool _isDarkMode = false;
+
+  void _toggleTheme() {
+    setState(() {
+      _isDarkMode = !_isDarkMode;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Streaming Text Markdown Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF00BCD4),
+          brightness: _isDarkMode ? Brightness.dark : Brightness.light,
+        ).copyWith(
+          primary: const Color(0xFF00BCD4),
+          secondary: const Color(0xFF80DEEA),
+          surface: _isDarkMode ? const Color(0xFF1A1A1A) : Colors.white,
+        ),
+        useMaterial3: true,
+        cardTheme: CardThemeData(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        appBarTheme: AppBarTheme(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            color: _isDarkMode ? Colors.white : Colors.black,
+          ),
+        ),
+      ),
+      home: DefaultTabController(
+        length: 6,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('LLM Streaming Demo'),
+            actions: [
+              IconButton(
+                icon: Icon(
+                  _isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                ),
+                onPressed: _toggleTheme,
+              ),
+            ],
+            bottom: const TabBar(
+              isScrollable: true,
+              tabs: [
+                Tab(text: 'ChatGPT Style'),
+                Tab(text: 'Claude Style'),
+                Tab(text: 'LaTeX Demo'),
+                Tab(text: 'Controller Demo'),
+                Tab(text: 'New Features'),
+                Tab(text: 'Custom Settings'),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              ChatGPTDemoPage(isDarkMode: _isDarkMode),
+              ClaudeDemoPage(isDarkMode: _isDarkMode),
+              LaTeXDemoPage(isDarkMode: _isDarkMode),
+              ControllerDemoPage(isDarkMode: _isDarkMode),
+              NewFeaturesDemoPage(isDarkMode: _isDarkMode),
+              MyHomePage(
+                onThemeToggle: _toggleTheme,
+                isDarkMode: _isDarkMode,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  final Map? initialSettings;
+  final VoidCallback onThemeToggle;
+  final bool isDarkMode;
+
+  const MyHomePage({
+    super.key,
+    this.initialSettings,
+    required this.onThemeToggle,
+    required this.isDarkMode,
+  });
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  bool _wordByWord = false;
+  int _chunkSize = 1;
+  bool _isArabic = false;
+  Duration _typingSpeed = const Duration(milliseconds: 20);
+  Duration _fadeInDuration = const Duration(milliseconds: 100);
+  bool _fadeInEnabled = true;
+  bool _markdownEnabled = false;
+  Curve _fadeInCurve = Curves.easeOut;
+  String _demoText = 'Initial demo text';
+
+  final List> _curves = [
+    const MapEntry('Ease Out', Curves.easeOut),
+    const MapEntry('Ease In', Curves.easeIn),
+    const MapEntry('Elastic Out', Curves.elasticOut),
+    const MapEntry('Bounce Out', Curves.bounceOut),
+    const MapEntry('Decelerate', Curves.decelerate),
+  ];
+
+  final List> _chunkSizes = [
+    const MapEntry('1', 1),
+    const MapEntry('2', 2),
+    const MapEntry('3', 3),
+    const MapEnt
+// ... (truncated)

@@ -1,0 +1,125 @@
+import 'package:flutter&#47;gestures.dart';
+import 'package:flutter&#47;material.dart';
+
+&#47;&#47; ignore: depend_on_referenced_packages
+import 'package:flutter_expandable_table&#47;flutter_expandable_table.dart';
+
+const Color _primaryColor = Color(0xFF1e2f36); &#47;&#47;corner
+const Color _accentColor = Color(0xFF0d2026); &#47;&#47;background
+const TextStyle _textStyle = TextStyle(color: Colors.white);
+&#47;&#47; const TextStyle _textStyleSubItems = TextStyle(color: Colors.grey);
+
+void main() => runApp(const _MyApp());
+
+class _MyApp extends StatelessWidget {
+  const _MyApp();
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'ExpandableTable Example',
+        theme: ThemeData(primarySwatch: Colors.grey),
+        home: const _MyHomePage(),
+        scrollBehavior: _AppCustomScrollBehavior(),
+      );
+}
+
+class _MyHomePage extends StatefulWidget {
+  const _MyHomePage();
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _DefaultCellCard extends StatelessWidget {
+  final Widget child;
+
+  const _DefaultCellCard({
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) => Container(
+        color: _primaryColor,
+        margin: const EdgeInsets.all(1),
+        child: child,
+      );
+}
+
+class _MyHomePageState extends State {
+  ExpandableTableCell _buildCell(String content, {CellBuilder? builder}) =>
+      ExpandableTableCell(
+        child: builder != null
+            ? null
+            : _DefaultCellCard(
+                child: Center(
+                  child: Text(
+                    content,
+                    style: _textStyle,
+                  ),
+                ),
+              ),
+        builder: builder,
+      );
+
+  ExpandableTableCell _buildFirstRowCell() => ExpandableTableCell(
+        builder: (context, details) => _DefaultCellCard(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 24 * details.row!.address.length.toDouble(),
+                  child: details.row?.children != null
+                      ? Align(
+                          alignment: Alignment.centerRight,
+                          child: AnimatedRotation(
+                            duration: const Duration(milliseconds: 500),
+                            turns: details.row?.childrenExpanded == true
+                                ? 0.25
+                                : 0,
+                            child: const Icon(
+                              Icons.keyboard_arrow_right,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      : null,
+                ),
+                Text(
+                  '${details.row!.address.length > 1 ? details.row!.address.skip(1).map((e) => 'Sub ').join() : ''}Row ${details.row!.address.last}',
+                  style: _textStyle,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+  ExpandableTable _buildSimpleTable() {
+    const int columnsCount = 20;
+    const int rowsCount = 20;
+    &#47;&#47;Creation header
+    final List headers = List.generate(
+      columnsCount - 1,
+      (index) => ExpandableTableHeader(
+        width: index % 2 == 0 ? 200 : 150,
+        cell: _buildCell('Column $index'),
+      ),
+    );
+    &#47;&#47;Creation rows
+    final List rows = List.generate(
+      rowsCount,
+      (rowIndex) => ExpandableTableRow(
+        height: rowIndex % 2 == 0 ? 50 : 70,
+        firstCell: _buildCell('Row $rowIndex'),
+        cells: List.generate(
+          columnsCount - 1,
+          (columnIndex) => _buildCell('Cell $rowIndex:$columnIndex'),
+        ),
+      ),
+    );
+
+    return ExpandableTable(
+      firstHeaderCell: _buildCell('Simple\nTable'),
+      header
+// ... (truncated)

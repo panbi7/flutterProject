@@ -1,0 +1,144 @@
+&#47;&#47; Copyright 2013 The Flutter Authors
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'dart:async';
+
+import 'package:camera_platform_interface&#47;camera_platform_interface.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; Example app for Camera Windows plugin.
+class MyApp extends StatefulWidget {
+  &#47;&#47;&#47; Default Constructor
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _cameraInfo = 'Unknown';
+  List _cameras = [];
+  int _cameraIndex = 0;
+  int _cameraId = -1;
+  bool _initialized = false;
+  bool _recording = false;
+  bool _previewPaused = false;
+  Size? _previewSize;
+  MediaSettings _mediaSettings = const MediaSettings(
+    resolutionPreset: ResolutionPreset.low,
+    fps: 15,
+    videoBitrate: 200000,
+    audioBitrate: 32000,
+    enableAudio: true,
+  );
+  StreamSubscription? _errorStreamSubscription;
+  StreamSubscription? _cameraClosingStreamSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsFlutterBinding.ensureInitialized();
+    _fetchCameras();
+  }
+
+  @override
+  void dispose() {
+    _disposeCurrentCamera();
+    _errorStreamSubscription?.cancel();
+    _errorStreamSubscription = null;
+    _cameraClosingStreamSubscription?.cancel();
+    _cameraClosingStreamSubscription = null;
+    super.dispose();
+  }
+
+  &#47;&#47;&#47; Fetches list of available cameras from camera_windows plugin.
+  Future _fetchCameras() async {
+    String cameraInfo;
+    List cameras = [];
+
+    int cameraIndex = 0;
+    try {
+      cameras = await CameraPlatform.instance.availableCameras();
+      if (cameras.isEmpty) {
+        cameraInfo = 'No available cameras';
+      } else {
+        cameraIndex = _cameraIndex % cameras.length;
+        cameraInfo = 'Found camera: ${cameras[cameraIndex].name}';
+      }
+    } on PlatformException catch (e) {
+      cameraInfo = 'Failed to get cameras: ${e.code}: ${e.message}';
+    }
+
+    if (mounted) {
+      setState(() {
+        _cameraIndex = cameraIndex;
+        _cameras = cameras;
+        _cameraInfo = cameraInfo;
+      });
+    }
+  }
+
+  &#47;&#47;&#47; Initializes the camera on the device.
+  Future _initializeCamera() async {
+    assert(!_initialized);
+
+    if (_cameras.isEmpty) {
+      return;
+    }
+
+    int cameraId = -1;
+    try {
+      final int cameraIndex = _cameraIndex % _cameras.length;
+      final CameraDescription camera = _cameras[cameraIndex];
+
+      cameraId = await CameraPlatform.instance.createCameraWithSettings(
+        camera,
+        _mediaSettings,
+      );
+
+      unawaited(_errorStreamSubscription?.cancel());
+      _errorStreamSubscription = CameraPlatform.instance
+          .onCameraError(cameraId)
+          .listen(_onCameraError);
+
+      unawaited(_cameraClosingStreamSubscription?.cancel());
+      _cameraClosingStreamSubscription = CameraPlatform.instance
+          .onCameraClosing(cameraId)
+          .listen(_onCameraClosing);
+
+      final Future initialized = CameraPlatform.instance
+          .onCameraInitialized(cameraId)
+          .first;
+
+      await CameraPlatform.instance.initializeCamera(cameraId);
+
+      final CameraInitializedEvent event = await initialized;
+      _previewSize = Size(event.previewWidth, event.previewHeight);
+
+      if (mounted) {
+        setState(() {
+          _initialized = true;
+          _cameraId = cameraId;
+          _cameraIndex = cameraIndex;
+          _cameraInfo = 'Capturing camera: ${camera.name}';
+        });
+      }
+    } on CameraException catch (e) {
+      try {
+        if (cameraId >= 0) {
+          await CameraPlatform.instance.dispose(cameraId);
+        }
+      } on CameraException catch (e) {
+        debugPrint('Failed to dispose camera: ${e.code}: ${e.description}');
+      }
+
+      &#47;&#47; Reset state.
+      if (mounted) {
+        setState((
+// ... (truncated)

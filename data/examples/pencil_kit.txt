@@ -1,0 +1,113 @@
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:fluttertoast&#47;fluttertoast.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:pencil_kit&#47;pencil_kit.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  late final PencilKitController controller;
+  ToolType currentToolType = ToolType.pen;
+  double currentWidth = 1;
+  Color currentColor = Colors.black;
+  String base64Image = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+          textButtonTheme: const TextButtonThemeData(
+            style: ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              padding: WidgetStatePropertyAll(
+                EdgeInsets.all(8),
+              ),
+            ),
+          ),
+          visualDensity: VisualDensity.compact),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('PencilKit'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.palette),
+              onPressed: () => controller.show(),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => controller.hide(),
+            ),
+            IconButton(
+              icon: const Icon(Icons.undo),
+              onPressed: () => controller.undo(),
+            ),
+            IconButton(
+              icon: const Icon(Icons.redo),
+              onPressed: () => controller.redo(),
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () => controller.clear(),
+            ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SingleChildScrollView(
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.save),
+                        onPressed: () async {
+                          final Directory documentDir =
+                              await getApplicationDocumentsDirectory();
+                          final String pathToSave =
+                              '${documentDir.path}&#47;drawing';
+                          try {
+                            final data = await controller.save(
+                                uri: pathToSave, withBase64Data: true);
+                            if (kDebugMode) {
+                              print(data);
+                            }
+                            Fluttertoast.showToast(
+                                msg: "Save Success to [$pathToSave]",
+                                toastLength: Toast.LENGTH_LONG,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.blueAccent,
+                                textColor: Colors.white,
+                                fontSize: 12.0);
+                          } catch (e) {
+                            Fluttertoast.showToast(
+                                msg: "Save Failed to [$pathToSave]",
+                                toastLength: Toast.LENGTH_LONG,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.redAccent,
+                                textColor: Colors.white,
+                                fontSize: 12.0);
+                          }
+                        },
+                        tooltip: "Save",
+                      ),
+                      IconButton(
+        
+// ... (truncated)

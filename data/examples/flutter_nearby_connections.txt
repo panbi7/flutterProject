@@ -1,0 +1,144 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'package:device_info&#47;device_info.dart';
+import 'package:flutter_styled_toast&#47;flutter_styled_toast.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_nearby_connections&#47;flutter_nearby_connections.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+Route generateRoute(RouteSettings settings) {
+  switch (settings.name) {
+    case '&#47;':
+      return MaterialPageRoute(builder: (_) => Home());
+    case 'browser':
+      return MaterialPageRoute(
+          builder: (_) => DevicesListScreen(deviceType: DeviceType.browser));
+    case 'advertiser':
+      return MaterialPageRoute(
+          builder: (_) => DevicesListScreen(deviceType: DeviceType.advertiser));
+    default:
+      return MaterialPageRoute(
+          builder: (_) => Scaffold(
+                body: Center(
+                    child: Text('No route defined for ${settings.name}')),
+              ));
+  }
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      onGenerateRoute: generateRoute,
+      initialRoute: '&#47;',
+    );
+  }
+}
+
+class Home extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, 'browser');
+              },
+              child: Container(
+                color: Colors.red,
+                child: Center(
+                    child: Text(
+                  'BROWSER',
+                  style: TextStyle(color: Colors.white, fontSize: 40),
+                )),
+              ),
+            ),
+          ),
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, 'advertiser');
+              },
+              child: Container(
+                color: Colors.green,
+                child: Center(
+                    child: Text(
+                  'ADVERTISER',
+                  style: TextStyle(color: Colors.white, fontSize: 40),
+                )),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+enum DeviceType { advertiser, browser }
+
+class DevicesListScreen extends StatefulWidget {
+  const DevicesListScreen({required this.deviceType});
+
+  final DeviceType deviceType;
+
+  @override
+  _DevicesListScreenState createState() => _DevicesListScreenState();
+}
+
+class _DevicesListScreenState extends State {
+  List devices = [];
+  List connectedDevices = [];
+  late NearbyService nearbyService;
+  late StreamSubscription subscription;
+  late StreamSubscription receivedDataSubscription;
+
+  bool isInit = false;
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  @override
+  void dispose() {
+    subscription.cancel();
+    receivedDataSubscription.cancel();
+    nearbyService.stopBrowsingForPeers();
+    nearbyService.stopAdvertisingPeer();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.deviceType.toString().substring(11).toUpperCase()),
+        ),
+        backgroundColor: Colors.white,
+        body: ListView.builder(
+            itemCount: getItemCount(),
+            itemBuilder: (context, index) {
+              final device = widget.deviceType == DeviceType.advertiser
+                  ? connectedDevices[index]
+                  : devices[index];
+              return Container(
+                margin: EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                            child: GestureDetector(
+                          onTap: () => _onTabItemListener(device),
+                          child: Column(
+                            children: [
+                              Text(device.
+// ... (truncated)

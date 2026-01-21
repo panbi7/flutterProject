@@ -1,0 +1,45 @@
+&#47;&#47; This Flutter app demonstrates how to use the display_metrics package
+&#47;&#47; to access display metrics and convert between logical pixels and real world units.
+
+import 'package:display_metrics_example&#47;screens&#47;metrics.dart';
+import 'package:display_metrics_example&#47;screens&#47;ruler.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'package:display_metrics&#47;display_metrics.dart';
+
+void main() {
+  runApp(const ExampleApp());
+}
+
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; add DisplayMetricsWidget to Widget tree above MaterialApp to use
+    &#47;&#47; DisplayMetrics.of(context) and BuildContext extension methods
+    return DisplayMetricsWidget(
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.light(
+          useMaterial3: true,
+        ).copyWith(
+          appBarTheme: AppBarTheme(
+            color: Colors.blue.shade900,
+            foregroundColor: Colors.white,
+          ),
+          colorScheme: const ColorScheme.light().copyWith(
+            primary: Colors.blue.shade900,
+            onPrimary: Colors.white,
+            surface: Colors.grey.shade300,
+            onSurface: Colors.black,
+          ),
+        ),
+        routes: {
+          '&#47;': (_) => const MetricsScreen(),
+          '&#47;ruler': (_) => const RulerScreen(),
+        },
+      ),
+    );
+  }
+}

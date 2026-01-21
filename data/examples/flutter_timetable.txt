@@ -1,0 +1,126 @@
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_timetable&#47;flutter_timetable.dart';
+import 'package:intl&#47;intl.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        routes: {
+          '&#47;': (context) => const TimetableScreen(),
+          '&#47;custom': (context) => const CustomTimetableScreen(),
+        },
+      );
+}
+
+&#47;&#47;&#47; Plain old default time table screen.
+class TimetableScreen extends StatelessWidget {
+  const TimetableScreen({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.grey,
+          actions: [
+            TextButton(
+              onPressed: () async => Navigator.pushNamed(context, '&#47;custom'),
+              child: const Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Icon(Icons.celebration_outlined, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    "Custom builders",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(Icons.chevron_right_outlined, color: Colors.white),
+                ],
+              ),
+            ),
+          ],
+        ),
+        body: const Timetable(),
+      );
+}
+
+&#47;&#47;&#47; Timetable screen with all the stuff - controller, builders, etc.
+class CustomTimetableScreen extends StatefulWidget {
+  const CustomTimetableScreen({Key? key}) : super(key: key);
+  @override
+  State createState() => _CustomTimetableScreenState();
+}
+
+class _CustomTimetableScreenState extends State {
+  final items = generateItems();
+  final controller = TimetableController(
+    start: DateUtils.dateOnly(DateTime.now()).subtract(const Duration(days: 7)),
+    initialColumns: 3,
+    cellHeight: 100.0,
+    startHour: 9,
+    endHour: 18,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        controller.jumpTo(DateTime.now());
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.grey,
+          actions: [
+            TextButton(
+              onPressed: () async => Navigator.pop(context),
+              child: const Row(
+                children: [
+                  Icon(Icons.chevron_left_outlined, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    "Default",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
+            IconButton(
+              icon: const Icon(Icons.calendar_view_day),
+              onPressed: () => controller.setColumns(1),
+            ),
+            IconButton(
+              icon: const Icon(Icons.calendar_view_month_outlined),
+              onPressed: () => controller.setColumns(3),
+            ),
+            IconButton(
+              icon: const Icon(Icons.calendar_view_week),
+              onPressed: () => controller.setColumns(5),
+            ),
+            IconButton(
+              icon: const Icon(Icons.zoom_in),
+              onPressed: () => controller.setCellHeight(controller.cellHeight + 10),
+            ),
+            IconButton(
+              icon: const Icon(Icons.zoom_out),
+              onPressed: () => controller.setCellHeight(controller.cellHeight - 10),
+            ),
+          ],
+        ),
+        body: Timetable(
+          controller: controller,
+          items: items,
+          cellBuilder: (datetime) => Container(
+            decoration: BoxDecoration(
+              bo
+// ... (truncated)

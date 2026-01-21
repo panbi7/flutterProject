@@ -1,0 +1,131 @@
+import 'package:easy_localization&#47;easy_localization.dart';
+&#47;&#47;import 'package:easy_localization_loader&#47;easy_localization_loader.dart'; &#47;&#47; import custom loaders
+import 'package:flutter&#47;material.dart';
+import 'package:font_awesome_flutter&#47;font_awesome_flutter.dart';
+
+import 'generated&#47;locale_keys.g.dart';
+import 'lang_view.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
+
+  runApp(EasyLocalization(
+    supportedLocales: [
+      Locale('en', 'US'),
+      Locale('ar', 'DZ'),
+      Locale('de', 'DE'),
+      Locale('ru', 'RU')
+    ],
+    path: 'resources&#47;langs',
+    child: MyApp(),
+    &#47;&#47; fallbackLocale: Locale('en', 'US'),
+    &#47;&#47; startLocale: Locale('de', 'DE'),
+    &#47;&#47; saveLocale: false,
+    &#47;&#47; useOnlyLangCode: true,
+    &#47;&#47; ignorePluralRules: false,
+
+    &#47;&#47; optional assetLoader default used is RootBundleAssetLoader which uses flutter's assetloader
+    &#47;&#47; install easy_localization_loader for enable custom loaders
+    &#47;&#47; assetLoader: RootBundleAssetLoader()
+    &#47;&#47; assetLoader: HttpAssetLoader()
+    &#47;&#47; assetLoader: FileAssetLoader()
+    &#47;&#47; assetLoader: CsvAssetLoader()
+    &#47;&#47; assetLoader: YamlAssetLoader() &#47;&#47;multiple files
+    &#47;&#47; assetLoader: YamlSingleAssetLoader() &#47;&#47;single file
+    &#47;&#47; assetLoader: XmlAssetLoader() &#47;&#47;multiple files
+    &#47;&#47; assetLoader: XmlSingleAssetLoader() &#47;&#47;single file
+    &#47;&#47; assetLoader: CodegenLoader()
+  ));
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Easy localization'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int counter = 0;
+  bool _gender = true;
+
+  void incrementCounter() {
+    setState(() {
+      counter++;
+    });
+  }
+
+  void switchGender(bool val) {
+    setState(() {
+      _gender = val;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(LocaleKeys.title).tr(),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => LanguageView(), fullscreenDialog: true),
+              );
+            },
+            child: Icon(
+              Icons.language,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Spacer(
+              flex: 1,
+            ),
+            Text(
+              LocaleKeys.gender_with_arg,
+              style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 19,
+                  fontWeight: FontWeight.bold),
+            ).tr(args: ['aissat'], gender: _gender ? 'female' : 'male'),
+            Text(
+              tr(LocaleKeys.gender, gender: _gender ? 'female' : 'male'),
+              style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FaIcon(FontAwesomeIcons.male),
+                Switch(value: _gender, onChanged: switchGender),
+                FaIcon(FontAwesomeIcons.female),
+        
+// ... (truncated)

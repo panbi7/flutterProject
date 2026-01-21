@@ -1,0 +1,17 @@
+import 'package:example&#47;home_page.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Video Trimmer',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const HomePage(),
+      );
+}

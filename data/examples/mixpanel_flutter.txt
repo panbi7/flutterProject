@@ -1,0 +1,101 @@
+import 'package:flutter&#47;material.dart';
+import 'package:mixpanel_flutter_example&#47;widget.dart';
+
+import 'event.dart';
+import 'gdpr.dart';
+import 'group.dart';
+import 'profile.dart';
+
+&#47;&#47; This is the main page only, check out the example app in https:&#47;&#47;github.com&#47;mixpanel&#47;mixpanel-flutter&#47;tree&#47;main&#47;example
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp();
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialRoute: '&#47;',
+      routes: {
+        '&#47;': (context) => FirstScreen(),
+        '&#47;event': (context) => EventScreen(),
+        '&#47;profile': (context) => ProfileScreen(),
+        '&#47;gdpr': (context) => GDPRScreen(),
+        '&#47;group': (context) => GroupScreen(),
+      },
+    );
+  }
+}
+
+class FirstScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xff4f44e0),
+        title: Text('Mixpanel Demo'),
+      ),
+      body: Center(
+          child: Column(
+        children: [
+          SizedBox(
+            height: 40,
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.65,
+            child: MixpanelButton(
+              text: 'EVENT',
+              onPressed: () {
+                Navigator.pushNamed(context, '&#47;event');
+              },
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.65,
+            child: MixpanelButton(
+              text: 'PROFILE',
+              onPressed: () {
+                Navigator.pushNamed(context, '&#47;profile');
+              },
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.65,
+            child: MixpanelButton(
+              text: 'GDPR',
+              onPressed: () {
+                Navigator.pushNamed(context, '&#47;gdpr');
+              },
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.65,
+            child: MixpanelButton(
+              text: 'GROUP',
+              onPressed: () {
+                Navigator.pushNamed(context, '&#47;group');
+              },
+            ),
+          ),
+        ],
+      )),
+    );
+  }
+}

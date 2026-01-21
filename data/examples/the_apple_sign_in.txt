@@ -1,0 +1,120 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_secure_storage&#47;flutter_secure_storage.dart';
+import 'package:the_apple_sign_in&#47;the_apple_sign_in.dart';
+
+import 'button_test&#47;button_test_page.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(home: SignInPage());
+  }
+}
+
+class SignInPage extends StatefulWidget {
+  @override
+  State createState() => _SignInPageState();
+}
+
+class _SignInPageState extends State {
+  final Future _isAvailableFuture = TheAppleSignIn.isAvailable();
+
+  String errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    checkLoggedInState();
+
+    TheAppleSignIn.onCredentialRevoked.listen((_) {
+      print("Credentials revoked");
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Sign In with Apple Example App'),
+      ),
+      backgroundColor: Colors.grey,
+      body: SingleChildScrollView(
+          child: Center(
+              child: SizedBox(
+                  width: 280,
+                  child: FutureBuilder(
+                    future: _isAvailableFuture,
+                    builder: (context, isAvailableSnapshot) {
+                      if (!isAvailableSnapshot.hasData) {
+                        return Container(child: Text('Loading...'));
+                      }
+
+                      return isAvailableSnapshot.data
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                  SizedBox(
+                                    height: 100,
+                                  ),
+                                  AppleSignInButton(
+                                    onPressed: logIn,
+                                  ),
+                                  if (errorMessage != null) Text(errorMessage),
+                                  SizedBox(
+                                    height: 200,
+                                  ),
+                                  ElevatedButton(
+                                    child: Text("Button Test Page"),
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  ButtonTestPage()));
+                                    },
+                                  )
+                                ])
+                          : Text(
+                              'Sign in With Apple not available. Must be run on iOS 13+');
+                    },
+                  )))),
+    );
+  }
+
+  void logIn() async {
+    final AuthorizationResult result = await TheAppleSignIn.performRequests([
+      AppleIdRequest(requestedScopes: [Scope.email, Scope.fullName])
+    ]);
+
+    switch (result.status) {
+      case AuthorizationStatus.authorized:
+
+        &#47;&#47; Store user ID
+        await FlutterSecureStorage()
+            .write(key: "userId", value: result.credential.user);
+
+        &#47;&#47; Navigate to secret page (shhh!)
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (_) => AfterLoginPage(credential: result.credential)));
+        break;
+
+      case AuthorizationStatus.error:
+        print("Sign in failed: ${result.error.localizedDescription}");
+        setState(() {
+          errorMessage = "Sign in failed";
+        });
+        break;
+
+      case AuthorizationStatus.cancelled:
+        print('User cancelled');
+        break;
+    }
+  }
+
+  void checkLoggedInState() async {
+    final userId = await FlutterSecureStorage
+// ... (truncated)

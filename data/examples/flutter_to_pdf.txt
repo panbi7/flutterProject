@@ -1,0 +1,117 @@
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_charts&#47;flutter_charts.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:flutter_to_pdf&#47;flutter_to_pdf.dart';
+
+void main() => runApp(const Demo());
+
+class Demo extends StatefulWidget {
+  const Demo({super.key});
+
+  @override
+  State createState() => _DemoState();
+}
+
+class _DemoState extends State {
+  final ExportDelegate exportDelegate = ExportDelegate(
+    ttfFonts: {
+      'LoveDays': 'assets&#47;fonts&#47;LoveDays-Regular.ttf',
+      'OpenSans': 'assets&#47;fonts&#47;OpenSans-Regular.ttf',
+    },
+  );
+
+  Future saveFile(document, String name) async {
+    final Directory dir = await getApplicationDocumentsDirectory();
+    final File file = File('${dir.path}&#47;$name.pdf');
+
+    await file.writeAsBytes(await document.save());
+    debugPrint('Saved exported PDF at: ${file.path}');
+  }
+
+  String currentFrameId = 'questionaireDemo';
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+          tabBarTheme: const TabBarTheme(
+            labelColor: Colors.black87,
+          ),
+        ),
+        home: DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            key: GlobalKey(),
+            appBar: AppBar(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              title: const Text('Flutter to PDF - Demo'),
+              bottom: TabBar(
+                indicator: const UnderlineTabIndicator(),
+                tabs: const [
+                  Tab(
+                    icon: Icon(Icons.question_answer),
+                    text: 'Questionaire',
+                  ),
+                  Tab(
+                    icon: Icon(Icons.ssid_chart),
+                    text: 'Charts & Custom Paint',
+                  ),
+                ],
+                onTap: (int value) {
+                  setState(() {
+                    currentFrameId =
+                        value == 0 ? 'questionaireDemo' : 'captureWrapperDemo';
+                  });
+                },
+              ),
+            ),
+            bottomSheet: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                  onPressed: () async {
+                    final ExportOptions overrideOptions = ExportOptions(
+                      textFieldOptions: TextFieldOptions.uniform(
+                        interactive: false,
+                      ),
+                      checkboxOptions: CheckboxOptions.uniform(
+                        interactive: false,
+                      ),
+                    );
+                    final pdf = await exportDelegate.exportToPdfDocument(
+                        currentFrameId,
+                        overrideOptions: overrideOptions);
+                    saveFile(pdf, 'static-example');
+                  },
+                  child: const Row(
+                    children: [
+                      Text('Export as static'),
+                      Icon(Icons.save_alt_outlined),
+                    ],
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    final pdf = await exportDelegate
+                        .exportToPdfDocument(currentFrameId);
+                    saveFile(pdf, 'interactive-example');
+                  },
+                  child: const Row(
+                    children: [
+                      Text('Export as interactive'),
+                      Icon(Icons.save_alt_outlined),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            body: TabBarView(
+              children: [
+                ExportFrame(
+                  frameId: 'questionaireDemo',
+                  exportDelegate: exportDelegate,
+                  child: const Ques
+// ... (truncated)

@@ -1,0 +1,39 @@
+&#47;&#47; ignore_for_file: avoid_web_libraries_in_flutter
+
+import 'package:flutter&#47;material.dart';
+import 'package:example&#47;home_page.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47;
+class MyApp extends StatefulWidget {
+  &#47;&#47;&#47;
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    final theme = ThemeData(
+      useMaterial3: true,
+      colorSchemeSeed: Colors.purple,
+      brightness: Brightness.dark,
+      inputDecorationTheme: InputDecorationTheme(
+        border: OutlineInputBorder(),
+        alignLabelWithHint: true,
+        isDense: true,
+      ),
+    );
+
+    return MaterialApp(
+      theme: theme,
+      debugShowCheckedModeBanner: false,
+      home: HomePage(),
+    );
+  }
+}

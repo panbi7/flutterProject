@@ -1,0 +1,122 @@
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_md&#47;flutter_md.dart';
+
+void main() => runZonedGuarded(
+      () => runApp(ThemeModel(
+          notifier: ValueNotifier(ThemeMode.dark),
+          child: const App())),
+      (e, s) => print(e),
+    );
+
+&#47;&#47;&#47; {@template app}
+&#47;&#47;&#47; App widget.
+&#47;&#47;&#47; {@endtemplate}
+class App extends StatelessWidget {
+  &#47;&#47;&#47; {@macro app}
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Markdown',
+        themeMode: ThemeModel.of(context).value,
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
+        home: const HomeScreen(),
+        builder: (context, child) => MarkdownTheme(
+          data: MarkdownThemeData.mergeTheme(
+            Theme.of(context),
+            &#47;&#47; Exclude images from the markdown rendering,
+            &#47;&#47; so they are not rendered in the output.
+            &#47;&#47; Because image spans are not supported yet.
+            spanFilter: (span) => !span.style.contains(MD$Style.image),
+            onLinkTap: (title, url) {
+              ScaffoldMessenger.maybeOf(context)
+                ?..clearSnackBars()
+                ..showSnackBar(
+                  SnackBar(
+                    content: Text('Link "$title" tapped: $url'),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+            },
+          ),
+          child: child!,
+        ),
+      );
+}
+
+&#47;&#47;&#47; {@template theme_model}
+&#47;&#47;&#47; A widget that provides the [ThemeMode] to its descendants.
+&#47;&#47;&#47; {@endtemplate}
+class ThemeModel extends InheritedNotifier> {
+  &#47;&#47;&#47; {@macro theme_model}
+  const ThemeModel({super.key, super.notifier, required super.child});
+
+  &#47;&#47;&#47; The state from the closest instance of this class
+  &#47;&#47;&#47; that encloses the given context, if any.
+  &#47;&#47;&#47; e.g. `Theme.maybeOf(context)`.
+  static ValueNotifier? maybeOf(BuildContext context,
+          {bool listen = true}) =>
+      listen
+          ? context.dependOnInheritedWidgetOfExactType()?.notifier
+          : context.getInheritedWidgetOfExactType()?.notifier;
+
+  static Never _notFoundInheritedWidgetOfExactType() => throw ArgumentError(
+        'Out of scope, not found inherited widget '
+            'a ThemeModel of the exact type',
+        'out_of_scope',
+      );
+
+  &#47;&#47;&#47; The state from the closest instance of this class
+  &#47;&#47;&#47; that encloses the given context.
+  &#47;&#47;&#47; e.g. `Theme.of(context)`
+  static ValueNotifier of(BuildContext context,
+          {bool listen = true}) =>
+      maybeOf(context, listen: listen) ?? _notFoundInheritedWidgetOfExactType();
+
+  @override
+  bool updateShouldNotify(
+      covariant InheritedNotifier> oldWidget) {
+    return !identical(notifier, oldWidget.notifier);
+  }
+}
+
+&#47;&#47;&#47; {@template home_screen}
+&#47;&#47;&#47; HomeScreen widget.
+&#47;&#47;&#47; {@endtemplate}
+class HomeScreen extends StatefulWidget {
+  &#47;&#47;&#47; {@macro home_screen}
+  const HomeScreen({
+    super.key, &#47;&#47; ignore: unused_element
+  });
+
+  @override
+  State createState() => _HomeScreenState();
+}
+
+&#47;&#47;&#47; State for widget HomeScreen.
+class _HomeScreenState extends State {
+  final MultiChildLayoutDelegate _layoutDelegate = _HomeScreenLayoutDelegate();
+  final TextEditingController _inputController =
+      TextEditingController(text: _markdownExample);
+  final ValueNotifier _outputController =
+      ValueNotifier(const Markdown.empty());
+
+  @override
+  void initState() {
+    super.initState();
+    final initialMarkdown = Markdown.fromString(_inputController.text);
+    _outputController.value = initialMarkdown;
+    _inputController.addListener(_onInputChanged);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _inputController.dispose();
+    _outputController.dis
+// ... (truncated)

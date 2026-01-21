@@ -1,0 +1,127 @@
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;rendering.dart';
+import 'dart:ui' as ui;
+
+import 'package:flutter_pax_printer_utility&#47;flutter_pax_printer_utility.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  String _platformVersion = 'Unknown';
+  String statusPrinter = '0';
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+    getPrinterStatus();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    String platformVersion;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    &#47;&#47; We also handle the message potentially returning null.
+    try {
+      platformVersion = await FlutterPaxPrinterUtility.platformVersion ??
+          'Unknown platform version';
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _platformVersion = platformVersion;
+    });
+  }
+
+  getPrinterStatus() async {
+    await FlutterPaxPrinterUtility.init;
+    PrinterStatus status = await FlutterPaxPrinterUtility.getStatus;
+    if (kDebugMode) {
+      print(status);
+    }
+    setState(() {
+      if (status == PrinterStatus.SUCCESS) {
+        statusPrinter = "1";
+      } else {
+        statusPrinter = "0";
+      }
+    });
+  }
+
+  printQrCode() async {
+    await FlutterPaxPrinterUtility.init;
+    await FlutterPaxPrinterUtility.fontSet(
+        EFontTypeAscii.FONT_24_24, EFontTypeExtCode.FONT_24_24);
+    await FlutterPaxPrinterUtility.spaceSet(0, 10);
+    await FlutterPaxPrinterUtility.setGray(1);
+    await FlutterPaxPrinterUtility.printStr('SILAHKAN SCAN QRCODE', null);
+    await FlutterPaxPrinterUtility.printStr('\n\n', null);
+    await FlutterPaxPrinterUtility.printStr('ID1782363', null);
+    await FlutterPaxPrinterUtility.printStr('\n', null);
+    await FlutterPaxPrinterUtility.printStr('001', null);
+    await FlutterPaxPrinterUtility.printQRCode(
+        '190237901273akshfaksdh', 512, 512);
+    await FlutterPaxPrinterUtility.printStr('BAKSO', null);
+    await FlutterPaxPrinterUtility.step(150);
+    var status = await FlutterPaxPrinterUtility.start();
+    return status;
+  }
+
+  printImage() async {
+    await FlutterPaxPrinterUtility.init;
+    await FlutterPaxPrinterUtility.fontSet(
+        EFontTypeAscii.FONT_24_24, EFontTypeExtCode.FONT_24_24);
+    await FlutterPaxPrinterUtility.spaceSet(0, 10);
+    await FlutterPaxPrinterUtility.setGray(1);
+    await FlutterPaxPrinterUtility.printStr('TEST PRINT IMAGE', null);
+    await FlutterPaxPrinterUtility.printImageAsset(
+        'assets&#47;images&#47;maha_bg_white.png');
+    await FlutterPaxPrinterUtility.step(150);
+    var status = await FlutterPaxPrinterUtility.start();
+    return status;
+  }
+
+  printImageNetwork() async {
+    await FlutterPaxPrinterUtility.init;
+    await FlutterPaxPrinterUtility.fontSet(
+        EFontTypeAscii.FONT_24_24, EFontTypeExtCode.FONT_24_24);
+    await FlutterPaxPrinterUtility.spaceSet(0, 10);
+    await FlutterPaxPrinterUtility.setGray(1);
+    await FlutterPaxPrinterUtility.print
+// ... (truncated)

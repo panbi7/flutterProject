@@ -1,0 +1,49 @@
+import 'package:flutter&#47;material.dart';
+import 'package:reorderable_grid&#47;reorderable_grid.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  &#47;&#47;&#47; create a new list of data
+  final items = List.generate(40, (index) => index);
+
+  &#47;&#47;&#47; when the reorder completes remove the list entry from its old position
+  &#47;&#47;&#47; and insert it at its new index
+  void _onReorder(int oldIndex, int newIndex) {
+    setState(() {
+      final item = items.removeAt(oldIndex);
+      items.insert(newIndex, item);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: ReorderableGridView.extent(
+          maxCrossAxisExtent: 150,
+          onReorder: _onReorder,
+          childAspectRatio: 1,
+          children: items.map((item) {
+            &#47;&#47;&#47; map every list entry to a widget and assure every child has a
+            &#47;&#47;&#47; unique key
+            return Card(
+              key: ValueKey(item),
+              child: Center(
+                child: Text(item.toString()),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+}

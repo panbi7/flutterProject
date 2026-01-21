@@ -1,0 +1,54 @@
+import 'package:flutter&#47;foundation.dart' show PlatformDispatcher;
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_branch_sdk&#47;flutter_branch_sdk.dart';
+
+import 'app.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrintStack(stackTrace: stack);
+    return true;
+  };
+
+  &#47;&#47;FlutterBranchSdk.setPreinstallCampaign('My Campaign Name');
+  &#47;&#47;FlutterBranchSdk.setPreinstallPartner('Branch \$3p Parameter Value');
+  &#47;*
+  FlutterBranchSdk.addFacebookPartnerParameter(
+      key: 'em',
+      value:
+          '11234e56af071e9c79927651156bd7a10bca8ac34672aba121056e2698ee7088');
+  FlutterBranchSdk.addSnapPartnerParameter(
+      key: 'hashed_email_address',
+      value:
+          '11234e56af071e9c79927651156bd7a10bca8ac34672aba121056e2698ee7088');
+  FlutterBranchSdk.setRequestMetadata('key1', 'value1');
+  FlutterBranchSdk.setRequestMetadata('key2', 'value2');
+  *&#47;
+  FlutterBranchSdk.setRequestMetadata('key1', 'value1');
+  FlutterBranchSdk.setRequestMetadata('key2', 'value2');
+
+  FlutterBranchSdk.setAnonID('1234556');
+  FlutterBranchSdk.setSDKWaitTimeForThirdPartyAPIs(2.5);
+
+  &#47;&#47; Initialize Branch SDK with log level control
+  await FlutterBranchSdk.init(
+    &#47;&#47;enableLogging: true,
+    &#47;&#47;logLevel: BranchLogLevel.VERBOSE, &#47;&#47; Set desired log level
+    branchAttributionLevel: BranchAttributionLevel.FULL,
+  );
+  FlutterBranchSdk.setConsumerProtectionAttributionLevel(BranchAttributionLevel.FULL);
+
+  &#47;*
+  AppTrackingStatus status = await FlutterBranchSdk.requestTrackingAuthorization();
+  if (status == AppTrackingStatus.notSupported) {
+    debugPrint('not supported');
+  }
+  FlutterBranchSdk.disableTracking(true);
+   *&#47;
+  runApp(const MyApp());
+}

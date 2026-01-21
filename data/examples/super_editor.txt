@@ -1,0 +1,100 @@
+import 'package:example&#47;demos&#47;components&#47;demo_text_with_hint.dart';
+import 'package:example&#47;demos&#47;components&#47;demo_unselectable_hr.dart';
+import 'package:example&#47;demos&#47;debugging&#47;simple_deltas_input.dart';
+import 'package:example&#47;demos&#47;demo_animated_task_height.dart';
+import 'package:example&#47;demos&#47;demo_app_shortcuts.dart';
+import 'package:example&#47;demos&#47;demo_empty_document.dart';
+import 'package:example&#47;demos&#47;demo_markdown_serialization.dart';
+import 'package:example&#47;demos&#47;demo_paragraphs.dart';
+import 'package:example&#47;demos&#47;demo_rtl.dart';
+import 'package:example&#47;demos&#47;demo_selectable_text.dart';
+import 'package:example&#47;demos&#47;editor_configs&#47;demo_mobile_editing_android.dart';
+import 'package:example&#47;demos&#47;editor_configs&#47;demo_mobile_editing_ios.dart';
+import 'package:example&#47;demos&#47;example_editor&#47;example_editor.dart';
+import 'package:example&#47;demos&#47;flutter_features&#47;demo_inline_widgets.dart';
+import 'package:example&#47;demos&#47;flutter_features&#47;textinputclient&#47;basic_text_input_client.dart';
+import 'package:example&#47;demos&#47;flutter_features&#47;textinputclient&#47;textfield.dart';
+import 'package:example&#47;demos&#47;scrolling&#47;demo_task_and_chat_with_customscrollview.dart';
+import 'package:example&#47;demos&#47;sliver_example_editor.dart';
+import 'package:example&#47;demos&#47;styles&#47;demo_doc_styles.dart';
+import 'package:example&#47;demos&#47;super_document&#47;demo_super_reader.dart';
+import 'package:example&#47;demos&#47;supertextfield&#47;demo_textfield.dart';
+import 'package:example&#47;demos&#47;supertextfield&#47;ios&#47;demo_superiostextfield.dart';
+import 'package:example&#47;logging.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_gen&#47;gen_l10n&#47;app_localizations.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+import 'package:logging&#47;logging.dart';
+import 'package:super_editor&#47;super_editor.dart';
+
+import 'demos&#47;demo_attributed_text.dart';
+import 'demos&#47;demo_document_loses_focus.dart';
+import 'demos&#47;demo_switch_document_content.dart';
+import 'demos&#47;super_document&#47;demo_read_only_scrolling_document.dart';
+import 'demos&#47;supertextfield&#47;android&#47;demo_superandroidtextfield.dart';
+
+&#47;&#47;&#47; Demo of a basic text editor, as well as various widgets that
+&#47;&#47;&#47; are available in this package.
+Future main() async {
+  initLoggers(Level.FINEST, {
+    &#47;&#47; editorScrollingLog,
+    &#47;&#47; editorGesturesLog,
+    &#47;&#47; editorImeLog,
+    &#47;&#47; editorKeyLog,
+    &#47;&#47; editorOpsLog,
+    &#47;&#47; editorLayoutLog,
+    &#47;&#47; editorDocLog,
+    &#47;&#47; editorStyleLog,
+    &#47;&#47; textFieldLog,
+    appLog,
+  });
+
+  runApp(SuperEditorDemoApp());
+}
+
+class SuperEditorDemoApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Super Editor Demo App',
+      theme: ThemeData(
+        primarySwatch: Colors.red,
+      ),
+      home: HomeScreen(),
+      supportedLocales: const [
+        Locale('en', ''),
+        Locale('es', ''),
+      ],
+      localizationsDelegates: const [
+        ...AppLocalizations.localizationsDelegates,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+&#47;&#47;&#47; Displays various demos that are selected from a list of
+&#47;&#47;&#47; options in a drawer.
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State {
+  final _scaffoldKey = GlobalKey();
+
+  _MenuItem? _selectedMenuItem;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _selectedMenuItem = _menu[0].items[0];
+  }
+
+  void _toggleDrawer() {
+    if (_sc
+// ... (truncated)

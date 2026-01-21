@@ -1,0 +1,139 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:math';
+
+import 'package:bitsdojo_window&#47;bitsdojo_window.dart';
+import 'package:english_words&#47;english_words.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:system_tray&#47;system_tray.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    const MyApp(),
+  );
+
+  doWhenWindowReady(() {
+    final win = appWindow;
+    const initialSize = Size(600, 450);
+    win.minSize = initialSize;
+    win.size = initialSize;
+    win.alignment = Alignment.center;
+    win.title = "How to use system tray with Flutter";
+    win.show();
+  });
+}
+
+String getTrayImagePath(String imageName) {
+  return Platform.isWindows ? 'assets&#47;$imageName.ico' : 'assets&#47;$imageName.png';
+}
+
+String getImagePath(String imageName) {
+  return Platform.isWindows ? 'assets&#47;$imageName.bmp' : 'assets&#47;$imageName.png';
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final AppWindow _appWindow = AppWindow();
+  final SystemTray _systemTray = SystemTray();
+  final Menu _menuMain = Menu();
+  final Menu _menuSimple = Menu();
+
+  Timer? _timer;
+  bool _toogleTrayIcon = true;
+
+  bool _toogleMenu = true;
+
+  @override
+  void initState() {
+    super.initState();
+    initSystemTray();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer?.cancel();
+  }
+
+  Future initSystemTray() async {
+    List iconList = ['darts_icon', 'gift_icon'];
+
+    &#47;&#47; We first init the systray menu and then add the menu entries
+    await _systemTray.initSystemTray(iconPath: getTrayImagePath('app_icon'));
+    _systemTray.setTitle("system tray");
+    _systemTray.setToolTip("How to use system tray with Flutter");
+
+    &#47;&#47; handle system tray event
+    _systemTray.registerSystemTrayEventHandler((eventName) {
+      debugPrint("eventName: $eventName");
+      if (eventName == kSystemTrayEventClick) {
+        Platform.isWindows ? _appWindow.show() : _systemTray.popUpContextMenu();
+      } else if (eventName == kSystemTrayEventRightClick) {
+        Platform.isWindows ? _systemTray.popUpContextMenu() : _appWindow.show();
+      }
+    });
+
+    await _menuMain.buildFrom(
+      [
+        MenuItemLabel(
+          label: 'Change Context Menu',
+          image: getImagePath('darts_icon'),
+          onClicked: (menuItem) {
+            debugPrint("Change Context Menu");
+
+            _toogleMenu = !_toogleMenu;
+            _systemTray.setContextMenu(_toogleMenu ? _menuMain : _menuSimple);
+          },
+        ),
+        MenuSeparator(),
+        MenuItemLabel(
+            label: 'Show',
+            image: getImagePath('darts_icon'),
+            onClicked: (menuItem) => _appWindow.show()),
+        MenuItemLabel(
+            label: 'Hide',
+            image: getImagePath('darts_icon'),
+            onClicked: (menuItem) => _appWindow.hide()),
+        MenuItemLabel(
+          label: 'Start flash tray icon',
+          image: getImagePath('darts_icon'),
+          onClicked: (menuItem) {
+            debugPrint("Start flash tray icon");
+
+            _timer ??= Timer.periodic(
+              const Duration(milliseconds: 500),
+              (timer) {
+                _toogleTrayIcon = !_toogleTrayIcon;
+                _systemTray.setImage(
+                    _toogleTrayIcon ? "" : getTrayImagePath('app_icon'));
+              },
+            );
+          },
+        ),
+        MenuItemLabel(
+          label: 'Stop flash tray icon',
+          image: getImagePath('darts_icon'),
+          onClicked: (menuItem) {
+            debugPrint("Stop flash tray icon");
+
+            _timer?.cancel();
+            _timer = null;
+
+            _systemTray.setImage(getTrayImagePath('app_icon'));
+          },
+        ),
+        MenuSeparator(),
+        SubMenu(
+          label: "Test API",
+          image: getImagePath('gift_icon'),
+          children: [
+            SubMenu(
+              lab
+// ... (truncated)

@@ -1,0 +1,133 @@
+import 'package:flutter&#47;material.dart';
+import 'package:any_image_view&#47;any_image_view.dart';
+import 'package:image_picker&#47;image_picker.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Any Image View Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+      ),
+      home: const ImageGalleryScreen(),
+    );
+  }
+}
+
+class ImageGalleryScreen extends StatefulWidget {
+  const ImageGalleryScreen({super.key});
+
+  @override
+  State createState() => _ImageGalleryScreenState();
+}
+
+class _ImageGalleryScreenState extends State {
+  XFile? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+
+  Future _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          _selectedImage = image;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Any Image View - Advanced Features'),
+        elevation: 2,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.photo_library),
+            onPressed: _pickImage,
+            tooltip: 'Pick Image from Gallery',
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          if (_selectedImage != null) ...[
+            _buildSection(
+              'XFile from Image Picker (Perfect XFile Support)',
+              AnyImageView(
+                imagePath: _selectedImage,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+          _buildSection(
+            'Network Image with Shimmer Loading Animation',
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '✨ Watch the shimmer animation while image loads',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                AnyImageView(
+                  imagePath:
+                      'https:&#47;&#47;images.unsplash.com&#47;photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildSection(
+            'Best Resolution Network Image',
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '🚀 Images load at full original resolution',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const
+// ... (truncated)

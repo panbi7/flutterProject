@@ -1,0 +1,134 @@
+import 'dart:async';
+import 'dart:io';
+import 'package:edge_detection&#47;edge_detection.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:path&#47;path.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String? _imagePath;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future getImageFromCamera() async {
+    bool isCameraGranted = await Permission.camera.request().isGranted;
+    if (!isCameraGranted) {
+      isCameraGranted =
+          await Permission.camera.request() == PermissionStatus.granted;
+    }
+
+    if (!isCameraGranted) {
+      &#47;&#47; Have not permission to camera
+      return;
+    }
+
+    &#47;&#47; Generate filepath for saving
+    String imagePath = join((await getApplicationSupportDirectory()).path,
+        "${(DateTime.now().millisecondsSinceEpoch &#47; 1000).round()}.jpeg");
+      
+    bool success = false;
+
+    try {
+      &#47;&#47;Make sure to await the call to detectEdge.
+      success = await EdgeDetection.detectEdge(
+        imagePath,
+        canUseGallery: true,
+        androidScanTitle: 'Scanning', &#47;&#47; use custom localizations for android
+        androidCropTitle: 'Crop',
+        androidCropBlackWhiteTitle: 'Black White',
+        androidCropReset: 'Reset',
+      );
+      print("success: $success");
+    } catch (e) {
+      print(e);
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      if(success){
+        _imagePath = imagePath;
+      }
+    });
+  }
+
+  Future getImageFromGallery() async {
+    &#47;&#47; Generate filepath for saving
+    String imagePath = join((await getApplicationSupportDirectory()).path,
+        "${(DateTime.now().millisecondsSinceEpoch &#47; 1000).round()}.jpeg");
+
+    bool success = false;
+    try {
+      &#47;&#47;Make sure to await the call to detectEdgeFromGallery.
+      success = await EdgeDetection.detectEdgeFromGallery(
+        imagePath,
+        androidCropTitle: 'Crop', &#47;&#47; use custom localizations for android
+        androidCropBlackWhiteTitle: 'Black White',
+        androidCropReset: 'Reset',
+      );
+      print("success: $success");
+    } catch (e) {
+      print(e);
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      if(success){
+        _imagePath = imagePath;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Center(
+                child: ElevatedButton(
+                  onPressed: getImageFromCamera,
+                  child: Text('Scan'),
+                ),
+              ),
+              SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: getImageFromGallery,
+                  child: Text('Upload'),
+                ),
+              ),
+              SizedBox(height: 20),
+              Text('Cropped image path:'),
+              Padding(
+                padding: const EdgeInsets.only(top: 0, left: 0, right: 0),
+                child: Text(
+                  _imagePath.toString(),
+  
+// ... (truncated)

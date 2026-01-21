@@ -1,0 +1,136 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_wizard&#47;flutter_wizard.dart';
+import 'package:provider&#47;provider.dart';
+
+import 'example.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
+    return MaterialApp(
+      title: 'Flutter Wizard Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme(
+          brightness: Brightness.light,
+          primary: Colors.blue,
+          onPrimary: Colors.white,
+          secondary: Colors.orange,
+          onSecondary: Colors.white,
+          surface: Colors.grey.shade100,
+          onSurface: Colors.grey.shade700,
+          background: Colors.white,
+          onBackground: Colors.grey.shade700,
+          error: Colors.redAccent,
+          onError: Colors.white,
+        ),
+        progressIndicatorTheme: ProgressIndicatorThemeData(
+          linearTrackColor: Colors.orange.shade100,
+          color: Colors.orange,
+        ),
+      ),
+      home: ProviderExamplePage.provider(),
+    );
+  }
+}
+
+class ProviderExamplePage extends StatelessWidget {
+  const ProviderExamplePage._({Key? key}) : super(key: key);
+
+  static Provider provider({Key? key}) {
+    return Provider(
+      create: (_) => ProviderExamplePageProvider(),
+      dispose: (_, provider) => provider.dispose(),
+      child: ProviderExamplePage._(
+        key: key,
+      ),
+    );
+  }
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
+    final provider = Provider.of(
+      context,
+    );
+    return DefaultWizardController(
+      stepControllers: [
+        WizardStepController(
+          step: provider.stepOneProvider,
+        ),
+        WizardStepController(
+          step: provider.stepTwoProvider,
+          isNextEnabled: false,
+        ),
+        WizardStepController(
+          step: provider.stepThreeProvider,
+        ),
+      ],
+      &#47;&#47; Wrapping with a builder so the context contains the [WizardController]
+      child: Builder(
+        builder: (context) {
+          return Scaffold(
+            appBar: AppBar(
+              title: StreamBuilder(
+                stream: context.wizardController.indexStream,
+                initialData: context.wizardController.index,
+                builder: (context, snapshot) {
+                  return Text("Wizard Example - Step ${snapshot.data! + 1}");
+                },
+              ),
+            ),
+            body: WizardEventListener(
+              listener: (context, event) {
+                debugPrint('### ${event.runtimeType} received');
+                if (event is WizardForcedGoBackToEvent) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                      'Step ${event.toIndex + 2} got disabled so the wizard is moving back to step ${event.toIndex + 1}.',
+                    ),
+                    dismissDirection: DismissDirection.horizontal,
+                  ));
+                }
+              },
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Column(
+                    children: [
+                      _buildProgressIndicator(
+                        context,
+                      ),
+                      Expanded(
+                        child: _buildWizard(
+                          context,
+                          provider: provider,
+                          constraints: constraints,
+                        ),
+                      ),
+                      const ActionBar(),
+                    ],
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildWizard(
+    BuildContext context, {
+    required ProviderExamplePageProvider provider,
+    required BoxConstraints constraints,
+  }) {
+    final wizard = Wizard(
+      stepBuilder: (context, 
+// ... (truncated)

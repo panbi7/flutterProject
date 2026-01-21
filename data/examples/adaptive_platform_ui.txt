@@ -1,0 +1,58 @@
+import 'package:adaptive_platform_ui_example&#47;service&#47;router&#47;router_service.dart';
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:adaptive_platform_ui&#47;adaptive_platform_ui.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+
+void main() {
+  runApp(const AdaptivePlatformUIDemo());
+}
+
+class AdaptivePlatformUIDemo extends StatefulWidget {
+  const AdaptivePlatformUIDemo({super.key});
+
+  @override
+  State createState() => _AdaptivePlatformUIDemoState();
+}
+
+class _AdaptivePlatformUIDemoState extends State {
+  RouterService routerService = RouterService();
+
+  @override
+  Widget build(BuildContext context) {
+    return AdaptiveApp.router(
+      themeMode: ThemeMode.system,
+      title: 'Adaptive Platform UI',
+      cupertinoLightTheme: CupertinoThemeData(brightness: Brightness.light),
+      cupertinoDarkTheme: CupertinoThemeData(brightness: Brightness.dark),
+      materialLightTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
+        brightness: Brightness.light,
+      ),
+      materialDarkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+        brightness: Brightness.dark,
+      ),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate, &#47;&#47; Important!
+        DefaultWidgetsLocalizations.delegate,
+      ],
+      locale: const Locale('en'),
+      supportedLocales: [
+        const Locale('en'), &#47;&#47; English
+        const Locale('tr'), &#47;&#47; Turkish
+        &#47;&#47; ... other locales the app supports
+      ],
+      routerConfig: routerService.router,
+    );
+  }
+}

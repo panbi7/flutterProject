@@ -1,0 +1,123 @@
+import 'package:flutter&#47;material.dart';
+import 'package:glassmorphism_widgets&#47;glassmorphism_widgets.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return GlassApp(
+      theme: GlassThemeData(
+        blur: 10,
+      ),
+      home: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  &#47;&#47; This widget is the home page of your application. It is stateful, meaning
+  &#47;&#47; that it has a State object (defined below) that contains fields that affect
+  &#47;&#47; how it looks.
+
+  &#47;&#47; This class is the configuration for the state. It holds the values (in this
+  &#47;&#47; case the title) provided by the parent (in this case the App widget) and
+  &#47;&#47; used by the build method of the State. Fields in a Widget subclass are
+  &#47;&#47; always marked "final".
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int index = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; This method is rerun every time setState is called, for instance as done
+    &#47;&#47; by the _incrementCounter method above.
+    &#47;&#47;
+    &#47;&#47; The Flutter framework has been optimized to make rerunning build methods
+    &#47;&#47; fast, so that you can just rebuild anything that needs updating rather
+    &#47;&#47; than having to individually change instances of widgets.
+    return Stack(
+      children: [
+        Scaffold(
+          body: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: Image.network(
+                        "https:&#47;&#47;picsum.photos&#47;${MediaQuery.of(context).size.width.toInt()}&#47;${MediaQuery.of(context).size.height.toInt()}")
+                    .image,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: GlassAppBar(
+            title: const GlassText(
+              'Glass Morphic Demo',
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            actions: [
+              IconButton(
+                icon: const GlassIcon(Icons.search),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const GlassIcon(Icons.more_vert),
+                onPressed: () {},
+              ),
+            ],
+          ),
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GlassListTile(
+                leading: const GlassIcon(Icons.search),
+                title: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search',
+                    border: InputBorder.none,
+                    hintStyle: glassTextStyle,
+                  ),
+                  style: glassTextStyle,
+                ),
+                onTap: () {},
+              ),
+              const GlassIcon(Icons.add),
+              const Center(
+                child: Center(
+                  child: GlassContainer(
+                    child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: GlassText("Hello World"),
+                    ),
+                  ),
+                ),
+              ),
+              const GlassIcon(Icons.add),
+              GlassButton(
+                  blur: 10,
+                  linearGradient: LinearGradient(
+                    colors: [
+                      Color
+// ... (truncated)

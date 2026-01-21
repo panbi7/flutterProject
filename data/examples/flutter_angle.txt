@@ -1,0 +1,151 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;scheduler.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_angle&#47;flutter_angle.dart';
+import 'learn_gl.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State with SingleTickerProviderStateMixin, WidgetsBindingObserver{
+  FlutterAngle angle = FlutterAngle();
+  final textures = [];
+
+  int textureId = -1;
+  int textureId2 = -1;
+
+  Lesson? lesson;
+  Lesson? lesson2;
+
+  static const textureWidth = 640;
+  static const textureHeight = 320;
+  static const aspect = textureWidth &#47; textureHeight;
+
+  double dpr = 1.0;
+  late double width;
+  late double height;
+  Size? screenSize;
+
+  Timer? _debounceTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose(){
+    super.dispose();
+    _debounceTimer?.cancel(); &#47;&#47; Cancel timer if active
+    WidgetsBinding.instance.removeObserver(this);
+
+    angle.dispose(textures);
+    ticker.dispose();
+    lesson?.dispose();
+    lesson2?.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    _debounceTimer?.cancel(); &#47;&#47; Clear existing timer
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () { &#47;&#47; Set a new timer
+      onWindowResize(context);
+    });
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    didInit = true;
+    final mq = MediaQuery.of(context);
+    screenSize = mq.size;
+    dpr = mq.devicePixelRatio;
+
+    width = screenSize!.width;
+    height = width;
+
+    await angle.init();
+
+    final options = AngleOptions(
+      width: textureWidth,
+      height: textureHeight,
+      dpr: dpr,
+      antialias: true,
+      useSurfaceProducer: true
+    );
+
+    try {
+      textures.add(await angle.createTexture(options));
+      await Future.delayed(Duration(milliseconds: 300));
+      textures.add(await angle.createTexture(options));
+    } on PlatformException catch (e) {
+      print("failed to get texture id $e");
+      return;
+    }
+
+    &#47;&#47;resetLessons();
+    lesson = Lesson3(textures[0].getContext());
+    lesson2 = Lesson5(textures[1].getContext());
+
+    &#47;&#47;&#47; Updating all Textues takes a slighllty less than 150ms
+    &#47;&#47;&#47; so we can't get much faster than this at the moment because it could happen that
+    &#47;&#47;&#47; the timer starts a new async function while the last one hasn't finished
+    &#47;&#47;&#47; which creates an OpenGL Exception
+    if (!mounted) return;
+    setState(() {
+      textureId = textures[0].textureId;
+      textureId2 = textures[1].textureId;
+    });
+    &#47;&#47; timer = Timer.periodic(const Duration(milliseconds: 16), updateTexture);
+    ticker = createTicker(updateTexture);
+    ticker.start();
+  }
+
+  Stopwatch stopwatch = Stopwatch();
+
+  late Ticker ticker;
+  static bool updating = false;
+  int animationCounter = 0;
+  int totalTime = 0;
+  int iterationCount = 60;
+  int framesOver = 0;
+  bool didInit = false;
+  void updateTexture(_) async {
+    if (textureId  16) {
+        framesOver++;
+      }
+      if (--iterationCount == 0) {
+        &#47;&#47; print('Time: ${totalTime &#47; 60} - Framesover $framesOver');
+        totalTime = 0;
+        iterationCount = 60;
+        framesOver = 0;
+      }
+      textures[1].activate();
+      lesson2?.handleKeys();
+      lesson2?.animate(animationCounter += 2);
+      lesson2?.drawScene(-1, 0, aspect);
+      await textures[1].signalNewFrameAvailable();
+      updating = false;
+    } else {
+      print('Too slow');
+    }
+  }
+
+  Widget texture(bool useRow){
+    return useRow? Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Expanded(
+          child: Transform.scale(
+            scaleY: kIsWe
+// ... (truncated)

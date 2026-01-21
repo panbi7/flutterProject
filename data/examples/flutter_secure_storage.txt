@@ -1,0 +1,136 @@
+import 'dart:math' show Random;
+
+import 'package:flutter&#47;foundation.dart' show defaultTargetPlatform, kIsWeb;
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_secure_storage&#47;flutter_secure_storage.dart';
+
+void main() {
+  runApp(const MaterialApp(home: HomePage()));
+}
+
+enum _Actions { deleteAll, isProtectedDataAvailable, readALl }
+
+enum _ItemActions { delete, edit, containsKey, read }
+
+&#47;&#47;&#47; Homepage of the example app of flutter_secure_storage
+class HomePage extends StatefulWidget {
+  &#47;&#47;&#47; Creates an instance of `HomePage`.
+  const HomePage({super.key});
+
+  @override
+  HomePageState createState() => HomePageState();
+}
+
+&#47;&#47;&#47; The `HomePageState` class represents the mutable state for the `HomePage`
+&#47;&#47;&#47; widget. It manages the state and behavior of the user interface.
+class HomePageState extends State {
+  late FlutterSecureStorage _storage;
+
+  final TextEditingController _accountNameController =
+      TextEditingController(text: AppleOptions.defaultAccountName);
+
+  final List _items = [];
+  String _errorMessage = '';
+
+  void _initializeFlutterSecureStorage(String accountName) {
+    _storage = FlutterSecureStorage(
+      aOptions: const AndroidOptions(
+        biometricPromptTitle: 'Flutter Secure Storage Example',
+        biometricPromptSubtitle: 'Please unlock to access data.',
+      ),
+      iOptions: IOSOptions(
+        accountName: accountName,
+        synchronizable: true,
+        &#47;&#47; accessControlFlags: [ &#47;&#47; Enable for one or more access control features
+        &#47;&#47;   AccessControlFlag.biometryCurrentSet,
+        &#47;&#47;   AccessControlFlag.devicePasscode,
+        &#47;&#47;   AccessControlFlag.and,
+        &#47;&#47; ],
+      ),
+      mOptions: MacOsOptions(
+        accountName: accountName,
+        synchronizable: true,
+        &#47;&#47; accessControlFlags: [ &#47;&#47; Enable for one or more access control features
+        &#47;&#47;   AccessControlFlag.biometryCurrentSet,
+        &#47;&#47;   AccessControlFlag.devicePasscode,
+        &#47;&#47;   AccessControlFlag.and,
+        &#47;&#47; ],
+      ),
+    );
+  }
+
+  void _updateAccountName() {
+    if (_accountNameController.text.isEmpty) return;
+
+    _initializeFlutterSecureStorage(_accountNameController.text);
+    _readAll();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeFlutterSecureStorage(AppleOptions.defaultAccountName);
+    _accountNameController.addListener(_updateAccountName);
+    _readAll();
+  }
+
+  @override
+  void dispose() {
+    _accountNameController
+      ..removeListener(_updateAccountName)
+      ..dispose();
+
+    super.dispose();
+  }
+
+  Future _readAll() async {
+    try {
+      final all = await _storage.readAll();
+      setState(() {
+        _items
+          ..clear()
+          ..addAll(all.entries.map((e) => _SecItem(e.key, e.value)))
+          ..sort(
+            (a, b) => (int.tryParse(a.key) ?? 10)
+                .compareTo(int.tryParse(b.key) ?? 11),
+          );
+      });
+    } on PlatformException catch (e) {
+      _handleInitializationError(e);
+    }
+  }
+
+  Future _deleteAll() async {
+    try {
+      await _storage.deleteAll();
+      await _readAll();
+    } on PlatformException catch (e) {
+      _handleInitializationError(e);
+    }
+  }
+
+  Future _isProtectedDataAvailable() async {
+    final scaffold = ScaffoldMessenger.of(context);
+    try {
+      final result = await _storage.isCupertinoProtectedDataAvailable();
+
+      scaffold.showSnackBar(
+        SnackBar(
+          content: Text('Protected data available: $result'),
+          backgroundColor: result != null && result ? Colors.green : Colors.red,
+        ),
+      );
+    } on PlatformException catch (e) {
+      _handleInitializationError(e);
+    }
+  }
+
+  Future _addNewItem() async {
+    try {
+      await _storage.write(
+        key: DateTime.timestamp().microsecondsSinceEpoch.toString(),
+        value: _randomValue(),
+      );
+ 
+// ... (truncated)

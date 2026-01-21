@@ -1,0 +1,121 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_better_pickers&#47;flutter_better_pickers.dart';
+import 'dart:io';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Better Pickers',
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  List selectedImages = [];
+  List selectedVideos = [];
+  List selectedAudio = [];
+  List selectedFiles = [];
+
+  &#47;&#47; GlobalKey for TelegramMediaPickers
+  final GlobalKey _telegramPickerKey = GlobalKey();
+
+  &#47;&#47; Language selection
+  String _selectedLanguage = 'English';
+  PickerLabels _currentLabels = PickerLabels.english;
+
+  &#47;&#47; Style selection
+  String _selectedStyle = 'Light';
+  PickerStyle _currentStyle = PickerStyle.light;
+
+  final Map _languages = {
+    'English': PickerLabels.english,
+    'فارسی': PickerLabels.persian,
+    'العربية': PickerLabels.arabic,
+    'Deutsch': PickerLabels.german,
+    'Français': PickerLabels.french,
+  };
+
+  final Map _styles = {
+    'Light': PickerStyle.light,
+    'Dark': PickerStyle.dark,
+    'Telegram': PickerStyle.telegram,
+    'Instagram': PickerStyle.instagram,
+    'WhatsApp': PickerStyle.whatsapp,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flutter Better Pickers'),
+        centerTitle: true,
+      ),
+      body: Stack(
+        children: [
+          &#47;&#47; TelegramMediaPickers widget (invisible, uses overlay)
+          TelegramMediaPickers(
+            key: _telegramPickerKey,
+            maxCountPickMedia: 5,
+            requestType: MyRequestType.all,
+            labels: _currentLabels,
+            style: _currentStyle,
+            onMediaPicked: (assets, files) {
+              if (assets != null && assets.isNotEmpty) {
+                setState(() {
+                  selectedImages = assets;
+                });
+                _showSnackBar('Selected ${assets.length} media item(s)');
+              }
+            },
+          ),
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  &#47;&#47; Language and Style Selection
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Configuration',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Language:',
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                    DropdownButton(
+                                      value: _selectedLanguage,
+                       
+// ... (truncated)

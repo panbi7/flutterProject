@@ -1,0 +1,47 @@
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:iconoir_flutter&#47;regular&#47;iconoir.dart';
+
+void main() {
+  runApp(const App());
+}
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Scaffold(
+        body: Center(child: _InteractiveIcon()),
+      ),
+    );
+  }
+}
+
+class _InteractiveIcon extends StatefulWidget {
+  const _InteractiveIcon();
+
+  @override
+  State createState() => _InteractiveIconState();
+}
+
+class _InteractiveIconState extends State {
+  Color? color;
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _changeColor,
+      child: Iconoir(
+        color: color,
+      ),
+    );
+  }
+
+  void _changeColor() {
+    setState(() {
+      color = Colors.primaries[Random().nextInt(Colors.primaries.length)];
+    });
+  }
+}

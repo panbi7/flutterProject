@@ -1,0 +1,119 @@
+import 'package:flutter&#47;material.dart';
+import 'package:file_picker&#47;file_picker.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:zsdk&#47;zsdk.dart' as Printer;
+import 'dart:io';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MaterialApp(
+    home: MyApp(),
+  ));
+}
+
+const String btnPrintPdfFileOverTCPIP = 'btnPrintPdfFileOverTCPIP';
+const String btnPrintZplFileOverTCPIP = 'btnPrintZplFileOverTCPIP';
+const String btnPrintZplDataOverTCPIP = 'btnPrintZplDataOverTCPIP';
+const String btnCheckPrinterStatus = 'btnCheckPrinterStatus';
+const String btnGetPrinterSettings = 'btnGetPrinterSettings';
+const String btnSetPrinterSettings = 'btnSetPrinterSettings';
+const String btnResetPrinterSettings = 'btnResetPrinterSettings';
+const String btnDoManualCalibration = 'btnDoManualCalibration';
+const String btnPrintConfigurationLabel = 'btnPrintConfigurationLabel';
+const String btnRebootPrinter = 'btnRebootPrinter';
+
+class MyApp extends StatefulWidget {
+  final Printer.ZSDK zsdk = Printer.ZSDK();
+
+  MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+enum OperationStatus {
+  SENDING,
+  RECEIVING,
+  SUCCESS,
+  ERROR,
+  NONE,
+}
+
+class _MyAppState extends State {
+  final addressIpController = TextEditingController(text: "10.0.0.11");
+  final addressPortController = TextEditingController();
+  final pathController = TextEditingController();
+  final zplDataController = TextEditingController(
+      text: '^XA^FO17,16^GB379,371,8^FS^FT65,255^A0N,135,134^FDTEST^FS^XZ');
+  final widthController = TextEditingController();
+  final heightController = TextEditingController();
+  final dpiController = TextEditingController();
+
+  final darknessController = TextEditingController();
+  final printSpeedController = TextEditingController();
+  final tearOffController = TextEditingController();
+  final printWidthController = TextEditingController();
+  final labelLengthController = TextEditingController();
+  final labelLengthMaxController = TextEditingController();
+  final labelTopController = TextEditingController();
+  final leftPositionController = TextEditingController();
+  Printer.MediaType? selectedMediaType;
+  Printer.PrintMethod? selectedPrintMethod;
+  Printer.ZPLMode? selectedZPLMode;
+  Printer.PowerUpAction? selectedPowerUpAction;
+  Printer.HeadCloseAction? selectedHeadCloseAction;
+  Printer.PrintMode? selectedPrintMode;
+  Printer.ReprintMode? selectedReprintMode;
+  Printer.VirtualDevice? selectedVirtualDevice;
+
+  Printer.PrinterSettings? settings;
+
+  Printer.Orientation printerOrientation = Printer.Orientation.LANDSCAPE;
+  String? message;
+  String? statusMessage;
+  String? settingsMessage;
+  String? calibrationMessage;
+  OperationStatus printStatus = OperationStatus.NONE;
+  OperationStatus checkingStatus = OperationStatus.NONE;
+  OperationStatus settingsStatus = OperationStatus.NONE;
+  OperationStatus calibrationStatus = OperationStatus.NONE;
+  OperationStatus rebootingStatus = OperationStatus.NONE;
+  String? filePath;
+  String? zplData;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  String getName(T value) {
+    String name = 'Unknown';
+    if (value is Printer.HeadCloseAction) name = value.name;
+    if (value is Printer.MediaType) name = value.name;
+    if (value is Printer.PowerUpAction) name = value.name;
+    if (value is Printer.PrintMethod) name = value.name;
+    if (value is Printer.PrintMode) name = value.name;
+    if (value is Printer.ReprintMode) name = value.name;
+    if (value is Printer.VirtualDevice) name = value.name;
+    if (value is Printer.ZPLMode) name = value.name;
+    return name;
+  }
+
+  List> generateDropdownItems(List values) {
+    List> items = [];
+    for (var value in values) {
+      items.add(DropdownMenuItem(
+        value: value,
+        child: Text(getName(value)),
+      ));
+    }
+    return items;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade300,
+      appBar: AppBar(
+  
+// ... (truncated)

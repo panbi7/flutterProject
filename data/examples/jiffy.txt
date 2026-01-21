@@ -1,0 +1,85 @@
+import 'package:jiffy&#47;jiffy.dart';
+
+void main() {
+  &#47;&#47; Parsing and formatting date time
+  &#47;&#47; Parsing from string
+  Jiffy.parse('1997&#47;09&#47;23').format(); &#47;&#47; 1997-09-23T00:00:00.000
+  &#47;&#47; Parsing from string and pattern
+  Jiffy.parse('Sep 97, 23rd', pattern: 'MMM yy, do')
+      .yMMMMEEEEd; &#47;&#47; Tuesday, September 23, 1997
+  &#47;&#47; Parsing from a dart DateTime object
+  Jiffy.parseFromDateTime(DateTime(1997, 9, 23)).yMMMM; &#47;&#47; September 1997
+  &#47;&#47; Parsing from a date time list
+  Jiffy.parseFromList([1997, 9, 23]).MMMEd; &#47;&#47; Tue, Sep 23
+  &#47;&#47; Parsing from a date time map
+  Jiffy.parseFromMap({Unit.year: 1997, Unit.month: 9, Unit.day: 23}).format(
+      pattern: '[The date is] do, MMM yyyy'); &#47;&#47; The date is 23rd, Sep 1997
+
+  &#47;&#47; Relative date time
+  &#47;&#47; From X
+  Jiffy.parse('1997&#47;09&#47;23').from(Jiffy.parse('2002&#47;10&#47;26')); &#47;&#47; 5 years ago
+  &#47;&#47; From Now
+  Jiffy.parse('1997&#47;09&#47;23').fromNow(); &#47;&#47; 25 years ago
+
+  &#47;&#47; To X
+  Jiffy.parse('1997&#47;09&#47;23').to(Jiffy.parse('2002&#47;10&#47;26')); &#47;&#47; in 5 years
+  &#47;&#47; To Now
+  Jiffy.parse('1997&#47;09&#47;23').toNow(); &#47;&#47; in 25 years
+
+  &#47;&#47; Manipulating date time
+  &#47;&#47; Adding to date time using dart Duration object
+  Jiffy.parse('1997&#47;09&#47;23')
+      .addDuration(Duration(days: 5, hours: 6))
+      .format(); &#47;&#47; 1997-09-28T06:00:00.000
+  &#47;&#47; Adding to date time
+  Jiffy.parse('1997&#47;09&#47;23')
+      .add(years: 2, months: 3, days: 5)
+      .yMMMMd; &#47;&#47; December 28, 1999
+
+  &#47;&#47; Subtracting from date time using dart Duration object
+  Jiffy.parse('1997&#47;09&#47;23')
+      .subtractDuration(Duration(days: 5, hours: 6))
+      .format(); &#47;&#47; 1997-09-17T18:00:00.000
+  &#47;&#47; Subtracting from date time
+  Jiffy.parse('1997&#47;09&#47;23')
+      .subtract(years: 2, months: 3, days: 5)
+      .yMMMMd; &#47;&#47; June 18, 1995
+
+  &#47;&#47; Getting the start of date time
+  Jiffy.parse('1997&#47;09&#47;23')
+      .startOf(Unit.year)
+      .yMMMMEEEEd; &#47;&#47; Wednesday, January 1, 1997
+  Jiffy.parse('1997&#47;09&#47;23')
+      .startOf(Unit.month)
+      .yMMMMEEEEd; &#47;&#47; Monday, September 1, 1997
+  Jiffy.parse('1997&#47;09&#47;23')
+      .startOf(Unit.week)
+      .yMMMMEEEEd; &#47;&#47; Sunday, September 21, 1997
+  &#47;&#47; Getting the end of date time
+  Jiffy.parse('1997&#47;09&#47;23')
+      .endOf(Unit.year)
+      .yMMMMEEEEd; &#47;&#47; Wednesday, December 31, 1997
+  Jiffy.parse('1997&#47;09&#47;23')
+      .endOf(Unit.month)
+      .yMMMMEEEEd; &#47;&#47; Tuesday, September 30, 1997
+  Jiffy.parse('1997&#47;09&#47;23')
+      .endOf(Unit.week)
+      .yMMMMEEEEd; &#47;&#47; Saturday, September 27, 1997
+
+  &#47;&#47; Querying date time
+  &#47;&#47; Is before date time
+  Jiffy.parse('1997&#47;9&#47;23').isBefore(Jiffy.parse('1997&#47;9&#47;24')); &#47;&#47; true
+  Jiffy.parse('1997&#47;9&#47;23').isBefore(Jiffy.parse('1997&#47;9&#47;20')); &#47;&#47; false
+  &#47;&#47; Is after date time
+  Jiffy.parse('1997&#47;9&#47;23').isAfter(Jiffy.parse('1997&#47;9&#47;24')); &#47;&#47; false
+  Jiffy.parse('1997&#47;9&#47;23').isAfter(Jiffy.parse('1997&#47;9&#47;20')); &#47;&#47; true
+  &#47;&#47; Is same as date time
+  Jiffy.parse('1997&#47;9&#47;23').isSame(Jiffy.parse('1997&#47;9&#47;24')); &#47;&#47; false
+  Jiffy.parse('1997&#47;9&#47;23').isSame(Jiffy.parse('1997&#47;9&#47;23')); &#47;&#47; true
+  &#47;&#47; Is same or before date time
+  Jiffy.parse('1997&#47;9&#47;23').isSameOrBefore(Jiffy.parse('1997&#47;9&#47;23')); &#47;&#47; true
+  Jiffy.parse('1997&#47;9&#47;23').isSameOrBefore(Jiffy.parse('1997&#47;9&#47;20')); &#47;&#47; false
+  Jiffy.parse('1997&#47;9&#47;23').isSameOrBefore(Jiffy.parse('1997&#47;9&#47;24')); &#47;&#47; true
+  &#47;&#47; Is same or after date time
+  Jiffy.parse('1997&#47;9&#47;23').isSameOrAfter(Jiffy.parse('1997&#47;9&#47;23')); &#47;&#47
+// ... (truncated)

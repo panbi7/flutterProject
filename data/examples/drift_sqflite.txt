@@ -1,0 +1,8 @@
+&#47;&#47; A full cross-platform example is available here: https:&#47;&#47;github.com&#47;simolus3&#47;drift&#47;tree&#47;develop&#47;examples&#47;app
+
+import 'package:drift&#47;drift.dart';
+import 'package:drift_sqflite&#47;drift_sqflite.dart';
+
+QueryExecutor executorWithSqflite() {
+  return SqfliteQueryExecutor.inDatabaseFolder(path: 'app.db');
+}

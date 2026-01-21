@@ -1,0 +1,138 @@
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:super_tag_editor&#47;tag_editor.dart';
+import 'package:super_tag_editor&#47;widgets&#47;rich_text_widget.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Material Tag Editor Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Material Tag Editor Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, this.title});
+
+  final String? title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  static const mockResults = [
+    'dat@gmail.com',
+    'dab246@gmail.com',
+    'kaka@gmail.com',
+    'datvu@gmail.com',
+    'datvu1@gmail.com',
+    'datvu2@gmail.com',
+    'datvu3@gmail.com',
+    'datvu4@gmail.com',
+    'datvu5@gmail.com',
+    'datvu6@gmail.com',
+    'datvu7@gmail.com',
+    'datvu8@gmail.com',
+    'datvu9@gmail.com',
+    'datvu10@gmail.com',
+    'datvu11@gmail.com',
+    'datvu12@gmail.com',
+    'datvu13@gmail.com',
+    'datvu14@gmail.com',
+    'datvu15@gmail.com',
+    'datvu16@gmail.com',
+    'datvu17@gmail.com',
+    'datvu18@gmail.com',
+    'datvu19@gmail.com',
+    'datvu20@gmail.com',
+  ];
+
+  final List _values = [];
+  final FocusNode _focusNode = FocusNode();
+  final TextEditingController _textEditingController = TextEditingController();
+  int tagFocusIndex = -1;
+
+  FocusNode? _focusNodeKeyboard;
+
+  _onDelete(index) {
+    setState(() {
+      _values.removeAt(index);
+    });
+  }
+
+  &#47;&#47;&#47; This is just an example for using `TextEditingController` to manipulate
+  &#47;&#47;&#47; the the `TextField` just like a normal `TextField`.
+  _onPressedModifyTextField() {
+    const text = 'Test';
+    _textEditingController.text = text;
+    _textEditingController.value = _textEditingController.value.copyWith(
+      text: text,
+      selection: const TextSelection(
+        baseOffset: text.length,
+        extentOffset: text.length,
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (kIsWeb) {
+      _focusNodeKeyboard = FocusNode();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title ?? ''),
+      ),
+      body: GestureDetector(
+        onTap: FocusScope.of(context).unfocus,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Shortcuts(
+              shortcuts: {
+                LogicalKeySet(LogicalKeyboardKey.tab):
+                    const DoNothingAndStopPropagationIntent(),
+              },
+              child: Actions(
+                actions: {
+                  DoNothingAndStopPropagationIntent:
+                      CallbackAction(
+                    onInvoke: (intent) {
+                      return null;
+                    },
+                  ),
+                },
+                child: ListView(
+                  children: [
+                    TagEditor(
+                      length: _values.length,
+                      controller: _textEditingController,
+                      focusNode: _focusNode,
+                      focusNodeKeyboard: _focusNodeKeyboard,
+                      delimiters: const [',', ' '],
+                      hasAddButton: true,
+                      resetTextOnSubmitted: true,
+                      suggestionsBoxMaxHeight: 200,
+                      isLoadMoreOnlyOnce: true,
+                      isLoadMoreReplaceAllOld: false,
+                      &#47;&#47; This is set to grey just to illustrate the `textStyle` prop
+                      textStyle: const TextStyle(color: Colors.grey),
+                      onSubmitted: (outstandingValue) {
+                        
+// ... (truncated)

@@ -1,0 +1,120 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;foundation.dart'
+    show kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'package:flutter_scale_kit&#47;flutter_scale_kit.dart';
+import 'package:google_fonts&#47;google_fonts.dart';
+import 'package:flutter_screenutil&#47;flutter_screenutil.dart'
+    as su
+    show ScreenUtil, ScreenUtilInit;
+import 'package:syntax_highlight&#47;syntax_highlight.dart';
+import 'package:device_preview&#47;device_preview.dart' hide DeviceType;
+import 'widgets&#47;section_card.dart';
+import 'widgets&#47;comparison_card.dart';
+import 'widgets&#47;live_scaling_debug.dart';
+import 'widgets&#47;settings_sheet.dart';
+import 'widgets&#47;navigation_buttons.dart';
+import 'widgets&#47;section_title.dart';
+import 'widgets&#47;tip_card.dart';
+import 'widgets&#47;extension_row.dart';
+import 'widgets&#47;size_box.dart';
+import 'widgets&#47;info_row.dart';
+import 'data&#47;code_snippets.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  &#47;&#47; Initialize syntax highlighter with Dart language support
+  await Highlighter.initialize(['dart']);
+  &#47;&#47; Configure FontConfig for different languages (optional)
+  &#47;&#47; If not configured, Flutter's default font will be used
+  FontConfig.instance.setLanguageFont(
+    LanguageFontConfig(languageCode: 'ar', googleFont: GoogleFonts.almarai),
+  );
+
+  FontConfig.instance.setLanguageFont(
+    LanguageFontConfig(languageCode: 'en', googleFont: GoogleFonts.inter),
+  );
+
+  &#47;&#47; Configure font for language group
+  FontConfig.instance.setLanguageGroupFont(
+    LanguageGroupFontConfig(
+      languageCodes: ['ar', 'fa', 'ur'],
+      googleFont: GoogleFonts.almarai,
+    ),
+  );
+
+  &#47;&#47; Set default font (used when no specific language config exists)
+  FontConfig.instance.setDefaultFont(googleFont: GoogleFonts.inter);
+
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; Main app widget - ScaleKitBuilder wraps MaterialApp at the top level
+&#47;&#47;&#47; This allows ScaleKit to be available throughout the entire app
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class DeviceMetricsSnapshot {
+  const DeviceMetricsSnapshot({
+    required this.logicalSize,
+    required this.devicePixelRatio,
+    required this.isMobile,
+    required this.isTablet,
+    required this.isDesktop,
+    required this.isMobilePlatform,
+    required this.isDesktopPlatform,
+    required this.isWeb,
+  });
+
+  final Size logicalSize;
+  final double devicePixelRatio;
+  final bool isMobile;
+  final bool isTablet;
+  final bool isDesktop;
+  final bool isMobilePlatform;
+  final bool isDesktopPlatform;
+  final bool isWeb;
+}
+
+class _MyAppState extends State with DeviceMetricsMixin {
+  final ValueNotifier _enabled = ValueNotifier(true);
+  bool _autoScale = true;
+  bool _autoScaleLandscape = true;
+  bool _autoScalePortrait = false;
+  int _builderVersion = 0;
+
+  &#47;&#47; Device Preview (testing only, debug mode only, default disabled)
+  bool _devicePreviewEnabled = false;
+
+  double _mobileLandscapeFontBoost = 1.2;
+  double _mobileLandscapeSizeBoost = 1.2;
+  double _tabletLandscapeFontBoost = 1.2;
+  double _tabletLandscapeSizeBoost = 1.2;
+  double _desktopLandscapeFontBoost = 1.0;
+  double _desktopLandscapeSizeBoost = 1.0;
+
+  double _mobilePortraitFontBoost = 1.0;
+  double _mobilePortraitSizeBoost = 1.0;
+  double _tabletPortraitFontBoost = 1.0;
+  double _tabletPortraitSizeBoost = 1.0;
+  double _desktopPortraitFontBoost = 1.0;
+  double _desktopPortraitSizeBoost = 1.0;
+
+  &#47;&#47; Scale limits: null = auto-detect (intelligent defaults)
+  &#47;&#47; Users can enable manual control from settings
+  double? _minScale;
+  double? _maxScale;
+
+  &#47;&#47; Size change threshold: null = platform-aware defaults (5% mobile&#47;tablet, 0% desktop&#47;web)
+  double? _sizeChangeThreshold;
+
+  ScaleBreakpoints _breakpoints = const ScaleBreakpoints();
+
+  @override
+  void initState() {
+    super.initState
+// ... (truncated)

@@ -1,0 +1,9 @@
+import 'package:example&#47;single_text_example.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+void main() {
+  runApp(MaterialApp(home: SingleTextDemo()));
+&#47;&#47;  runApp(MaterialApp(home: MultiTextDemo()));
+  SystemChrome.setEnabledSystemUIOverlays([]);
+}

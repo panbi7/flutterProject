@@ -1,0 +1,118 @@
+import 'package:example&#47;src&#47;core&#47;usecase&#47;responsive&#47;responsive.dart';
+import 'package:example&#47;src&#47;features&#47;home&#47;views&#47;pages&#47;home.dart';
+import 'package:example&#47;src&#47;theme&#47;theme.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_riverpod&#47;flutter_riverpod.dart';
+import 'package:flutter_web_plugins&#47;url_strategy.dart';
+import 'package:responsive_framework&#47;responsive_framework.dart';
+import 'package:toastification&#47;toastification.dart';
+
+final themeVariantProvider = StateProvider((ref) {
+  return false;
+});
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  usePathUrlStrategy();
+
+  runApp(const ProviderScope(child: ToastificationApp()));
+}
+
+class ToastificationApp extends ConsumerWidget {
+  const ToastificationApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final useInterFont = ref.watch(themeVariantProvider);
+
+    return ToastificationWrapper(
+      config: ToastificationConfig(
+        maxTitleLines: 2,
+        maxDescriptionLines: 6,
+        marginBuilder: (context, alignment) =>
+            const EdgeInsets.fromLTRB(0, 16, 0, 110),
+      ),
+      child: MaterialApp(
+        title: 'Toastification',
+        theme: useInterFont ? lightInterTheme : lightJakartaTheme,
+        builder: (context, child) {
+          return ResponsiveWrapper.builder(
+            child,
+            minWidth: 300,
+            defaultScale: false,
+            breakpoints: [
+              &#47;&#47;&#47; Mobile: 320 - 549
+              const ResponsiveBreakpoint.resize(
+                320,
+                name: smallMobileBreakpointTag,
+                scaleFactor: .9,
+              ),
+              const ResponsiveBreakpoint.resize(
+                420,
+                name: mobileBreakpointTag,
+                scaleFactor: .9,
+              ),
+
+              &#47;&#47;&#47; Tablet: 550 - 849
+              const ResponsiveBreakpoint.resize(
+                550,
+                name: tabletBreakpointTag,
+                scaleFactor: .9,
+              ),
+
+              &#47;&#47;&#47; Desktop: 850 - 1099
+              const ResponsiveBreakpoint.resize(
+                850,
+                name: desktopBreakpointTag,
+                scaleFactor: .85,
+              ),
+
+              &#47;&#47;&#47; ultra: 1100 - 1400
+              const ResponsiveBreakpoint.resize(
+                1100,
+                name: ultraBreakpointTag,
+              ),
+            ],
+            background: Container(
+              color: Theme.of(context).colorScheme.surface,
+            ),
+          );
+        },
+        initialRoute: "&#47;",
+        onGenerateRoute: (RouteSettings settings) {
+          return Routes.fadeThrough(
+            settings,
+            (context) {
+              return BouncingScrollWrapper.builder(
+                context,
+                buildPage(settings.name ?? ''),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildPage(String route) {
+    return switch (route) {
+      HomeScreen.route => const HomeScreen(),
+      _ => const SizedBox.shrink(),
+    };
+  }
+}
+
+class Routes {
+  static Route fadeThrough(RouteSettings settings, WidgetBuilder page,
+      {int duration = 300}) {
+    return PageRouteBuilder(
+      settings: settings,
+      transitionDuration: Duration(milliseconds: duration),
+      pageBuilder: (context, animation, secondaryAnimation) => page(context),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(opacity: animation, child: child);
+      },
+    );
+  }
+}

@@ -1,0 +1,10 @@
+import 'package:fzregex&#47;fzregex.dart';
+import 'package:fzregex&#47;utils&#47;pattern.dart';
+
+main() {
+  Fzregex.hasMatch('Krishna_Ra1', FzPattern.username);
+  Fzregex.hasMatch('+91 7009046544', FzPattern.phone);
+  Fzregex.hasMatch('krishna@gmail.com', FzPattern.email);
+  Fzregex.hasMatch('https:&#47;&#47;youtube.com&#47;', FzPattern.url);
+  Fzregex.hasMatch('\$ 100,000', FzPattern.currency);
+}

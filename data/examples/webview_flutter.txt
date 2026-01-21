@@ -1,0 +1,167 @@
+&#47;&#47; Copyright 2013 The Flutter Authors
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:webview_flutter&#47;webview_flutter.dart';
+&#47;&#47; #docregion platform_imports
+&#47;&#47; Import for Android features.
+import 'package:webview_flutter_android&#47;webview_flutter_android.dart';
+&#47;&#47; Import for iOS&#47;macOS features.
+import 'package:webview_flutter_wkwebview&#47;webview_flutter_wkwebview.dart';
+&#47;&#47; #enddocregion platform_imports
+
+void main() => runApp(const MaterialApp(home: WebViewExample()));
+
+const String kNavigationExamplePage = '''
+
+Navigation Delegate Example
+
+
+The navigation delegate is set to block navigation to the youtube website.
+
+
+https:&#47;&#47;www.youtube.com&#47;
+https:&#47;&#47;www.google.com&#47;
+
+
+
+''';
+
+const String kLocalExamplePage = '''
+
+
+
+Load file or HTML string example
+
+
+
+Local demo page
+
+  This is an example page used to demonstrate how to load a local file or HTML
+  string using the Flutter
+  webview plugin.
+
+
+
+
+''';
+
+const String kTransparentBackgroundPage = '''
+  
+  
+  
+    Transparent background test
+  
+  
+    body { background: transparent; margin: 0; padding: 0; }
+    #container { position: relative; margin: 0; padding: 0; width: 100vw; height: 100vh; }
+    #shape { background: red; width: 200px; height: 200px; margin: 0; padding: 0; position: absolute; top: calc(50% - 100px); left: calc(50% - 100px); }
+    p { text-align: center; }
+  
+  
+    
+      Transparent background test
+      
+    
+  
+  
+''';
+
+const String kLogExamplePage = '''
+
+
+
+Load file or HTML string example
+
+
+
+Local demo page
+
+  This page is used to test the forwarding of console logs to Dart.
+
+
+
+    .btn-group button {
+      padding: 24px; 24px;
+      display: block;
+      width: 25%;
+      margin: 5px 0px 0px 0px;
+    }
+
+
+
+    Error
+    Warning
+    Info
+    Debug
+    Log
+
+
+
+
+''';
+
+class WebViewExample extends StatefulWidget {
+  const WebViewExample({super.key});
+
+  @override
+  State createState() => _WebViewExampleState();
+}
+
+class _WebViewExampleState extends State {
+  late final WebViewController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47; #docregion platform_features
+    late final PlatformWebViewControllerCreationParams params;
+    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+      params = WebKitWebViewControllerCreationParams(
+        allowsInlineMediaPlayback: true,
+        mediaTypesRequiringUserAction: const {},
+      );
+    } else {
+      params = const PlatformWebViewControllerCreationParams();
+    }
+
+    final controller = WebViewController.fromPlatformCreationParams(params);
+    &#47;&#47; #enddocregion platform_features
+
+    controller
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            debugPrint('WebView is loading (progress : $progress%)');
+          },
+          onPageStarted: (String url) {
+            debugPrint('Page started loading: $url');
+          },
+          onPageFinished: (String url) {
+            debugPrint('Page finished loading: $url');
+          },
+          onWebResourceError: (WebResourceError error) {
+            debugPrint('''
+Page resource error:
+  code: ${error.errorCode}
+  description: ${error.description}
+  errorType: ${error.errorType}
+  isForMainFrame: ${error.isForMainFrame}
+          ''');
+          },
+          onNavigationRequest: (NavigationRequest request) {
+            if (request.url.startsWith('https:&#47;&#47;www.youtube.com&#47;')) {
+              debugPrint('blocking navigation to ${request.url}');
+              return NavigationDecision.preven
+// ... (truncated)

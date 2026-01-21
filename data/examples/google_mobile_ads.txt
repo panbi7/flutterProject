@@ -1,0 +1,111 @@
+&#47;&#47; Copyright 2021 Google LLC
+&#47;&#47;
+&#47;&#47; Licensed under the Apache License, Version 2.0 (the "License");
+&#47;&#47; you may not use this file except in compliance with the License.
+&#47;&#47; You may obtain a copy of the License at
+&#47;&#47;
+&#47;&#47; https:&#47;&#47;www.apache.org&#47;licenses&#47;LICENSE-2.0
+&#47;&#47;
+&#47;&#47; Unless required by applicable law or agreed to in writing, software
+&#47;&#47; distributed under the License is distributed on an "AS IS" BASIS,
+&#47;&#47; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+&#47;&#47; See the License for the specific language governing permissions and
+&#47;&#47; limitations under the License.
+
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:io' show Platform;
+
+import 'package:flutter&#47;material.dart';
+import 'package:google_mobile_ads&#47;google_mobile_ads.dart';
+import 'dart:developer';
+
+import 'anchored_adaptive_example.dart';
+import 'fluid_example.dart';
+import 'inline_adaptive_example.dart';
+import 'multi_adaptive_inline_with_recycle_example.dart';
+import 'native_template_example.dart';
+import 'reusable_inline_example.dart';
+import 'webview_example.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+  runApp(MyApp());
+}
+
+&#47;&#47; You can also test with your own ad unit IDs by registering your device as a
+&#47;&#47; test device. Check the logs for your device's ID value.
+const String testDevice = 'YOUR_DEVICE_ID';
+const int maxFailedLoadAttempts = 3;
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  static final AdRequest request = AdRequest(
+    keywords: ['foo', 'bar'],
+    contentUrl: 'http:&#47;&#47;foo.com&#47;bar.html',
+    nonPersonalizedAds: true,
+  );
+
+  static const interstitialButtonText = 'InterstitialAd';
+  static const rewardedButtonText = 'RewardedAd';
+  static const rewardedInterstitialButtonText = 'RewardedInterstitialAd';
+  static const fluidButtonText = 'Fluid';
+  static const inlineAdaptiveButtonText = 'Inline adaptive';
+  static const mulipleInlineAdaptiveWithRecycleButtonText =
+      'Multiple inline adaptive with recycle';
+  static const anchoredAdaptiveButtonText = 'Anchored adaptive';
+  static const nativeTemplateButtonText = 'Native template';
+  static const webviewExampleButtonText = 'Register WebView';
+  static const adInspectorButtonText = 'Ad Inspector';
+
+  InterstitialAd? _interstitialAd;
+  int _numInterstitialLoadAttempts = 0;
+
+  RewardedAd? _rewardedAd;
+  int _numRewardedLoadAttempts = 0;
+
+  RewardedInterstitialAd? _rewardedInterstitialAd;
+  int _numRewardedInterstitialLoadAttempts = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    MobileAds.instance.updateRequestConfiguration(
+      RequestConfiguration(testDeviceIds: [testDevice]),
+    );
+    _createInterstitialAd();
+    _createRewardedAd();
+    _createRewardedInterstitialAd();
+  }
+
+  void _createInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: Platform.isAndroid
+          ? 'ca-app-pub-3940256099942544&#47;1033173712'
+          : 'ca-app-pub-3940256099942544&#47;4411468910',
+      request: request,
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          print('$ad loaded');
+          _interstitialAd = ad;
+          _numInterstitialLoadAttempts = 0;
+          _interstitialAd!.setImmersiveMode(true);
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          print('InterstitialAd failed to load: $error.');
+          _numInterstitialLoadAttempts += 1;
+          _interstitialAd = null;
+          if (_numInterstitialLoadAttempts 
+          print('ad onAdShowedFullScreenContent.'),
+      onAdDismissedFullScreenContent: (InterstitialAd ad) {
+        print('$ad onAdDismissedFullScreenContent.');
+        ad.dispose();
+        _createInterstitialAd();
+      },
+      onAdFailedToShowFullScreenContent: (Interstitia
+// ... (truncated)

@@ -1,0 +1,125 @@
+import 'package:chatview&#47;chatview.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_svg&#47;flutter_svg.dart';
+import 'package:intl&#47;intl.dart';
+
+import 'data.dart';
+import 'example_two&#47;example_two_list_screen.dart';
+import 'models&#47;chat_list_theme.dart';
+import 'models&#47;chatview_theme.dart';
+import 'values&#47;colors.dart';
+import 'values&#47;icons.dart';
+
+void main() {
+  runApp(const Example());
+}
+
+class Example extends StatelessWidget {
+  const Example({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Chat UI Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primaryColor: AppColors.uiOnePurple,
+        colorScheme: ColorScheme.fromSwatch(accentColor: AppColors.uiOnePurple),
+      ),
+      darkTheme: ThemeData(
+        primaryColor: AppColors.uiOnePurple,
+        colorScheme: ColorScheme.fromSwatch(accentColor: AppColors.uiOnePurple),
+      ),
+      home: const ExampleOneListScreen(),
+    );
+  }
+}
+
+class ExampleOneListScreen extends StatefulWidget {
+  const ExampleOneListScreen({super.key});
+
+  @override
+  State createState() => _ExampleOneListScreenState();
+}
+
+class _ExampleOneListScreenState extends State {
+  ChatListTheme _theme = ChatListTheme.uiOneLight;
+  bool _isDarkTheme = false;
+
+  final _searchController = TextEditingController();
+
+  final _chatListController = ChatListController(
+    initialChatList: Data.getChatList(),
+    scrollController: ScrollController(),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _theme.backgroundColor,
+      body: SafeArea(
+        child: ChatList(
+          controller: _chatListController,
+          backgroundColor: _theme.backgroundColor,
+          header: _headerWidget(),
+          appbar: ChatListAppBar(
+            backgroundColor: _theme.backgroundColor,
+            centerTitle: false,
+            scrolledUnderElevation: 0,
+            titleText: 'ChatList',
+            titleTextStyle: TextStyle(
+              fontSize: 20,
+              color: _theme.textColor,
+              fontWeight: FontWeight.bold,
+            ),
+            actions: [
+              SvgPicture.asset(
+                AppIcons.chatDiscoveryAi,
+                colorFilter: ColorFilter.mode(
+                  _theme.iconColor,
+                  BlendMode.srcIn,
+                ),
+              ),
+              const SizedBox(width: 16),
+              SvgPicture.asset(
+                AppIcons.createPen,
+                colorFilter: ColorFilter.mode(
+                  _theme.iconColor,
+                  BlendMode.srcIn,
+                ),
+              ),
+              IconButton(
+                onPressed: _onThemeIconTap,
+                icon: Icon(
+                  _isDarkTheme ? Icons.light_mode : Icons.dark_mode,
+                  color: _theme.iconColor,
+                ),
+              ),
+            ],
+          ),
+          searchConfig: SearchConfig(
+            textEditingController: _searchController,
+            hintText: 'Ask Meta AI or search',
+            hintStyle: TextStyle(
+              fontSize: 16.4,
+              color: _theme.searchText,
+              fontWeight: FontWeight.w400,
+            ),
+            textStyle: TextStyle(
+              fontSize: 16.4,
+              color: _theme.textColor,
+              fontWeight: FontWeight.w400,
+            ),
+            textFieldBackgroundColor: _theme.searchBg,
+            borderRadius: const BorderRadius.all(Radius.circular(30)),
+            prefixIcon: SizedBox.square(
+              dimension: 48,
+              child: Align(child: SvgPicture.asset(AppIcons.ai, width: 24)),
+            ),
+            clearIcon: Icon(Icons.clear, color: _theme.iconColor),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 0,
+              horizontal: 16,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 1
+// ... (truncated)

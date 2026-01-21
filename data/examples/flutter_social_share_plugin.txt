@@ -1,0 +1,126 @@
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_social_share_plugin&#47;file_type.dart';
+import 'package:flutter_social_share_plugin&#47;flutter_social_share.dart';
+import 'package:image_picker&#47;image_picker.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+
+&#47;&#47;&#47;sharing platform
+enum Share {
+  facebook,
+  twitter,
+  whatsapp,
+  whatsapp_business,
+  share_system,
+  share_instagram,
+  share_telegram,
+  share_sms,
+  share_mail,
+}
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  File? file;
+  ImagePicker picker = ImagePicker();
+  bool videoEnable = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Container(
+          width: double.infinity,
+          child: Column(
+            children: [
+              const SizedBox(height: 30),
+              ElevatedButton(onPressed: pickImage, child: Text('Pick Image')),
+              ElevatedButton(onPressed: pickVideo, child: Text('Pick Video')),
+              ElevatedButton(
+                  onPressed: () => onButtonTap(Share.twitter),
+                  child: const Text('share to twitter')),
+              ElevatedButton(
+                onPressed: () => onButtonTap(Share.whatsapp),
+                child: const Text('share to WhatsApp'),
+              ),
+              ElevatedButton(
+                onPressed: () => onButtonTap(Share.whatsapp_business),
+                child: const Text('share to WhatsApp Business'),
+              ),
+              ElevatedButton(
+                onPressed: () => onButtonTap(Share.facebook),
+                child: const Text('share to  FaceBook'),
+              ),
+              ElevatedButton(
+                onPressed: () => onButtonTap(Share.share_instagram),
+                child: const Text('share to Instagram'),
+              ),
+              ElevatedButton(
+                onPressed: () => onButtonTap(Share.share_telegram),
+                child: const Text('share to Telegram'),
+              ),
+              ElevatedButton(
+                onPressed: () => onButtonTap(Share.share_system),
+                child: const Text('share to System'),
+              ),
+              ElevatedButton(
+                onPressed: () => onButtonTap(Share.share_sms),
+                child: const Text('share to sms'),
+              ),
+              ElevatedButton(
+                onPressed: () => onButtonTap(Share.share_mail),
+                child: const Text('share to mail'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future pickImage() async {
+    PermissionStatus status = await Permission.photos.request();
+    if (!status.isGranted) {
+      await Permission.photos.request();
+    }
+    final XFile? xFile = await picker.pickImage(source: ImageSource.gallery);
+    print(xFile);
+    if (xFile != null) {
+      file = File(xFile.path);
+      setState(() {
+        videoEnable = false;
+      });
+    }
+  }
+
+  Future pickVideo() async {
+    final XFile? xFile = await picker.pickVideo(source: ImageSource.gallery);
+    print(xFile);
+    if (xFile != null) {
+      file = File(xFile.path);
+      setState(() {
+        videoEnable = true;
+      });
+    }
+  }
+
+  Future onButtonTap(Share share) async {
+    String msg =
+        'Flutter share is great!!\n Check out full example at https:&#47;&#47;pub.dev&#47;packages&#47;flutter_social_share_plugin';
+    String url = 'https:&#47;&#47;pub.dev&#47;packages&#47;flutter_social_share_plugin';
+
+    String? response;
+    final FlutterSocialShare flutterShareMe = FlutterSocialShare();
+    switch (share) {
+      case Share.facebook:
+        re
+// ... (truncated)

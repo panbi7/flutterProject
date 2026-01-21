@@ -1,0 +1,22 @@
+import 'package:flutter&#47;material.dart';
+
+class Currency extends StatelessWidget {
+  &#47;&#47; init Currency
+  final String currencyName;
+
+  Currency({Key? key, required this.currencyName}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Card(
+      child: new Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+              leading: Image.asset('icons&#47;currency&#47;${this.currencyName}.png', package: 'currency_icons'),
+              title: Text(this.currencyName)),
+        ],
+      ),
+    );
+  }
+}

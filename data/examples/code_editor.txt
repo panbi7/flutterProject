@@ -1,0 +1,114 @@
+import 'package:flutter&#47;material.dart';
+import 'package:code_editor&#47;code_editor.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  int count = 0;
+  late EditorModel model;
+
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47; example of a easier way to write code instead of writing it in a single string
+    List contentOfPage1 = [
+      "",
+      "",
+      "\t",
+      "\t\tgo to page 2",
+      "\t",
+      "",
+    ];
+
+    &#47;&#47; The files displayed in the navigation bar of the editor.
+    &#47;&#47; You are not limited.
+    &#47;&#47; By default, [name] = "file.${language ?? 'txt'}", [language] = "text" and [code] = "",
+    List files = [
+      FileEditor(
+        name: "page1.html",
+        language: "html",
+        code: contentOfPage1.join("\n"), &#47;&#47; [code] needs a string
+      ),
+      FileEditor(
+        name: "page2.html",
+        language: "html",
+        code: "go back",
+        readonly: true, &#47;&#47; this file won't be editable
+      ),
+      FileEditor(
+        name: "style.css",
+        language: "css",
+        code: "a { color: red; }",
+      ),
+    ];
+
+    &#47;&#47; The model used by the CodeEditor widget, you need it in order to control it.
+    &#47;&#47; But, since 1.0.0, the model is not required inside the CodeEditor Widget.
+    &#47;&#47; To start without a model, you need to use `CodeEditor.empty()`.
+    model = EditorModel(
+      files: files, &#47;&#47; the files created above
+      &#47;&#47; you can customize the editor as you want
+      styleOptions: EditorModelStyleOptions(
+        showUndoRedoButtons: true,
+        reverseEditAndUndoRedoButtons: true,
+      )..defineEditButtonPosition(
+          bottom: 10,
+          left: 15,
+        ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("code_editor example")),
+      &#47;&#47; &#47;!\ The SingleChildScrollView is important because of the phone's keypad which causes a "RenderFlex overflowed by x pixels on the bottom" error
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            CodeEditor(
+              model: model,
+              formatters: const ["html"],
+            ),
+
+            &#47;&#47; Just to show you how to add elements below the editor (or above),
+            &#47;&#47; here simple widgets you can remove.
+            &#47;&#47; It also shows how to manipulate state on the same page as an editor.
+
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  count++;
+                });
+              },
+              child: const Text("click"),
+            ),
+            Text("count = $count")
+          ],
+        ),
+      ),
+    );
+  }
+}

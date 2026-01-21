@@ -1,0 +1,128 @@
+import 'dart:ui';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_gantt&#47;flutter_gantt.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; Main app widget
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Flutter Gantt Demo',
+        scrollBehavior: AppCustomScrollBehavior(),
+        themeMode: ThemeMode.dark,
+        darkTheme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.tealAccent,
+            brightness: Brightness.dark,
+          ),
+        ),
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.tealAccent,
+            brightness: Brightness.light,
+          ),
+        ),
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [
+          Locale('en'), &#47;&#47; English
+          Locale('it'), &#47;&#47; Italian
+        ],
+        locale: Locale('en'),
+        home: const MyHomePage(title: 'Flutter Gantt'),
+      );
+}
+
+&#47;&#47;&#47; Enable scrolling with various input devices
+class AppCustomScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.unknown,
+      };
+}
+
+&#47;&#47;&#47; Home page widget
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  late final GanttController controller;
+  late final List _activities;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final now = DateTime.now();
+    final monthAgo = now.subtract(const Duration(days: 30));
+    final monthLater = now.add(const Duration(days: 30));
+
+    controller = GanttController(
+      startDate: now.subtract(const Duration(days: 14)),
+      &#47;&#47;daysViews: 10, &#47;&#47; Optional: you can set the number of days to be displayed
+    );
+
+    controller.addOnActivityChangedListener(_onActivityChanged);
+    _activities = [
+      &#47;&#47; ✅ Main activity with children inside range
+      GanttActivity(
+        key: 'task1',
+        start: now.subtract(const Duration(days: 3)),
+        end: now.add(const Duration(days: 6)),
+        title: 'Main Task',
+        tooltip: 'WO-1001 | Top-level task across multiple days',
+        color: const Color(0xFF4DB6AC),
+        cellBuilder: (cellDate) => Container(
+          color: const Color(0xFF00796B),
+          child: Center(
+            child: Text(
+              cellDate.day.toString(),
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+        actions: [
+          GanttActivityAction(
+            icon: Icons.visibility,
+            tooltip: 'View',
+            onTap: () => debugPrint('Viewing WO-1001'),
+          ),
+          GanttActivityAction(
+            icon: Icons.edit,
+            tooltip: 'Edit',
+            onTap: () => debugPrint('Editing WO-1001'),
+          ),
+          GanttActivityAction(
+            icon: Icons.delete,
+            tooltip: 'Delete',
+            onTap: () => debugPrint('Deleting WO-1001'),
+          ),
+        ],
+        children: [
+          GanttActivity(
+            key: 'task1.sub1',
+            start: now.subtract(const Duration(days: 2)),
+            end: now.add(const Duration(days: 1)),
+            title: 'Subtask 1',
+            tooltip: 'WO-1001-1 | Subtask',
+            color:
+// ... (truncated)

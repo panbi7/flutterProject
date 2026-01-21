@@ -1,0 +1,121 @@
+import 'package:flutter&#47;material.dart';
+import 'package:google_maps_place_picker_mb&#47;google_maps_place_picker.dart';
+import 'package:google_maps_flutter&#47;google_maps_flutter.dart';
+
+&#47;&#47; ignore: implementation_imports, unused_import
+import 'package:google_maps_place_picker_mb&#47;src&#47;google_map_place_picker.dart'; &#47;&#47; do not import this yourself
+import 'dart:io' show Platform;
+
+&#47;&#47; Your api key storage.
+import 'keys.dart';
+
+&#47;&#47; Only to control hybrid composition and the renderer in Android
+import 'package:google_maps_flutter_android&#47;google_maps_flutter_android.dart';
+import 'package:google_maps_flutter_platform_interface&#47;google_maps_flutter_platform_interface.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; Light Theme
+  final ThemeData lightTheme = ThemeData.light().copyWith(
+    &#47;&#47; Background color of the FloatingCard
+    cardColor: Colors.white,
+  );
+
+  &#47;&#47; Dark Theme
+  final ThemeData darkTheme = ThemeData.dark().copyWith(
+    &#47;&#47; Background color of the FloatingCard
+    cardColor: Colors.grey,
+  );
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Google Map Place Picker Demo',
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: ThemeMode.light,
+      home: HomePage(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  HomePage({Key? key}) : super(key: key);
+
+  static final kInitialPosition = LatLng(-33.8567844, 151.213108);
+
+  final GoogleMapsFlutterPlatform mapsImplementation =
+      GoogleMapsFlutterPlatform.instance;
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  PickResult? selectedPlace;
+  bool _showPlacePickerInContainer = false;
+  bool _showGoogleMapInContainer = false;
+
+  bool _mapsInitialized = false;
+  String _mapsRenderer = "latest";
+
+  void initRenderer() {
+    if (_mapsInitialized) return;
+    if (widget.mapsImplementation is GoogleMapsFlutterAndroid) {
+      switch (_mapsRenderer) {
+        case "legacy":
+          (widget.mapsImplementation as GoogleMapsFlutterAndroid)
+              .initializeWithRenderer(AndroidMapRenderer.legacy);
+          break;
+        case "latest":
+          (widget.mapsImplementation as GoogleMapsFlutterAndroid)
+              .initializeWithRenderer(AndroidMapRenderer.latest);
+          break;
+      }
+    }
+    setState(() {
+      _mapsInitialized = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Google Map Place Picker Demo"),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (!_mapsInitialized &&
+                      widget.mapsImplementation
+                          is GoogleMapsFlutterAndroid) ...[
+                    Switch(
+                        value: (widget.mapsImplementation
+                                as GoogleMapsFlutterAndroid)
+                            .useAndroidViewSurface,
+                        onChanged: (value) {
+                          setState(() {
+                            (widget.mapsImplementation
+                                    as GoogleMapsFlutterAndroid)
+                                .useAndroidViewSurface = value;
+                          });
+                        }),
+                    Text("Hybrid Composition"),
+                  ]
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (!_mapsInitialized &&
+                     
+// ... (truncated)

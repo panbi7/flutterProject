@@ -1,0 +1,117 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:google_maps_places_autocomplete_widgets&#47;address_autocomplete_widgets.dart';
+import '&#47;privatekeys.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Google Address AutoComplete Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            bottom: const TabBar(
+              tabs: [
+                Tab(text: 'TextField'),
+                Tab(text: 'TextFormField'),
+              ],
+            ),
+            title: const Center(
+                child: Text('Google_Map_Places_AutoComplete_Widgets Demo',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
+          ),
+          body: const TabBarView(
+            children: [
+              AddressAutocompleteTextFieldExample(title: 'TextField Example'),
+              AddressAutocompleteTextFormFieldExample(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AddressAutocompleteTextFieldExample extends StatefulWidget {
+  const AddressAutocompleteTextFieldExample({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() =>
+      _AddressAutocompleteTextFieldExampleState();
+}
+
+class _AddressAutocompleteTextFieldExampleState
+    extends State {
+  String? _suggestionPlaceId;
+  String? _suggestionDescription;
+  String? _name;
+  String? _formattedAddress;
+  String? _formattedAddressZipPlus4;
+  String? _streetAddress;
+  String? _streetNumber;
+  String? _street;
+  String? _streetShort;
+  String? _city;
+  String? _county;
+  String? _state;
+  String? _stateShort;
+  String? _zipCode;
+  String? _zipCodeSuffix;
+  String? _zipCodePlus4;
+  String? _vicinity;
+  String? _country;
+  double? _lat;
+  double? _lng;
+
+  &#47;&#47; write optional function to determine what is placed in the textfield
+  &#47;&#47; control when the user chooses an address.  The default is the `formattedAddress`
+  String? onSuggestionClickGetTextToUseForControl(Place placeDetails) {
+    &#47;&#47;  we just want the street address here, for example if we were using
+    &#47;&#47;  the address line of the form to trigger the address autocomplete
+    return placeDetails.streetAddress;
+  }
+
+  String? onSuggestionClickFillZipCodeControl(Place placeDetails) {
+    &#47;&#47;  we just want the zipCodePlus4, for example if we were using
+    &#47;&#47;  the zipcode field controll in the form to trigger the zipcode
+    &#47;&#47;  autocomplete
+    return placeDetails.zipCodePlus4;
+  }
+
+  String? onSuggestionClickFillCitiesCodeControl(Place placeDetails) {
+    &#47;&#47;  Format the city, state and country from autocomplete info
+    return '${placeDetails.city}, ${placeDetails.state}, ${placeDetails.country}';
+  }
+
+  String? onSuggestionClickFillEstablishmentCodeControl(Place placeDetails) {
+    &#47;&#47;  Print name and formatted address of place
+    return '${placeDetails.name}, ${placeDetails.formattedAddress}';
+  }
+
+  &#47;&#47; This is called Immediatelly when user clicks suggestion and BEFORE
+  &#47;&#47; the async request to get place
+  void onInitialSuggestionClick(Suggestion suggestion) {
+    debugPrint('onInitialSuggestionClick( suggestion:$suggestion )');
+    setState(() {
+      _suggestionDescription = suggestion.description;
+      _suggestionPlaceId = suggestion.placeId;
+      &#47;&#47; clear these until they are loaded...
+      _name = _formattedAddress = _formattedAddressZipPlus4 = _streetAddress =
+          _streetN
+// ... (truncated)

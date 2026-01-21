@@ -1,0 +1,8 @@
+import 'package:compute&#47;compute.dart';
+
+int square(int a) => a * a;
+
+Future main() async {
+  final squared = await compute(square, 5);
+  print('5^2=$squared');
+}

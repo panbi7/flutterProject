@@ -1,0 +1,39 @@
+import 'package:dio&#47;dio.dart';
+import 'package:dio_refresh&#47;dio_refresh.dart';
+
+void main() {
+  final dio = Dio();
+
+  &#47;&#47; Define the TokenManager instance.
+  final tokenManager = TokenManager.instance;
+  tokenManager.setToken(
+    TokenStore(
+      accessToken: "authToken",
+      refreshToken: "refreshToken",
+    ),
+  );
+
+  &#47;&#47; Add the DioRefreshInterceptor.
+  dio.interceptors.add(DioRefreshInterceptor(
+    tokenManager: tokenManager,
+    authHeader: (tokenStore) {
+      if (tokenStore.accessToken == null) {
+        return {};
+      }
+      return {
+        'Authorization': 'Bearer ${tokenStore.accessToken}',
+      };
+    },
+    shouldRefresh: (response) =>
+        response?.statusCode == 401 || response?.statusCode == 403,
+    onRefresh: (dio, tokenStore) async {
+      final response = await dio.post('&#47;refresh', data: {
+        'refresh_token': tokenStore.refreshToken,
+      });
+      return TokenStore(
+        accessToken: response.data['accessToken'],
+        refreshToken: response.data['refreshToken'],
+      );
+    },
+  ));
+}

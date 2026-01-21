@@ -1,0 +1,83 @@
+import 'package:flutter&#47;material.dart';
+import 'package:lokalise_flutter_sdk&#47;lokalise_flutter_sdk.dart'; &#47;&#47; Imports the SDK
+import 'l10n&#47;generated&#47;l10n.dart'; &#47;&#47; Imports the generated Lt class
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  &#47;&#47; Configures the SDK
+  await Lokalise.init(
+    projectId: 'Project ID',
+    sdkToken: 'Lokalise SDK Token',
+    &#47;&#47; Add this only if you want to use prereleases. Use the Bundle freeze functionality in production
+    preRelease: true,
+  );
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Lokalise SDK',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+      localizationsDelegates: Lt.localizationsDelegates,
+      supportedLocales: Lt.supportedLocales,
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State with WidgetsBindingObserver {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _updateTranslations();
+  }
+
+  void _updateTranslations() {
+    setState(() => _isLoading = true);
+    &#47;&#47; Ensures the application has the latest translations
+    Lokalise.instance.update().then(
+          (_) => setState(() => _isLoading = false),
+          onError: (error) => setState(() => _isLoading = false),
+        );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      _updateTranslations();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(Lt.of(context).title), &#47;&#47; Gets the translation
+      ),
+      body: Center(
+        child: _isLoading
+            ? const CircularProgressIndicator()
+            : Center(
+                child: Text(Lt.of(context).helloWorld), &#47;&#47; Gets the translation
+              ),
+      ),
+    );
+  }
+}

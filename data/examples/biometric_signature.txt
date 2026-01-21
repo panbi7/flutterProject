@@ -1,0 +1,146 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
+
+import 'package:biometric_signature&#47;biometric_signature.dart';
+import 'package:encrypt&#47;encrypt.dart' as enc;
+import 'package:flutter&#47;material.dart';
+import 'package:pointycastle&#47;asn1&#47;asn1_parser.dart';
+import 'package:pointycastle&#47;asn1&#47;primitives&#47;asn1_bit_string.dart';
+import 'package:pointycastle&#47;asn1&#47;primitives&#47;asn1_sequence.dart';
+import 'package:pointycastle&#47;export.dart' hide Padding, State;
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.blue),
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Biometric Signature v9.0.1')),
+        body: const ExampleAppBody(),
+      ),
+    );
+  }
+}
+
+class ExampleAppBody extends StatefulWidget {
+  const ExampleAppBody({super.key});
+
+  @override
+  State createState() => _ExampleAppBodyState();
+}
+
+class _ExampleAppBodyState extends State {
+  final _biometricSignature = BiometricSignature();
+
+  &#47;&#47; Settings
+  bool useEc = false;
+  bool enableDecryption = false;
+  KeyFormat _publicKeyFormat = KeyFormat.pem;
+  KeyFormat _signatureKeyFormat = KeyFormat.base64;
+  SignatureFormat _signatureFormat = SignatureFormat.base64;
+  KeyInfo? _keyInfo;
+  bool _checkKeyValidity = false;
+
+  &#47;&#47; Results
+  KeyCreationResult? keyResult;
+  SignatureResult? signatureResult;
+  DecryptResult? decryptResult;
+  String? payload;
+  String? errorMessage;
+  bool isLoading = false;
+  BiometricAvailability? availability;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAvailability();
+  }
+
+  Future _checkAvailability() async {
+    final result = await _biometricSignature.biometricAuthAvailable();
+    setState(() {
+      availability = result;
+    });
+  }
+
+  Future _createKeys() async {
+    FocusScope.of(context).unfocus();
+    setState(() => errorMessage = null);
+
+    try {
+      final result = await _biometricSignature.createKeys(
+        keyFormat: _publicKeyFormat,
+        promptMessage: 'Authenticate to create keys',
+        config: CreateKeysConfig(
+          useDeviceCredentials: false,
+          signatureType: useEc ? SignatureType.ecdsa : SignatureType.rsa,
+          setInvalidatedByBiometricEnrollment: true,
+          enforceBiometric: true,
+          enableDecryption: enableDecryption,
+        ),
+      );
+
+      if (result.code == BiometricError.success) {
+        setState(() => keyResult = result);
+      } else {
+        setState(
+          () => errorMessage = 'Error: ${result.code} - ${result.error}',
+        );
+      }
+    } catch (e) {
+      setState(() => errorMessage = e.toString());
+    }
+  }
+
+  Future _createSignature() async {
+    if (payload == null || payload!.isEmpty) {
+      _showSnack('Enter payload first');
+      return;
+    }
+    FocusScope.of(context).unfocus();
+    setState(() {
+      errorMessage = null;
+      signatureResult = null;
+    });
+
+    try {
+      final result = await _biometricSignature.createSignature(
+        payload: payload!,
+        signatureFormat: _signatureFormat,
+        keyFormat: _signatureKeyFormat,
+        promptMessage: 'Sign Data',
+        config: CreateSignatureConfig(allowDeviceCredentials: false),
+      );
+
+      if (result.code == BiometricError.success) {
+        setState(() => signatureResult = result);
+      } else {
+        setState(
+          () => errorMessage = 'Error: ${result.code} - ${result.error}',
+        );
+      }
+    } catch (e) {
+      setState(() => errorMessage = e.toString());
+    }
+  }
+
+  Future _decrypt() async {
+    if (Platform.isWindows) {
+      setState(() {
+        errorMessage =
+            'Decryption is not supported on Windows. '
+            'Windows Hello is designed for authentication and signing only.';
+      });
+      return;
+    }
+
+    if (payload =
+// ... (truncated)

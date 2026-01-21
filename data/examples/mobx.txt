@@ -1,0 +1,2 @@
+$> cd $PATH_TO_MOBX_DART/mobx/example
+$> flutter packages pub run build_runner build

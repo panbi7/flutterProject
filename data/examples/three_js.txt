@@ -1,0 +1,157 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+import 'dart:math' as math;
+import 'package:three_js&#47;three_js.dart' as three;
+import 'package:flutter&#47;services.dart';
+
+void main() {
+  runApp(const ExampleApp());
+}
+
+class ExampleApp extends StatefulWidget {
+  const ExampleApp({super.key});
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const FlutterGame(),
+    );
+  }
+}
+
+class FlutterGame extends StatefulWidget {
+  const FlutterGame({super.key});
+
+  @override
+  _FlutterGameState createState() => _FlutterGameState();
+}
+
+class _FlutterGameState extends State {
+  late three.ThreeJS threeJs;
+
+  @override
+  void initState() {
+    threeJs = three.ThreeJS(
+      onSetupComplete: (){setState(() {});},
+      setup: setup,
+    );
+    super.initState();
+  }
+  @override
+  void dispose() {
+    threeJs.dispose();
+    three.loading.clear();
+    joystick?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return threeJs.build();
+  }
+
+  Map keyStates = {
+    LogicalKeyboardKey.space: false,
+    LogicalKeyboardKey.arrowUp: false,
+    LogicalKeyboardKey.arrowLeft: false,
+    LogicalKeyboardKey.arrowDown: false,
+    LogicalKeyboardKey.arrowRight: false,
+  };
+
+  double gravity = 30;
+  int stepsPerFrame = 5;
+  three.Joystick? joystick;
+  
+  Future setup() async {
+    joystick = threeJs.width  coinPositions = [
+      three.Vector3(-1.4 - 0.8 * 0, 1.5, -6 - 2 * 0),
+      three.Vector3(-1.4 - 0.8 * 1, 1.5, -6 - 2 * 1),
+      three.Vector3(-1.4 - 0.8 * 2, 1.5, -6 - 2 * 2),
+      three.Vector3(-1.4 - 0.8 * 3, 1.5, -6 - 2 * 3),
+      &#47;&#47;
+      three.Vector3(-15 + 2 * 0, 1.5, 0.5 - 1.2 * 0),
+      three.Vector3(-15 + 2 * 1, 1.5, 0.5 - 1.2 * 1),
+      three.Vector3(-15 + 2 * 2, 1.5, 0.5 - 1.2 * 2),
+      three.Vector3(-15 + 2 * 3, 1.5, 0.5 - 1.2 * 3),
+      &#47;&#47;
+      three.Vector3(7 + 2 * 0, 1.5, -16 + 1.3 * 0),
+      three.Vector3(7 + 2 * 1, 1.5, -16.5 + 1.3 * 1),
+      three.Vector3(7 + 2 * 2, 1.5, -16.5 + 1.3 * 2),
+      three.Vector3(7 + 2 * 3, 1.5, -16 + 1.3 * 3),
+    ];
+
+    final coin = await loader.fromAsset('coin.glb');
+    List coins = []; 
+    for(final pos in coinPositions){
+      final object = coin!.scene.clone();
+      coins.add(Coin(pos,object));
+      threeJs.scene.add(object);
+    }
+
+    final dash = await loader.fromAsset('dash.glb');
+    Player player = Player(
+      dash!.scene,dash.animations!,
+      threeJs.camera,
+      threeJs.globalKey,
+      joystick
+    );
+    threeJs.scene.add(dash.scene);
+
+    threeJs.addAnimationEvent((dt){
+      joystick?.update();
+      player.update(dt);
+      for(final coin in coins){
+        coin.update(player.position, dt);
+      }
+    });
+    
+    threeJs.renderer?.autoClear = false; &#47;&#47; To allow render overlay on top of sprited sphere
+    if(joystick != null){
+      threeJs.postProcessor = ([double? dt]){
+        threeJs.renderer!.setViewport(0,0,threeJs.width,threeJs.height);
+        threeJs.renderer!.clear();
+        threeJs.renderer!.render( threeJs.scene, threeJs.camera );
+        threeJs.renderer!.clearDepth();
+        threeJs.renderer!.render( joystick!.scene, joystick!.camera);
+      };
+    }
+  }
+}
+
+class Coin {
+  three.Vector3 position;
+  bool collected = false;
+
+  three.Vector3 startAnimPosition = three.Vector3.zero();
+  double collectAnimation = 0;
+
+  late three.Object3D object;
+
+  Coin(this.position, this.object){
+    object.position = position;
+  }
+
+  void update(three.Vector3 playerPosition, double dt) {
+    if (collected && collectAnimation == 1) {
+      object.visible = false;
+      return;
+    }
+
+    if (!collected) {
+      double distance = playerPosition.clone().sub(position).length;
+      if (distan
+// ... (truncated)

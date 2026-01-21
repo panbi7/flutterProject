@@ -1,0 +1,118 @@
+import 'package:example&#47;key.dart';
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:map_location_picker&#47;map_location_picker.dart';
+
+void main() => runApp(const MyApp());
+
+final _themeMode = ValueNotifier(ThemeMode.light);
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: _themeMode,
+      builder: (context, themeMode, child) {
+        return MaterialApp(
+          title: 'Location Picker Demo',
+          theme: ThemeData.light(),
+          darkTheme: ThemeData.dark(),
+          themeMode: themeMode,
+          home: const LocationPickerScreen(),
+          debugShowCheckedModeBanner: false,
+        );
+      },
+    );
+  }
+}
+
+class LocationPickerScreen extends StatefulWidget {
+  const LocationPickerScreen({super.key});
+
+  @override
+  State createState() => _LocationPickerScreenState();
+}
+
+class _LocationPickerScreenState extends State {
+  LatLng? _pickedLocation;
+  String _formattedAddress = "No location selected";
+  BitmapDescriptor? _customMarkerIcon;
+
+  @override
+  void initState() {
+    super.initState();
+    _createMarkerIcon();
+  }
+
+  void _createMarkerIcon() async {
+    _customMarkerIcon = await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(48, 48)),
+      'assets&#47;marker.webp', &#47;&#47; Replace with your marker asset
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Location Picker'),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            &#47;&#47; Map Preview Section
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.grey.shade700
+                      : Colors.grey.shade300,
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              margin: const EdgeInsets.only(bottom: 16),
+              height: (MediaQuery.of(context).size.height &#47; 5),
+              width: MediaQuery.of(context).size.width,
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: (_pickedLocation == null
+                      ? const Center(
+                          child: Text('Select a location to preview'),
+                        )
+                      : Image.network(
+                          googleStaticMapWithMarker(
+                            _pickedLocation!.latitude,
+                            _pickedLocation!.longitude,
+                            18,
+                            apiKey: YOUR_API_KEY,
+                          ),
+                          fit: BoxFit.cover,
+                          width: MediaQuery.of(context).size.width,
+                          height: (MediaQuery.of(context).size.height &#47; 5),
+                        ))),
+            ),
+
+            &#47;&#47; Formatted Address Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey.shade900
+                    : Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Row(
+                children: [
+                  const Icon(Icons.location_on, color: Colors.blue),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _formattedAddress,
+                      style: const TextStyle
+// ... (truncated)

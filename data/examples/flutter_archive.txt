@@ -1,0 +1,138 @@
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_archive&#47;flutter_archive.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin test app'),
+        ),
+        body: Center(
+          child: ElevatedButton(
+            onPressed: _test,
+            child: const Text("Test"),
+          ),
+        ),
+      ),
+    );
+  }
+
+  final _appDataDir = Directory.systemTemp;
+
+  static const _dataFilesBaseDirectoryName = "store";
+  final _dataFiles = {
+    "file1.txt": "abc",
+    "file2.txt": "åäö",
+    "subdir1&#47;file3.txt": r"@_£$",
+    "subdir1&#47;subdir11&#47;file4.txt": "123",
+  };
+
+  Future _test() async {
+    print("Start test");
+    &#47;&#47; test createFromDirectory
+    &#47;&#47; case 1
+    var zipFile = await _testZip(includeBaseDirectory: false, progress: true);
+    await _testUnzip(zipFile, zipIncludesBaseDirectory: false);
+    await _testUnzip(zipFile, progress: true);
+    &#47;&#47; case 2
+    zipFile = await _testZip(includeBaseDirectory: true, progress: false);
+    await _testUnzip(zipFile, zipIncludesBaseDirectory: true);
+
+    &#47;&#47; test createFromFiles
+    &#47;&#47; case 1
+    zipFile = await _testZipFiles(includeBaseDirectory: false);
+    await _testUnzip(zipFile, zipIncludesBaseDirectory: false);
+    &#47;&#47; case 2
+    zipFile = await _testZipFiles(includeBaseDirectory: true);
+    await _testUnzip(zipFile, zipIncludesBaseDirectory: true);
+
+    print("DONE!");
+  }
+
+  Future _testZip(
+      {required bool includeBaseDirectory, bool progress = false}) async {
+    print("_appDataDir=${_appDataDir.path}");
+    final storeDir =
+        Directory("${_appDataDir.path}${"&#47;$_dataFilesBaseDirectoryName"}");
+
+    _createTestFiles(storeDir);
+
+    final zipFile = _createZipFile("testZip.zip");
+    print("Writing to zip file: ${zipFile.path}");
+
+    int onProgressCallCount1 = 0;
+
+    try {
+      await ZipFile.createFromDirectory(
+        sourceDir: storeDir,
+        zipFile: zipFile,
+        recurseSubDirs: true,
+        includeBaseDirectory: includeBaseDirectory,
+        onZipping: progress
+            ? (fileName, isDirectory, progress) {
+                ++onProgressCallCount1;
+                print('Zip #1:');
+                print('progress: ${progress.toStringAsFixed(1)}%');
+                print('name: $fileName');
+                print('isDirectory: $isDirectory');
+                return ZipFileOperation.includeItem;
+              }
+            : null,
+      );
+      assert(!progress || onProgressCallCount1 > 0);
+    } on PlatformException catch (e) {
+      print(e);
+    }
+    return zipFile;
+  }
+
+  Future _testZipFiles({required bool includeBaseDirectory}) async {
+    print("_appDataDir=${_appDataDir.path}");
+    final storeDir =
+        Directory("${_appDataDir.path}${"&#47;$_dataFilesBaseDirectoryName"}");
+
+    final testFiles = _createTestFiles(storeDir);
+
+    final zipFile = _createZipFile("testZipFiles.zip");
+    print("Writing files to zip file: ${zipFile.path}");
+
+    try {
+      await ZipFile.createFromFiles(
+          sourceDir: storeDir,
+          files: testFiles,
+          zipFile: zipFile,
+          includeBaseDirectory: includeBaseDirectory);
+    } on PlatformException catch (e) {
+      print(e);
+    }
+    return zipFile;
+  }
+
+  Future _testUnzip(File zipFile,
+      {bool progress = false, bool zipIncludesBaseDirectory = false}) async {
+    print("_appDataDir=${_appDataDir.path}");
+
+    final destinationDir = Directory("${_appDataDir.path}&#47;unzip");
+    final destinationDir2 = Directory("${_appDataDir.path}&#47;unzip2");
+
+    if (destinationDir.existsSync())
+// ... (truncated)

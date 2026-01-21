@@ -1,0 +1,98 @@
+import 'dart:async';
+import 'dart:isolate';
+import 'dart:ui';
+
+import 'package:awesome_notifications&#47;awesome_notifications.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:http&#47;http.dart' as http;
+import 'package:palette_generator&#47;palette_generator.dart';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  &#47;&#47; Always initialize Awesome Notifications
+  await NotificationController.initializeLocalNotifications();
+  await NotificationController.initializeIsolateReceivePort();
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47;  *********************************************
+&#47;&#47;&#47;     NOTIFICATION CONTROLLER
+&#47;&#47;&#47;  *********************************************
+&#47;&#47;&#47;
+class NotificationController {
+  static ReceivedAction? initialAction;
+
+  &#47;&#47;&#47;  *********************************************
+  &#47;&#47;&#47;     INITIALIZATIONS
+  &#47;&#47;&#47;  *********************************************
+  &#47;&#47;&#47;
+  static Future initializeLocalNotifications() async {
+    await AwesomeNotifications().initialize(
+        null, &#47;&#47;'resource:&#47;&#47;drawable&#47;res_app_icon',&#47;&#47;
+        [
+          NotificationChannel(
+              channelKey: 'alerts',
+              channelName: 'Alerts',
+              channelDescription: 'Notification tests as alerts',
+              playSound: true,
+              onlyAlertOnce: true,
+              groupAlertBehavior: GroupAlertBehavior.Children,
+              importance: NotificationImportance.High,
+              defaultPrivacy: NotificationPrivacy.Private,
+              defaultColor: Colors.deepPurple,
+              ledColor: Colors.deepPurple)
+        ],
+        debug: true);
+
+    &#47;&#47; Get initial notification action is optional
+    initialAction = await AwesomeNotifications()
+        .getInitialNotificationAction(removeFromActionEvents: false);
+  }
+
+  static ReceivePort? receivePort;
+  static Future initializeIsolateReceivePort() async {
+    receivePort = ReceivePort('Notification action port in main isolate')
+      ..listen(
+          (silentData) => onActionReceivedImplementationMethod(silentData));
+
+    &#47;&#47; This initialization only happens on main isolate
+    IsolateNameServer.registerPortWithName(
+        receivePort!.sendPort, 'notification_action_port');
+  }
+
+  &#47;&#47;&#47;  *********************************************
+  &#47;&#47;&#47;     NOTIFICATION EVENTS LISTENER
+  &#47;&#47;&#47;  *********************************************
+  &#47;&#47;&#47;  Notifications events are only delivered after call this method
+  static Future startListeningNotificationEvents() async {
+    AwesomeNotifications()
+        .setListeners(onActionReceivedMethod: onActionReceivedMethod);
+  }
+
+  &#47;&#47;&#47;  *********************************************
+  &#47;&#47;&#47;     NOTIFICATION EVENTS
+  &#47;&#47;&#47;  *********************************************
+  &#47;&#47;&#47;
+  @pragma('vm:entry-point')
+  static Future onActionReceivedMethod(
+      ReceivedAction receivedAction) async {
+    if (receivedAction.actionType == ActionType.SilentAction ||
+        receivedAction.actionType == ActionType.SilentBackgroundAction) {
+      &#47;&#47; For background actions, you must hold the execution until the end
+      print(
+          'Message sent via notification input: "${receivedAction.buttonKeyInput}"');
+      await executeLongTaskInBackground();
+    } else {
+      &#47;&#47; this process is only necessary when you need to redirect the user
+      &#47;&#47; to a new page or use a valid context, since parallel isolates do not
+      &#47;&#47; have valid context, so you need redirect the execution to main isolate
+      if (receivePort == null) {
+        print(
+            'onActionReceivedMethod was called inside a parallel dart isolate.');
+        SendPort? sendPort =
+            IsolateNameServer.lookupPortByName('notification_action_port');
+
+        if
+// ... (truncated)

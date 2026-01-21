@@ -1,0 +1,109 @@
+import 'dart:io';
+import 'package:flutter&#47;material.dart';
+&#47;&#47; New modular import structure - import only what you need
+import 'package:flutter_chrome_cast&#47;cast_context.dart';
+import 'package:flutter_chrome_cast&#47;discovery.dart';
+import 'package:flutter_chrome_cast&#47;session.dart';
+import 'package:flutter_chrome_cast&#47;media.dart';
+import 'package:flutter_chrome_cast&#47;themes.dart';
+import 'package:flutter_chrome_cast&#47;widgets.dart';
+import 'package:flutter_chrome_cast&#47;entities.dart';
+import 'package:flutter_chrome_cast&#47;enums.dart';
+import 'package:flutter_chrome_cast&#47;models.dart';
+import 'package:flutter_chrome_cast&#47;common.dart';
+&#47;&#47; For ExpandedGoogleCastPlayerController and customizable texts
+&#47;&#47; Alternative: import everything at once
+&#47;&#47; import 'package:flutter_chrome_cast&#47;flutter_chrome_cast.dart';
+import 'dart:async';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final _scaffoldKey = GlobalKey();
+  bool _isDiscoveryActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    const appId = GoogleCastDiscoveryCriteria.kDefaultApplicationId;
+    GoogleCastOptions? options;
+    if (Platform.isIOS) {
+      options = IOSGoogleCastOptions(
+        GoogleCastDiscoveryCriteriaInitialize.initWithApplicationID(appId),
+      );
+    } else if (Platform.isAndroid) {
+      options = GoogleCastOptionsAndroid(
+        appId: appId,
+      );
+    }
+    GoogleCastContext.instance.setSharedInstanceWithOptions(options!);
+
+    &#47;&#47; Check initial discovery state for iOS
+    if (Platform.isIOS) {
+      try {
+        final isActive = await GoogleCastDiscoveryManager.instance
+            .isDiscoveryActiveForDeviceCategory(appId);
+        setState(() {
+          _isDiscoveryActive = isActive;
+        });
+      } catch (e) {
+        &#47;&#47; Handle error silently or log it
+        debugPrint('Error checking discovery state: $e');
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Stack(
+        children: [
+          Scaffold(
+              key: _scaffoldKey,
+              floatingActionButton: Container(
+                margin: const EdgeInsets.only(bottom: 40),
+                child: StreamBuilder(
+                    stream:
+                        GoogleCastSessionManager.instance.currentSessionStream,
+                    builder: (context, snapshot) {
+                      final isConnected =
+                          GoogleCastSessionManager.instance.connectionState ==
+                              GoogleCastConnectState.connected;
+                      return Visibility(
+                        visible: isConnected,
+                        child: FloatingActionButton(
+                          onPressed: _insertQueueItemAndPlay,
+                          child: const Icon(Icons.add),
+                        ),
+                      );
+                    }),
+              ),
+              appBar: AppBar(
+                title: const Text('Plugin example app'),
+                actions: [
+                  StreamBuilder(
+                      stream: GoogleCastSessionManager
+                          .instance.currentSessionStream,
+                      builder: (context, snapshot) {
+                        final bool isConnected =
+                            GoogleCastSessionManager.instance.connectionState ==
+                                GoogleCastConnectState.connected;
+                        return IconButton(
+                            onPressed: GoogleCastSessionManager
+                                .instance.endSessionAndStopCasting,
+                            icon: Ic
+// ... (truncated)

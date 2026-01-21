@@ -1,0 +1,152 @@
+import 'dart:convert';
+
+import 'package:chucker_flutter&#47;chucker_flutter.dart';
+import 'package:dio&#47;dio.dart';
+import 'package:example&#47;chopper&#47;chopper_service.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:http&#47;http.dart' as http;
+
+void main() {
+  ChuckerFlutter.configure(
+    showOnRelease: true,
+    showNotification: true,
+    notificationAlignment: Alignment.topCenter,
+    offsetBegin: const Offset(0, -0.1),
+    offsetEnd: Offset.zero,
+  );
+
+  runApp(const App());
+}
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      navigatorObservers: [ChuckerFlutter.navigatorObserver],
+      theme: ThemeData(
+        appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF13B9FF)),
+        colorScheme: ColorScheme.fromSwatch(
+          accentColor: const Color(0xFF13B9FF),
+        ),
+      ),
+      home: const TodoPage(),
+    );
+  }
+}
+
+class TodoPage extends StatefulWidget {
+  const TodoPage({super.key});
+
+  @override
+  State createState() => _TodoPageState();
+}
+
+class _TodoPageState extends State {
+  final _baseUrl = 'https:&#47;&#47;jsonplaceholder.typicode.com';
+  var _clientType = _Client.http;
+
+  late final _dio = Dio(
+    BaseOptions(
+        sendTimeout: const Duration(seconds: 30),
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        headers: {
+          'Content-Type': 'application&#47;json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': '*',
+        }),
+  );
+
+  final _chuckerHttpClient = ChuckerHttpClient(http.Client());
+
+  final _chopperApiService = ChopperApiService.create();
+
+  Future get({bool error = false}) async {
+    try {
+      &#47;&#47;To produce an error response just adding random string to path
+      final path = '&#47;post${error ? 'temp' : ''}s&#47;1';
+
+      switch (_clientType) {
+        case _Client.dio:
+          _dio.get('$_baseUrl$path');
+          break;
+        case _Client.http:
+          _chuckerHttpClient.get(Uri.parse('$_baseUrl$path'));
+          break;
+        case _Client.chopper:
+          error ? _chopperApiService.getError() : _chopperApiService.get();
+          break;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future getWithParam() async {
+    try {
+      const path = '&#47;posts';
+
+      switch (_clientType) {
+        case _Client.dio:
+          _dio.get('$_baseUrl$path', queryParameters: {'userId': '1'});
+          break;
+        case _Client.http:
+          _chuckerHttpClient.get(Uri.parse('$_baseUrl$path?userId=1'));
+          break;
+        case _Client.chopper:
+          _chopperApiService.getWithParams();
+          break;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future post() async {
+    try {
+      const path = '&#47;posts';
+      final request = {
+        'title': 'foo',
+        'body': 'bar',
+        'userId': '101010',
+      };
+      switch (_clientType) {
+        case _Client.dio:
+          await _dio.post('$_baseUrl$path', data: request);
+          break;
+        case _Client.http:
+          _chuckerHttpClient.post(
+            Uri.parse('$_baseUrl$path'),
+            body: jsonEncode(request),
+          );
+          break;
+        case _Client.chopper:
+          _chopperApiService.post(request);
+          break;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future put() async {
+    try {
+      const path = '&#47;posts&#47;1';
+      final request = {
+        'title': 'PUT foo',
+        'body': 'PUT bar',
+        'userId': '101010',
+      };
+      switch (_clientType) {
+        case _Client.dio:
+          await _dio.put('$_baseUrl$path', data: request);
+          break;
+        case _Client.http:
+          _chuckerHttpClient.put(Uri.parse('$_baseUrl$path'), body: request);
+          break;
+        case _Client.chopper:
+        
+// ... (truncated)

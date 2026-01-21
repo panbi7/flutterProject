@@ -1,0 +1,4 @@
+git clone https://github.com/fluttercandies/flutter_asset_generator
+cd flutter_asset_generator
+dart pub get
+dart bin/asset_generator.dart $flutter_project

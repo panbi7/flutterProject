@@ -1,0 +1,27 @@
+import 'package:cupertino_interactive_keyboard_example&#47;catalog.dart';
+import 'package:cupertino_interactive_keyboard_example&#47;input_accessory.dart';
+import 'package:cupertino_interactive_keyboard_example&#47;nested_navigation.dart';
+import 'package:cupertino_interactive_keyboard_example&#47;reversed_scroll_view.dart';
+import 'package:cupertino_interactive_keyboard_example&#47;simple_scroll_view.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      routes: {
+        "&#47;": (context) => const Catalog(),
+        "&#47;simple_scroll_view": (context) => const SimpleScrollView(),
+        "&#47;input_accessory": (context) => const InputAccessory(),
+        "&#47;nested_navigation": (context) => const NestedNavigation(),
+        "&#47;reversed_scroll_view": (context) => const ReversedScrollView(),
+      },
+    );
+  }
+}

@@ -1,0 +1,102 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_side_menu&#47;flutter_side_menu.dart';
+import 'package:badges&#47;badges.dart' as badges;
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final _controller = SideMenuController();
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Row(
+          children: [
+            SideMenu(
+              controller: _controller,
+              backgroundColor: Colors.blueGrey,
+              mode: SideMenuMode.open,
+              builder: (data) {
+                return SideMenuData(
+                  defaultTileData: SideMenuItemTileDefaults(
+                    &#47;&#47; decoration: const BoxDecoration(
+                    &#47;&#47;     gradient: LinearGradient(
+                    &#47;&#47;       colors: [
+                    &#47;&#47;         Colors.yellow,
+                    &#47;&#47;         Colors.red,
+                    &#47;&#47;       ],
+                    &#47;&#47;       begin: Alignment.centerLeft,
+                    &#47;&#47;       end: Alignment.centerRight,
+                    &#47;&#47;     ),
+                    &#47;&#47;     borderRadius: BorderRadius.all(
+                    &#47;&#47;       Radius.circular(2),
+                    &#47;&#47;     ),
+                    &#47;&#47;     boxShadow: [
+                    &#47;&#47;       BoxShadow(
+                    &#47;&#47;         color: Colors.yellow,
+                    &#47;&#47;         spreadRadius: 1,
+                    &#47;&#47;         blurRadius: 4,
+                    &#47;&#47;         offset: Offset(0, 1),
+                    &#47;&#47;       )
+                    &#47;&#47;     ]),
+                    hoverColor: Colors.black,
+                  ),
+                  animItems: SideMenuItemsAnimationData(),
+                  header: const Text('Header'),
+                  items: [
+                    const SideMenuItemDataTitle(title: 'Section Header'),
+                    SideMenuItemDataTile(
+                      isSelected: _currentIndex == 0,
+                      onTap: () => setState(() => _currentIndex = 0),
+                      title: 'Item 1',
+                      hoverColor: Colors.blue,
+                      titleStyle: const TextStyle(color: Colors.white),
+                      icon: const Icon(Icons.home_outlined),
+                      selectedIcon: const Icon(Icons.home),
+                      tooltipBuilder: (tile) => Tooltip(
+                        message: "Tooltip message",
+                        child: tile,
+                      ),
+                      badgeBuilder: (tile) => badges.Badge(
+                        badgeContent: const Center(
+                          child: Text(
+                            '23',
+                            style: TextStyle(
+                              fontSize: 8,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        position: badges.BadgePosition.custom(
+                          end: 12.0,
+                          bottom: 0.0,
+                          top: 0.0,
+                        ),
+                        child: tile,
+                      ),
+                    ),
+                    SideMenuItemDataTile(
+                      decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.yellow,
+                              Colors.red,
+                            ],
+                            begin: Alignment.centerLe
+// ... (truncated)

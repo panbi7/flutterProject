@@ -1,0 +1,115 @@
+import 'package:flutter&#47;material.dart';
+import 'package:marquee_widget&#47;marquee_widget.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Marquee',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Marquee Home Page'),
+      ),
+      body: GridView.count(
+        crossAxisCount: 2,
+        childAspectRatio: 0.7,
+        children: [
+          GridTile(
+            child: Card(
+              child: Column(
+                children: [
+                  Expanded(
+                      child: Image.network(
+                    'https:&#47;&#47;i.pinimg.com&#47;564x&#47;9d&#47;a6&#47;36&#47;9da636b9e60ea40b18921b0053b7d486.jpg',
+                    fit: BoxFit.fitHeight,
+                    filterQuality: FilterQuality.high,
+                  )),
+                  Marquee(
+                    child: Text(
+                      'Flutter is a free and open source Google mobile UI . ',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    autoRepeat: false,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          GridTile(
+            child: Card(
+              child: Column(
+                children: [
+                  Expanded(
+                      child: Image.network(
+                    'https:&#47;&#47;cdn-images-1.medium.com&#47;max&#47;1000&#47;1*upTyVPOfBb0c4o1r57C9_w.png',
+                    fit: BoxFit.fitHeight,
+                    filterQuality: FilterQuality.high,
+                  )),
+                  Marquee(
+                      child: Text(
+                    'Flutter is a free and open source Google mobile UI. ',
+                    style: TextStyle(fontSize: 16),
+                  )),
+                ],
+              ),
+            ),
+          ),
+          GridTile(
+            child: Card(
+              child: Column(
+                children: [
+                  Expanded(
+                      child: Marquee(
+                          child: Container(
+                              width: 1000,
+                              child: Image.network(
+                                'https:&#47;&#47;i.pinimg.com&#47;564x&#47;9d&#47;a6&#47;36&#47;9da636b9e60ea40b18921b0053b7d486.jpg',
+                                fit: BoxFit.fitWidth,
+                                filterQuality: FilterQuality.high,
+                              )))),
+                  Marquee(
+                      child: Text(
+                    'Flutter is a free and open source Google mobile UI... ',
+                    style: TextStyle(fontSize: 16),
+                  )),
+                ],
+              ),
+            ),
+          ),
+          GridTile(
+            child: Card(
+              child: Column(
+                children: [
+                  Marquee(
+                      textDirection: TextDirection.rtl,
+                      directionMarguee: DirectionMarguee.oneDirection,
+                      child: Container(
+                        width: 1000,
+                        child: Column(
+                          children: [
+                            Container(
+                                width: 1000,
+                                height: 260,
+                                child: Image.network(
+                                  'https:&#47;&#47;cdn-images-1.medium.com&#47;max&#47;1000&#47;1*upTyVPOfBb0c4o1r57C9_w.png',
+        
+// ... (truncated)

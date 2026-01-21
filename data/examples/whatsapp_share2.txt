@@ -1,0 +1,91 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:image_picker&#47;image_picker.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:whatsapp_share2&#47;whatsapp_share2.dart';
+
+void main() => runApp(MyApp());
+
+&#47;&#47; ignore: must_be_immutable
+class MyApp extends StatelessWidget {
+  File? _image;
+
+  String _phone = '917974704221';
+
+  Future share() async {
+    await WhatsappShare.share(
+      text: 'Example share text',
+      linkUrl: 'https:&#47;&#47;flutter.dev&#47;',
+      phone: _phone,
+    );
+  }
+
+  Future shareFile() async {
+    await getImage();
+    Directory? directory = await getExternalStorageDirectory();
+
+    print('${directory!.path} &#47; ${_image!.path}');
+    await WhatsappShare.shareFile(
+      phone: _phone,
+      filePath: ["${_image!.path}"],
+    );
+  }
+
+  Future isInstalled() async {
+    final val = await WhatsappShare.isInstalled();
+    print('Whatsapp is installed: $val');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Whatsapp Share'),
+        ),
+        body: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                child: Text('Share text and link'),
+                onPressed: share,
+              ),
+              ElevatedButton(
+                child: Text('Share Image'),
+                onPressed: shareFile,
+              ),
+              ElevatedButton(
+                child: Text('is Installed'),
+                onPressed: isInstalled,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  &#47;&#47;&#47;Pick Image From gallery using image_picker plugin
+  Future getImage() async {
+    try {
+      final ImagePicker _picker = ImagePicker();
+      XFile? _pickedFile =
+          (await _picker.pickImage(source: ImageSource.gallery));
+
+      if (_pickedFile != null) {
+        &#47;&#47; getting a directory path for saving
+        final directory = await getExternalStorageDirectory();
+
+        &#47;&#47; copy the file to a new path
+        await _pickedFile.saveTo('${directory!.path}&#47;image1.png');
+        _image = File('${directory.path}&#47;image1.png');
+      }
+    } catch (er) {
+      print(er);
+    }
+  }
+}

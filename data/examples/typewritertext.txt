@@ -1,0 +1,114 @@
+import 'package:auto_size_text&#47;auto_size_text.dart';
+import 'package:example&#47;stream.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:typewritertext&#47;typewritertext.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    MaterialApp(
+      title: 'Typewritertext Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const MyNewApp(),
+    ),
+  );
+}
+
+class MyNewApp extends StatelessWidget {
+  const MyNewApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SelectionArea(
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TypeWriter.text(
+                "What is Lorem Ipsum? 🤔",
+                maintainSize: true,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 40.0,
+                  fontWeight: FontWeight.bold,
+                ),
+                duration: const Duration(milliseconds: 50),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                child: TypeWriter(
+                  controller: TypeWriterController(
+                    text: "Lorem Ipsum is simply dummy text of "
+                        "the printing and typesetting industry. "
+                        "Lorem Ipsum has been the industry's standard "
+                        "dummy text ever since the 1500s, when an unknown "
+                        "printer took a galley of type and scrambled it to "
+                        "make a type specimen book. It has survived not only "
+                        "five centuries, but also the leap into electronic typesetting, "
+                        "remaining essentially unchanged 🎉.",
+                    duration: const Duration(milliseconds: 50),
+                  ),
+                  builder: (context, value) {
+                    return AutoSizeText(
+                      value.text,
+                      maxLines: 4,
+                      minFontSize: 2.0,
+                      textAlign: TextAlign.left,
+                    );
+                  },
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TypeWriter(
+                  controller: TypeWriterController.fromValue(
+                    TypeWriterValue([
+                      '🚀 First Paragraph',
+                      'Second 🎁 Paragraph',
+                      'Third Paragraph 🎉'
+                    ]),
+                    duration: const Duration(milliseconds: 200),
+                    repeat: true,
+                  ),
+                  builder: (context, value) {
+                    return Text(
+                      '⎯ ${value.text}',
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontStyle: FontStyle.italic,
+                        fontSize: 10.0,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: TypeWriter(
+                  controller: TypeWriterController.fromStream(
+                    ChatGPTStreamExample(),
+                  ),
+                  builder: (context, value) => Text(value.text),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47; class MyOldApp extends StatelessWidget {
+&#47;&#47;   const MyOldApp({Key? key}) : super(key: key);
+
+&#47;&#47;   @override
+&#47;&#47;   Widget build(BuildContext context) {
+&#47;&#47;     return SelectionArea(
+&#47;&#47;       child: Scaffold(
+&#47;&#47;         appBar: A
+// ... (truncated)

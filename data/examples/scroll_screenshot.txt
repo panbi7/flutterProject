@@ -1,0 +1,83 @@
+import 'dart:developer';
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+import 'package:scroll_screenshot&#47;scroll_screenshot.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final GlobalKey globalKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future _captureAndSaveScreenshot() async {
+    String? base64String = await ScrollScreenshot.captureAndSaveScreenshot(
+      globalKey,
+    );
+    log(base64String!);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).primaryColor,
+          title: const Text("Scroll Screenshot"),
+        ),
+        body: SingleChildScrollView(
+          child: RepaintBoundary(
+            key: globalKey,
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 2250,
+                  width: MediaQuery.of(context).size.width,
+                  child: Column(
+                    children: [
+                      LayoutBuilder(
+                        builder:
+                            (BuildContext context, BoxConstraints constraints) {
+                              return SizedBox(
+                                height: 2250, &#47;&#47; Adjust the height as needed
+                                child: ListView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: 40,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                        return ListTile(
+                                          title: Text('Item ${index + 1}'),
+                                        );
+                                      },
+                                ),
+                              );
+                            },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _captureAndSaveScreenshot,
+          child: const Icon(Icons.screenshot),
+        ),
+      ),
+    );
+  }
+}

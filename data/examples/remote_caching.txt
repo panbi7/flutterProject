@@ -1,0 +1,161 @@
+import 'dart:convert';
+
+import 'package:flutter&#47;material.dart';
+import 'package:http&#47;http.dart' as http;
+import 'package:remote_caching&#47;remote_caching.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Remote Caching Example',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const AgePredictionPage(),
+    );
+  }
+}
+
+class AgePredictionPage extends StatefulWidget {
+  const AgePredictionPage({super.key});
+
+  @override
+  State createState() => _AgePredictionPageState();
+}
+
+class _AgePredictionPageState extends State {
+  final TextEditingController _nameController = TextEditingController();
+  Map? _ageData;
+  bool _isLoading = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeCaching();
+  }
+
+  Future _initializeCaching() async {
+    try {
+      await RemoteCaching.instance.init(
+        defaultCacheDuration: const Duration(minutes: 30),
+        verboseMode: true,
+        databasePath: getInMemoryDatabasePath(),
+      );
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to initialize caching: $e';
+      });
+    }
+  }
+
+  Future _predictAge() async {
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      setState(() {
+        _error = 'Please enter a name';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+      _ageData = null;
+    });
+
+    try {
+      final data = await RemoteCaching.instance.call(
+        'age_prediction_$name',
+        cacheExpiring: DateTime.now().add(const Duration(seconds: 10)),
+        remote: () async {
+          final response = await http.get(
+            Uri.parse('https:&#47;&#47;api.agify.io?name=$name'),
+          );
+
+          if (response.statusCode == 200) {
+            return jsonDecode(response.body) as Map;
+          } else {
+            throw Exception('Failed to load age prediction');
+          }
+        },
+        fromJson: (json) => Map.from(json! as Map),
+      );
+
+      setState(() {
+        _ageData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'Error: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future _clearCache() async {
+    try {
+      await RemoteCaching.instance.clearCache();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cache cleared successfully!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to clear cache: $e')));
+      }
+    }
+  }
+
+  Future _showCacheStats() async {
+    try {
+      final stats = await RemoteCaching.instance.getCacheStats();
+
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Cache Statistics'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Total entries: ${stats.totalEntries}'),
+                Text('Total size: ${stats.totalSizeBytes} bytes'),
+                Text('Expired entries: ${stats.expiredEntries}'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to get cache stats: $e')),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build
+// ... (truncated)

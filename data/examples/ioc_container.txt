@@ -1,0 +1,89 @@
+import 'package:flutter&#47;material.dart';
+import 'package:ioc_container&#47;ioc_container.dart';
+
+&#47;&#47;&#47;A service that the theme controller depends on
+class SettingsService {
+  bool get isLightMode => true;
+}
+
+&#47;&#47;&#47;A controller for the theme
+class ThemeNotifier extends ChangeNotifier {
+  ThemeNotifier(this.settingsService) {
+    _themeData = _getTheme(settingsService.isLightMode);
+  }
+
+  final SettingsService settingsService;
+  late ThemeData _themeData;
+
+  ThemeData get themeData => _themeData;
+
+  void toggleTheme() {
+    _themeData = _getTheme(_themeData.brightness == Brightness.dark);
+    notifyListeners();
+  }
+
+  ThemeData _getTheme(bool isLightMode) =>
+      ThemeData(primarySwatch: Colors.purple).copyWith(
+        brightness: isLightMode ? Brightness.light : Brightness.dark,
+      );
+}
+
+&#47;&#47;&#47;Configure the services
+final IocContainerBuilder builder = IocContainerBuilder(allowOverrides: true)
+  ..addSingletonService(SettingsService())
+  ..addSingleton(
+    (container) => ThemeNotifier(container()),
+  );
+
+late final IocContainer serviceLocator;
+
+void main() {
+  &#47;&#47;Build the container&#47;service locator
+  serviceLocator = builder.toContainer();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+        &#47;&#47;Listen to changes in the theme and rebuild when they occur
+        animation: serviceLocator(),
+        builder: (context, child) => MaterialApp(
+          &#47;&#47;Use the theme in the controller
+          theme: serviceLocator().themeData,
+          debugShowCheckedModeBanner: false,
+          title: 'Theme Switcher',
+          home: Scaffold(
+            appBar: AppBar(title: const Text('Theme Switcher')),
+            body:
+                const Center(child: Text('Press the button to toggle theme.')),
+            floatingActionButton: Builder(
+              builder: (context) => FloatingActionButton(
+                onPressed: () {
+                  &#47;&#47;Toggle the theme and show a snackbar
+                  final themeNotifier = serviceLocator()
+                    ..toggleTheme();
+                  final brightness =
+                      themeNotifier.themeData.brightness == Brightness.dark
+                          ? 'dark'
+                          : 'light';
+                  ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      elevation: 1,
+                      content: Text(
+                        'Theme toggled to $brightness',
+                        style: const TextStyle(color: Colors.purple),
+                      ),
+                    ),
+                  );
+                },
+                child: const Icon(Icons.lightbulb_outline),
+              ),
+            ),
+          ),
+        ),
+      );
+}

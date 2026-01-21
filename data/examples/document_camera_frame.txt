@@ -1,0 +1,131 @@
+import 'package:document_camera_frame&#47;document_camera_frame.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const DocumentTypeSelectionScreen(),
+    );
+  }
+}
+
+&#47;&#47;&#47; Example for different document types
+class DocumentTypeSelectionScreen extends StatelessWidget {
+  const DocumentTypeSelectionScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Select Document Type'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            _buildDocumentTypeCard(
+              context,
+              'Driver\'s License',
+              'Capture both front and back sides',
+              Icons.credit_card,
+              () => _navigateToCamera(context, DocumentType.driverLicense),
+            ),
+            const SizedBox(height: 16),
+            _buildDocumentTypeCard(
+              context,
+              'Passport',
+              'Capture the main page only',
+              Icons.book,
+              () => _navigateToCamera(context, DocumentType.passport),
+            ),
+            const SizedBox(height: 16),
+            _buildDocumentTypeCard(
+              context,
+              'ID Card',
+              'Capture both sides',
+              Icons.badge,
+              () => _navigateToCamera(context, DocumentType.idCard),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDocumentTypeCard(
+    BuildContext context,
+    String title,
+    String subtitle,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
+    return Card(
+      child: ListTile(
+        leading: Icon(icon, size: 40, color: Theme.of(context).primaryColor),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.arrow_forward_ios),
+        onTap: onTap,
+      ),
+    );
+  }
+
+  void _navigateToCamera(BuildContext context, DocumentType documentType) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            _buildCameraForDocumentType(context, documentType),
+      ),
+    );
+  }
+
+  Widget _buildCameraForDocumentType(
+      BuildContext context, DocumentType documentType) {
+    switch (documentType) {
+      case DocumentType.driverLicense:
+        return DocumentCameraFrame(
+          frameWidth: 320,
+          frameHeight: 200,
+          titleStyle: const DocumentCameraTitleStyle(
+            frontSideTitle: Text('Scan Front of License',
+                style: TextStyle(color: Colors.white)),
+            backSideTitle: Text('Scan Back of License',
+                style: TextStyle(color: Colors.white)),
+          ),
+          requireBothSides: true,
+          enableAutoCapture: true,
+          &#47;&#47; Callbacks
+          onFrontCaptured: (imagePath) {
+            debugPrint('Front side captured: $imagePath');
+            &#47;&#47; You can perform additional actions here
+            &#47;&#47; such as uploading to server, saving locally, etc.
+          },
+
+          onBackCaptured: (imagePath) {
+            debugPrint('Back side captured: $imagePath');
+            &#47;&#47; You can perform additional actions here
+          },
+
+          onBothSidesSaved: (documentData) {
+            debugPrint('Document capture completed!');
+            debugPrint('Front: ${documentData.frontImagePath}');
+            debugPrint('Back: ${documentData.backImagePath}');
+            debugPrint('Is complete: ${documentData.isComplete}');
+
+            &#47;&#47; Navigate to next screen or process the captured document
+            _handleDocumentSaved(context, documentData);
+          },
+        );
+
+      case DocumentType.passport:
+        ret
+// ... (truncated)

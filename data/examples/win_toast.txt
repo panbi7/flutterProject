@@ -1,0 +1,152 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:mixin_logger&#47;mixin_logger.dart';
+import 'package:path&#47;path.dart' as p;
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:win_toast&#47;win_toast.dart';
+
+void main() async {
+  final dir = await getApplicationDocumentsDirectory();
+  final logPath = p.join(dir.path, 'log');
+  initLogger(logPath);
+  i('logPath: $logPath');
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  bool _initialized = false;
+
+  final _navigatorKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    scheduleMicrotask(() async {
+      final ret = await WinToast.instance().initialize(
+        aumId: 'one.mixin.WinToastExample',
+        displayName: 'Example Application',
+        iconPath: '',
+        clsid: '936C39FC-6BBC-4A57-B8F8-7C627E401B2F',
+      );
+      assert(ret);
+      setState(() {
+        _initialized = ret;
+      });
+    });
+    WinToast.instance().setActivatedCallback((event) {
+      i('onNotificationActivated: $event');
+      showDialog(
+          context: _navigatorKey.currentState!.context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('onNotificationActivated'),
+              content: Text(event.toString()),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          });
+
+      WinToast.instance().setDismissedCallback((event) {
+        i('onNotificationDismissed: $event');
+        showDialog(
+            context: _navigatorKey.currentState!.context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('onNotificationDismissed'),
+                content: Text(event.toString()),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            });
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: _navigatorKey,
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: !_initialized
+            ? const Center(child: Text('initializing...'))
+            : const Center(child: MainPage()),
+      ),
+    );
+  }
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  State createState() => _MainPageState();
+}
+
+class _MainPageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        TextButton(
+          onPressed: () async {
+            const xml = """
+
+
+   
+      
+         Andrew sent you a picture
+         Check this out, Happy Canyon in Utah!
+      
+   
+   
+      
+      
+      
+      
+   
+
+            """;
+            try {
+              await WinToast.instance().showCustomToast(xml: xml);
+            } catch (error, stacktrace) {
+              i('showCustomToast error: $error, $stacktrace');
+            }
+          },
+          child: const Text('show custom'),
+        ),
+        TextButton(
+          onPressed: () async {
+            try {
+              await WinToast.instance().showToast(
+                toast: Toast(
+                  duration: ToastDuration.short,
+                  launch: 'action=viewConversation&conversationId=9813',
+                  children: [
+                    ToastChildAudio(source: ToastAudioSource.defaultSound),
+                    ToastChildVisual(
+                      bindi
+// ... (truncated)

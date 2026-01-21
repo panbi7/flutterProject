@@ -1,0 +1,8 @@
+import 'app.dart';
+import 'package:flutter&#47;material.dart';
+
+const kChatServerUrl = "http:&#47;&#47;localhost:5000";
+
+void main() {
+  runApp(App());
+}

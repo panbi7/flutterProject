@@ -1,0 +1,93 @@
+&#47;&#47; ignore_for_file: avoid_print
+import 'package:flutter&#47;material.dart';
+import 'package:string_contains&#47;string_contains.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'StringContains Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final String? stringContainsBadWords = 'I am CEO, Bitch';
+  final stringContainsUrl = 'Please visit our website : https:&#47;&#47;betterx.io&#47;.';
+  final stringContainsMultipleUrls =
+      'Please visit our website : https:&#47;&#47;betterx.io&#47; and you can search for any thing on google : google.com, I love Dart : https:&#47;&#47;dart.dev&#47;, you can practice on : https:&#47;&#47;dartpad.dev&#47;. Flutter uses Dart, you can create your own app with Flutter : https:&#47;&#47;flutter.dev&#47;, this is a good example of Flutter : https:&#47;&#47;flutter.dev&#47;docs&#47;get-started&#47;.';
+  final stringContainsEmail =
+      "BetterX.io : Let's build something Better, User-centered & beautiful together\n for more info contact us at : info@betterx.io. My Personal Email : ravikumar2710999@gmail.com.\n A fake email : gedoye9446@roxoas.com.";
+  final stringContainsPhoneNumber =
+      '''My Phone Number : +91-9000000001 and some of other eg. of phone numbers ->
+
+  &#47;&#47;&#47; 0. 9000000769
+  &#47;&#47;&#47; 1. (123) 456-7890
+  &#47;&#47;&#47; 2. (123)456-7890
+  &#47;&#47;&#47; 3. 123-456-7890
+  &#47;&#47;&#47; 4. 123.456.7890
+  &#47;&#47;&#47; 5. 1234567890
+  &#47;&#47;&#47; 6. +31636363634
+  &#47;&#47;&#47; 7. 075-63546725
+  ''';
+
+  final normalString = 'I love Dart and Flutter';
+  final stringContainsHashtags =
+      'I love #dart and #flutter. @flutter is #awesome. #dart are #amazing.';
+
+  String? stringOfBadWords = 'I am ceo bitch';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('String Contains'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                &#47;&#47; String Contains Bad Words
+                Text(
+                  '$stringContainsBadWords contains bad-word&#47;profane-word : ${stringContainsBadWords.containsBadWord() == true ? 'Yes' : 'No'}\n clean bad words: ${stringContainsBadWords.cleanBadWords()}',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                ),
+                const Divider(),
+                &#47;&#47; String Contains Url
+                Text(
+                  '$stringContainsUrl contains url : ${stringContainsUrl.containsUrl() == true ? 'Yes' : 'No'}\n get all urls: ${stringContainsUrl.getUrls()}',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                ),
+                const Divider(),
+                &#47;&#47; String Contains Multiple Urls
+                Text(
+                  '$stringContainsMultipleUrls contain urls : ${stringContainsMultipleUrls.containsUrl() == true ? 'Yes' : 'No'}\n get all urls:\n${stringContainsMultipleUrls.getUrls().join('\n')}',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textThem
+// ... (truncated)

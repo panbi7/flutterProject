@@ -1,0 +1,128 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:speech_to_text&#47;speech_recognition_error.dart';
+import 'package:speech_to_text&#47;speech_recognition_result.dart';
+import 'package:speech_to_text&#47;speech_to_text.dart';
+
+void main() => runApp(const SpeechSampleApp());
+
+class SpeechSampleApp extends StatefulWidget {
+  const SpeechSampleApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _SpeechSampleAppState();
+}
+
+&#47;&#47;&#47; An example that demonstrates the basic functionality of the
+&#47;&#47;&#47; SpeechToText plugin for using the speech recognition capability
+&#47;&#47;&#47; of the underlying platform.
+class _SpeechSampleAppState extends State {
+  bool _hasSpeech = false;
+  double level = 0.0;
+  double minSoundLevel = 50000;
+  double maxSoundLevel = -50000;
+  String lastWords = '';
+  String lastError = '';
+  String lastStatus = '';
+  List _localeNames = [];
+  final SpeechToText speech = SpeechToText();
+
+  SpeechExampleConfig currentOptions = SpeechExampleConfig(
+      SpeechListenOptions(
+          listenMode: ListenMode.confirmation,
+          onDevice: false,
+          cancelOnError: true,
+          partialResults: true,
+          autoPunctuation: true,
+          enableHapticFeedback: true),
+      "",
+      3,
+      30,
+      false,
+      false);
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  &#47;&#47;&#47; This initializes SpeechToText. That only has to be done
+  &#47;&#47;&#47; once per application, though calling it again is harmless
+  &#47;&#47;&#47; it also does nothing. The UX of the sample app ensures that
+  &#47;&#47;&#47; it can only be called once.
+  Future initSpeechState() async {
+    _logEvent('Initialize');
+    try {
+      var hasSpeech = await speech.initialize(
+        onError: errorListener,
+        onStatus: statusListener,
+        debugLogging: currentOptions.debugLogging,
+      );
+      if (hasSpeech) {
+        speech.unexpectedPhraseAggregator = _punctAggregator;
+        &#47;&#47; Get the list of languages installed on the supporting platform so they
+        &#47;&#47; can be displayed in the UI for selection by the user.
+        _localeNames = await speech.locales();
+
+        var systemLocale = await speech.systemLocale();
+        currentOptions =
+            currentOptions.copyWith(localeId: systemLocale?.localeId ?? '');
+      }
+      if (!mounted) return;
+
+      setState(() {
+        _hasSpeech = hasSpeech;
+      });
+    } catch (e) {
+      setState(() {
+        lastError = 'Speech recognition failed: ${e.toString()}';
+        _hasSpeech = false;
+      });
+    }
+  }
+
+  String _punctAggregator(List phrases) {
+    return phrases.join('. ');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        home: Scaffold(
+      appBar: AppBar(
+        title: const Text('Speech to Text Example'),
+      ),
+      body: Builder(
+        builder: (ctx) => SingleChildScrollView(
+          child: Column(children: [
+            Row(
+              children: [
+                Expanded(child: InitSpeechWidget(_hasSpeech, initSpeechState)),
+                TextButton.icon(
+                  &#47;&#47; key: ,
+                  onPressed: () async {
+                    currentOptions =
+                        await showSetUp(ctx, currentOptions, _localeNames);
+                  },
+                  icon: const Icon(Icons.settings),
+                  label: const Text('Session Options'),
+                ),
+              ],
+            ),
+            SpeechControlWidget(_hasSpeech, speech.isListening, startListening,
+                stopListening, cancelListening),
+            RecognitionResultsWidget(lastWords: lastWords, level: level),
+            SpeechStatusWidget(lastStatus: lastStatus),
+            ErrorWidget(lastError: lastError),
+          ]),
+        ),
+      ),
+    ));
+  }
+
+  &#47;&#47; This is called each time the users wants to start a new speech
+  &#47;&#47; recognition session
+  
+// ... (truncated)

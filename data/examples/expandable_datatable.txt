@@ -1,0 +1,132 @@
+import 'dart:convert';
+
+import 'package:expandable_datatable&#47;expandable_datatable.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+import 'model&#47;models.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const HomePage(),
+      theme: ThemeData.light(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  List userList = [];
+
+  late List> headers;
+  late List rows;
+
+  bool _isLoading = true;
+
+  void setLoading() {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    fetch();
+  }
+
+  void fetch() async {
+    userList = await getUsers();
+
+    createDataSource();
+
+    setLoading();
+  }
+
+  Future> getUsers() async {
+    final String response = await rootBundle.loadString('asset&#47;dumb.json');
+
+    final data = await json.decode(response);
+
+    API apiData = API.fromJson(data);
+
+    if (apiData.users != null) {
+      return apiData.users!;
+    }
+
+    return [];
+  }
+
+  void createDataSource() {
+    headers = [
+      ExpandableColumn(columnTitle: "ID", columnFlex: 1),
+      ExpandableColumn(columnTitle: "First name", columnFlex: 2),
+      ExpandableColumn(columnTitle: "Last name", columnFlex: 2),
+      ExpandableColumn(columnTitle: "Maiden name", columnFlex: 2),
+      ExpandableColumn(columnTitle: "Age", columnFlex: 1),
+      ExpandableColumn(columnTitle: "Gender", columnFlex: 1),
+      ExpandableColumn(columnTitle: "Email", columnFlex: 4),
+    ];
+
+    rows = userList.map((e) {
+      return ExpandableRow(cells: [
+        ExpandableCell(columnTitle: "ID", value: e.id),
+        ExpandableCell(columnTitle: "First name", value: e.firstName),
+        ExpandableCell(columnTitle: "Last name", value: e.lastName),
+        ExpandableCell(columnTitle: "Maiden name", value: e.maidenName),
+        ExpandableCell(columnTitle: "Age", value: e.age),
+        ExpandableCell(columnTitle: "Gender", value: e.gender),
+        ExpandableCell(columnTitle: "Email", value: e.email),
+      ]);
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: !_isLoading
+            ? LayoutBuilder(builder: (context, constraints) {
+                int visibleCount = 3;
+                if (constraints.maxWidth 
+                        _buildEditDialog(row, onSuccess),
+                    visibleColumnCount: visibleCount,
+                  ),
+                );
+              })
+            : const Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
+
+  Widget _buildEditDialog(
+      ExpandableRow row, Function(ExpandableRow) onSuccess) {
+    return AlertDialog(
+      title: SizedBox(
+        height: 300,
+        child: TextButton(
+          child: const Text("Change name"),
+          onPressed: () {
+            row.cells[1].value = "x3";
+            onSuccess(row);
+          },
+        ),
+      ),
+    );
+  }
+}

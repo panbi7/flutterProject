@@ -1,0 +1,111 @@
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_screen_lock&#47;flutter_screen_lock.dart';
+import 'package:local_auth&#47;local_auth.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Example',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    Future localAuth(BuildContext context) async {
+      final localAuth = LocalAuthentication();
+      final didAuthenticate = await localAuth.authenticate(
+        localizedReason: 'Please authenticate',
+        options: const AuthenticationOptions(biometricOnly: true),
+      );
+
+      if (didAuthenticate && context.mounted) {
+        Navigator.pop(context);
+      }
+    }
+
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Next Screen Lock'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 700,
+              ),
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                alignment: WrapAlignment.start,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) {
+                        return ScreenLock(
+                          correctString: '1234',
+                          onCancelled: Navigator.of(context).pop,
+                          onUnlocked: Navigator.of(context).pop,
+                        );
+                      },
+                    ),
+                    child: const Text('Manually open'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => screenLock(
+                      context: context,
+                      correctString: '1234',
+                      canCancel: false,
+                    ),
+                    child: const Text('Not cancelable'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      &#47;&#47; Define it to control the confirmation state with its own events.
+                      final controller = InputController();
+                      screenLockCreate(
+                        context: context,
+                        inputController: controller,
+                        onConfirmed: (matchedText) =>
+                            Navigator.of(context).pop(),
+                        footer: Column(
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                &#47;&#47; Release the confirmation state and return to the initial input state.
+                                controller.unsetConfirmed();
+                              },
+                              child: const Text('Reset input'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                &#47;&#47; Release the confirmation state and return to the initial input state.
+                                controller.unsetConfirmed();
+                              },
+                              child: const Text('Reset input'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                &#47;&#47; Release the confirmation st
+// ... (truncated)

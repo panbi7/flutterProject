@@ -1,0 +1,151 @@
+import 'package:flutter&#47;material.dart';
+import 'package:popup_menu&#47;popup_menu.dart';
+import 'package:popup_menu_example&#47;gesture_demo.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      home: MyHomePage(title: 'Popup Menu Example'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({required this.title});
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  late PopupMenu menu;
+  GlobalKey btnKey = GlobalKey();
+  GlobalKey btnKey2 = GlobalKey();
+  GlobalKey btnKey3 = GlobalKey();
+  GlobalKey btnKey4 = GlobalKey();
+
+  GlobalKey customWidthKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void onClickMenu(MenuItemProvider item) {
+    print('Click menu -> ${item.menuTitle}');
+  }
+
+  void onDismiss() {
+    print('Menu is dismiss');
+  }
+
+  void onShow() {
+    print('Menu is show');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Container(
+        alignment: Alignment.centerRight,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              color: Colors.blue,
+              child: MaterialButton(
+                height: 45.0,
+                key: btnKey,
+                onPressed: maxColumn,
+                child: Text('Show Menu'),
+              ),
+            ),
+            Container(
+              child: MaterialButton(
+                key: btnKey2,
+                height: 45.0,
+                onPressed: customBackground,
+                child: Text('Custom Background'),
+              ),
+            ),
+            Container(
+              child: MaterialButton(
+                key: btnKey3,
+                height: 45.0,
+                onPressed: onDismissOnlyBeCalledOnce,
+                child: Text('Show Menu'),
+              ),
+            ),
+            Container(
+              child: MaterialButton(
+                key: btnKey4,
+                height: 45.0,
+                onPressed: listMenu,
+                child: Text('List Menu'),
+              ),
+            ),
+            Container(
+              child: MaterialButton(
+                key: customWidthKey,
+                height: 45.0,
+                onPressed: customItemWidth,
+                child: Text('CustomItemWidth'),
+              ),
+            ),
+            Container(
+              child: MaterialButton(
+                height: 30.0,
+                child: Text('Gestures Demo'),
+                onPressed: onGesturesDemo,
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  void onDismissOnlyBeCalledOnce() {
+    menu = PopupMenu(
+      context: context,
+      items: [
+        &#47;&#47; MenuItem(title: 'Copy', image: Image.asset('assets&#47;copy.png')),
+        &#47;&#47; MenuItem(title: 'Home', image: Icon(Icons.home, color: Colors.white,)),
+        MenuItem(title: 'Mail', image: Icon(Icons.mail, color: Colors.white)),
+        MenuItem(title: 'Power', image: Icon(Icons.power, color: Colors.white)),
+        MenuItem(
+            title: 'Setting', image: Icon(Icons.settings, color: Colors.white)),
+        MenuItem(
+            title: 'PopupMenu', image: Icon(Icons.menu, color: Colors.white))
+      ],
+      onClickMenu: onClickMenu,
+      onDismiss: onDismiss,
+    );
+    menu.show(widgetKey: btnKey3);
+  }
+
+  void onGesturesDemo() {
+    &#47;&#47; return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => GestureDemo()),
+    );
+  }
+
+  void maxColumn() {
+    PopupMenu menu = PopupMenu(
+      context: context,
+      config: MenuConfig(maxColumn: 3),
+      items: [
+        MenuItem(title: 'Copy'
+// ... (truncated)

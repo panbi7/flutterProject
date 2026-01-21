@@ -1,0 +1,124 @@
+import 'dart:ffi';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter&#47;material.dart' hide Image;
+import 'dart:async';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_custom_cursor&#47;cursor_manager.dart';
+import 'package:flutter_custom_cursor&#47;flutter_custom_cursor.dart';
+import 'package:image&#47;image.dart' as img2;
+
+late Uint8List memoryCursorDataRawBGRA;
+late Uint8List memoryCursorDataRawPNG;
+late String cursorName;
+
+late img2.Image img;
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  &#47;&#47; read memory Cursor
+  print("reading memory cursor");
+  final byte = await rootBundle.load("assets&#47;cursors&#47;data.png");
+  memoryCursorDataRawPNG = byte.buffer.asUint8List();
+  img = await getImage(memoryCursorDataRawPNG);
+  memoryCursorDataRawBGRA =
+      (img.getBytes(format: img2.Format.bgra)).buffer.asUint8List();
+  &#47;&#47; register this cursor
+  cursorName = await CursorManager.instance.registerCursor(CursorData()
+    ..name = "test"
+    ..buffer =
+        Platform.isWindows ? memoryCursorDataRawBGRA : memoryCursorDataRawPNG
+    ..height = img.height
+    ..width = img.width
+    ..hotX = 0
+    ..hotY = 0);
+  &#47;&#47; test delete
+  print("test delete");
+  await CursorManager.instance.deleteCursor("test");
+  cursorName = await CursorManager.instance.registerCursor(CursorData()
+    ..name = "test"
+    ..buffer =
+        Platform.isWindows ? memoryCursorDataRawBGRA : memoryCursorDataRawPNG
+    ..height = img.height
+    ..width = img.width
+    ..hotX = 0
+    ..hotY = 0);
+  runApp(const MyApp());
+}
+
+Future getImage(Uint8List bytes) async {
+  img = img2.decodePng(bytes)!;
+  return img;
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _platformVersion = 'Unknown';
+  String msg = "";
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    String platformVersion;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    &#47;&#47; We also handle the message potentially returning null.
+    try {
+      platformVersion = 'Unknown platform version';
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _platformVersion = platformVersion;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var style = const TextStyle(fontSize: 30);
+    print("rebuild");
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+            child: ListView(
+          children: [
+            MouseRegion(
+              cursor: FlutterCustomMemoryImageCursor(key: cursorName),
+              child: Row(
+                children: [
+                  &#47;&#47; Image.memory(memoryCursorDataRawPNG),
+                  Text("Memory Image Here", style: style),
+                ],
+              ),
+            ),
+            Text("OUTPUT: ${msg}"),
+            &#47;&#47; TextButton(
+            &#47;&#47;     onPressed: () async {
+            &#47;&#47;       msg =
+            &#47;&#47;           "${await FlutterCustomCursorController.instance.getCursorCacheKey()}";
+            &#47;&#47;       setState(() {});
+            &#47;&#47;     },
+            &#47;&#47;     child: Text("Last Cursor Cache List")),
+            &#47;&#47; TextButton(
+            &#47;&#47;     onPressed: () async {
+            &#47;&#47;       final keys = await FlutterCust
+// ... (truncated)

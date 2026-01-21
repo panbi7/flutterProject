@@ -1,0 +1,134 @@
+import 'dart:ui' as ui;
+import 'package:app&#47;centered_slider_track_shape.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:crop&#47;crop.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+import 'package:image_gallery_saver&#47;image_gallery_saver.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Crop Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+        brightness: Brightness.dark,
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  final controller = CropController(aspectRatio: 1000 &#47; 667.0);
+  double _rotation = 0;
+  BoxShape shape = BoxShape.rectangle;
+
+  void _cropImage() async {
+    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final cropped = await controller.crop(pixelRatio: pixelRatio);
+
+    if (cropped == null) {
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Crop Result'),
+            centerTitle: true,
+            actions: [
+              Builder(
+                builder: (context) => IconButton(
+                  icon: const Icon(Icons.save),
+                  onPressed: () async {
+                    final status = await Permission.storage.request();
+                    if (status == PermissionStatus.granted) {
+                      await _saveScreenShot(cropped);
+                      if (!mounted) {
+                        return;
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Saved to gallery.'),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          body: Center(
+            child: RawImage(
+              image: cropped,
+            ),
+          ),
+        ),
+        fullscreenDialog: true,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Crop Demo'),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.link),
+          onPressed: () {
+            launchUrl(Uri.parse('https:&#47;&#47;github.com&#47;xclud&#47;flutter_crop'),
+                mode: LaunchMode.externalApplication);
+          },
+        ),
+        actions: [
+          IconButton(
+            onPressed: _cropImage,
+            tooltip: 'Crop',
+            icon: const Icon(Icons.crop),
+          )
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Container(
+              color: Colors.black,
+              padding: const EdgeInsets.all(8),
+              child: Crop(
+                onChanged: (decomposition) {
+                  if (_rotation != decomposition.rotation) {
+                    setState(() {
+                      _rotation = ((decomposition.rotation + 180) % 360) - 180;
+                    });
+                  }
+
+                  &#47;&#47; print(
+                  &#47;&#47;     "Scale : ${decomposition.scale}, Rotation: ${decomposition.rotation}, translation: ${decomposition.translation}");
+                },
+                controller: controller,
+                shape: shape,
+                &#47;* It's very important to set `fit: BoxFit.cover`.
+                   Do NOT remove this line.
+                   Ther
+// ... (truncated)

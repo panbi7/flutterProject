@@ -1,0 +1,124 @@
+&#47;&#47; ignore_for_file: deprecated_member_use, prefer_const_constructors, prefer_const_literals_to_create_immutables
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_scalify&#47;flutter_scalify.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Scalify Ultimate Showcase',
+      debugShowCheckedModeBanner: false,
+
+      &#47;&#47; Global Configuration via ScalifyProvider
+      builder: (context, child) {
+        return ScalifyProvider(
+          config: const ScalifyConfig(
+            designWidth: 375,
+            designHeight: 812,
+            minScale: 0.5,
+            maxScale: 3.0,
+            memoryProtectionThreshold: 1920.0,
+            highResScaleFactor: 0.60,
+          ),
+          &#47;&#47; FEATURE: ScalifyThemeExtension (New v2.2.0)
+          &#47;&#47; Automatically scales the entire app's text theme based on screen size
+          child: Builder(builder: (ctx) {
+            return Theme(
+              data: Theme.of(ctx).scale(ctx),
+              child: child ?? const SizedBox(),
+            );
+          }),
+        );
+      },
+      theme: ThemeData(
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        primaryColor: const Color(0xFF0F172A),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0F172A)),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF0F172A),
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+      ),
+      &#47;&#47; FEATURE: AppWidthLimiter
+      &#47;&#47; Centers and limits app width on ultra-wide screens&#47;desktops
+      home: AppWidthLimiter(
+        maxWidth: 1400,
+        horizontalPadding: 16,
+        backgroundColor: const Color(0xFFE2E8F0),
+        child: const ScalifyShowcaseScreen(),
+      ),
+    );
+  }
+}
+
+class ScalifyShowcaseScreen extends StatelessWidget {
+  const ScalifyShowcaseScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final data = context.responsiveData;
+
+    &#47;&#47; valueByScreen helper to return specific values for each breakpoint
+    final double dynamicAspectRatio = context.valueByScreen(
+      mobile: 2,
+      tablet: 1.5,
+      smallDesktop: 0.8,
+      desktop: 0.8,
+    );
+
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          &#47;&#47; Responsive AppBar using height (.h), icon size (.iz), and font size (.fz)
+          SliverAppBar(
+            floating: true,
+            pinned: true,
+            expandedHeight: 80.h.clamp(60, 100),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.layers, size: 24.iz),
+                12.sbw,
+                Flexible(
+                  child: Text(
+                    "Scalify UI Kit",
+                    style:
+                        TextStyle(fontSize: 20.fz, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              Center(
+                child: Padding(
+                  padding: 16.pr,
+                  child: Container(
+                    padding: [8, 4].p,
+                    decoration: BoxDecoration(
+                      color: Colors.white10,
+                      borderRadius: 4.br,
+                    ),
+                    child: Text(
+                      "W: ${data.size.width.toInt()}",
+                      style: TextStyle(fontSize: 12.fz, color: Colors.white),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+
+          SliverToBoxAdapter(
+            child: Padding(
+              paddin
+// ... (truncated)

@@ -1,0 +1,99 @@
+import 'package:arkit_plugin_example&#47;body_tracking_page.dart';
+import 'package:arkit_plugin_example&#47;camera_properties_page.dart';
+import 'package:arkit_plugin_example&#47;check_support_page.dart';
+import 'package:arkit_plugin_example&#47;custom_animation_page.dart';
+import 'package:arkit_plugin_example&#47;custom_object_page.dart';
+import 'package:arkit_plugin_example&#47;load_gltf_or_glb_page.dart';
+import 'package:arkit_plugin_example&#47;distance_tracking_page.dart';
+import 'package:arkit_plugin_example&#47;custom_light_page.dart';
+import 'package:arkit_plugin_example&#47;earth_page.dart';
+import 'package:arkit_plugin_example&#47;hello_world.dart';
+import 'package:arkit_plugin_example&#47;image_detection_page.dart';
+import 'package:arkit_plugin_example&#47;light_estimate_page.dart';
+import 'package:arkit_plugin_example&#47;manipulation_page.dart';
+import 'package:arkit_plugin_example&#47;measure_page.dart';
+import 'package:arkit_plugin_example&#47;midas_page.dart';
+import 'package:arkit_plugin_example&#47;network_image_detection.dart';
+import 'package:arkit_plugin_example&#47;occlusion_page.dart';
+import 'package:arkit_plugin_example&#47;physics_page.dart';
+import 'package:arkit_plugin_example&#47;plane_detection_page.dart';
+import 'package:arkit_plugin_example&#47;snapshot_depth_scene.dart';
+import 'package:arkit_plugin_example&#47;snapshot_scene.dart';
+import 'package:arkit_plugin_example&#47;tap_page.dart';
+import 'package:arkit_plugin_example&#47;face_detection_page.dart';
+import 'package:arkit_plugin_example&#47;panorama_page.dart';
+import 'package:arkit_plugin_example&#47;video_page.dart';
+import 'package:arkit_plugin_example&#47;widget_projection.dart';
+import 'package:arkit_plugin_example&#47;real_time_updates.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(MaterialApp(home: MyApp()));
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final samples = [
+      Sample(
+        'Hello World',
+        'The simplest scene with all geometries.',
+        Icons.home,
+        () => Navigator.of(context)
+            .push(MaterialPageRoute(builder: (c) => HelloWorldPage())),
+      ),
+      Sample(
+        'Check configuration',
+        'Shows which kinds of AR configuration are supported on the device',
+        Icons.settings,
+        () => Navigator.of(context)
+            .push(MaterialPageRoute(builder: (c) => CheckSupportPage())),
+      ),
+      Sample(
+        'Earth',
+        'Sphere with an image texture and rotation animation.',
+        Icons.language,
+        () => Navigator.of(context)
+            .push(MaterialPageRoute(builder: (c) => EarthPage())),
+      ),
+      Sample(
+        'Tap',
+        'Sphere which handles tap event.',
+        Icons.touch_app,
+        () => Navigator.of(context)
+            .push(MaterialPageRoute(builder: (c) => TapPage())),
+      ),
+      Sample(
+        'Midas',
+        'Turns walls, floor, and Earth itself into gold by tap.',
+        Icons.touch_app,
+        () => Navigator.of(context)
+            .push(MaterialPageRoute(builder: (c) => MidasPage())),
+      ),
+      Sample(
+        'Plane Detection',
+        'Detects horizontal plane.',
+        Icons.blur_on,
+        () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (c) => PlaneDetectionPage())),
+      ),
+      Sample(
+        'Distance tracking',
+        'Detects horizontal plane and track distance on it.',
+        Icons.blur_on,
+        () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (c) => DistanceTrackingPage())),
+      ),
+      Sample(
+        'Measure',
+        'Measures distances',
+        Icons.linear_scale,
+        () => Navigator.of(context)
+            .push(MaterialPageRoute(builder: (c) => MeasurePage())),
+      ),
+      Sample(
+        'Physics',
+        'A sphere and a plane with dynamic and static physics',
+        Icons.file_download,
+        () => Navigator.of(cont
+// ... (truncated)

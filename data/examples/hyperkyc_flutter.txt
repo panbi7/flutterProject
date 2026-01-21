@@ -1,0 +1,113 @@
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_bloc&#47;flutter_bloc.dart';
+import 'package:hyperkyc_flutter&#47;hyperkyc_config.dart';
+import 'package:hyperkyc_flutter&#47;hyperkyc_flutter.dart';
+import 'package:hyperkyc_flutter&#47;hyperkyc_result.dart';
+import 'package:hyperkyc_flutter_example&#47;bloc&#47;hyperkyc_bloc.dart';
+import 'package:yaml&#47;yaml.dart';
+
+void main() {
+  runApp(HyperKycFlutterExampleApp());
+}
+
+class HyperKycFlutterExampleApp extends StatelessWidget {
+  &#47;&#47;  TODO : Add AppId here (Get this from Hyperverge Team)
+  var appId = '';
+
+  &#47;&#47;  TODO : Add AppKey here (Get this from Hyperverge Team)
+  var appKey = '';
+
+  &#47;&#47;  TODO : Add AccessToken here (Get more info from Hyperverge Team)
+  var accessToken = '';
+
+  &#47;&#47;  TODO : Add relevant workflowId here (Get more info from Hyperverge Team)
+  var workflowId = 'twc_demo';
+
+  final String _chars =
+      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  final Random _rnd = Random();
+
+  HyperKycFlutterExampleApp({Key? key}) : super(key: key);
+
+  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+
+  &#47;&#47;&#47; Prefetches configs
+  void prefetch(BuildContext context) async {
+    &#47;&#47;&#47; Reading local hyperkyc_config.yaml file to obtain appId and appKey
+    &#47;&#47; region
+    final yamlString =
+        await DefaultAssetBundle.of(context).loadString('hyperkyc_config.yaml');
+    final dynamic hyperKycYamlMap = loadYaml(yamlString);
+    appId = (hyperKycYamlMap['hyperKycAppId']);
+    appKey = (hyperKycYamlMap['hyperKycAppKey']);
+    &#47;&#47; endregion
+
+    HyperKyc.prefetch(
+      appId: appId,
+      workflowId: workflowId,
+    );
+  }
+
+  &#47;&#47;&#47; Launch AppIdAppKey HyperKyc flow
+  void launchAppIdAppKeyHyperKyc(BuildContext context) async {
+    final transactionId = 'flutter_AppIdAppKey_' + getRandomString(10);
+
+    &#47;&#47;&#47; Reading local hyperkyc_config.yaml file to obtain appId and appKey
+    &#47;&#47; region
+    final yamlString =
+        await DefaultAssetBundle.of(context).loadString('hyperkyc_config.yaml');
+    final dynamic hyperKycYamlMap = loadYaml(yamlString);
+    appId = (hyperKycYamlMap['hyperKycAppId']);
+    appKey = (hyperKycYamlMap['hyperKycAppKey']);
+    &#47;&#47; endregion
+
+    var hyperKycConfig = HyperKycConfig.fromAppIdAppKey(
+      appId: appId,
+      appKey: appKey,
+      workflowId: workflowId,
+      transactionId: transactionId,
+    );
+    hyperKycConfig.setInputs(inputs: {});
+    debugPrint('hyperKycConfig : $hyperKycConfig');
+
+    HyperKycResult hyperKycResult =
+        await HyperKyc.launch(hyperKycConfig: hyperKycConfig);
+    BlocProvider.of(context)
+        .add(HyperKycFinishedEvent(result: hyperKycResult));
+
+    debugPrint('hyperKycResult : ${hyperKycResult.toString()}');
+  }
+
+  &#47;&#47;&#47; Launch AppIdAppKey HyperKyc flow
+  void launchAccessTokenHyperKyc(BuildContext context) async {
+    final transactionId = 'flutter_AccessToken_' + getRandomString(10);
+
+    &#47;&#47;&#47; Reading local hyperkyc_config.yaml file to obtain accessToken
+    &#47;&#47; region
+    final yamlString =
+        await DefaultAssetBundle.of(context).loadString('hyperkyc_config.yaml');
+    final dynamic hyperKycYamlMap = loadYaml(yamlString);
+    accessToken = (hyperKycYamlMap['hyperKycAccessToken']);
+    &#47;&#47; endregion
+
+    var hyperKycConfig = HyperKycConfig.fromAccessToken(
+      accessToken: accessToken,
+      workflowId: workflowId,
+      transactionId: transactionId,
+    );
+    hyperKycConfig.setInputs(inputs: {
+      'key1': 'value1',
+      'key2': 'value2',
+    });
+    debugPrint('hyperKycConfig : $hyperKycConfig');
+
+    HyperKycResult hyperKycResult =
+        await HyperKyc.launch(hyperKycConfig: hyperKycConfig);
+
+    BlocProvider.of(context)
+        .add(HyperKycFinishedEvent(result: hyperKycResult));
+    debugPrint('hyperKy
+// ... (truncated)

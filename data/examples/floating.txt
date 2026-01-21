@@ -1,0 +1,91 @@
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:floating&#47;floating.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State {
+  final floating = Floating();
+
+  Future enablePip(
+    BuildContext context, {
+    bool autoEnable = false,
+  }) async {
+    final rational = Rational.landscape();
+    final screenSize =
+        MediaQuery.of(context).size * MediaQuery.of(context).devicePixelRatio;
+    final height = screenSize.width ~&#47; rational.aspectRatio;
+
+    final arguments = autoEnable
+        ? OnLeavePiP(
+            aspectRatio: rational,
+            sourceRectHint: Rectangle(
+              0,
+              (screenSize.height ~&#47; 2) - (height ~&#47; 2),
+              screenSize.width.toInt(),
+              height,
+            ),
+          )
+        : ImmediatePiP(
+            aspectRatio: rational,
+            sourceRectHint: Rectangle(
+              0,
+              (screenSize.height ~&#47; 2) - (height ~&#47; 2),
+              screenSize.width.toInt(),
+              height,
+            ),
+          );
+
+    final status = await floating.enable(arguments);
+    debugPrint('PiP enabled? $status');
+  }
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        theme: ThemeData.dark(),
+        home: PiPSwitcher(
+          childWhenDisabled: Scaffold(
+            body: Center(child: Image.asset('assets&#47;image.jpg')),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: FutureBuilder(
+              future: floating.isPipAvailable,
+              initialData: false,
+              builder: (context, snapshot) => snapshot.data ?? false
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        FloatingActionButton.extended(
+                          onPressed: () => enablePip(context),
+                          label: const Text('Enable PiP'),
+                          icon: const Icon(Icons.picture_in_picture),
+                        ),
+                        const SizedBox(height: 12),
+                        FloatingActionButton.extended(
+                          onPressed: () => enablePip(context, autoEnable: true),
+                          label: const Text('Enable PiP on app minimize'),
+                          icon: const Icon(Icons.auto_awesome),
+                        ),
+                      ],
+                    )
+                  : const Card(
+                      child: Text('PiP unavailable'),
+                    ),
+            ),
+          ),
+          childWhenEnabled: Image.asset('assets&#47;image.jpg'),
+        ),
+      );
+}

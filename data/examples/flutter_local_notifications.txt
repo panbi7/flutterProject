@@ -1,0 +1,120 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+&#47;&#47; ignore: unnecessary_import
+import 'dart:typed_data';
+
+import 'package:device_info_plus&#47;device_info_plus.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_local_notifications&#47;flutter_local_notifications.dart';
+import 'package:flutter_timezone&#47;flutter_timezone.dart';
+import 'package:http&#47;http.dart' as http;
+import 'package:image&#47;image.dart' as image;
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:timezone&#47;data&#47;latest_all.dart' as tz;
+import 'package:timezone&#47;timezone.dart' as tz;
+
+import 'configure_in_app_toggle.dart';
+import 'padded_button.dart';
+import 'plugin.dart';
+import 'repeating.dart' as repeating;
+import 'windows.dart' as windows;
+
+&#47;&#47;&#47; Streams are created so that app can respond to notification-related events
+&#47;&#47;&#47; since the plugin is initialized in the `main` function
+final StreamController selectNotificationStream =
+    StreamController.broadcast();
+
+const MethodChannel platform =
+    MethodChannel('dexterx.dev&#47;flutter_local_notifications_example');
+
+const String portName = 'notification_send_port';
+
+class ReceivedNotification {
+  ReceivedNotification({
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.payload,
+    this.data,
+  });
+
+  final int id;
+  final String? title;
+  final String? body;
+  final String? payload;
+  final Map? data;
+}
+
+String? selectedNotificationPayload;
+
+&#47;&#47;&#47; A notification action which triggers a url launch event
+const String urlLaunchActionId = 'id_1';
+
+&#47;&#47;&#47; A notification action which triggers a App navigation event
+const String navigationActionId = 'id_3';
+
+&#47;&#47;&#47; Defines a iOS&#47;MacOS notification category for text input actions.
+const String darwinNotificationCategoryText = 'textCategory';
+
+&#47;&#47;&#47; Defines a iOS&#47;MacOS notification category for plain actions.
+const String darwinNotificationCategoryPlain = 'plainCategory';
+
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse notificationResponse) {
+  &#47;&#47; ignore: avoid_print
+  print('notification(${notificationResponse.id}) action tapped: '
+      '${notificationResponse.actionId} with'
+      ' payload: ${notificationResponse.payload}');
+  if (notificationResponse.input?.isNotEmpty ?? false) {
+    &#47;&#47; ignore: avoid_print
+    print(
+        'notification action tapped with input: ${notificationResponse.input}');
+  }
+}
+
+&#47;&#47;&#47; IMPORTANT: running the following code on its own won't work as there is
+&#47;&#47;&#47; setup required for each platform head project.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Please download the complete example app from the GitHub repository where
+&#47;&#47;&#47; all the setup has been done
+Future main() async {
+  &#47;&#47; needed if you intend to initialize in the `main` function
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await _configureLocalTimeZone();
+
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('app_icon');
+
+  final List darwinNotificationCategories =
+      [
+    DarwinNotificationCategory(
+      darwinNotificationCategoryText,
+      actions: [
+        DarwinNotificationAction.text(
+          'text_1',
+          'Action 1',
+          buttonTitle: 'Send',
+          placeholder: 'Placeholder',
+        ),
+      ],
+    ),
+    DarwinNotificationCategory(
+      darwinNotificationCategoryPlain,
+      actions: [
+        DarwinNotificationAction.plain('id_1', 'Action 1'),
+        DarwinNotificationAction.plain(
+          'id_2',
+          'Action 2 (destructive)',
+          options: {
+            DarwinNotificationActionOption.destructive,
+          },
+        ),
+        DarwinNotificationAction.plain(
+          navigationActionId,
+          'Action 3 (foreground)',
+      
+// ... (truncated)

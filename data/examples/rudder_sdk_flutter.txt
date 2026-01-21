@@ -1,0 +1,2 @@
+dependencies:
+  rudder_sdk_flutter: ^3.0.0

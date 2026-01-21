@@ -1,0 +1,139 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter_native_html_to_pdf&#47;flutter_native_html_to_pdf.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:share_plus&#47;share_plus.dart';
+import 'package:fluttertoast&#47;fluttertoast.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String? generatedPdfFilePath;
+  Uint8List? generatedPdfBytes;
+  PdfPageSize selectedPageSize = PdfPageSize.a4;
+  bool isCustomSize = false;
+  final TextEditingController _widthController = TextEditingController(text: '210');
+  final TextEditingController _heightController = TextEditingController(text: '297');
+  String _customUnit = 'mm'; &#47;&#47; 'mm', 'in', 'pt'
+
+  final _htmlToPdfConverter = HtmlToPdfConverter();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _widthController.dispose();
+    _heightController.dispose();
+    super.dispose();
+  }
+
+  PdfPageSize _getPageSizeByName(String name) {
+    switch (name) {
+      case 'A4':
+        return PdfPageSize.a4;
+      case 'Letter':
+        return PdfPageSize.letter;
+      case 'Legal':
+        return PdfPageSize.legal;
+      case 'A3':
+        return PdfPageSize.a3;
+      case 'A5':
+        return PdfPageSize.a5;
+      case 'Tabloid':
+        return PdfPageSize.tabloid;
+      default:
+        return PdfPageSize.a4;
+    }
+  }
+
+  PdfPageSize _getEffectivePageSize() {
+    if (!isCustomSize) {
+      return selectedPageSize;
+    }
+    
+    final width = double.tryParse(_widthController.text) ?? 210;
+    final height = double.tryParse(_heightController.text) ?? 297;
+    
+    switch (_customUnit) {
+      case 'mm':
+        return PdfPageSize.fromMillimeters(
+          widthMm: width,
+          heightMm: height,
+          name: 'Custom (${width}mm x ${height}mm)',
+        );
+      case 'in':
+        return PdfPageSize.fromInches(
+          widthInches: width,
+          heightInches: height,
+          name: 'Custom ($width" x $height")',
+        );
+      case 'pt':
+        return PdfPageSize.custom(
+          width: width,
+          height: height,
+          name: 'Custom (${width}pt x ${height}pt)',
+        );
+      default:
+        return PdfPageSize.fromMillimeters(widthMm: width, heightMm: height);
+    }
+  }
+
+  List _buildCustomSizeInputs() {
+    return [
+      const SizedBox(height: 16),
+      const Text('Enter custom dimensions:',
+          style: TextStyle(fontWeight: FontWeight.w500)),
+      const SizedBox(height: 8),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 80,
+            child: TextField(
+              controller: _widthController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Width',
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              ),
+              onChanged: (_) => setState(() {
+                generatedPdfFilePath = null;
+                generatedPdfBytes = null;
+              }),
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Text('x'),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 80,
+            child: TextField(
+              controller: _heightController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Height',
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              ),
+              onChanged: (_) => setState(() {
+                generatedPdfFilePath = null;
+                generatedPdfBytes = null;
+     
+// ... (truncated)

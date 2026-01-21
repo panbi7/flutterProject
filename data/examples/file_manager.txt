@@ -1,0 +1,122 @@
+import 'dart:io';
+
+import 'package:file_manager&#47;file_manager.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.dark,
+      theme: ThemeData(useMaterial3: true),
+      darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  final FileManagerController controller = FileManagerController();
+
+  @override
+  Widget build(BuildContext context) {
+    return ControlBackButton(
+      controller: controller,
+      child: Scaffold(
+        appBar: appBar(context),
+        body: FileManager(
+          controller: controller,
+          builder: (context, snapshot) {
+            final List entities = snapshot;
+            return ListView.builder(
+              padding: EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+              itemCount: entities.length,
+              itemBuilder: (context, index) {
+                FileSystemEntity entity = entities[index];
+                return Card(
+                  child: ListTile(
+                    leading: FileManager.isFile(entity)
+                        ? Icon(Icons.feed_outlined)
+                        : Icon(Icons.folder),
+                    title: Text(FileManager.basename(
+                      entity,
+                      showFileExtension: true,
+                    )),
+                    subtitle: subtitle(entity),
+                    onTap: () async {
+                      if (FileManager.isDirectory(entity)) {
+                        &#47;&#47; open the folder
+                        controller.openDirectory(entity);
+
+                        &#47;&#47; delete a folder
+                        &#47;&#47; await entity.delete(recursive: true);
+
+                        &#47;&#47; rename a folder
+                        &#47;&#47; await entity.rename("newPath");
+
+                        &#47;&#47; Check weather folder exists
+                        &#47;&#47; entity.exists();
+
+                        &#47;&#47; get date of file
+                        &#47;&#47; DateTime date = (await entity.stat()).modified;
+                      } else {
+                        &#47;&#47; delete a file
+                        &#47;&#47; await entity.delete();
+
+                        &#47;&#47; rename a file
+                        &#47;&#47; await entity.rename("newPath");
+
+                        &#47;&#47; Check weather file exists
+                        &#47;&#47; entity.exists();
+
+                        &#47;&#47; get date of file
+                        &#47;&#47; DateTime date = (await entity.stat()).modified;
+
+                        &#47;&#47; get the size of the file
+                        &#47;&#47; int size = (await entity.stat()).size;
+                      }
+                    },
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () async {
+            FileManager.requestFilesAccessPermission();
+          },
+          label: Text("Request File Access Permission"),
+        ),
+      ),
+    );
+  }
+
+  AppBar appBar(BuildContext context) {
+    return AppBar(
+      actions: [
+        IconButton(
+          onPressed: () => createFolder(context),
+          icon: Icon(Icons.create_new_folder_outlined),
+        ),
+        IconButton(
+          onPressed: () => sort(context),
+          icon: Icon(Icons.sort_rounded),
+        ),
+        IconButton(
+          onPressed: () => selectStorage(context),
+          icon: Icon(Icons.sd_storage_rounded),
+        )
+      ],
+      title: ValueListenableBuilder(
+        valueListenable: controller.titleNotifier,
+        builder: 
+// ... (truncated)

@@ -1,0 +1,132 @@
+import 'package:flutter_earth_globe&#47;flutter_earth_globe.dart';
+import 'package:flutter_earth_globe&#47;flutter_earth_globe_controller.dart';
+import 'package:flutter_earth_globe&#47;globe_coordinates.dart';
+import 'package:flutter_earth_globe&#47;point.dart';
+import 'package:flutter_earth_globe&#47;point_connection.dart';
+import 'package:flutter_earth_globe&#47;point_connection_style.dart';
+import 'package:flutter&#47;material.dart';
+import 'app_theme.dart';
+import 'coordinate_state.dart';
+import 'coordinates_display.dart';
+import 'globe_controls_state.dart';
+import 'control_widgets.dart';
+
+void main() {
+  runApp(MaterialApp(
+    title: 'Flutter Earth Globe',
+    theme: AppTheme.darkTheme,
+    debugShowCheckedModeBanner: false,
+    home: const Home(),
+  ));
+}
+
+class Home extends StatefulWidget {
+  const Home({super.key});
+
+  @override
+  State createState() => _HomeState();
+}
+
+class _HomeState extends State with TickerProviderStateMixin {
+  final GlobalKey _scaffoldKey = GlobalKey();
+  late FlutterEarthGlobeController _controller;
+
+  &#47;&#47; Panel visibility
+  bool _leftPanelVisible = true;
+  bool _rightPanelVisible = true;
+
+  &#47;&#47; Section expansion states
+  bool _rotationExpanded = true;
+  bool _dayNightExpanded = false;
+  bool _pointsExpanded = false;
+  bool _connectionsExpanded = false;
+  bool _atmosphereExpanded = false;
+
+  final List _textures = [
+    'assets&#47;2k_earth-day.jpg',
+    'assets&#47;2k_earth-night.jpg',
+    'assets&#47;2k_jupiter.jpg',
+    'assets&#47;2k_mars.jpg',
+    'assets&#47;2k_mercury.jpg',
+    'assets&#47;2k_moon.jpg',
+    'assets&#47;2k_neptune.jpg',
+    'assets&#47;2k_saturn.jpg',
+    'assets&#47;2k_stars.jpg',
+    'assets&#47;2k_sun.jpg',
+    'assets&#47;2k_uranus.jpg',
+    'assets&#47;2k_venus_surface.jpg'
+  ];
+
+  late List points;
+  List connections = [];
+
+  Widget pointLabelBuilder(
+      BuildContext context, Point point, bool isHovering, bool visible) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOutCubic,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isHovering
+              ? [AppTheme.accentCyan, AppTheme.accentPurple]
+              : [
+                  AppTheme.accentCyan.withAlpha(180),
+                  AppTheme.accentPurple.withAlpha(180)
+                ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white.withAlpha(isHovering ? 180 : 80),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.accentCyan.withAlpha(isHovering ? 150 : 80),
+            blurRadius: isHovering ? 20 : 12,
+            spreadRadius: isHovering ? 2 : 0,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withAlpha(150),
+                  blurRadius: 6,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            point.label ?? '',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget connectionLabelBuilder(BuildContext context,
+      PointConnection connection, bool isHovering, bool visible) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOutCubic,
+      padding: const EdgeIn
+// ... (truncated)

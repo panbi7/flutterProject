@@ -1,0 +1,134 @@
+&#47;&#47; Copyright 2017 The Chromium Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'package:android_intent_plus&#47;android_intent.dart';
+import 'package:android_intent_plus&#47;flag.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:platform&#47;platform.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; A sample app for launching intents.
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: const Color(0x9f4376f8),
+      ),
+      home: const MyHomePage(),
+      routes: {
+        ExplicitIntentsWidget.routeName: (BuildContext context) =>
+            const ExplicitIntentsWidget()
+      },
+    );
+  }
+}
+
+&#47;&#47;&#47; Holds the different intent widgets.
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key});
+
+  void _createAlarm() {
+    const intent = AndroidIntent(
+      action: 'android.intent.action.SET_ALARM',
+      arguments: {
+        'android.intent.extra.alarm.DAYS': [2, 3, 4, 5, 6],
+        'android.intent.extra.alarm.HOUR': 21,
+        'android.intent.extra.alarm.MINUTES': 30,
+        'android.intent.extra.alarm.SKIP_UI': true,
+        'android.intent.extra.alarm.MESSAGE': 'Create a Flutter app',
+      },
+    );
+    intent.launch();
+  }
+
+  void _openExplicitIntentsView(BuildContext context) {
+    Navigator.of(context).pushNamed(ExplicitIntentsWidget.routeName);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget body;
+    if (const LocalPlatform().isAndroid) {
+      body = Padding(
+        padding: const EdgeInsets.symmetric(vertical: 15.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              onPressed: _createAlarm,
+              child: const Text(
+                  'Tap here to set an alarm\non weekdays at 9:30pm.'),
+            ),
+            ElevatedButton(
+              onPressed: _parseAndLaunch,
+              child: const Text('Tap here to set an alarm\n based on URI'),
+            ),
+            ElevatedButton(
+              onPressed: _openChooser,
+              child: const Text('Tap here to launch Intent with Chooser'),
+            ),
+            ElevatedButton(
+              onPressed: _sendBroadcast,
+              child: const Text('Tap here to send Intent as broadcast'),
+            ),
+            ElevatedButton(
+              onPressed: () => _openExplicitIntentsView(context),
+              child: const Text('Tap here to test explicit intents.'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      body = const Text('This plugin only works with Android');
+    }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Android intent plus example app'),
+        elevation: 4,
+      ),
+      body: Center(child: body),
+    );
+  }
+
+  void _openChooser() {
+    const intent = AndroidIntent(
+      action: 'android.intent.action.SEND',
+      type: 'plain&#47;text',
+      data: 'text example',
+    );
+    intent.launchChooser('Chose an app');
+  }
+
+  void _sendBroadcast() {
+    const intent = AndroidIntent(
+      action: 'com.example.broadcast',
+    );
+    intent.sendBroadcast();
+  }
+
+  void _parseAndLaunch() {
+    const intent = 'intent:#Intent;'
+        'action=android.intent.action.SET_ALARM;'
+        'B.android.intent.extra.alarm.SKIP_UI=true;'
+        'S.android.intent.extra.alarm.MESSAGE=Create%20a%20Flutter%20app;'
+        'i.android.intent.extra.alarm.MINUTES=30;'
+        'i.android.intent.extra.alarm.HOUR=21;'
+        'end';
+
+    AndroidIntent.parseAndLaunch(intent);
+  }
+}
+
+&#47;&#47;&#47; Launches intents to specific Android activities.
+class ExplicitIntentsWid
+// ... (truncated)

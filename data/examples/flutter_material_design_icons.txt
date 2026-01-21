@@ -1,0 +1,136 @@
+import 'dart:async';
+
+import 'package:collection&#47;collection.dart';
+import 'package:example&#47;providers.dart';
+import 'package:flutter&#47;gestures.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_hooks&#47;flutter_hooks.dart';
+import 'package:flutter_material_design_icons&#47;flutter_material_design_icons.dart';
+import 'package:hooks_riverpod&#47;hooks_riverpod.dart';
+
+void main() {
+  runApp(const ProviderScope(child: MainApp()));
+}
+
+class FilterBar extends HookConsumerWidget {
+  final String title;
+
+  final NotifierProvider> provider;
+
+  const FilterBar(this.title, this.provider, {super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filters = ref.watch(provider);
+    final filterNotifier = ref.watch(provider.notifier);
+
+    final chips = useMemoized(
+      () => filterNotifier.values
+          .sorted(
+            (a, b) {
+              final aSelected = filters.contains(a);
+              final bSelected = filters.contains(b);
+
+              if (aSelected == bSelected) {
+                return a.compareTo(b);
+              } else {
+                return (aSelected ? -1 : 1);
+              }
+            },
+          )
+          .map(
+            (filter) => FilterChip(
+              label: Text(filter),
+              onSelected: (_) {
+                filterNotifier.toggle(filter);
+              },
+              selected: filters.contains(filter),
+              showCheckmark: true,
+            ),
+          )
+          .toList(),
+      [filters],
+    );
+
+    final chipsExpanded = useState(false);
+
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: AnimatedSize(
+                      duration: const Duration(milliseconds: 350),
+                      child: SizedBox(
+                        width:
+                            (chipsExpanded.value) ? constraints.maxWidth : null,
+                        child: Wrap(
+                          spacing: 8.0,
+                          runSpacing: 8.0,
+                          children: chips,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              )
+            ],
+          ),
+        ),
+        IconButton(
+          onPressed: () {
+            chipsExpanded.value = !chipsExpanded.value;
+          },
+          icon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 350),
+            child: (chipsExpanded.value)
+                ? const Icon(Icons.expand_less)
+                : const Icon(Icons.expand_more),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class MouseDragScrollBehavior extends MaterialScrollBehavior {
+  &#47;&#47; Override behavior methods like buildOverscrollIndicator and buildScrollbar
+  @override
+  Set get dragDevices => {
+        ...super.dragDevices,
+        PointerDeviceKind.mouse,
+      };
+}
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  Widget _buildIconInfo(BuildContext context, MdiIcons icon) {
+    return Tooltip(
+      message: [
+        'Author: ${icon.metadata.author}',
+        'Version: ${icon.metadata.version}',
+        if (icon.metadata.tags != null)
+          'Tags: ${icon.metadata.tags!.join(', ')}',
+        if (icon.metadata.styles != null)
+          'Styles: ${icon.metadata.styles!.join(', ')}',
+      ].join('\n'),
+      verticalOffset: 48,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+  
+// ... (truncated)

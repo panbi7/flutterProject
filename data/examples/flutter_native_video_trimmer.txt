@@ -1,0 +1,48 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_native_video_trimmer&#47;flutter_native_video_trimmer.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final _videoTrimmer = VideoTrimmer();
+
+  &#47;&#47; Example of how to use the video trimmer functions
+  Future _exampleUsage() async {
+    try {
+      &#47;&#47; 1. Load a video file
+      await _videoTrimmer.loadVideo('&#47;path&#47;to&#47;your&#47;video.mp4');
+
+      &#47;&#47; 3. Trim the video (first 5 seconds)
+      final trimmedPath = await _videoTrimmer.trimVideo(
+        startTimeMs: 0,
+        endTimeMs: 5000,
+      );
+      print('Video trimmed to: $trimmedPath');
+
+      &#47;&#47; 4. Clear the cache
+      await _videoTrimmer.clearCache();
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Text('Check console for function usage example'),
+        ),
+      ),
+    );
+  }
+}

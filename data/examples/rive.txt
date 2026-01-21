@@ -1,0 +1,124 @@
+&#47;&#47; ignore_for_file: deprecated_member_use
+
+import 'package:flutter&#47;material.dart';
+import 'package:rive_example&#47;advanced&#47;advanced.dart';
+import 'package:rive_example&#47;colors.dart';
+import 'package:rive_example&#47;examples&#47;examples.dart';
+import 'package:rive&#47;rive.dart' as rive;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await rive.RiveNative.init();
+
+  runApp(
+    MaterialApp(
+      title: 'Rive Example',
+      home: const RiveExampleApp(),
+      &#47;&#47; showPerformanceOverlay: true,
+      darkTheme: ThemeData(
+        fontFamily: 'JetBrainsMono',
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: backgroundColor,
+        appBarTheme: const AppBarTheme(backgroundColor: appBarColor),
+        colorScheme: ColorScheme.fromSwatch(
+          brightness: Brightness.dark,
+        ).copyWith(primary: primaryColor),
+      ),
+      themeMode: ThemeMode.dark,
+    ),
+  );
+}
+
+&#47;&#47;&#47; Determines which factory&#47;renderer to use for the Rive examples.
+&#47;&#47;&#47;
+&#47;&#47;&#47; In your app you can combine the usage of the Rive Renderer and the Flutter
+&#47;&#47;&#47; Renderer. For this example app we have a static variable to determine which
+&#47;&#47;&#47; factory to use app wide.
+&#47;&#47;&#47;
+&#47;&#47;&#47; - `rive` uses the Rive Renderer
+&#47;&#47;&#47; - `flutter` uses the Flutter Renderer (Skia &#47; Impeller)
+enum RiveFactoryToUse { rive, flutter }
+
+&#47;&#47;&#47; An example application demoing Rive.
+class RiveExampleApp extends StatefulWidget {
+  const RiveExampleApp({Key? key}) : super(key: key);
+
+  static RiveFactoryToUse factoryToUse = RiveFactoryToUse.rive;
+
+  static rive.Factory get getCurrentFactory => switch (factoryToUse) {
+        RiveFactoryToUse.rive => rive.Factory.rive,
+        RiveFactoryToUse.flutter => rive.Factory.flutter,
+      };
+
+  @override
+  State createState() => _RiveExampleAppState();
+}
+
+class _RiveExampleAppState extends State {
+  &#47;&#47; ScrollController for the CustomScrollView
+  final ScrollController _scrollController = ScrollController();
+
+  &#47;&#47; Examples organized into sections
+  final _sections = [
+    const _Section('Getting Started', [
+      _Page(
+        'Rive Widget',
+        ExampleRiveWidget(),
+        'Simple example usage of the Rive widget with common parameters.',
+      ),
+      _Page(
+        'Rive Widget Builder',
+        ExampleRiveWidgetBuilder(),
+        'Example usage of the Rive builder widget with common parameters.',
+      ),
+      _Page(
+        'Rive Panel [Shared Texture]',
+        ExampleRivePanel(),
+        'Example usage of the Shared Texture View widget.',
+      ),
+    ]),
+    const _Section('Rive Features', [
+      _Page(
+        'Demo Scripting',
+        DemoScripting(),
+        'Example Rive file with scripting.',
+      ),
+      _Page(
+        'Data Binding',
+        ExampleDataBinding(),
+        'Example using Rive data binding at runtime.',
+      ),
+      _Page(
+        'Data Binding - Images',
+        ExampleDataBindingImages(),
+        'Example using Rive data binding images at runtime.',
+      ),
+      _Page(
+        'Data Binding - Artboards',
+        ExampleDataBindingArtboards(),
+        'Example using Rive data binding artboards at runtime.',
+      ),
+      _Page(
+        'Data Binding - Lists',
+        ExampleDataBindingLists(),
+        'Example using Rive data binding lists at runtime.',
+      ),
+      _Page(
+        'Responsive Layouts',
+        ExampleResponsiveLayouts(),
+        'Create responsive Rive graphics that adapt to screen size.',
+      ),
+      _Page('Events', ExampleEvents(), 'Handle Rive events.'),
+      _Page('Audio', ExampleRiveAudio(), 'Example Rive file with audio.'),
+    ]),
+    const _Section('Asset Loading', [
+      _Page(
+        'Network .riv Asset',
+        ExampleNetworkAsset(),
+        'Load and display Rive graphics from network URLs.',
+      ),
+      _Page(
+        'Out-of-band Assets',
+        ExampleOutOfBandAssetLoading(),
+  
+// ... (truncated)

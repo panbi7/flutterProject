@@ -1,0 +1,89 @@
+import 'dart:developer' as dev;
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_soloud&#47;flutter_soloud.dart';
+import 'package:logging&#47;logging.dart';
+
+void main() async {
+  &#47;&#47; The `flutter_soloud` package logs everything
+  &#47;&#47; (from severe warnings to fine debug messages)
+  &#47;&#47; using the standard `package:logging`.
+  &#47;&#47; You can listen to the logs as shown below.
+  Logger.root.level = kDebugMode ? Level.FINE : Level.INFO;
+  Logger.root.onRecord.listen((record) {
+    dev.log(
+      record.message,
+      time: record.time,
+      level: record.level.value,
+      name: record.loggerName,
+      zone: record.zone,
+      error: record.error,
+      stackTrace: record.stackTrace,
+    );
+  });
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  &#47;&#47;&#47; Initialize the player.
+  await SoLoud.instance.init();
+
+  runApp(
+    const MaterialApp(
+      home: HelloFlutterSoLoud(),
+    ),
+  );
+}
+
+&#47;&#47;&#47; Simple usecase of flutter_soloud plugin
+class HelloFlutterSoLoud extends StatefulWidget {
+  const HelloFlutterSoLoud({super.key});
+
+  @override
+  State createState() => _HelloFlutterSoLoudState();
+}
+
+class _HelloFlutterSoLoudState extends State {
+  AudioSource? currentSound;
+
+  @override
+  void dispose() {
+    SoLoud.instance.deinit();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!SoLoud.instance.isInitialized) return const SizedBox.shrink();
+
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            await SoLoud.instance.disposeAllSources();
+
+            if (kIsWeb) {
+              &#47;&#47;&#47; load the audio file using [LoadMode.disk] (better for the
+              &#47;&#47;&#47; Web platform).
+              currentSound = await SoLoud.instance.loadAsset(
+                'assets&#47;audio&#47;8_bit_mentality.mp3',
+                mode: LoadMode.disk,
+              );
+            } else {
+              &#47;&#47;&#47; load the audio file
+              currentSound = await SoLoud.instance
+                  .loadAsset('assets&#47;audio&#47;8_bit_mentality.mp3');
+            }
+
+            &#47;&#47;&#47; play it
+            await SoLoud.instance.play(currentSound!);
+          },
+          child: const Text(
+            'play asset',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+  }
+}

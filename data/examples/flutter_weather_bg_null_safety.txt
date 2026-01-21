@@ -1,0 +1,129 @@
+import 'dart:ui';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_weather_bg_null_safety&#47;bg&#47;weather_bg.dart';
+import 'package:flutter_weather_bg_null_safety&#47;utils&#47;print_utils.dart';
+import 'package:flutter_weather_bg_null_safety&#47;utils&#47;weather_type.dart';
+import 'package:flutter_weather_bg_example&#47;anim_view.dart';
+import 'package:flutter_weather_bg_example&#47;grid_view.dart';
+import 'package:flutter_weather_bg_example&#47;list_view.dart';
+import 'package:flutter_weather_bg_example&#47;page_view.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+const routePage = "page";
+const routeList = "list";
+const routeGrid = "grid";
+const routeAnim = "anim";
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      routes: {
+        routePage: (BuildContext context) {
+          &#47;&#47; 普通的侧滑样式
+          return PageViewWidget();
+        },
+        routeList: (BuildContext context) {
+          &#47;&#47; 宫格样式
+          return ListViewWidget();
+        },
+        routeGrid: (BuildContext context) {
+          &#47;&#47; 宫格样式
+          return GridViewWidget();
+        },
+        routeAnim: (BuildContext context) {
+          &#47;&#47; 动态切换 宽高样式
+          return AnimViewWidget();
+        }
+      },
+      home: HomePage(),
+    );
+  }
+}
+
+&#47;&#47;&#47; demo 首页布局
+class HomePage extends StatelessWidget {
+  &#47;&#47;&#47; 创建首页 item 布局
+  Widget _buildItem(BuildContext context, String routeName, String desc,
+      WeatherType weatherType) {
+    double width = MediaQuery.of(context).size.width;
+    double marginLeft = 10.0;
+    double marginTop = 8.0;
+    double itemWidth = (width - marginLeft * 4) &#47; 2;
+    double itemHeight = itemWidth * 1.5;
+    var radius = 10.0;
+    return Container(
+      width: itemWidth,
+      height: itemHeight,
+      child: Card(
+        elevation: 7,
+        margin:
+            EdgeInsets.symmetric(horizontal: marginLeft, vertical: marginTop),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
+        child: ClipPath(
+          clipper: ShapeBorderClipper(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(radius))),
+          child: Stack(
+            children: [
+              WeatherBg(
+                weatherType: WeatherType.thunder,
+                width: itemWidth,
+                height: itemHeight,
+              ),
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
+                child: InkWell(
+                  child: Center(
+                    child: Text(
+                      desc,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20),
+                    ),
+                  ),
+                  onTap: () {
+                    weatherPrint("name: $routeName");
+                    Navigator.of(context).pushNamed(routeName);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Wrap(
+          children: [
+            _buildItem(context, routePage, "翻页效果", WeatherType.heavyRainy),
+            _buildItem(context, routeGrid, "宫格效果", WeatherType.sunnyNight),
+            _buildItem(context, routeList, "列表效果", WeatherType.lightSnow),
+            _buildItem(context, routeAnim, "切换效果", WeatherType.sunny),
+          ],
+        ),
+      ),
+    );
+  }
+}

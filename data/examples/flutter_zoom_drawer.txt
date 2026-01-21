@@ -1,0 +1,108 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_zoom_drawer&#47;flutter_zoom_drawer.dart';
+
+&#47;&#47; void main() {
+&#47;&#47;   runApp(const MyApp());
+&#47;&#47; }
+&#47;&#47;
+&#47;&#47; final ZoomDrawerController z = ZoomDrawerController();
+&#47;&#47;
+&#47;&#47; class MyApp extends StatelessWidget {
+&#47;&#47;   const MyApp({Key? key}) : super(key: key);
+&#47;&#47;
+&#47;&#47;   @override
+&#47;&#47;   Widget build(BuildContext context) {
+&#47;&#47;     return MaterialApp(
+&#47;&#47;       title: 'Flutter Demo',
+&#47;&#47;       theme: ThemeData(
+&#47;&#47;         primarySwatch: Colors.blue,
+&#47;&#47;       ),
+&#47;&#47;       home: const HomePage(),
+&#47;&#47;     );
+&#47;&#47;   }
+&#47;&#47; }
+&#47;&#47;
+&#47;&#47; class HomePage extends StatelessWidget {
+&#47;&#47;   const HomePage({Key? key}) : super(key: key);
+&#47;&#47;
+&#47;&#47;   @override
+&#47;&#47;   Widget build(BuildContext context) {
+&#47;&#47;     return ZoomDrawer(
+&#47;&#47;       controller: z,
+&#47;&#47;       borderRadius: 24,
+&#47;&#47;       style: DrawerStyle.style3,
+&#47;&#47;       showShadow: true,
+&#47;&#47;       openCurve: Curves.fastOutSlowIn,
+&#47;&#47;       slideWidth: MediaQuery.of(context).size.width * 0.65,
+&#47;&#47;       duration: const Duration(milliseconds: 500),
+&#47;&#47;       angle: 0.0,
+&#47;&#47;       mainScreen: const MainScreen(),
+&#47;&#47;       menuScreen: const MenuScreen(),
+&#47;&#47;     );
+&#47;&#47;   }
+&#47;&#47; }
+&#47;&#47;
+&#47;&#47; class MainScreen extends StatefulWidget {
+&#47;&#47;   const MainScreen({
+&#47;&#47;     Key? key,
+&#47;&#47;   }) : super(key: key);
+&#47;&#47;
+&#47;&#47;   @override
+&#47;&#47;   State createState() => _MainScreenState();
+&#47;&#47; }
+&#47;&#47;
+&#47;&#47; class _MainScreenState extends State {
+&#47;&#47;   int _counter = 0;
+&#47;&#47;   final _tween = Tween(begin: const Duration(hours: 1), end: Duration.zero,);
+&#47;&#47;
+&#47;&#47;   Future addShared() async {
+&#47;&#47;     &#47;&#47; Obtain shared preferences.
+&#47;&#47;     final prefs = await SharedPreferences.getInstance();
+&#47;&#47;     await prefs.setInt('counter', _counter);
+&#47;&#47;     setState(() {});
+&#47;&#47;   }
+&#47;&#47;
+&#47;&#47;   Future getValue() async {
+&#47;&#47;     &#47;&#47; Obtain shared preferences.
+&#47;&#47;     final prefs = await SharedPreferences.getInstance();
+&#47;&#47;     return prefs.getInt('counter') ?? 0;
+&#47;&#47;   }
+&#47;&#47;
+&#47;&#47;   void _incrementCounter() {
+&#47;&#47;     _counter++;
+&#47;&#47;     addShared();
+&#47;&#47;   }
+&#47;&#47;
+&#47;&#47;   @override
+&#47;&#47;   Widget build(BuildContext context) {
+&#47;&#47;     return Scaffold(
+&#47;&#47;       backgroundColor: Colors.white.withOpacity(0.9),
+&#47;&#47;       appBar: AppBar(
+&#47;&#47;         title: Text("Test App"),
+&#47;&#47;         leading: IconButton(
+&#47;&#47;           icon: const Icon(Icons.menu),
+&#47;&#47;           onPressed: () {
+&#47;&#47;             z.toggle!();
+&#47;&#47;           },
+&#47;&#47;         ),
+&#47;&#47;       ),
+&#47;&#47;       body: Center(
+&#47;&#47;         child: Column(
+&#47;&#47;           mainAxisAlignment: MainAxisAlignment.center,
+&#47;&#47;           children: [
+&#47;&#47;             const Text(
+&#47;&#47;               'You have pushed the button this many times:',
+&#47;&#47;             ),
+&#47;&#47;             TweenAnimationBuilder(
+&#47;&#47;               duration: const Duration(hours: 1),
+&#47;&#47;               tween: _tween,
+&#47;&#47;               builder: (_, Duration value, __) => Text(value.toString()),
+&#47;&#47;             ),
+&#47;&#47;             FutureBuilder(
+&#47;&#47;               future: getValue(),
+&#47;&#47;               builder: (context, snapshot) {
+&#47;&#47;                 if (snapshot.hasData) {
+&#47;&#47;                   return Text(
+&#47;&#47;                     s
+// ... (truncated)

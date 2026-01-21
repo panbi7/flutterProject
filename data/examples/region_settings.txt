@@ -1,0 +1,115 @@
+&#47;*
+ *******************************************************************************
+ Package:  region_settings_example
+ Class:    main.dart
+ Author:   Nathan Cosgray | https:&#47;&#47;www.nathanatos.com
+ -------------------------------------------------------------------------------
+ Copyright (c) 2024 Nathan Cosgray. All rights reserved.
+
+ This source code is licensed under the BSD-style license found in LICENSE.
+ *******************************************************************************
+*&#47;
+
+import 'dart:async';
+import 'package:flutter&#47;material.dart';
+import 'package:region_settings&#47;region_settings.dart';
+
+late RegionSettings regionSettings;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  regionSettings = await RegionSettings.getSettings();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String? _locale;
+  TemperatureUnit? _temperatureUnits;
+  bool? _usesMetricSystem;
+  int? _firstDayOfWeek;
+  String? _dateFormatShort;
+  String? _dateFormatMedium;
+  String? _dateFormatLong;
+  String? _timeFormatShort;
+  String? _timeFormatMedium;
+  String? _timeFormatLong;
+  String? _numberFormatInteger;
+  String? _numberFormatDecimal;
+
+  @override
+  void initState() {
+    super.initState();
+    loadRegionSettings();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future loadRegionSettings() async {
+    regionSettings = await RegionSettings.getSettings();
+    String locale = regionSettings.locale;
+    TemperatureUnit temperatureUnits = regionSettings.temperatureUnits;
+    bool usesMetricSystem = regionSettings.usesMetricSystem;
+    int firstDayOfWeek = regionSettings.firstDayOfWeek;
+    String dateFormatShort = regionSettings.dateFormat.short;
+    String dateFormatMedium = regionSettings.dateFormat.medium;
+    String dateFormatLong = regionSettings.dateFormat.long;
+    String timeFormatShort = regionSettings.timeFormat.short;
+    String timeFormatMedium = regionSettings.timeFormat.medium;
+    String timeFormatLong = regionSettings.timeFormat.long;
+    String numberFormatInteger = regionSettings.numberFormat.integer;
+    String numberFormatDecimal = regionSettings.numberFormat.decimal;
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _locale = locale;
+      _temperatureUnits = temperatureUnits;
+      _usesMetricSystem = usesMetricSystem;
+      _firstDayOfWeek = firstDayOfWeek;
+      _dateFormatShort = dateFormatShort;
+      _dateFormatMedium = dateFormatMedium;
+      _dateFormatLong = dateFormatLong;
+      _timeFormatShort = timeFormatShort;
+      _timeFormatMedium = timeFormatMedium;
+      _timeFormatLong = timeFormatLong;
+      _numberFormatInteger = numberFormatInteger;
+      _numberFormatDecimal = numberFormatDecimal;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('RegionSettings example app'),
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: GridView.count(
+                  physics: const ScrollPhysics(),
+                  crossAxisCount: 2,
+                  childAspectRatio: 4.0,
+                  shrinkWrap: true,
+                  children: [
+                    const Text('locale:'),
+                    Text(
+                      '$_locale',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const Text('temperatureUnits:'),
+                    Text(
+     
+// ... (truncated)

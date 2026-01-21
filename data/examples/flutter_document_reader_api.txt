@@ -1,0 +1,147 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_document_reader_api_example&#47;extra&#47;bt_device.dart';
+import 'package:flutter_document_reader_api_example&#47;extra&#47;rfid_custom_ui.dart';
+import 'dart:async';
+import 'package:image_picker&#47;image_picker.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_document_reader_api&#47;flutter_document_reader_api.dart';
+
+void main() => runApp(new MaterialApp(home: new MyApp()));
+var documentReader = DocumentReader.instance;
+var selectedScenario = Scenario.MRZ;
+var doRfid = false;
+var isReadingRfid = false;
+
+Future init() async {
+  if (!await initialize()) return;
+  setScenarios(documentReader.availableScenarios);
+  setCanRfid(await documentReader.isRFIDAvailableForUse());
+  setStatus("Ready");
+}
+
+void scan() async {
+  if (!await documentReader.isReady) return;
+  clearResults();
+  documentReader.startScanner(
+    ScannerConfig.withScenario(selectedScenario),
+    handleCompletion,
+  );
+}
+
+void recognize() async {
+  if (!await documentReader.isReady) return;
+  var image = await pickImage();
+  if (image == null) return;
+
+  clearResults();
+  documentReader.recognize(
+    RecognizeConfig.withScenario(selectedScenario, image: image),
+    handleCompletion,
+  );
+}
+
+void handleCompletion(
+  DocReaderAction action,
+  Results? results,
+  DocReaderException? error,
+) {
+  handleException(error);
+  if (action.stopped() && !shouldRfid(results)) {
+    displayResults(results);
+  } else if (action.finished() && shouldRfid(results)) {
+    isReadingRfid = true;
+    readRfid();
+  }
+}
+
+void displayResults(Results? results) async {
+  isReadingRfid = false;
+  clearResults();
+  if (results == null) return;
+
+  var name =
+      await results.textFieldValueByType(FieldType.SURNAME_AND_GIVEN_NAMES);
+  var docImage =
+      await results.graphicFieldImageByType(GraphicFieldType.DOCUMENT_IMAGE);
+  var portrait =
+      await results.graphicFieldImageByType(GraphicFieldType.PORTRAIT);
+  portrait = await results.graphicFieldImageByTypeSource(
+        GraphicFieldType.PORTRAIT,
+        ResultType.RFID_IMAGE_DATA,
+      ) ??
+      portrait;
+
+  setStatus(name);
+  setPortrait(portrait);
+  setDocImage(docImage);
+}
+
+var readRfid = () => documentReader.rfid(RFIDConfig(handleCompletion));
+
+bool shouldRfid(Results? results) =>
+    doRfid && !isReadingRfid && results != null && results.chipPage != 0;
+
+var initialize = () async {
+  setStatus("Initializing...");
+
+  ByteData license = await rootBundle.load("assets&#47;regula.license");
+  var initConfig = InitConfig(license);
+  initConfig.delayedNNLoad = true;
+  var (success, error) = await documentReader.initialize(initConfig);
+
+  handleException(error);
+  return success;
+};
+
+void handleException(DocReaderException? error) {
+  if (error != null) {
+    setStatus(error.message);
+    print("${error.code}: ${error.message}");
+  }
+}
+
+&#47;&#47; --------------------------------------------------------------------------------------------------------------------
+
+var status = "Loading...";
+void setStatus(String? s) {
+  if (s != null) {
+    MyAppState.update(() => status = s);
+  }
+}
+
+var portraitUIImage = Image.asset('assets&#47;images&#47;portrait.png');
+void setPortrait(Uint8List? data) {
+  if (data != null) {
+    MyAppState.update(() => portraitUIImage = Image.memory(data));
+  }
+}
+
+var documentUIImage = Image.asset('assets&#47;images&#47;id.png');
+void setDocImage(Uint8List? data) {
+  if (data != null) {
+    MyAppState.update(() => documentUIImage = Image.memory(data));
+  }
+}
+
+void clearResults() {
+  MyAppState.update(() {
+    status = "Ready";
+    portraitUIImage = Image.asset('assets&#47;images&#47;portrait.png');
+    documentUIImage = Image.asset('assets&#47;images&#47;id.png');
+  });
+}
+
+var canRfid = false;
+void setCanRfid(bool data) {
+  MyAppState.update(() => canRfid = data);
+}
+
+List scenarios = [];
+void setScenarios(List data) {
+  MyAppState.update(() => scenarios = data);
+}
+
+List ui() {
+  return [
+    Row(mainAxisAlignment: MainAx
+// ... (truncated)

@@ -1,0 +1,143 @@
+&#47;&#47; Copyright 2022, the Chromium project authors.  Please see the AUTHORS file
+&#47;&#47; for details. All rights reserved. Use of this source code is governed by a
+&#47;&#47; BSD-style license that can be found in the LICENSE file.
+
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io' as io;
+
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:firebase_storage&#47;firebase_storage.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:image_picker&#47;image_picker.dart';
+
+import 'firebase_options.dart';
+import 'save_as&#47;save_as.dart';
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  if (defaultTargetPlatform != TargetPlatform.windows) {
+    &#47;&#47; window currently don't support storage emulator
+    final emulatorHost =
+        (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
+            ? '10.0.2.2'
+            : 'localhost';
+
+    await FirebaseStorage.instance.useStorageEmulator(emulatorHost, 9199);
+  }
+
+  runApp(StorageExampleApp());
+}
+
+&#47;&#47;&#47; Enum representing the upload task types the example app supports.
+enum UploadType {
+  &#47;&#47;&#47; Uploads a randomly generated string (as a file) to Storage.
+  string,
+
+  &#47;&#47;&#47; Uploads a file from the device.
+  file,
+
+  &#47;&#47;&#47; Uploads a Uint8List to Storage.
+  uint8List,
+
+  &#47;&#47;&#47; Clears any tasks from the list.
+  clear,
+}
+
+&#47;&#47;&#47; The entry point of the application.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Returns a [MaterialApp].
+class StorageExampleApp extends StatelessWidget {
+  StorageExampleApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Storage Example App',
+      theme: ThemeData.dark(),
+      &#47;&#47; Disable the banner to make the "+" button more visible.
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: TaskManager(),
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47; A StatefulWidget which keeps track of the current uploaded files.
+class TaskManager extends StatefulWidget {
+  &#47;&#47; ignore: public_member_api_docs
+  TaskManager({Key? key}) : super(key: key);
+
+  @override
+  State createState() {
+    return _TaskManager();
+  }
+}
+
+class _TaskManager extends State {
+  List _uploadTasks = [];
+
+  &#47;&#47;&#47; The user selects a file, and the task is added to the list.
+  Future uploadFile(XFile? file) async {
+    if (file == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No file was selected'),
+        ),
+      );
+
+      return null;
+    }
+
+    UploadTask uploadTask;
+
+    &#47;&#47; Create a Reference to the file
+    Reference ref = FirebaseStorage.instance
+        .ref()
+        .child('flutter-tests')
+        .child('&#47;some-image.jpg');
+
+    final metadata = SettableMetadata(
+      contentType: 'image&#47;jpeg',
+      customMetadata: {'picked-file-path': file.path},
+    );
+
+    if (kIsWeb) {
+      uploadTask = ref.putData(await file.readAsBytes(), metadata);
+    } else {
+      uploadTask = ref.putFile(io.File(file.path), metadata);
+    }
+
+    return Future.value(uploadTask);
+  }
+
+  &#47;&#47;&#47; A new string is uploaded to storage.
+  UploadTask uploadString() {
+    const String putStringText =
+        'This upload has been generated using the putString method! Check the metadata too!';
+
+    &#47;&#47; Create a Reference to the file
+    Reference ref = FirebaseStorage.instance
+        .ref()
+        .child('flutter-tests')
+        .child('&#47;put-string-example.txt');
+
+    &#47;&#47; Start upload of putString
+    return ref.putString(
+      putStringText,
+      metadata: SettableMetadata(
+        contentLanguage: 'en',
+        customMetadata: {'example': 'putString'},
+      ),
+    );
+  }
+
+  Future uploadUint8List()
+// ... (truncated)

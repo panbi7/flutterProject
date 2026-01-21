@@ -1,0 +1,131 @@
+import 'package:flutter&#47;material.dart';
+import '.&#47;l10n&#47;gen_l10n&#47;app_localizations.dart';
+
+&#47;&#47;&#47; lib&#47;l10n already contains translations for Spanish and doesn't contain
+&#47;&#47;&#47; translations for Italian and Deutsch
+&#47;&#47;&#47; If you will run the application and try to change the language it will
+&#47;&#47;&#47; fail until you add them using flutter_arb_translator tool
+
+&#47;&#47;&#47; 1. Open dev_assets&#47;flutter_arb_translator_config.json
+&#47;&#47;&#47; 2. Add AzureCognitiveServices or YandexCloud or GoogleCloud config
+&#47;&#47;&#47; 3. Run the following command:
+&#47;&#47;&#47; flutter pub run flutter_arb_translator:main --from en --to de --to it --service azure
+&#47;&#47;&#47; where --service azure depends on service you want to use. For Yandex it will
+&#47;&#47;&#47; be --service yandex, for Google Cloud it will be --service google, for
+&#47;&#47;&#47; DeepL it will be --deepl.
+&#47;&#47;&#47; Once you completed these steps translations will be created and you will
+&#47;&#47;&#47; be able to change the language
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _selectedLocale = 'en';
+
+  void _changeLocale(String newLocale) {
+    if (newLocale.isEmpty) {
+      return;
+    }
+
+    if (!AppLocalizations.supportedLocales.map((x) => x.languageCode).contains(newLocale)) {
+      return;
+    }
+
+    setState(() {
+      _selectedLocale = newLocale;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: Locale(_selectedLocale),
+      home: MyHomePage(
+        title: 'Demo Home Page',
+        supportedLocales: AppLocalizations.supportedLocales,
+        selectedLocale: _selectedLocale,
+        selectLocale: _changeLocale,
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({
+    Key? key,
+    required this.title,
+    required this.supportedLocales,
+    required this.selectedLocale,
+    required this.selectLocale,
+  }) : super(key: key);
+
+  final String title;
+  final List supportedLocales;
+  final String selectedLocale;
+  final void Function(String) selectLocale;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  locale.pick_language,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                const SizedBox(
+                  height: 4,
+                ),
+                DropdownButton(
+                  isExpanded: true,
+                  value: widget.selectedLocale,
+                  items: widget.supportedLocales
+                      .map(
+                        (x) => DropdownMenuItem(
+                          value: x.languageCode,
+                          child: Text(x.languageCode),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (String? v) {
+                
+// ... (truncated)

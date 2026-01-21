@@ -1,0 +1,22 @@
+&#47;&#47; import 'package:analog_clock_example&#47;demo.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'package:analog_clock&#47;analog_clock.dart';
+
+void main() => runApp(const MyApp());
+&#47;&#47;void main() => runDemo();
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) => const MaterialApp(
+          home: Scaffold(
+        body: AnalogClock(),
+      ));
+}

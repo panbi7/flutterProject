@@ -1,0 +1,50 @@
+import 'package:mockito&#47;mockito.dart';
+import 'package:state_notifier&#47;state_notifier.dart';
+import 'package:state_notifier_test&#47;state_notifier_test.dart';
+import 'package:test&#47;test.dart';
+
+&#47;&#47; Mock StateNotifier
+class MockCounterStateNotifier extends Mock implements CounterStateNotifier {}
+
+void main() {
+  group(
+    'CounterStateNotifier',
+    () {
+      stateNotifierTest(
+        'emits [] when nothing is added',
+        actions: (_) {},
+        build: () => CounterStateNotifier(),
+        expect: () => const [],
+      );
+
+      stateNotifierTest('emits [1] when increment is called',
+          build: () => CounterStateNotifier(),
+          actions: (CounterStateNotifier notifier) => notifier.increment(),
+          expect: () => const [1]);
+
+      stateNotifierTest(
+        'emits [0,1] when increment is called with expectInitialState set to true',
+        expectInitialState: true,
+        build: () => CounterStateNotifier(),
+        actions: (CounterStateNotifier notifier) => notifier.increment(),
+        expect: () => const [0, 1],
+      );
+
+      stateNotifierTest(
+        'tests matchers for expected result',
+        expectInitialState: true,
+        build: () => CounterStateNotifier(),
+        actions: (CounterStateNotifier notifier) => notifier.increment(),
+        expect: () => isA().having((list) => list.length, 'contains 2 elements', 2),
+      );
+    },
+  );
+}
+
+class CounterStateNotifier extends StateNotifier {
+  CounterStateNotifier() : super(0);
+
+  void increment() {
+    state = state + 1;
+  }
+}

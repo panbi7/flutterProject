@@ -1,0 +1,51 @@
+import 'package:batch_flutter&#47;batch_push.dart';
+import 'package:batch_flutter_example&#47;batch_store&#47;data&#47;model&#47;subscriptions.dart';
+import 'package:batch_flutter_example&#47;batch_store&#47;root_tab_page.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'package:provider&#47;provider.dart';
+
+import 'batch_store&#47;data&#47;model&#47;app_state_model.dart';
+import 'batch_store&#47;data&#47;model&#47;cart.dart';
+
+void main() {
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(
+        create: (_) => BatchStoreAppStateModel()..loadModel(),
+      ),
+      ChangeNotifierProvider(
+        create: (_) => CartModel()..loadModel(),
+      ),
+      ChangeNotifierProvider(
+        create: (_) => SubscriptionsModel()..loadModel(),
+      )
+    ],
+    child: BatchExampleApp(),
+  ));
+}
+
+class BatchExampleApp extends StatefulWidget {
+  @override
+  _BatchExampleAppState createState() => _BatchExampleAppState();
+}
+
+class _BatchExampleAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47; Warm up the subscriptions by loading the subscriptions model.
+    Provider.of(context, listen: false)
+        .writeDefaultValues();
+
+    BatchPush.instance.setShowForegroundNotificationsOniOS(true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: RootTabPage(),
+    );
+  }
+}

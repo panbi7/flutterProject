@@ -1,0 +1,50 @@
+final map = {
+    'type': 'Point',
+    'coordinates': [105.77389, 21.0720414]
+  };
+
+  final jsonString =
+      '{"type": "Point", "coordinates": [105.78070163726807, 21.067921688241626]}';
+
+  final polygonCoordinates = [
+    [
+      [104.765625, 20.468189],
+      [106.545410, 20.468189],
+      [106.545410, 21.596150],
+      [104.765625, 21.596150],
+      [104.765625, 20.468189]
+    ]
+  ];
+
+  // Creating a GeoJSON object from data without knowing its type
+  final pointFromMap = GeoJSON.fromMap(map);
+
+  // Creating GeoJSONPoint object from JSON string already know its type
+  final pointFromJSON = GeoJSONPoint.fromJSON(jsonString);
+
+  // Creating GeoJSONGeometry object from data without knowing its type
+  final geometryFromMap = GeoJSONGeometry.fromMap(map);
+
+  // Creating GeoJSONPoint object from JSON string already know its type
+  final geometryFromJSON = GeoJSONPoint.fromJSON(jsonString);
+
+  // Creating GeoJSONPoint object from coordinates data
+  final pointFromCoordinates = GeoJSONPoint([105.77389, 21.0720414]);
+
+  // Creating a GeoJSONFeature object
+  final feature = GeoJSONFeature(
+    GeoJSONPoint([105.780701, 21.067921]),
+    properties: {
+      'title': 'Hanoi University of Mining and Geology',
+      'url': 'http://humg.edu.vn',
+    },
+  );
+
+  // Creating GeoJSONFeatureCollection object
+  final featureCollection = GeoJSONFeatureCollection([]);
+  featureCollection.features.add(feature);
+
+  // Creating more GeoJSONFeature
+  final polygon = GeoJSONPolygon(polygonCoordinates);
+  final polygonFeature = GeoJSONFeature(polygon);
+  featureCollection.features.add(polygonFeature);

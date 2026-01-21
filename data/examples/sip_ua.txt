@@ -1,0 +1,78 @@
+import 'package:dart_sip_ua_example&#47;src&#47;theme_provider.dart';
+import 'package:dart_sip_ua_example&#47;src&#47;user_state&#47;sip_user_cubit.dart';
+import 'package:flutter&#47;foundation.dart'
+    show debugDefaultTargetPlatformOverride;
+import 'package:flutter&#47;material.dart';
+import 'package:logger&#47;logger.dart';
+import 'package:flutter_webrtc&#47;flutter_webrtc.dart';
+import 'package:provider&#47;provider.dart';
+import 'package:sip_ua&#47;sip_ua.dart';
+
+import 'src&#47;about.dart';
+import 'src&#47;callscreen.dart';
+import 'src&#47;dialpad.dart';
+import 'src&#47;register.dart';
+
+void main() {
+  Logger.level = Level.warning;
+  if (WebRTC.platformIsDesktop) {
+    debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+  }
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+      child: MyApp(),
+    ),
+  );
+}
+
+typedef PageContentBuilder = Widget Function(
+    [SIPUAHelper? helper, Object? arguments]);
+
+&#47;&#47; ignore: must_be_immutable
+class MyApp extends StatelessWidget {
+  final SIPUAHelper _helper = SIPUAHelper();
+  Map routes = {
+    '&#47;': ([SIPUAHelper? helper, Object? arguments]) => DialPadWidget(helper),
+    '&#47;register': ([SIPUAHelper? helper, Object? arguments]) =>
+        RegisterWidget(helper),
+    '&#47;callscreen': ([SIPUAHelper? helper, Object? arguments]) =>
+        CallScreenWidget(helper, arguments as Call?),
+    '&#47;about': ([SIPUAHelper? helper, Object? arguments]) => AboutWidget(),
+  };
+
+  Route? _onGenerateRoute(RouteSettings settings) {
+    final String? name = settings.name;
+    final PageContentBuilder? pageContentBuilder = routes[name!];
+    if (pageContentBuilder != null) {
+      if (settings.arguments != null) {
+        final Route route = MaterialPageRoute(
+            builder: (context) =>
+                pageContentBuilder(_helper, settings.arguments));
+        return route;
+      } else {
+        final Route route = MaterialPageRoute(
+            builder: (context) => pageContentBuilder(_helper));
+        return route;
+      }
+    }
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        Provider.value(value: _helper),
+        Provider(
+            create: (context) => SipUserCubit(sipHelper: _helper)),
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: Provider.of(context).currentTheme,
+        initialRoute: '&#47;',
+        onGenerateRoute: _onGenerateRoute,
+      ),
+    );
+  }
+}

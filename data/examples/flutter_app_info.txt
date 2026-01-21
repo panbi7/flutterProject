@@ -1,0 +1,142 @@
+import 'dart:convert';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_app_info&#47;flutter_app_info.dart';
+
+&#47;&#47; ==========================================
+&#47;&#47; MAIN
+&#47;&#47; ==========================================
+
+void main() async {
+  runApp(
+    AppInfo(
+      data: await AppInfoData.get(),
+      child: const MyApp(),
+    ),
+  );
+}
+
+&#47;&#47; ==========================================
+&#47;&#47; CLASS: MyApp
+&#47;&#47; ==========================================
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter App Info',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.light().copyWith(
+        splashColor: Colors.transparent,
+        splashFactory: NoSplash.splashFactory,
+      ),
+      home: const FlutterAppInfoExample(),
+    );
+  }
+}
+
+&#47;&#47; ==========================================
+&#47;&#47; CLASS: FlutterAppInfoExample
+&#47;&#47; ==========================================
+
+class FlutterAppInfoExample extends StatefulWidget {
+  const FlutterAppInfoExample({super.key});
+
+  @override
+  State createState() => _FlutterAppInfoExampleState();
+}
+
+class _FlutterAppInfoExampleState extends State
+    with SingleTickerProviderStateMixin {
+  late final controller = TabController(vsync: this, length: 3);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          Material(
+            color: const Color(0xff2a416f),
+            child: TabBar(
+              controller: controller,
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.grey.shade300,
+              indicatorColor: Colors.white,
+              indicatorWeight: 4,
+              indicatorPadding: const EdgeInsets.only(bottom: 2),
+              overlayColor: WidgetStateColor.resolveWith((states) {
+                if (states.contains(WidgetState.hovered)) {
+                  return Colors.white24;
+                } else {
+                  return Colors.transparent;
+                }
+              }),
+              tabs: [
+                const Text('Package Info'),
+                const Text('Platform Info'),
+                const Text('Target Info'),
+              ]
+                  .map((e) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: e,
+                      ),)
+                  .toList(),
+            ),
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: controller,
+              children: const [
+                PackageInfoTab(),
+                PlatformInfoTab(),
+                TargetInfoTab(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+&#47;&#47; ==========================================
+&#47;&#47; CLASS: Prop
+&#47;&#47; ==========================================
+
+class Prop {
+  Prop(this.prop, Object? value) {
+    this.value = value.toString().isEmpty ? "''" : value.toString();
+  }
+  final String prop;
+  late final String value;
+}
+
+&#47;&#47; ==========================================
+&#47;&#47; CLASS: PropTable
+&#47;&#47; ==========================================
+
+class PropTable extends StatelessWidget {
+  const PropTable({
+    required this.title, required this.children, super.key,
+  });
+  final String title;
+  final List children;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(15),
+      child: SelectionArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width.clamp(0, 1000) * 0.80,
+ 
+// ... (truncated)

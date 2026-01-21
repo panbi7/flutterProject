@@ -1,0 +1,7 @@
+import 'package:flutter&#47;material.dart';
+import 'package:universal_ble_example&#47;universal_ble_app.dart';
+
+void main() async {
+  bool hasPermission = await initializeApp();
+  runApp(UniversalBleApp(hasPermission: hasPermission));
+}

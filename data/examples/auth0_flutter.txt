@@ -1,0 +1,11 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_dotenv&#47;flutter_dotenv.dart';
+
+import 'example_app.dart';
+
+Future main() async {
+  await dotenv.load();
+  runApp(const ExampleApp());
+}

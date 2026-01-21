@@ -1,0 +1,124 @@
+&#47;&#47; lib&#47;main.dart
+
+&#47;&#47; Dart imports:
+import 'dart:typed_data';
+
+&#47;&#47; Flutter imports:
+import 'package:flutter&#47;material.dart';
+
+&#47;&#47; Package imports:
+import 'package:permission_handler&#47;permission_handler.dart';
+import 'package:vad&#47;vad.dart';
+
+&#47;&#47; Project imports:
+import 'package:vad_example&#47;custom_audio_stream_provider.dart';
+import 'package:vad_example&#47;recording.dart';
+import 'package:vad_example&#47;ui&#47;app_theme.dart';
+import 'package:vad_example&#47;ui&#47;vad_ui.dart';
+import 'package:vad_example&#47;vad_settings_dialog.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'VAD Example',
+      theme: AppTheme.getDarkTheme(),
+      home: const VadManager(),
+    );
+  }
+}
+
+class VadManager extends StatefulWidget {
+  const VadManager({super.key});
+
+  @override
+  State createState() => _VadManagerState();
+}
+
+class _VadManagerState extends State {
+  List recordings = [];
+  late VadHandler _vadHandler;
+  bool isListening = false;
+  bool isPaused = false;
+  late VadSettings settings;
+  final VadUIController _uiController = VadUIController();
+  int _chunkCounter = 0;
+
+  &#47;&#47; Custom audio stream provider
+  CustomAudioStreamProvider? _customAudioProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    settings = VadSettings();
+    _initializeVad();
+  }
+
+  void _initializeVad() {
+    _vadHandler = VadHandler.create(isDebug: true);
+    _setupVadHandler();
+  }
+
+  void _startListening() async {
+    _chunkCounter = 0; &#47;&#47; Reset chunk counter for new session
+
+    &#47;&#47; Initialize and start custom audio provider if needed
+    Stream? customAudioStream;
+    if (settings.useCustomAudioStream) {
+      try {
+        _customAudioProvider = CustomAudioStreamProvider();
+        await _customAudioProvider!.initialize();
+        await _customAudioProvider!.startRecording();
+        customAudioStream = _customAudioProvider!.audioStream;
+      } catch (e) {
+        &#47;&#47; Fall back to built-in recorder
+        customAudioStream = null;
+      }
+    }
+
+    await _vadHandler.startListening(
+      frameSamples: settings.frameSamples,
+      minSpeechFrames: settings.minSpeechFrames,
+      preSpeechPadFrames: settings.preSpeechPadFrames,
+      redemptionFrames: settings.redemptionFrames,
+      endSpeechPadFrames: settings.endSpeechPadFrames,
+      positiveSpeechThreshold: settings.positiveSpeechThreshold,
+      negativeSpeechThreshold: settings.negativeSpeechThreshold,
+      submitUserSpeechOnPause: settings.submitUserSpeechOnPause,
+      model: settings.modelString,
+      numFramesToEmit:
+          settings.enableChunkEmission ? settings.numFramesToEmit : 0,
+      audioStream: customAudioStream, &#47;&#47; Pass custom stream if available
+      recordConfig: RecordConfig(
+        encoder: AudioEncoder.pcm16bits,
+        sampleRate: 16000,
+        bitRate: 16,
+        numChannels: 1,
+        echoCancel: true,
+        autoGain: true,
+        noiseSuppress: true,
+        androidConfig: const AndroidRecordConfig(
+          speakerphone: true,
+          audioSource: AndroidAudioSource.voiceCommunication,
+          audioManagerMode: AudioManagerMode.modeInCommunication,
+        ),
+        iosConfig: IosRecordConfig(
+          categoryOptions: const [
+            IosAudioCategoryOption.defaultToSpeaker,
+            IosAudioCategoryOption.allowBluetooth,
+            IosAudioCategoryOption.allowBluetoothA2DP,
+          ],
+          &#47;&#47; When using custom audio stream, that provider manages the session
+          manageAudioSession: customAudioStream == null,
+        ),
+      ),
+      &#47;&#47; baseAssetPath: '&#47;assets&#47;', &#47;&#47; Alternative to using the CDN (see README.md)
+      &#47;&#47; onnxWASMBasePath: '&#47;assets&#47;', &#47;&#47; Alternative to using
+// ... (truncated)

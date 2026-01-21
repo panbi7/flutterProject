@@ -1,0 +1,173 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_easy_animations&#47;flutter_easy_animations.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: 'Easy Animations Example',
+      home: AnimateStylesExample(),
+    );
+  }
+}
+
+class AnimateStylesExample extends StatefulWidget {
+  const AnimateStylesExample({super.key});
+
+  @override
+  State createState() => _AnimateStylesExampleState();
+}
+
+class _AnimateStylesExampleState extends State
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final animates = [
+      AnimateStyles.bounce(
+        _controller,
+        const Text(
+          'Bounce!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.flash(
+        _controller,
+        const Text(
+          'Flash!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.pulse(
+        _controller,
+        const Text(
+          'Pulse!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.rubberBand(
+        _controller,
+        const Text(
+          'Rubber Band!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.shakeX(
+        _controller,
+        const Text(
+          'Shake X!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.shakeY(
+        _controller,
+        const Text(
+          'Shake Y!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.headShake(
+        _controller,
+        const Text(
+          'Head Shake!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.swing(
+        _controller,
+        const Text(
+          'Swing!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.tada(
+        _controller,
+        const Text(
+          'Tada!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.wobble(
+        _controller,
+        const Text(
+          'Wobble!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.jello(
+        _controller,
+        const Text(
+          'Jello!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.heartBeat(
+        _controller,
+        const Text(
+          'Heart Beat!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.backInDown(
+        _controller,
+        const Text(
+          'Back In Down!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.backInLeft(
+        _controller,
+        const Text(
+          'Back In Left!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.backInRight(
+        _controller,
+        const Text(
+          'Back In Right!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.backInUp(
+        _controller,
+        const Text(
+          'Back In Up!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.backOutDown(
+        _controller,
+        const Text(
+          'Back Out Down!',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      AnimateStyles.backOutLeft(
+        _controller,
+        const Text(
+          'Back Out Left!',
+          style: TextStyle(fontSi
+// ... (truncated)

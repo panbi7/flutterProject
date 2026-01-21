@@ -1,0 +1,124 @@
+&#47;&#47; ignore_for_file: public_member_api_docs, avoid_redundant_argument_values
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_riverpod&#47;flutter_riverpod.dart';
+import 'package:freerasp&#47;freerasp.dart';
+import 'package:freerasp_example&#47;screen_capture_notifier.dart';
+import 'package:freerasp_example&#47;threat_notifier.dart';
+import 'package:freerasp_example&#47;threat_state.dart';
+import 'package:freerasp_example&#47;widgets&#47;widgets.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+
+&#47;&#47;&#47; Represents current state of the threats detectable by freeRASP
+final threatProvider =
+    NotifierProvider.autoDispose(() {
+  return ThreatNotifier();
+});
+
+final screenCaptureProvider =
+    AsyncNotifierProvider.autoDispose(() {
+  return ScreenCaptureNotifier();
+});
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Permission.locationWhenInUse.request();
+
+  &#47;&#47;&#47; Initialize Talsec config
+  await _initializeTalsec();
+
+  runApp(const ProviderScope(child: App()));
+}
+
+&#47;&#47;&#47; Initialize Talsec configuration for Android and iOS
+Future _initializeTalsec() async {
+  final config = TalsecConfig(
+    androidConfig: AndroidConfig(
+      packageName: 'com.aheaditec.freeraspExample',
+      signingCertHashes: ['AKoRuyLMM91E7lX&#47;Zqp3u4jMmd0A7hH&#47;Iqozu0TMVd0='],
+      supportedStores: ['com.sec.android.app.samsungapps'],
+      malwareConfig: MalwareConfig(
+        blacklistedPackageNames: ['com.aheaditec.freeraspExample'],
+        suspiciousPermissions: [
+          ['android.permission.CAMERA'],
+          ['android.permission.READ_SMS', 'android.permission.READ_CONTACTS'],
+        ],
+      ),
+    ),
+    iosConfig: IOSConfig(
+      bundleIds: ['com.aheaditec.freeraspExample'],
+      teamId: 'M8AK35...',
+    ),
+    watcherMail: 'your_mail@example.com',
+    isProd: true,
+  );
+
+  await Talsec.instance.start(config);
+}
+
+&#47;&#47;&#47; Example of how to use [Talsec.storeExternalId].
+Future testStoreExternalId(String data) async {
+  await Talsec.instance.storeExternalId(data);
+}
+
+&#47;&#47;&#47; The root widget of the application
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const HomePage(),
+    );
+  }
+}
+
+&#47;&#47;&#47; The home page that displays the threats and results
+class HomePage extends ConsumerWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final threatState = ref.watch(threatProvider);
+
+    &#47;&#47; Listen for changes in the threatProvider and show the malware modal
+    ref.listen(threatProvider, (prev, next) {
+      if (prev?.detectedMalware != next.detectedMalware) {
+        _showMalwareBottomSheet(context, next.detectedMalware);
+      }
+    });
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('freeRASP Demo')),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            children: [
+              Text(
+                'Threat Status',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              ListTile(
+                title: const Text('Store External ID'),
+                trailing: IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+                    testStoreExternalId('testData');
+                  },
+                ),
+              ),
+              ListTile(
+                title: const Text('Change Screen Capture'),
+                leading: SafetyIcon(
+                  isDetected: !(ref.watch(screenCaptureProvider).value ?? true),
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+        
+// ... (truncated)

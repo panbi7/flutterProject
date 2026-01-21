@@ -1,0 +1,127 @@
+import 'package:flutter&#47;material.dart';
+import 'package:liquid_glass_easy&#47;liquid_glass_easy.dart';
+
+void main() {
+  runApp(const LiquidGlassExampleApp());
+}
+
+class LiquidGlassExampleApp extends StatelessWidget {
+  const LiquidGlassExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          brightness: Brightness.light,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        home: const LiquidGlassExample());
+  }
+}
+
+class LiquidGlassExample extends StatefulWidget {
+  const LiquidGlassExample({super.key});
+
+  @override
+  State createState() => _LiquidGlassExampleState();
+}
+
+class _LiquidGlassExampleState extends State {
+  final viewController = LiquidGlassViewController();
+  final lensController = LiquidGlassController();
+
+  &#47;&#47; Start with realtime capturing ON
+  final bool _realtime = true;
+
+  &#47;&#47; We cycle through three gradient backgrounds (no images required).
+  int _bgIndex = 0;
+
+  Widget _buildBackground() {
+    final List images = [
+      Image.network(
+        "https:&#47;&#47;raw.githubusercontent.com&#47;AhmeedGamil&#47;liquid_glass_easy_assets&#47;refs&#47;heads&#47;main&#47;flower.jpg",
+        fit: BoxFit.fitWidth,
+        width: double.infinity,
+        height: double.infinity,
+      ),
+      Image.network(
+        "https:&#47;&#47;raw.githubusercontent.com&#47;AhmeedGamil&#47;liquid_glass_easy_assets&#47;refs&#47;heads&#47;main&#47;rain.jpg",
+        fit: BoxFit.fitHeight,
+        width: double.infinity,
+        height: 300,
+      ),
+      Image.network(
+        "https:&#47;&#47;raw.githubusercontent.com&#47;AhmeedGamil&#47;liquid_glass_easy_assets&#47;refs&#47;heads&#47;main&#47;neon.png",
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      ),
+      Image.network(
+        "https:&#47;&#47;raw.githubusercontent.com&#47;AhmeedGamil&#47;liquid_glass_easy_assets&#47;refs&#47;heads&#47;main&#47;socotra_tree_1.png",
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      ),
+      Image.network(
+        "https:&#47;&#47;raw.githubusercontent.com&#47;AhmeedGamil&#47;liquid_glass_easy_assets&#47;refs&#47;heads&#47;main&#47;socotra_tree_2.jpg",
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      ),
+      Image.network(
+        "https:&#47;&#47;raw.githubusercontent.com&#47;AhmeedGamil&#47;liquid_glass_easy_assets&#47;refs&#47;heads&#47;main&#47;socotra_tree_3.jpg",
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      ),
+    ];
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        images[_bgIndex], &#47;&#47; spread the list into widgets
+        Align(
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 60),
+            child: Text(
+              'Liquid Glass Easy Example',
+              style: TextStyle(
+                fontSize: 26,
+                color: Colors.black54,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.25,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future _refreshSnapshot() async {
+    lensController.hideLiquidGlass(animationTimeMillisecond: 280);
+    await Future.delayed(const Duration(milliseconds: 340));
+    await viewController.captureOnce();
+    lensController.showLiquidGlass(animationTimeMillisecond: 280);
+  }
+
+  void _nextBackground() {
+    setState(() {
+      &#47;&#47;lensController.resetLiquidGlassPosition();
+      _bgIndex = (_bgIndex + 1) % 6;
+    });
+    if (!_realtime) {
+      viewController.captureOnce();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: LiquidGlassView(
+        controller: viewController,
+        back
+// ... (truncated)

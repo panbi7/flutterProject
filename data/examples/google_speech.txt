@@ -1,0 +1,10 @@
+await speechToText.recognize(config, audio).then((value) {
+  setState(() {
+    text = value.results
+        .map((e) => e.alternatives.first.transcript)
+        .join('\n');
+  });
+}).whenComplete(() => setState(() {
+      recognizeFinished = true;
+      recognizing = false;
+    }));

@@ -1,0 +1,125 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_switch&#47;flutter_switch.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  bool status1 = false;
+  bool status2 = true;
+  bool status3 = false;
+  bool status4 = false;
+  bool status5 = false;
+  bool status6 = false;
+  bool status7 = false;
+  bool status8 = false;
+  bool isSwitchOn = false;
+
+  Color _textColor = Colors.black;
+  Color _appBarColor = Color.fromRGBO(36, 41, 46, 1);
+  Color _scaffoldBgcolor = Colors.white;
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: ThemeData(
+        textTheme: TextTheme(
+          bodyText1: TextStyle(color: _textColor),
+          bodyText2: TextStyle(color: _textColor),
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: _scaffoldBgcolor,
+        appBar: AppBar(
+          backgroundColor: _appBarColor,
+          title: Text(
+            "FlutterSwitch Demo",
+            style: TextStyle(color: Colors.white),
+          ),
+          actions: [
+            FlutterSwitch(
+              value: isSwitchOn,
+              onToggle: (value) {
+                setState(() {
+                  isSwitchOn = value;
+                });
+              },
+            ),
+          ],
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Default"),
+                SizedBox(height: 10.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    FlutterSwitch(
+                      value: status1,
+                      onToggle: (val) {
+                        setState(() {
+                          status1 = val;
+                        });
+                      },
+                    ),
+                    Container(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        "Value: $status1",
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20.0),
+                Text("Custom Colors and Borders"),
+                SizedBox(height: 10.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    FlutterSwitch(
+                      width: 100.0,
+                      height: 55.0,
+                      toggleSize: 45.0,
+                      value: status2,
+                      borderRadius: 30.0,
+                      padding: 2.0,
+                      toggleColor: Color.fromRGBO(225, 225, 225, 1),
+                      switchBorder: Border.all(
+                        color: Color.fromRGBO(2, 107, 206, 1),
+                        width: 6.0,
+                      ),
+                      toggleBorder: Border.all(
+                        color: Color.fromRGBO(2, 107, 206, 1),
+                        width: 5.0,
+                      ),
+                      activeColor: Color.fromRGBO(51, 226, 255, 1),
+                      inactiveColor: Colors.black38,
+                      onToggle: (val) {
+                        setState(() {
+                          status2 = val;
+                        });
+                      },
+                    ),
+                    Container(
+                      alignment: Alignment.centerRight,
+// ... (truncated)

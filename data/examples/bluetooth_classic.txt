@@ -1,0 +1,135 @@
+import 'package:bluetooth_classic&#47;models&#47;device.dart';
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+import 'package:bluetooth_classic&#47;bluetooth_classic.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _platformVersion = 'Unknown';
+  final _bluetoothClassicPlugin = BluetoothClassic();
+  List _devices = [];
+  List _discoveredDevices = [];
+  bool _scanning = false;
+  int _deviceStatus = Device.disconnected;
+  Uint8List _data = Uint8List(0);
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+    _bluetoothClassicPlugin.onDeviceStatusChanged().listen((event) {
+      setState(() {
+        _deviceStatus = event;
+      });
+    });
+    _bluetoothClassicPlugin.onDeviceDataReceived().listen((event) {
+      setState(() {
+        _data = Uint8List.fromList([..._data, ...event]);
+      });
+    });
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    String platformVersion;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    &#47;&#47; We also handle the message potentially returning null.
+    try {
+      platformVersion = await _bluetoothClassicPlugin.getPlatformVersion() ??
+          'Unknown platform version';
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _platformVersion = platformVersion;
+    });
+  }
+
+  Future _getDevices() async {
+    var res = await _bluetoothClassicPlugin.getPairedDevices();
+    setState(() {
+      _devices = res;
+    });
+  }
+
+  Future _scan() async {
+    if (_scanning) {
+      await _bluetoothClassicPlugin.stopScan();
+      setState(() {
+        _scanning = false;
+      });
+    } else {
+      await _bluetoothClassicPlugin.startScan();
+      _bluetoothClassicPlugin.onDeviceDiscovered().listen(
+        (event) {
+          setState(() {
+            _discoveredDevices = [..._discoveredDevices, event];
+          });
+        },
+      );
+      setState(() {
+        _scanning = true;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Text("Device status is $_deviceStatus"),
+              TextButton(
+                onPressed: () async {
+                  await _bluetoothClassicPlugin.initPermissions();
+                },
+                child: const Text("Check Permissions"),
+              ),
+              TextButton(
+                onPressed: _getDevices,
+                child: const Text("Get Paired Devices"),
+              ),
+              TextButton(
+                onPressed: _deviceStatus == Device.connected
+                    ? () async {
+                        await _bluetoothClassicPlugin.disconnect();
+                      }
+                    : null,
+                child: const Text("disconnect"),
+              ),
+              TextButton(
+                onPressed: _deviceStatus == Device.connected
+                    ? () async {
+                        await _bluetoothClassicPlugin.write("ping");
+                      }
+                    : null,
+                child: const Text("send ping"),
+              ),
+              Center(
+                child: Text('Running on: $_platformVersion\n'),
+              ),
+              ...[
+            
+// ... (truncated)

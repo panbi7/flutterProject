@@ -1,0 +1,31 @@
+import 'package:flutter&#47;material.dart';
+import 'package:particles_network&#47;particles_network.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; Example app demonstrating the usage of ParticleNetwork widget.
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: Colors.black,
+        body: ParticleNetwork(
+          touchActivation: true, &#47;&#47; to Activate touch
+          particleCount: 100, &#47;&#47; Number of particles
+          maxSpeed: 0.5, &#47;&#47; Maximum particle speed
+          maxSize: 3.5, &#47;&#47; Maximum particle size
+          lineDistance: 100, &#47;&#47; Maximum distance for connecting lines
+          particleColor: Colors.white,
+          lineColor: Colors.greenAccent,
+          touchColor: Colors.amber,
+        ),
+      ),
+    );
+  }
+}

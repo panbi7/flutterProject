@@ -1,0 +1,105 @@
+import 'dart:io';
+import 'package:cached_network_image&#47;cached_network_image.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_cache_manager&#47;flutter_cache_manager.dart';
+import 'package:wallpaper_manager_flutter&#47;wallpaper_manager_flutter.dart';
+
+void main() => runApp(const WallpaperExampleApp());
+
+class WallpaperExampleApp extends StatelessWidget {
+  const WallpaperExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Wallpaper Manager Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      home: const WallpaperScreen(),
+    );
+  }
+}
+
+class WallpaperScreen extends StatefulWidget {
+  const WallpaperScreen({super.key});
+
+  @override
+  State createState() => _WallpaperScreenState();
+}
+
+class _WallpaperScreenState extends State {
+  final PageController _pageController = PageController();
+  final WallpaperManagerFlutter _wallpaperManager = WallpaperManagerFlutter();
+  int _currentPage = 0;
+  bool _isHomeLoading = false;
+  bool _isLockLoading = false;
+  bool _isBothLoading = false;
+
+  final List _wallpaperAssets = [
+    'https:&#47;&#47;images.unsplash.com&#47;photo-1540206395-68808572332f?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fHBob25lJTIwd2FsbHBhcGVyfGVufDB8fDB8fHww',
+    'https:&#47;&#47;images.unsplash.com&#47;photo-1527515234283-d93c5f8486a0?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGhvbmUlMjB3YWxscGFwZXJ8ZW58MHx8MHx8fDA%3D',
+    'https:&#47;&#47;images.unsplash.com&#47;photo-1504681869696-d977211a5f4c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fHBob25lJTIwd2FsbHBhcGVyfGVufDB8fDB8fHww',
+  ];
+
+  Future _setWallpaper(int location) async {
+    &#47;&#47; Update the loading state based on the button clicked
+    if (location == WallpaperManagerFlutter.homeScreen) {
+      setState(() => _isHomeLoading = true);
+    } else if (location == WallpaperManagerFlutter.lockScreen) {
+      setState(() => _isLockLoading = true);
+    } else if (location == WallpaperManagerFlutter.bothScreens) {
+      setState(() => _isBothLoading = true);
+    }
+
+    try {
+      File file = await DefaultCacheManager().getSingleFile(
+        _wallpaperAssets[_currentPage],
+      );
+
+      final success = await _wallpaperManager.setWallpaper(file, location);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            success ? 'Wallpaper set successfully!' : 'Failed to set wallpaper',
+          ),
+          backgroundColor: success ? Colors.green : Colors.red,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
+    } finally {
+      &#47;&#47; Reset the loading state for the appropriate button
+      if (location == WallpaperManagerFlutter.homeScreen) {
+        setState(() => _isHomeLoading = false);
+      } else if (location == WallpaperManagerFlutter.lockScreen) {
+        setState(() => _isLockLoading = false);
+      } else if (location == WallpaperManagerFlutter.bothScreens) {
+        setState(() => _isBothLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Wallpaper Manager Demo'),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: _wallpaperAssets.length,
+              onPageChanged: (index) => setState(() => _currentPage = index),
+              itemBuilder: (context, index) {
+                return AnimatedScale(
+                  duration: const Duration(milliseconds: 300),
+                  scale: _currentPage 
+// ... (truncated)

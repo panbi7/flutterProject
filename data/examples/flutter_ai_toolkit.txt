@@ -1,0 +1,41 @@
+&#47;&#47; Copyright 2024 The Flutter Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+import 'package:firebase_ai&#47;firebase_ai.dart';
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_ai_toolkit&#47;flutter_ai_toolkit.dart';
+
+&#47;&#47; from `flutterfire config`: https:&#47;&#47;firebase.google.com&#47;docs&#47;flutter&#47;setup
+import '..&#47;firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(const App());
+}
+
+class App extends StatelessWidget {
+  static const title = 'Example: Google Gemini AI';
+
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const MaterialApp(title: title, home: ChatPage());
+}
+
+class ChatPage extends StatelessWidget {
+  const ChatPage({super.key});
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text(App.title)),
+    body: LlmChatView(
+      provider: FirebaseProvider(
+        model: FirebaseAI.googleAI().generativeModel(model: 'gemini-2.0-flash'),
+      ),
+    ),
+  );
+}

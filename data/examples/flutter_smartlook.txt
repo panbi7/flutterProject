@@ -1,0 +1,27 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_smartlook&#47;flutter_smartlook.dart';
+import 'package:flutter_smartlook_example&#47;initial_screen.dart';
+import 'package:sizer&#47;sizer.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(const CiscoSmartlookApp());
+}
+
+class CiscoSmartlookApp extends StatelessWidget {
+  const CiscoSmartlookApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return Sizer(builder: (context, orientation, deviceType) {
+      return SmartlookRecordingWidget(
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          &#47;&#47;  navigatorObservers: [SmartlookObserver()],
+          home: InitialScreen(),
+        ),
+      );
+    });
+  }
+}

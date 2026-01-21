@@ -1,0 +1,22 @@
+graph TD
+    subgraph "User"
+        UserInput("Provide Prompt")
+        UserInteraction("Interact with UI")
+    end
+
+    subgraph "GenUI Framework"
+        GenUiConversation("GenUiConversation")
+        ContentGenerator("ContentGenerator")
+        A2uiMessageProcessor("A2uiMessageProcessor")
+        GenUiSurface("GenUiSurface")
+    end
+
+    UserInput -- "calls sendRequest()" --> GenUiConversation;
+    GenUiConversation -- "sends prompt" --> ContentGenerator;
+    ContentGenerator -- "returns A2UI messages" --> GenUiConversation;
+    GenUiConversation -- "handles messages" --> A2uiMessageProcessor;
+    A2uiMessageProcessor -- "notifies of updates" --> GenUiSurface;
+    GenUiSurface -- "renders UI" --> UserInteraction;
+    UserInteraction -- "creates event" --> GenUiSurface;
+    GenUiSurface -- "sends event to host" --> A2uiMessageProcessor;
+    A2uiMessageProcessor -- "sends user input to" --> GenUiConversation;

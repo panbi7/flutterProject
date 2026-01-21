@@ -1,0 +1,106 @@
+&#47;&#47; import 'package:flutter&#47;foundation.dart';
+&#47;&#47; import 'package:flutter_dotenv&#47;flutter_dotenv.dart';
+import 'package:collection&#47;collection.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:layrz_models&#47;layrz_models.dart';
+import 'package:layrz_theme&#47;layrz_theme.dart';
+import 'package:layrz_theme_example&#47;router.dart';
+import 'package:layrz_theme_example&#47;store&#47;store.dart';
+import 'package:shared_preferences&#47;shared_preferences.dart';
+import 'package:layrz_state&#47;layrz_state.dart';
+
+const font = AppFont(source: FontSource.google, name: 'Ubuntu');
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await ThemedFontHandler.preloadFont(font);
+
+  String? mapboxToken;
+  String? googleToken;
+  String? hereToken;
+
+  &#47;&#47; if (kDebugMode) {
+  &#47;&#47;   await dotenv.load(fileName: ".env");
+  &#47;&#47;   mapboxToken = dotenv.env['MAPBOX_TOKEN'];
+  &#47;&#47;   googleToken = dotenv.env['GOOGLE_TOKEN'];
+  &#47;&#47;   hereToken = dotenv.env['HERE_TOKEN'];
+  &#47;&#47; }
+
+  final prefs = await SharedPreferences.getInstance();
+  final rawThemeMode = prefs.getString('layrz.theme.mode');
+  ThemeMode? themeMode;
+  if (rawThemeMode != null) {
+    themeMode = ThemeMode.values.firstWhereOrNull((e) => e.name == rawThemeMode);
+  }
+
+  double colorblindStrength = prefs.getDouble('layrz.colorblind.strength') ?? 1.0;
+  final rawColorblindMode = prefs.getString('layrz.colorblind.mode');
+  ColorblindMode? colorblindMode;
+  if (rawColorblindMode != null) {
+    colorblindMode = ColorblindMode.values.firstWhereOrNull((e) => e.name == rawColorblindMode);
+  }
+
+  runApp(
+    LayrzState(
+      store: AppStore(
+        themeMode: themeMode ?? ThemeMode.system,
+        mapboxToken: mapboxToken,
+        googleToken: googleToken,
+        hereToken: hereToken,
+        colorblindMode: colorblindMode ?? ColorblindMode.normal,
+        colorblindStrength: colorblindStrength,
+      ),
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return StateConsumer(
+      mutations: const {SetColorblindMode, SetColorblindStrength, SetTheme},
+      notifications: {
+        SetTheme: (context, mutation, {status}) {
+          if (status == StateStatus.success) {
+            setState(() {});
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final mut = mutation as SetTheme;
+              bool isDark = mut.themeMode == ThemeMode.dark;
+              if (mut.themeMode == ThemeMode.system) {
+                isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+              }
+
+              overrideAppBarStyle(isDark: isDark);
+            });
+          }
+        },
+      },
+      builder: (context, store, status) {
+        return ColorFiltered(
+          colorFilter: store.colorblindMode.filter(store.colorblindStrength),
+          child: MaterialApp.router(
+            title: 'Layrz Theme Example',
+            themeMode: store.themeMode,
+            theme: generateLightTheme(titleFont: font, bodyFont: font),
+            darkTheme: generateDarkTheme(titleFont: font, bodyFont: font),
+            debugShowCheckedModeBanner: false,
+            routerConfig: router,
+            builder: (context, child) {
+              return ThemedSnackbarMessenger(
+                child: child ?? const SizedBox(),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+}

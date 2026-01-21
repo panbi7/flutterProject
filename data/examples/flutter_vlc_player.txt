@@ -1,0 +1,10 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_vlc_player_example&#47;app.dart';
+
+void main() {
+  runApp(
+    MaterialApp(
+      home: App(),
+    ),
+  );
+}

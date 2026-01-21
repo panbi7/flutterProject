@@ -1,0 +1,84 @@
+import 'package:flutter&#47;material.dart';
+import 'package:card_stack_swiper&#47;card_stack_swiper.dart';
+
+void main() {
+  runApp(
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: ExamplePage(),
+    ),
+  );
+}
+
+class ExamplePage extends StatefulWidget {
+  const ExamplePage({super.key});
+
+  @override
+  State createState() => _ExamplePageState();
+}
+
+class _ExamplePageState extends State {
+  final CardStackSwiperController _controller = CardStackSwiperController();
+
+  final List _cards = [
+    for (int i = 0; i 
+                          _cards[index],
+                      emptyCardBuilder: (context) => Card(
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                            color: Colors.grey,
+                            child: Center(
+                              child: Text(
+                                'No more cards',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          )),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  FloatingActionButton(
+                    heroTag: 'undo',
+                    onPressed: _controller.undo,
+                    child: const Icon(Icons.rotate_left),
+                  ),
+                  FloatingActionButton(
+                    heroTag: 'top',
+                    onPressed: () =>
+                        _controller.swipe(CardStackSwiperDirection.top),
+                    child: const Icon(Icons.keyboard_arrow_up),
+                  ),
+                  FloatingActionButton(
+                    heroTag: 'left',
+                    onPressed: () =>
+                        _controller.swipe(CardStackSwiperDirection.left),
+                    child: const Icon(Icons.keyboard_arrow_left),
+                  ),
+                  FloatingActionButton(
+                    heroTag: 'right',
+                    onPressed: () =>
+                        _controller.swipe(CardStackSwiperDirection.right),
+                    child: const Icon(Icons.keyboard_arrow_right),
+                  ),
+                  FloatingActionButton(
+                    heroTag: 'bottom',
+                    onPressed: () =>
+                        _controller.swipe(CardStackSwiperDirection.bottom),
+                    child: const Icon(Icons.keyboard_arrow_down),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,145 @@
+import 'dart:async';
+import 'dart:io' show Platform;
+import 'dart:math';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_tts&#47;flutter_tts.dart';
+
+import 'language_helper.dart'; &#47;&#47; Import the facade
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+enum TtsState { playing, stopped, paused, continued }
+
+class MyAppState extends State {
+  late FlutterTts flutterTts;
+  List rawEngines = [];
+  List> engineItems = [];
+  String? engine;
+  List?> rawVoices = [];
+  List?>> voiceItems = [];
+  Completer _voiceDataReadyCompleter = Completer();
+  Map? voice;
+  bool getDefaultVoiceRetried = false;
+  List rawLanguages = [];
+  List> languageItems = [];
+  String? language;
+  double volume = 0.8;
+  double pitch = 1.0;
+  double rate = !kIsWeb ? 0.5 : 0.9;
+  bool isCurrentLanguageInstalled = false;
+
+  String? _newVoiceText;
+  int? _inputLength;
+
+  TtsState ttsState = TtsState.stopped;
+
+  bool get isPlaying => ttsState == TtsState.playing;
+  bool get isStopped => ttsState == TtsState.stopped;
+  bool get isPaused => ttsState == TtsState.paused;
+  bool get isContinued => ttsState == TtsState.continued;
+
+  bool get isAndroid => !kIsWeb && Platform.isAndroid;
+  bool get isIOS => !kIsWeb && Platform.isIOS;
+  bool get isMacOS => !kIsWeb && Platform.isMacOS;
+  bool get isWindows => !kIsWeb && Platform.isWindows;
+  bool get isWeb => kIsWeb;
+
+  @override
+  initState() {
+    super.initState();
+    initTts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _getDefaults(); &#47;&#47; invoked after initial build of context is complete
+    });
+  }
+
+  &#47;&#47; from initState()
+  void initTts() {
+    flutterTts = FlutterTts();
+
+    _setAwaitOptions();
+
+    flutterTts.setStartHandler(() {
+      setState(() {
+        if (kDebugMode) debugPrint("TtsState: Playing");
+        ttsState = TtsState.playing;
+      });
+    });
+
+    flutterTts.setCompletionHandler(() {
+      setState(() {
+        if (kDebugMode) debugPrint("TtsState: Complete");
+        ttsState = TtsState.stopped;
+      });
+    });
+
+    flutterTts.setCancelHandler(() {
+      setState(() {
+        if (kDebugMode) debugPrint("TtsState: Cancel");
+        ttsState = TtsState.stopped;
+      });
+    });
+
+    flutterTts.setPauseHandler(() {
+      setState(() {
+        if (kDebugMode) debugPrint("TtsState: Paused");
+        ttsState = TtsState.paused;
+      });
+    });
+
+    flutterTts.setContinueHandler(() {
+      setState(() {
+        if (kDebugMode) debugPrint("TtsState: Continued");
+        ttsState = TtsState.continued;
+      });
+    });
+
+    flutterTts.setErrorHandler((msg) {
+      setState(() {
+        if (kDebugMode) debugPrint("TtsState: Error: $msg");
+        ttsState = TtsState.stopped;
+      });
+    });
+  }
+
+  Future _getDefaults() async {
+    if (kDebugMode) debugPrint('_getDefaults...');
+    if (isAndroid) await _getDefaultEngine();
+    if (kIsWeb) setState(() {}); &#47;&#47; Tickle the UI
+    await _getDefaultVoice();
+  }
+
+  Future _getEngines() async => await flutterTts.getEngines;
+
+  Future _getVoices() async => await flutterTts.getVoices;
+
+  Future _getLanguages() async => await flutterTts.getLanguages;
+
+  Future _getDefaultEngine() async {
+    if (!isAndroid) return; &#47;&#47; safety-check
+    if (kDebugMode) debugPrint('_getDefaultEngine...');
+    var e = await flutterTts.getDefaultEngine;
+    if (e != null) {
+      if (kDebugMode) debugPrint('Default Engine: $e');
+      setState(() => engine = e as String);
+    }
+  }
+
+  Future _getDefaultVoice() async {
+    if (kDebugMode) debugPrint('_getDefaultVoice..');
+    try {
+      await _voiceDataReadyCompleter.future.timeout(const Duration(seconds: 2));
+    } on TimeoutException {
+      if (kDebugMode) debugPrint("Timeout waiting for voice data");
+      if (!getDefaultVoiceRetried) {
+        getDefaultVoiceRetried = true; &#47;&#47; run only once
+ 
+// ... (truncated)

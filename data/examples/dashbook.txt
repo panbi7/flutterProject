@@ -1,0 +1,18 @@
+import 'package:dashbook&#47;dashbook.dart';
+import 'package:example&#47;stories.dart';
+import 'package:example&#47;text_story.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  final dashbook = Dashbook.dualTheme(
+    light: ThemeData(),
+    dark: ThemeData.dark(),
+    title: 'Dashbook Example',
+    autoPinStoriesOnLargeScreen: true,
+  );
+
+  addTextStories(dashbook);
+  addStories(dashbook);
+
+  runApp(dashbook);
+}

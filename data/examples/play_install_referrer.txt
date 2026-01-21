@@ -1,0 +1,56 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:play_install_referrer&#47;play_install_referrer.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State {
+  String _referrerDetails = '';
+
+  @override
+  void initState() {
+    super.initState();
+    initReferrerDetails();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initReferrerDetails() async {
+    String referrerDetailsString;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    try {
+      ReferrerDetails referrerDetails =
+          await PlayInstallReferrer.installReferrer;
+
+      referrerDetailsString = referrerDetails.toString();
+    } catch (e) {
+      referrerDetailsString = 'Failed to get referrer details: $e';
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _referrerDetails = referrerDetailsString;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Plugin example app')),
+        body: Center(child: Text('Referrer Details: $_referrerDetails')),
+      ),
+    );
+  }
+}

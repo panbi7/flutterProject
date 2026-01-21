@@ -1,0 +1,105 @@
+import 'dart:async';
+import 'dart:core';
+import 'dart:io';
+
+import 'package:app_links&#47;app_links.dart';
+import 'package:clerk_auth&#47;clerk_auth.dart' as clerk;
+import 'package:clerk_flutter&#47;clerk_flutter.dart';
+import 'package:clerk_flutter_example&#47;pages&#47;clerk_sign_in_example.dart';
+import 'package:clerk_flutter_example&#47;pages&#47;custom_email_sign_in_example.dart';
+import 'package:clerk_flutter_example&#47;pages&#47;custom_sign_in_example.dart';
+import 'package:clerk_flutter_example&#47;pages&#47;examples_list.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+
+Future main() async {
+  await clerk.setUpLogging(printer: const LogPrinter());
+
+  const publishableKey = String.fromEnvironment('publishable_key');
+  if (publishableKey.isEmpty) {
+    if (kDebugMode) {
+      print(
+        'Please run the example with: '
+        '--dart-define-from-file=example.json',
+      );
+    }
+    exit(1);
+  }
+
+  runApp(
+    const ExampleApp(
+      publishableKey: publishableKey,
+    ),
+  );
+}
+
+&#47;&#47;&#47; Example App
+class ExampleApp extends StatelessWidget {
+  &#47;&#47;&#47; Constructs an instance of Example App
+  const ExampleApp({super.key, required this.publishableKey});
+
+  &#47;&#47;&#47; Publishable Key
+  final String publishableKey;
+
+  &#47;&#47;&#47; This function maps a [Uri] into a [ClerkDeepLink], which is essentially
+  &#47;&#47;&#47; just a container for the [Uri]. The [ClerkDeepLink] can also
+  &#47;&#47;&#47; contain a [clerk.Strategy], to use in preference to a strategy
+  &#47;&#47;&#47; inferred from the [Uri]
+  ClerkDeepLink? createClerkLink(Uri uri) {
+    if (uri.pathSegments.first == 'auth') {
+      return ClerkDeepLink(uri: uri);
+    }
+
+    &#47;&#47; If the host app deems the deep link to be not relevant to the Clerk SDK,
+    &#47;&#47; we return [null] instead of a [ClerkDeepLink] to inhibit its processing.
+    return null;
+  }
+
+  &#47;&#47;&#47; A function that returns an appropriate deep link [Uri] for the oauth
+  &#47;&#47;&#47; redirect for a given [clerk.Strategy], or [null] if redirection should
+  &#47;&#47;&#47; be handled in-app
+  Uri? generateDeepLink(BuildContext context, clerk.Strategy strategy) {
+    return Uri.parse('clerk:&#47;&#47;example.com&#47;auth&#47;$strategy');
+
+    &#47;&#47; if you want to use the default in-app SSO, just remove the
+    &#47;&#47; [redirectionGenerator] parameter from the [ClerkAuthConfig] object
+    &#47;&#47; below, or...
+
+    &#47;&#47; return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClerkAuth(
+      config: ClerkAuthConfig(
+        publishableKey: publishableKey,
+        redirectionGenerator: generateDeepLink,
+        deepLinkStream: AppLinks().allUriLinkStream.map(createClerkLink),
+      ),
+      child: MaterialApp(
+        theme: ThemeData.light(),
+        debugShowCheckedModeBanner: false,
+        initialRoute: ExamplesList.path,
+        routes: {
+          ExamplesList.path: (context) => const ExamplesList(),
+          ClerkSignInExample.path: (context) => const ClerkSignInExample(),
+          CustomOAuthSignInExample.path: (context) =>
+              const CustomOAuthSignInExample(),
+          CustomEmailSignInExample.path: (context) =>
+              const CustomEmailSignInExample(),
+        },
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47; Log Printer
+class LogPrinter extends clerk.Printer {
+  &#47;&#47;&#47; Constructs an instance of [LogPrinter]
+  const LogPrinter();
+
+  @override
+  void print(String output) {
+    Zone.root.print(output);
+  }
+}

@@ -1,0 +1,113 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter_speed_dial&#47;flutter_speed_dial.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  var theme = ValueNotifier(ThemeMode.dark);
+
+  @override
+  Widget build(BuildContext context) {
+    const appTitle = 'Flutter Speed Dial Example';
+    return ValueListenableBuilder(
+        valueListenable: theme,
+        builder: (context, value, child) => MaterialApp(
+              title: appTitle,
+              home: MyHomePage(theme: theme),
+              debugShowCheckedModeBanner: false,
+              theme: ThemeData(
+                brightness: Brightness.light,
+                primaryColor: Colors.blue,
+              ),
+              darkTheme: ThemeData(
+                brightness: Brightness.dark,
+                primaryColor: Colors.lightBlue[900],
+              ),
+              themeMode: value,
+            ));
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  final ValueNotifier theme;
+  const MyHomePage({Key? key, required this.theme}) : super(key: key);
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State with TickerProviderStateMixin {
+  var renderOverlay = true;
+  var visible = true;
+  var switchLabelPosition = false;
+  var extend = false;
+  var mini = false;
+  var rmicons = false;
+  var customDialRoot = false;
+  var closeManually = false;
+  var useRAnimation = true;
+  var isDialOpen = ValueNotifier(false);
+  var speedDialDirection = SpeedDialDirection.up;
+  var buttonSize = const Size(56.0, 56.0);
+  var childrenButtonSize = const Size(56.0, 56.0);
+  var selectedfABLocation = FloatingActionButtonLocation.endDocked;
+  var items = [
+    FloatingActionButtonLocation.startFloat,
+    FloatingActionButtonLocation.startDocked,
+    FloatingActionButtonLocation.centerFloat,
+    FloatingActionButtonLocation.endFloat,
+    FloatingActionButtonLocation.endDocked,
+    FloatingActionButtonLocation.startTop,
+    FloatingActionButtonLocation.centerTop,
+    FloatingActionButtonLocation.endTop,
+  ];
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        if (isDialOpen.value) {
+          isDialOpen.value = false;
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Flutter Speed Dial Example"),
+        ),
+        body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            physics: const BouncingScrollPhysics(),
+            child: Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("SpeedDial Location",
+                              style: Theme.of(context).textTheme.bodyLarge),
+                          const SizedBox(height: 10),
+                          Container(
+                            decoration: BoxDecoration(
+                                color: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.grey[800]
+                                    : Colors.grey[200],
+                                borderRadius: BorderRadius.circular(10)),
+                            child: DropdownButton(
+                              value: selectedfABLocation,
+          
+// ... (truncated)

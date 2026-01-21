@@ -1,0 +1,109 @@
+import 'package:flutter&#47;material.dart';
+import 'package:appmetrica_plugin&#47;appmetrica_plugin.dart';
+
+AppMetricaConfig get _config =>
+    const AppMetricaConfig('Your api key', logs: true);
+
+Future main() async {
+  AppMetrica.runZoneGuarded(() {
+    WidgetsFlutterBinding.ensureInitialized();
+    AppMetrica.activate(_config);
+    runApp(const MyApp());
+  });
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('AppMetrica plugin example app'),
+        ),
+        body: Builder(
+          builder: (BuildContext context) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+            child: ListView(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    AppMetrica.reportEvent('Event name');
+                  },
+                  child: const Text('Report Event'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    AppMetrica.reportError(
+                      message: 'Error message',
+                      errorDescription:
+                          AppMetricaErrorDescription.fromCurrentStackTrace(
+                              message: 'Error message', type: 'Error type'),
+                    ).ignore();
+                  },
+                  child: const Text('Report Error'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    AppMetrica.reportUnhandledException(
+                      AppMetricaErrorDescription.fromCurrentStackTrace(
+                          message: 'Error message', type: 'Error type'),
+                    );
+                  },
+                  child: const Text('Report Unhandled Exception'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      await Future.delayed(
+                          Duration.zero, () => throw Exception('Error'));
+                    } on Exception catch (e, stacktrace) {
+                      AppMetrica.reportUnhandledException(
+                        AppMetricaErrorDescription.fromObjectAndStackTrace(
+                            e, stacktrace),
+                      );
+                    }
+                  },
+                  child: const Text('Catch Throwen Error'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    AppMetrica.reportAppOpen('https:&#47;&#47;github.com&#47;appmetrica');
+                  },
+                  child: const Text('Report App Open'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    AppMetrica.reportReferralUrl("https:&#47;&#47;github.com&#47;appmetrica");
+                  },
+                  child: const Text('Report Referral Url'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    AppMetrica.setLocationTracking(true);
+                  },
+                  child: const Text('Set Location Tracking'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    AppMetrica.setDataSendingEnabled(true);
+                  },
+                  child: const Text('Set Data Sending Enabled'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    AppMetrica.sendEventsBuffer();
+                  },
+                  child: const Text('Send Events Buffer'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final version = await AppMetrica.libraryVersion;
+                    _showSnackBar(c
+// ... (truncated)

@@ -1,0 +1,126 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_playout&#47;player_state.dart';
+import 'package:flutter_playout_example&#47;audio.dart';
+import 'package:flutter_playout_example&#47;video.dart';
+
+void main() => runApp(MainApp());
+
+class MainApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "AV Playout",
+      home: PlayoutExample(),
+    );
+  }
+}
+
+class PlayoutExample extends StatefulWidget {
+  @override
+  _PlayoutExampleState createState() => _PlayoutExampleState();
+}
+
+class _PlayoutExampleState extends State {
+  PlayerState _desiredState = PlayerState.PLAYING;
+  bool _showPlayerControls = true;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        brightness: Brightness.dark,
+        backgroundColor: Colors.grey[900],
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.menu),
+          onPressed: () {},
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.favorite),
+            onPressed: () async {
+              &#47;&#47; pause playback
+              setState(() {
+                _desiredState = PlayerState.PAUSED;
+              });
+              &#47;&#47; wait for user to come back from navigated screen
+              await Navigator.push(context, MaterialPageRoute(
+                builder: (context) {
+                  return Scaffold(
+                    appBar: AppBar(),
+                    body: Container(
+                      child: Center(
+                        child: AudioPlayout(
+                          desiredState: _desiredState,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ));
+              &#47;&#47; user is back. resume playback
+&#47;&#47;              setState(() {
+&#47;&#47;                _desiredState = PlayerState.PLAYING;
+&#47;&#47;              });
+            },
+          ),
+          &#47;* toggle show player controls *&#47;
+          IconButton(
+            icon: Icon(Icons.adjust),
+            onPressed: () async {
+              setState(() {
+                _showPlayerControls = !_showPlayerControls;
+              });
+            },
+          ),
+        ],
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.local_play,
+              color: Colors.white,
+            ),
+            Container(
+              width: 7.0,
+            ),
+            Text(
+              "AV Player",
+              style: Theme.of(context)
+                  .textTheme
+                  .headline6
+                  .copyWith(color: Colors.white),
+            )
+          ],
+        ),
+      ),
+      body: Container(
+        color: Colors.black,
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Container(
+                padding: EdgeInsets.fromLTRB(17.0, 33.0, 17.0, 0.0),
+                child: Text(
+                  "Video Player",
+                  style: Theme.of(context).textTheme.headline4.copyWith(
+                      color: Colors.pink[500], fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Container(
+                padding: EdgeInsets.fromLTRB(17.0, 0.0, 17.0, 30.0),
+                child: Text(
+                  "Plays video from a URL with background audio support and lock screen controls.",
+                  style: Theme.of(context).textTheme.subtitle1.copyWith(
+                      color: Colors.white70, fontWeight: FontWeight.w400),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+                child: V
+// ... (truncated)

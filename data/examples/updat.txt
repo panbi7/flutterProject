@@ -1,0 +1,112 @@
+&#47;&#47;import 'package:flex_color_picker&#47;flex_color_picker.dart';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:http&#47;http.dart' as http;
+
+import 'package:flutter&#47;material.dart';
+import 'package:updat&#47;updat_window_manager.dart';
+import 'package:url_launcher&#47;url_launcher_string.dart';
+
+import 'package:updat&#47;theme&#47;chips&#47;floating_with_silent_download.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return ThemeModeManager(
+        defaultThemeMode: ThemeMode.light,
+        builder: (themeMode) {
+          return MaterialApp(
+            title: 'Updat Demo',
+            theme: ThemeData(
+              useMaterial3: true,
+              primarySwatch: Colors.blue,
+              primaryColor: const Color(0xff1890ff),
+              visualDensity: VisualDensity.adaptivePlatformDensity,
+            ),
+            darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.blue),
+            themeMode: themeMode,
+            home: const MyHomePage(),
+          );
+        });
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  var show = true;
+  var elevated = false;
+
+  TextEditingController titleController =
+      TextEditingController(text: "Update Available");
+  TextEditingController subtitleController =
+      TextEditingController(text: "New version available");
+  Color color = const Color(0xff1890ff);
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    subtitleController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    titleController.addListener(() {
+      setState(() {});
+    });
+    subtitleController.addListener(() {
+      setState(() {});
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return UpdatWindowManager(
+      getLatestVersion: () async {
+        &#47;&#47; Github gives us a super useful latest endpoint, and we can use it to get the latest stable release
+        final data = await http.get(Uri.parse(
+          "https:&#47;&#47;api.github.com&#47;repos&#47;fluttertools&#47;sidekick&#47;releases&#47;latest",
+        ));
+
+        &#47;&#47; Return the tag name, which is always a semantically versioned string.
+        return jsonDecode(data.body)["tag_name"];
+      },
+      getBinaryUrl: (version) async {
+        &#47;&#47; Github also gives us a great way to download the binary for a certain release (as long as we use a consistent naming scheme)
+
+        &#47;&#47; Make sure that this link includes the platform extension with which to save your binary.
+        &#47;&#47; If you use https:&#47;&#47;exapmle.com&#47;latest&#47;macos for instance then you need to create your own file using `getDownloadFileLocation`
+        return "https:&#47;&#47;github.com&#47;fluttertools&#47;sidekick&#47;releases&#47;download&#47;$version&#47;sidekick-${Platform.operatingSystem}-$version.$platformExt";
+      },
+      appName: "Updat Example", &#47;&#47; This is used to name the downloaded files.
+      getChangelog: (_, __) async {
+        &#47;&#47; That same latest endpoint gives us access to a markdown-flavored release body. Perfect!
+        final data = await http.get(Uri.parse(
+          "https:&#47;&#47;api.github.com&#47;repos&#47;fluttertools&#47;sidekick&#47;releases&#47;latest",
+        ));
+        return jsonDecode(data.body)["body"];
+      },
+      updateChipBuilder: floatingExtendedChipWithSilentDownload,
+      currentVersion: '0.0.1',
+      callback: (status) {},
+      child: Scaffold(
+        &#47;*floatingActionButton: UpdatWidget(
+          getLatestVersion: () async {
+            &#47;&#47; Github gives us a super useful latest endpoint, and we can use it to get the latest stable release
+     
+// ... (truncated)

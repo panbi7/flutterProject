@@ -1,0 +1,122 @@
+import 'package:flutter&#47;material.dart';
+import 'package:progressive_image&#47;progressive_image.dart';
+import 'package:transparent_image&#47;transparent_image.dart';
+import 'package:google_fonts&#47;google_fonts.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        fontFamily: GoogleFonts.poppins(fontWeight: FontWeight.w700).fontFamily,
+        brightness: Brightness.light,
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          elevation: 10,
+          title: Text(
+            'Progressive Image Examples',
+            style: TextStyle(
+              color: Color(0xFF0556F3),
+              fontSize: 20.0,
+            ),
+          ),
+          backgroundColor: Colors.white,
+        ),
+        body: ProgressiveImageExample(),
+      ),
+    );
+  }
+}
+
+class ProgressiveImageExample extends StatelessWidget {
+  &#47;&#47; Image Credit - https:&#47;&#47;unsplash.com&#47;@tjholowaychuk
+  Widget get example1 => ProgressiveImage(
+        placeholder: AssetImage('assets&#47;images&#47;placeholder.jpg'),
+        thumbnail: NetworkImage('https:&#47;&#47;i.imgur.com&#47;eOQL4jg.jpg'), &#47;&#47; 64x36
+        image: NetworkImage('https:&#47;&#47;i.imgur.com&#47;mDQ3Qbi.jpg'), &#47;&#47; 3842x2160
+        height: 250,
+        width: 500,
+        fit: BoxFit.cover,
+      );
+
+  &#47;&#47; Image Credit - https:&#47;&#47;unsplash.com&#47;@jonathangallegos
+  Widget get example2 => ProgressiveImage.assetNetwork(
+        placeholder: 'assets&#47;images&#47;placeholder.gif',
+        thumbnail: 'https:&#47;&#47;i.imgur.com&#47;7XL923M.jpg', &#47;&#47; 64x43
+        image: 'https:&#47;&#47;i.imgur.com&#47;xVS07vQ.jpg', &#47;&#47; 3240x2160
+        height: 250,
+        width: 500,
+        fit: BoxFit.cover,
+      );
+
+  &#47;&#47; Image Credit - https:&#47;&#47;unsplash.com&#47;@little_klein
+  Widget get example3 => ProgressiveImage.memoryNetwork(
+        placeholder: kTransparentImage,
+        thumbnail: 'https:&#47;&#47;i.imgur.com&#47;zzlvBm5.jpg', &#47;&#47; 64x43
+        image: 'https:&#47;&#47;i.imgur.com&#47;7LxOVQf.jpg', &#47;&#47; 3240x2160
+        height: 250,
+        width: 500,
+      );
+
+  &#47;&#47; Image Credit - https:&#47;&#47;unsplash.com&#47;@marcelalaskoski
+  Widget get example4 => ProgressiveImage.custom(
+        placeholderBuilder: (BuildContext context) => _customWidget,
+        thumbnail: NetworkImage('https:&#47;&#47;i.imgur.com&#47;4WRfwXm.jpg'), &#47;&#47; 64x43
+        image: NetworkImage('https:&#47;&#47;i.imgur.com&#47;0NnZINx.jpg'), &#47;&#47; 3240x2160
+        height: 250,
+        width: 500,
+        fit: BoxFit.cover,
+      );
+
+  Widget _text(String text) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Color(0xFF0556F3),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+      ),
+      padding: EdgeInsets.symmetric(vertical: 10),
+      margin: EdgeInsets.only(bottom: 20),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget get _customWidget => Container(
+        width: 500,
+        height: 250,
+        color: Color(0xFF6501E5),
+        child: Center(
+          child: Text(
+            "Custom Placeholder",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      );
+
+  Widget _extra(String text) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade400,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      padding: EdgeInsets.symmetric(vertical: 10),
+      margin: EdgeInsets.only(bottom: 20),
+      height: 50,
+      child: Center(
+       
+// ... (truncated)

@@ -1,0 +1,106 @@
+import 'dart:convert';
+
+import 'package:eraser&#47;eraser.dart';
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:firebase_messaging&#47;firebase_messaging.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart' show rootBundle;
+import 'package:googleapis_auth&#47;auth_io.dart';
+import 'package:http&#47;http.dart' as http;
+import 'package:move_to_background&#47;move_to_background.dart';
+
+import 'firebase_options.dart';
+
+const String _testOneTag = "testOne";
+const String _testTwoTag = "testTwo";
+const List _scopes = [
+  "https:&#47;&#47;www.googleapis.com&#47;auth&#47;firebase.messaging"
+];
+http.Client _httpClient = http.Client();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String? _deviceToken;
+  String? _googleFcmOauthAccessToken;
+  int _testOneNotificationCount = 0;
+  int _testTwoNotificationCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseMessaging.instance.requestPermission();
+    getDeviceToken();
+    getFCMOauthToken();
+  }
+
+  getDeviceToken() async {
+    String? deviceToken = await FirebaseMessaging.instance.getToken();
+    setState(() => _deviceToken = deviceToken);
+  }
+
+  getFCMOauthToken() async {
+    &#47;&#47; TODO: Place Firebase private key file into privateKey directory and paste filename below
+    String privateKeyFileAsString = await rootBundle
+        .loadString('privatekey&#47;YOUR-PRIVATE-KEY-FILE-NAME.json');
+    var privateKeyObject = json.decode(privateKeyFileAsString);
+    ServiceAccountCredentials serviceAccountCredentials =
+        ServiceAccountCredentials.fromJson(privateKeyObject);
+    AccessCredentials accessCredentials =
+        await obtainAccessCredentialsViaServiceAccount(
+            serviceAccountCredentials, _scopes, _httpClient);
+    setState(
+        () => _googleFcmOauthAccessToken = accessCredentials.accessToken.data);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Eraser plugin example app'),
+        ),
+        body: _deviceToken == null || _googleFcmOauthAccessToken == null
+            ? Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Text(
+                        'Number of testOne notifications sent so far: $_testOneNotificationCount'),
+                    Text(
+                        'Number of testTwo notifications sent so far: $_testTwoNotificationCount'),
+                    Divider(
+                      height: 25.0,
+                      color: Colors.black,
+                    ),
+                    Text(
+                      'Push the button below to send a notification with the "testOne" tag',
+                      textAlign: TextAlign.center,
+                    ),
+                    ElevatedButton(
+                      child: Text('Send "testOne" notification'),
+                      onPressed: () async {
+                        &#47;&#47; Need to move app to background in order for firebase messaging to handle the push notification.
+                        &#47;&#47; Push notifications received while app is in foreground do nothing.
+                        MoveToBackground.moveTaskToBack();
+
+                        setState(() => _testOneNotificationCount++);
+
+                        &#47;&#47; Wait 1 second before actually creating push notification to ensure that app is in background
+                        await Future.delayed(
+                          Duration(seconds: 1),
+                          () => createPushNotification(
+                  
+// ... (truncated)

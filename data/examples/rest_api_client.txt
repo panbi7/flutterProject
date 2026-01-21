@@ -1,0 +1,130 @@
+import 'package:flutter&#47;material.dart';
+import 'package:rest_api_client&#47;rest_api_client.dart';
+
+&#47;&#47;&#47; Global API client instance
+late RestApiClient apiClient;
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  &#47;&#47; Initialize storage (required once per app lifetime)
+  await RestApiClient.initFlutter();
+
+  &#47;&#47; Create and configure the API client
+  apiClient = RestApiClientImpl(
+    options: RestApiClientOptions(
+      &#47;&#47; Using JSONPlaceholder as a free test API
+      baseUrl: 'https:&#47;&#47;jsonplaceholder.typicode.com',
+      cacheEnabled: true,
+    ),
+    authOptions: AuthOptions(
+      &#47;&#47; Configure token refresh (example configuration)
+      refreshTokenEndpoint: '&#47;auth&#47;refresh',
+      resolveJwt: (response) => response.data['accessToken'],
+      resolveRefreshToken: (response) => response.data['refreshToken'],
+    ),
+    loggingOptions: LoggingOptions(
+      &#47;&#47; Enable logging for debugging
+      logNetworkTraffic: true,
+    ),
+    cacheOptions: CacheOptions(
+      cacheLifetimeDuration: const Duration(minutes: 5),
+      useAuthorization: false, &#47;&#47; Public API, no auth needed
+    ),
+    retryOptions: RetryOptions(enabled: true, maxRetries: 3),
+  );
+
+  &#47;&#47; Initialize the client
+  await apiClient.init();
+
+  &#47;&#47; Listen to exceptions globally
+  apiClient.exceptionHandler.exceptions.stream.listen((exception) {
+    debugPrint('Global exception: $exception');
+  });
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Rest API Client Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+      home: const HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Rest API Client Examples'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: ListView(
+        children: [
+          _ExampleTile(
+            title: 'GET Request',
+            subtitle: 'Fetch a list of posts',
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const GetExampleScreen()),
+                ),
+          ),
+          _ExampleTile(
+            title: 'POST Request',
+            subtitle: 'Create a new post',
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PostExampleScreen()),
+                ),
+          ),
+          _ExampleTile(
+            title: 'Caching',
+            subtitle: 'Cache-first and streamed requests',
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CacheExampleScreen()),
+                ),
+          ),
+          _ExampleTile(
+            title: 'Error Handling',
+            subtitle: 'Handle different error types',
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ErrorExampleScreen()),
+                ),
+          ),
+          _ExampleTile(
+            title: 'Type Conversion',
+            subtitle: 'Parse responses into typed objects',
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TypedExampleScreen()),
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ExampleTile extends StatelessWidget {
+  final String title;
+  final Strin
+// ... (truncated)

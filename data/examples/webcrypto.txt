@@ -1,0 +1,97 @@
+&#47;&#47; Copyright 2020 Google LLC
+&#47;&#47;
+&#47;&#47; Licensed under the Apache License, Version 2.0 (the "License");
+&#47;&#47; you may not use this file except in compliance with the License.
+&#47;&#47; You may obtain a copy of the License at
+&#47;&#47;
+&#47;&#47;      http:&#47;&#47;www.apache.org&#47;licenses&#47;LICENSE-2.0
+&#47;&#47;
+&#47;&#47; Unless required by applicable law or agreed to in writing, software
+&#47;&#47; distributed under the License is distributed on an "AS IS" BASIS,
+&#47;&#47; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+&#47;&#47; See the License for the specific language governing permissions and
+&#47;&#47; limitations under the License.
+
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+import 'dart:convert' show utf8;
+
+import 'package:convert&#47;convert.dart' show hex;
+import 'package:webcrypto&#47;webcrypto.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _output = '-';
+  final _input = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('SHA-1 Hashing'),
+        ),
+        body: Container(
+          padding: EdgeInsets.all(10),
+          child: Column(
+            children: [
+              Text(
+                'Compute SHA-1 hash of input below.\n\n'
+                'Click the button to refresh the computed output.'
+                'Output will be displayed in hexadecimal encoding.',
+              ),
+              Text(
+                'input',
+                textScaleFactor: 1.2,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              _textEntry(),
+              SizedBox(height: 50),
+              Text(
+                'output',
+                textScaleFactor: 1.2,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text('$_output'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _textEntry() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _input,
+            autofocus: true,
+            autocorrect: false,
+            enableSuggestions: false,
+          ),
+        ),
+        IconButton(
+          icon: Icon(Icons.autorenew),
+          tooltip: 'compute hash',
+          onPressed: _refreshHash,
+        )
+      ],
+    );
+  }
+
+  Future _refreshHash() async {
+    final result = await Hash.sha1.digestBytes(utf8.encode(_input.text));
+    setState(() {
+      _output = hex.encode(result);
+    });
+  }
+}

@@ -1,0 +1,37 @@
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'package:idb_sqflite&#47;idb_sqflite.dart';
+import 'package:sqflite_common_ffi&#47;sqflite_ffi.dart';
+
+Future main() async {
+  &#47;&#47; The sqflite base factory
+
+  var factory = getIdbFactorySqflite(databaseFactoryFfi);
+  &#47;&#47; define the store name
+  const storeName = 'records';
+
+  &#47;&#47; open the database
+  var db = await factory.open(
+    'my_records.db',
+    version: 1,
+    onUpgradeNeeded: (VersionChangeEvent event) {
+      var db = event.database;
+      &#47;&#47; create the store
+      db.createObjectStore(storeName, autoIncrement: true);
+    },
+  );
+
+  &#47;&#47; put some data
+  var txn = db.transaction(storeName, 'readwrite');
+  var store = txn.objectStore(storeName);
+  var key = await store.put({'some': 'data'});
+  await txn.completed;
+
+  &#47;&#47; read some data
+  txn = db.transaction(storeName, 'readonly');
+  store = txn.objectStore(storeName);
+  var value = await store.getObject(key);
+
+  print(value);
+  await txn.completed;
+}

@@ -1,0 +1,61 @@
+import 'package:flutter&#47;material.dart';
+import 'package:giphy_picker&#47;giphy_picker.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: 'Giphy Picker Demo',
+      home: MyHomePage(title: 'Giphy Picker Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  GiphyGif? _gif;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_gif?.title ?? 'Giphy Picker Demo'),
+      ),
+      body: SafeArea(
+        child: Center(
+          child: _gif == null
+              ? const Text('Pick a gif..')
+              : GiphyImage.original(gif: _gif!),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.search),
+        onPressed: () async {
+          &#47;&#47; request your Giphy API key at https:&#47;&#47;developers.giphy.com&#47;
+          final gif = await GiphyPicker.pickGif(
+            context: context,
+            &#47;&#47; YOUR GIPHY APIKEY HERE
+            apiKey: '',
+          );
+
+          if (gif != null) {
+            setState(() => _gif = gif);
+          }
+        },
+      ),
+    );
+  }
+}

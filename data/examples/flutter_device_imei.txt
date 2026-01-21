@@ -1,0 +1,72 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_device_imei&#47;flutter_device_imei.dart';
+
+&#47;&#47;&#47; Copyright (C) 2025 Pranil Shah - All Rights Reserved
+&#47;&#47;&#47; You can read LICENCE.md file for the reference
+&#47;&#47;&#47;
+&#47;&#47;&#47; Email : pranilshah4024@gmail.com
+&#47;&#47;&#47; Linkedin : https:&#47;&#47;www.linkedin.com&#47;in&#47;ipranilshah&#47;
+&#47;&#47;&#47; Github : https:&#47;&#47;github.com&#47;pranilshah4024
+&#47;&#47;&#47; Medium : https:&#47;&#47;medium.com&#47;@ipranilshah
+&#47;&#47;&#47; Website : https:&#47;&#47;pranilshah.in&#47;
+&#47;&#47;&#47;
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _platformVersion = 'Unknown';
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    String platformVersion;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    &#47;&#47; We also handle the message potentially returning null.
+    try {
+      platformVersion =
+          await FlutterDeviceImei.instance.getIMEI() ?? 'Unknown platform version';
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _platformVersion = platformVersion;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: Text('Running on: $_platformVersion\n'),
+        ),
+      ),
+    );
+  }
+}

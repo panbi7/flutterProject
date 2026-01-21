@@ -1,0 +1,38 @@
+import 'package:alien_signals&#47;alien_signals.dart';
+
+void basis() {
+  print("\n=========== Basic Usage ===========");
+
+  final count = signal(1);
+  final doubleCount = computed((_) => count() * 2);
+
+  effect(() {
+    print("Count is: ${count()}");
+  }); &#47;&#47; Count is: 1
+
+  print(doubleCount()); &#47;&#47; 2
+
+  count.set(2); &#47;&#47; Count is: 2
+
+  print(doubleCount()); &#47;&#47; 4
+}
+
+void scope() {
+  print("\n=========== Effect Scope ===========");
+
+  final count = signal(1);
+  final stop = effectScope(() {
+    effect(() {
+      print("Count is: ${count()}");
+    }); &#47;&#47; Count is: 1
+  });
+
+  count.set(2); &#47;&#47; Count is: 2
+  stop();
+  count.set(3); &#47;&#47; Not printed
+}
+
+void main() {
+  basis();
+  scope();
+}

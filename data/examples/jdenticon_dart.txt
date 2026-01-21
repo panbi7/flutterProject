@@ -1,0 +1,110 @@
+&#47;&#47; Jdenticon only has 1 function you will need: toSvg(). This function requires a message (as a String).
+&#47;&#47; The output is a SVG string which needs to be passed to the widget SvgPicture so that it can be rendered.
+&#47;&#47; You can set the sizing, scaling, padding and margins when the SVG is actually rendered with SvgPicture, as seen below.
+&#47;&#47; Uncomment all comments below and run the code to see Jdenticon in action.
+
+&#47;&#47; import 'package:flutter&#47;material.dart';
+&#47;&#47; import 'package:jdenticon_dart&#47;jdenticon_dart.dart';
+&#47;&#47; import 'package:flutter_svg&#47;flutter_svg.dart';
+
+&#47;&#47; void main() => runApp(Example());
+
+&#47;&#47; Widget _getCardWithIcon(String name) {
+&#47;&#47;   final String rawSvg = Jdenticon.toSvg(name);
+
+&#47;&#47;   return Card(
+&#47;&#47;     child: Column(
+&#47;&#47;       children: [
+&#47;&#47;         Row(
+&#47;&#47;           mainAxisAlignment: MainAxisAlignment.center,
+&#47;&#47;           children: [
+&#47;&#47;             Padding(
+&#47;&#47;               padding: EdgeInsets.all(8.0),
+&#47;&#47;               child: SvgPicture.string(
+&#47;&#47;                 rawSvg,
+&#47;&#47;                 fit: BoxFit.fill,
+&#47;&#47;                 height: 32,
+&#47;&#47;                 width: 32,
+&#47;&#47;               ),
+&#47;&#47;             ),
+&#47;&#47;             Padding(
+&#47;&#47;               padding: EdgeInsets.all(8.0),
+&#47;&#47;               child: SvgPicture.string(
+&#47;&#47;                 rawSvg,
+&#47;&#47;                 fit: BoxFit.fill,
+&#47;&#47;                 height: 32,
+&#47;&#47;                 width: 32,
+&#47;&#47;               ),
+&#47;&#47;             ),
+&#47;&#47;             Padding(
+&#47;&#47;               padding: EdgeInsets.all(8.0),
+&#47;&#47;               child: SvgPicture.string(
+&#47;&#47;                 rawSvg,
+&#47;&#47;                 fit: BoxFit.fill,
+&#47;&#47;                 height: 32,
+&#47;&#47;                 width: 32,
+&#47;&#47;               ),
+&#47;&#47;             ),
+&#47;&#47;           ],
+&#47;&#47;         ),
+&#47;&#47;         SizedBox(
+&#47;&#47;           height: 12.0,
+&#47;&#47;         ),
+&#47;&#47;         SvgPicture.string(
+&#47;&#47;           rawSvg,
+&#47;&#47;           fit: BoxFit.contain,
+&#47;&#47;           height: 64,
+&#47;&#47;           width: 64,
+&#47;&#47;         ),
+&#47;&#47;         SizedBox(
+&#47;&#47;           height: 12.0,
+&#47;&#47;         ),
+&#47;&#47;         SvgPicture.string(
+&#47;&#47;           rawSvg,
+&#47;&#47;           fit: BoxFit.scaleDown,
+&#47;&#47;           height: 128,
+&#47;&#47;           width: 128,
+&#47;&#47;         ),
+&#47;&#47;         SizedBox(
+&#47;&#47;           height: 12.0,
+&#47;&#47;         ),
+&#47;&#47;         SvgPicture.string(
+&#47;&#47;           rawSvg,
+&#47;&#47;           fit: BoxFit.fitWidth,
+&#47;&#47;           width: 256,
+&#47;&#47;         ),
+&#47;&#47;         Text(
+&#47;&#47;           name,
+&#47;&#47;           textScaleFactor: 1.5,
+&#47;&#47;           style: TextStyle(
+&#47;&#47;               color: Colors.blue,
+&#47;&#47;               fontWeight: FontWeight.bold,
+&#47;&#47;               letterSpacing: 1.6),
+&#47;&#47;         ),
+&#47;&#47;       ],
+&#47;&#47;     ),
+&#47;&#47;   );
+&#47;&#47; }
+
+&#47;&#47; class Example extends StatelessWidget {
+&#47;&#47;   @override
+&#47;&#47;   Widget build(BuildContext context) {
+&#47;&#47;     return MaterialApp(
+&#47;&#47;       title: 'Jdenticon Example',
+&#47;&#47;       home: Scaffold(
+&#47;&#47;         appBar: AppBar(
+&#47;&#47;           title: Text('Jdenticon Example'),
+&#47;&#47;         ),
+&#47;&#47;         body: Center(
+&#47;&#47;           child: ListView(
+&#47;&#47;             children: [
+&#47;&#47;               _getCardWithIcon('Naomi'),
+&#47;&#47;               _getCardWithIcon('Ridge'),
+&#47;&#47;               _getCardWithIcon('Callie'),
+&#47;&#47;             ],
+&#47;&#47;           ),
+&#47;&#47;         ),
+&#47;&#47;       ),
+&#47;&#47;     );
+&#4
+// ... (truncated)

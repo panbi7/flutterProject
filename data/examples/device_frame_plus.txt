@@ -1,0 +1,129 @@
+import 'package:device_frame_plus&#47;device_frame_plus.dart';
+import 'package:flutter&#47;material.dart';
+
+Future main() async {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State {
+  bool isDark = true;
+  bool isFrameVisible = true;
+  bool isKeyboard = false;
+  bool isEnabled = true;
+
+  final GlobalKey screenKey = GlobalKey();
+
+  Orientation orientation = Orientation.portrait;
+
+  Widget _frame(DeviceInfo device) => Center(
+        child: DeviceFrame(
+          device: device,
+          isFrameVisible: isFrameVisible,
+          orientation: orientation,
+          screen: Container(
+            color: Colors.blue,
+            child: VirtualKeyboard(
+              isEnabled: isKeyboard,
+              child: FakeScreen(key: screenKey),
+            ),
+          ),
+        ),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return DeviceFrameTheme(
+      style: DeviceFrameStyle.dark(),
+      child: MaterialApp(
+        title: 'Device Frames',
+        theme: ThemeData(
+          primarySwatch: Colors.purple,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        debugShowCheckedModeBanner: false,
+        home: DefaultTabController(
+          length: Devices.all.length,
+          child: Scaffold(
+            backgroundColor: isDark ? Colors.white : Colors.black,
+            appBar: AppBar(
+              title: const Text('Device Frames'),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isFrameVisible = !isFrameVisible;
+                    });
+                  },
+                  icon: const Icon(Icons.settings_brightness),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isDark = !isDark;
+                    });
+                  },
+                  icon: const Icon(Icons.brightness_medium),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(
+                      () {
+                        orientation =
+                            orientation == Orientation.landscape ? Orientation.portrait : Orientation.landscape;
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.rotate_90_degrees_ccw),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(
+                      () {
+                        isKeyboard = !isKeyboard;
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.keyboard),
+                ),
+                &#47;*IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isEnabled = !isEnabled;
+                    });
+                  },
+                  icon: Icon(Icons.check),
+                ),*&#47;
+              ],
+              bottom: TabBar(
+                isScrollable: true,
+                tabs: [
+                  ...Devices.all.map(
+                    (x) => Tab(
+                      text: '${x.identifier.type} ${x.name}',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Builder(
+                  builder: (context) => !isEnabled
+                      ? FakeScreen(key: screenKey)
+                      : AnimatedBuilder(
+                          animation: DefaultTabController.of(context),
+                          builder: (context, _) => _frame(
+                            Devices.all[DefaultTabController.of(context).index],
+                          ),
+                        ),
+                ),
+      
+// ... (truncated)

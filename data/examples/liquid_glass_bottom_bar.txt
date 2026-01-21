@@ -1,0 +1,140 @@
+import 'package:flutter&#47;material.dart';
+import 'package:liquid_glass_bottom_bar&#47;liquid_glass_bottom_bar.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Liquid Glass Bottom Bar Example',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+      home: const DemoScreen(),
+    );
+  }
+}
+
+class DemoScreen extends StatefulWidget {
+  const DemoScreen({super.key});
+
+  @override
+  State createState() => _DemoScreenState();
+}
+
+class _DemoScreenState extends State {
+  int _currentIndex = 0;
+  bool _showLabels = true;
+
+  &#47;&#47; Función para cambiar el estado, que pasaremos a las páginas hijas
+  void _toggleLabels() {
+    setState(() {
+      _showLabels = !_showLabels;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; Definimos las páginas aquí para que puedan acceder a la función _toggleLabels
+    &#47;&#47; y al estado _showLabels.
+    final List pages = [
+      _DemoPage(
+        title: 'Library',
+        icon: Icons.photo_library_outlined,
+        showLabels: _showLabels,
+        onToggleLabels: _toggleLabels,
+      ),
+      _DemoPage(
+        title: 'Collections',
+        icon: Icons.collections_bookmark_outlined,
+        showLabels: _showLabels,
+        onToggleLabels: _toggleLabels,
+      ),
+      _DemoPage(
+        title: 'Search',
+        icon: Icons.search,
+        showLabels: _showLabels,
+        onToggleLabels: _toggleLabels,
+      ),
+      _DemoPage(
+        title: 'Settings',
+        icon: Icons.settings_outlined,
+        showLabels: _showLabels,
+        onToggleLabels: _toggleLabels,
+      ),
+    ];
+
+    return Scaffold(
+      extendBody: true,
+      appBar: AppBar(
+        title: const Text('Liquid Glass Bottom Bar'),
+        backgroundColor: Colors.blueGrey[900],
+        foregroundColor: Colors.white,
+      ),
+      &#47;&#47; El FloatingActionButton ha sido eliminado de aquí
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          const _LiquidDemoBackground(),
+          DefaultTextStyle.merge(
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              shadows: [
+                Shadow(
+                    blurRadius: 8, color: Colors.black54, offset: Offset(0, 2)),
+              ],
+            ),
+            child: IndexedStack(index: _currentIndex, children: pages),
+          ),
+        ],
+      ),
+      bottomNavigationBar: LiquidGlassBottomBar(
+        items: const [
+          LiquidGlassBottomBarItem(
+            icon: Icons.photo_library_outlined,
+            activeIcon: Icons.photo_library,
+            label: 'Library',
+          ),
+          LiquidGlassBottomBarItem(
+            icon: Icons.collections_bookmark_outlined,
+            activeIcon: Icons.collections_bookmark,
+            label: 'Collections',
+          ),
+          LiquidGlassBottomBarItem(
+            icon: Icons.search,
+            label: 'Search',
+          ),
+          LiquidGlassBottomBarItem(
+            icon: Icons.settings_outlined,
+            activeIcon: Icons.settings,
+            label: 'Settings',
+            badge: 3,
+          ),
+        ],
+        currentIndex: _currentIndex,
+        onTap: (i) {
+          if (_currentIndex != i) setState(() => _currentIndex = i);
+        },
+        showLabels: _showLabels,
+        activeColor: const Color(0xFF34C3FF),
+      ),
+    );
+  }
+}
+
+class _DemoPage extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  &#47;&#47; Nuevos parámetros para recibir el estado y la función de callback
+  final bool showLabels;
+  final Void
+// ... (truncated)

@@ -1,0 +1,133 @@
+&#47;&#47; ignore_for_file: avoid_print
+
+import 'dart:io';
+import 'dart:ui';
+import 'dart:convert';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+import 'package:flutter_picker_plus&#47;flutter_picker_plus.dart';
+
+import '.&#47;picker_test.dart';
+import '.&#47;picker_data.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+final String _fontFamily = Platform.isWindows ? "Roboto" : "";
+
+const Set _kTouchLikeDeviceTypes = {
+  PointerDeviceKind.touch,
+  PointerDeviceKind.mouse,
+  PointerDeviceKind.stylus,
+  PointerDeviceKind.invertedStylus,
+  PointerDeviceKind.unknown
+};
+
+class MyAppState extends State {
+  bool dark = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          fontFamily: _fontFamily,
+          brightness: dark ? Brightness.dark : Brightness.light,
+          primaryTextTheme: TextTheme().apply(fontFamily: _fontFamily),
+        ),
+        scrollBehavior: const MaterialScrollBehavior()
+            .copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
+        localizationsDelegates: [
+          PickerLocalizationsDelegate.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [
+          const Locale('en'),
+          const Locale('ja'),
+          const Locale('zh'),
+          const Locale('ko'),
+          const Locale('it'),
+          const Locale('ar'),
+          const Locale('fr'),
+          const Locale('es'),
+          const Locale('tr'),
+          const Locale('ro'),
+          const Locale('de'),
+          const Locale('pt'),
+          const Locale('el'),
+          const Locale('hi'),
+          const Locale('bn'),
+          const Locale('ru'),
+          const Locale('ur'),
+          const Locale('id'),
+          const Locale('vi'),
+          const Locale('ja'),
+          const Locale('sl'),
+        ],
+        home: MyHomePage());
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  MyHomePageState createState() => MyHomePageState();
+}
+
+class MyHomePageState extends State {
+  final double listSpec = 4.0;
+  final GlobalKey _scaffoldKey = GlobalKey();
+  String stateText = "";
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text('Picker ${stateText.isEmpty ? "" : " - $stateText"}'),
+        automaticallyImplyLeading: false,
+        elevation: 0.0,
+        actions: [
+          IconButton(
+              onPressed: () {
+                final appState = context.findAncestorStateOfType();
+                if (appState == null) return;
+                appState.setState(() {
+                  appState.dark = !appState.dark;
+                });
+              },
+              icon: Icon(Icons.sunny_snowing)),
+          IconButton(
+              onPressed: () => Navigator.push(
+                  context, MaterialPageRoute(builder: (v) => RawPickerTest())),
+              icon: Icon(Icons.add)),
+        ],
+      ),
+      body: Builder(
+          builder: (context) => ListView(
+                padding: EdgeInsets.all(10.0),
+                children: [
+                  ListTile(
+                    title: Text('1. Picker Show'),
+                    onTap: () {
+                      showPicker(context);
+                    },
+                  ),
+                  ListTile(
+                    title: Text('2. Picker Show Modal'),
+                    onTap: () {
+                      showPickerModal(context);
+                    },
+                  ),
+
+// ... (truncated)

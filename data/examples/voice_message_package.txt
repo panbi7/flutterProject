@@ -1,0 +1,53 @@
+import 'package:flutter&#47;material.dart';
+import 'package:sizer&#47;sizer.dart';
+import 'package:voice_message_package&#47;voice_message_package.dart';
+
+void main() => runApp(const MyApp());
+
+&#47;&#47;&#47;
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) => Sizer(
+        builder: (_, __, ___) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: Scaffold(
+            backgroundColor: Colors.grey.shade200,
+            body: Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: 50.h),
+                    VoiceMessageView(
+                      controller: VoiceController(
+                        audioSrc:
+                            'https:&#47;&#47;dl.solahangs.com&#47;Music&#47;1403&#47;02&#47;H&#47;128&#47;Hiphopologist%20-%20Shakkak%20%28128%29.mp3',
+                        maxDuration: const Duration(seconds: 10),
+                        isFile: false,
+                        onComplete: () {
+                          &#47;&#47;&#47; do something on complete
+                        },
+                        onPause: () {
+                          &#47;&#47;&#47; do something on pause
+                        },
+                        onPlaying: () {
+                          &#47;&#47;&#47; do something on playing
+                        },
+                        onError: (err) {
+                          &#47;&#47;&#47; do somethin on error
+                        },
+                      ),
+                      innerPadding: 12,
+                      cornerRadius: 20,
+                    ),
+                    SizedBox(height: 80.h),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+}

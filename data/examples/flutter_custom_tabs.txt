@@ -1,0 +1,119 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_custom_tabs&#47;flutter_custom_tabs.dart';
+import 'package:flutter_custom_tabs&#47;flutter_custom_tabs_lite.dart' as lite;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final session = await warmupCustomTabs(
+    options: const CustomTabsSessionOptions(prefersDefaultBrowser: true),
+  );
+  debugPrint('Warm up session: $session');
+  runApp(MyApp(session));
+}
+
+class MyApp extends StatefulWidget {
+  final CustomTabsSession customTabsSession;
+
+  const MyApp(this.customTabsSession, {super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  SafariViewPrewarmingSession? _prewarmingSession;
+
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47; After warming up, the session might not be established immediately, so we wait for a short period.
+    final customTabsSession = widget.customTabsSession;
+    Future.delayed(const Duration(seconds: 1), () async {
+      _prewarmingSession = await mayLaunchUrl(
+        Uri.parse('https:&#47;&#47;flutter.dev'),
+        customTabsSession: customTabsSession,
+      );
+      debugPrint('Prewarming connection: $_prewarmingSession');
+    });
+  }
+
+  @override
+  void dispose() {
+    final session = _prewarmingSession;
+    if (session != null) {
+      Future(() async {
+        await invalidateSession(session);
+      });
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Custom Tabs Example',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.blue,
+        brightness: Brightness.light,
+      ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.blue,
+        brightness: Brightness.dark,
+      ),
+      themeMode: ThemeMode.system,
+      home: Builder(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Flutter Custom Tabs Example'),
+          ),
+          body: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            children: [
+              FilledButton(
+                onPressed: () => _launchUrl(context),
+                child: Text(
+                  Platform.isAndroid
+                      ? 'Show flutter.dev (Chrome)'
+                      : 'Show flutter.dev',
+                ),
+              ),
+              if (Platform.isAndroid)
+                FilledButton(
+                  onPressed: () => _launchUrlInDefaultBrowserOnAndroid(context),
+                  child:
+                      const Text('Show flutter.dev (prefer default browser)'),
+                ),
+              FilledButton(
+                onPressed: () => _launchUrlLite(context),
+                child: const Text('Show flutter.dev (lite ver)'),
+              ),
+              FilledButton(
+                onPressed: () => _launchDeepLinkUrl(context),
+                child: const Text('Deep link to platform maps'),
+              ),
+              FilledButton(
+                onPressed: () => _launchUrlInSheetView(context),
+                child: const Text('Show flutter.dev in sheet view'),
+              ),
+              FilledButton(
+                onPressed: () => _launchUrlWithCustomCloseButton(context),
+                child: const Text('Show flutter.dev with custom close button'),
+              ),
+              FilledButton(
+                onPressed: () => _launchUrlWithCustomAnimation(context),
+                child: const Text('Show flutter.dev with custom animation'),
+              ),
+              FilledButton(
+                onPressed: () => _launchUrlAndCloseManually(context),
+                child: const Text('Show flutter.dev + close after 5 seconds'),
+              ),
+              FilledButton(
+                onPressed: () => _launchUrlInExternalBrowser(),
+                child: const Text('Show flutter.de
+// ... (truncated)

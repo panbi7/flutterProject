@@ -1,0 +1,109 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:avatar_plus&#47;avatar_plus.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Avatar Plus example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(
+        title: 'Avatar Plus example',
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  MyHomePageState createState() => MyHomePageState();
+}
+
+class MyHomePageState extends State {
+  List randomStrings = [];
+
+  final int count = 10;
+  final int length = 10;
+
+  @override
+  void initState() {
+    randomStrings.addAll(generateRandomStrings(count, length));
+    super.initState();
+  }
+
+  List generateRandomStrings(int count, int length) {
+    const String chars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    Random random = Random();
+
+    List strings = [];
+
+    for (int i = 0; i 
+                              View(avatar: randomStrings[index])));
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Hero(
+                    tag: randomStrings[index],
+                    child: AvatarPlus(
+                      randomStrings[index],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+    );
+  }
+}
+
+class View extends StatelessWidget {
+  final String avatar;
+
+  const View({super.key, required this.avatar});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      bottomNavigationBar: const Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Avatar Plus",
+            style: TextStyle(fontSize: 40),
+          ),
+          Text("Yudiz Solutions Limited © 2024"),
+          SizedBox(
+            height: 20,
+          )
+        ],
+      ),
+      body: Center(
+        child: Hero(
+          tag: avatar,
+          child: AvatarPlus(
+            avatar,
+            height: MediaQuery.of(context).size.width - 20,
+            width: MediaQuery.of(context).size.width - 20,
+          ),
+        ),
+      ),
+    );
+  }
+}

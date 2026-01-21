@@ -1,0 +1,123 @@
+import 'dart:io';
+
+import 'package:appodeal_flutter_example&#47;banner.dart';
+import 'package:appodeal_flutter_example&#47;banner_view.dart';
+import 'package:appodeal_flutter_example&#47;consent_view.dart';
+import 'package:appodeal_flutter_example&#47;interstitial.dart';
+import 'package:appodeal_flutter_example&#47;mrec_view.dart';
+import 'package:appodeal_flutter_example&#47;rewarded_video.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:stack_appodeal_flutter&#47;stack_appodeal_flutter.dart';
+
+void main() {
+  runApp(MaterialApp(
+    home: AppodealDemoApp(),
+  ));
+}
+
+class AppodealDemoApp extends StatefulWidget {
+  @override
+  _AppodealDemoAppState createState() => _AppodealDemoAppState();
+}
+
+class _AppodealDemoAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  initialization() {
+    Appodeal.setTesting(kReleaseMode ? false : true); &#47;&#47;only not release mode
+    Appodeal.setLogLevel(Appodeal.LogLevelVerbose);
+
+    Appodeal.setAutoCache(AppodealAdType.Interstitial, false);
+    Appodeal.setAutoCache(AppodealAdType.RewardedVideo, false);
+    Appodeal.setUseSafeArea(true);
+
+    Appodeal.setAdRevenueCallbacks(onAdRevenueReceive: (adRevenue) {
+      print("onAdRevenueReceive: $adRevenue");
+    });
+
+    Appodeal.initialize(
+      appKey: exampleAppodealKey,
+      adTypes: [
+        AppodealAdType.RewardedVideo,
+        AppodealAdType.Interstitial,
+        AppodealAdType.Banner,
+        AppodealAdType.MREC
+      ],
+      onInitializationFinished: (errors) {
+        errors?.forEach((error) => print(error.description));
+        print("onInitializationFinished: errors - ${errors?.length ?? 0}");
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text('Appodeal Flutter Demo', style: TextStyle(fontSize: 20)),
+            Text('ver. ${Appodeal.getSDKVersion()}',
+                style: TextStyle(fontSize: 14)),
+          ],
+        ),
+      ),
+      body: Column(children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 4.0, right: 4.0, top: 8.0, bottom: 4.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    textStyle: const TextStyle(fontSize: 20),
+                    fixedSize: Size(300, 20)),
+                onPressed: () {
+                  initialization();
+                },
+                child: const Text('INITIALIZATION'),
+              ),
+            ),
+          ],
+        ),
+        &#47;&#47;Header
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 4.0, right: 4.0, top: 8.0, bottom: 4.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    textStyle: const TextStyle(fontSize: 20),
+                    fixedSize: Size(300, 20)),
+                onPressed: () async {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => InterstitialPage()),
+                  );
+                },
+                child: const Text('INTERSTITIAL'),
+              ),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    textStyle: const TextStyle(fontSize: 20),
+                    fixedSize: Size(300, 20)),
+                onPressed: () async {
+                 
+// ... (truncated)

@@ -1,0 +1,8 @@
+import 'package:flutter&#47;material.dart';
+import 'package:tiktok_events_sdk_example&#47;app_widget.dart';
+
+void main() {
+  runApp(
+    const AppWidget(),
+  );
+}

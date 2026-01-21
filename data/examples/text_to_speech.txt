@@ -1,0 +1,137 @@
+import 'dart:async';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:text_to_speech&#47;text_to_speech.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  final String defaultLanguage = 'en-US';
+
+  TextToSpeech tts = TextToSpeech();
+
+  String text = '';
+  double volume = 1; &#47;&#47; Range: 0-1
+  double rate = 1.0; &#47;&#47; Range: 0-2
+  double pitch = 1.0; &#47;&#47; Range: 0-2
+
+  String? language;
+  String? languageCode;
+  List languages = [];
+  List languageCodes = [];
+  String? voice;
+
+  TextEditingController textEditingController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    textEditingController.text = text;
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      initLanguages();
+    });
+  }
+
+  Future initLanguages() async {
+    &#47;&#47;&#47; populate lang code (i.e. en-US)
+    languageCodes = await tts.getLanguages();
+
+    &#47;&#47;&#47; populate displayed language (i.e. English)
+    final List? displayLanguages = await tts.getDisplayLanguages();
+    if (displayLanguages == null) {
+      return;
+    }
+
+    languages.clear();
+    for (final dynamic lang in displayLanguages) {
+      languages.add(lang as String);
+    }
+
+    final String? defaultLangCode = await tts.getDefaultLanguage();
+    if (defaultLangCode != null && languageCodes.contains(defaultLangCode)) {
+      languageCode = defaultLangCode;
+    } else {
+      languageCode = defaultLanguage;
+    }
+    language = await tts.getDisplayLanguageByCode(languageCode!);
+
+    &#47;&#47;&#47; get voice
+    voice = await getVoiceByLang(languageCode!);
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future getVoiceByLang(String lang) async {
+    final List? voices = await tts.getVoiceByLang(languageCode!);
+    if (voices != null && voices.isNotEmpty) {
+      return voices.first;
+    }
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Text-to-Speech Example'),
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Center(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: textEditingController,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Enter some text here...'),
+                    onChanged: (String newText) {
+                      setState(() {
+                        text = newText;
+                      });
+                    },
+                  ),
+                  Row(
+                    children: [
+                      const Text('Volume'),
+                      Expanded(
+                        child: Slider(
+                          value: volume,
+                          min: 0,
+                          max: 1,
+                          label: volume.round().toString(),
+                          onChanged: (double value) {
+                            initLanguages();
+                            setState(() {
+                              volume = value;
+                            });
+                          },
+                        ),
+                      ),
+                      Text('(${volume.toStringAsFixed(2)})'),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Text('Rate'),
+                      Expanded(
+                        child: Slider(
+                          value: rate,
+                          min: 0,
+                          max: 2,
+                          label: rate.round().toString(),
+                    
+// ... (truncated)

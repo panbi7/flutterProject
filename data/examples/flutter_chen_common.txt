@@ -1,0 +1,125 @@
+import 'dart:io';
+
+import 'package:dio&#47;dio.dart';
+import 'package:example&#47;network&#47;network_interceptor.dart';
+import 'package:example&#47;pages&#47;component&#47;component.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_chen_common&#47;flutter_chen_common.dart';
+import 'package:flutter_chen_refresh&#47;flutter_chen_refresh.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+import 'package:get&#47;get.dart';
+import 'package:logger&#47;logger.dart';
+import 'package:module_base&#47;module_base.dart';
+import 'package:module_base&#47;widgets&#47;base&#47;com_container.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+final navigatorKey = GlobalKey();
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SpUtil.init();
+  Directory dir = await getApplicationDocumentsDirectory();
+  await Log.init(
+    LogConfig(
+      retentionDays: 3,
+      enableFileLog: true,
+      logLevel: LogLevel.all,
+      recordLevel: LogLevel.info,
+      output: const [],
+      printer: PrettyPrinter(dateTimeFormat: DateTimeFormat.dateAndTime),
+      logDirectory: kIsWeb ? null : Directory('${dir.path}&#47;logs'),
+    ),
+  );
+  HttpClient.init(
+    config: HttpConfig(
+      baseUrl: Env.config.baseUrl,
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+      sendTimeout: const Duration(seconds: 30),
+      commonHeaders: () => {"Authorization": SpUtil.getString('token')},
+      interceptors: [NetworkInterceptor()],
+      enableLog: true,
+      enableToken: true,
+      enableRetry: true,
+      maxRetries: 3,
+      retriesDelay: const Duration(seconds: 1),
+      getToken: () => SpUtil.getString("token"),
+      onRefreshToken: () async {
+        return "new_token";
+      },
+      onRefreshTokenFailed: () async {
+        Log.d("重新登录");
+      },
+    ),
+  );
+
+  await ComDebugManager.instance.init(
+      dio: HttpClient.instance.dio,
+      comDebugConfig: ComDebugConfig(
+        enabled: Env.env != EnvEnum.prod,
+        maxLogCount: 100, &#47;&#47; 最大日志缓存数量
+        sanitize: (log) {
+          &#47;&#47; 敏感数据脱敏示例
+          if (log.request?.headers.containsKey('Authorization') ?? false) {
+            log.request?.headers['Authorization'] = '***';
+          }
+          return log;
+        },
+      ));
+
+  &#47;&#47; 全局context服务初始化
+  ComContext.init(navigatorKey);
+  ComToast.init(
+    config: const ComToastConfig(
+      duration: Duration(seconds: 2),
+      position: ComToastPosition.center,
+    ),
+    builder: ComToastWidgetBuilder(
+      success: const ComToastConfig(
+        iconWidget:
+            Icon(Icons.check_circle, color: Color(0xFF10B981), size: 20),
+      ),
+      error: const ComToastConfig(
+        iconWidget: Icon(Icons.cancel, color: Color(0xFFEF4444), size: 20),
+      ),
+      warning: const ComToastConfig(
+        iconWidget:
+            Icon(Icons.priority_high, color: Color(0xFFF59E0B), size: 20),
+      ),
+      info: const ComToastConfig(
+        iconWidget:
+            Icon(Icons.info_outline, color: Color(0xFF3B82F6), size: 20),
+      ),
+      loading: ComToastConfig(
+        builder: (ctx) => const ComContainer(
+          width: 120,
+          child: ComLoading(),
+        ),
+        clickThrough: false,
+        duration: Duration.zero,
+      ),
+    ),
+  );
+
+  Log.d("debug message");
+  Log.i("info message");
+  Log.w("warning message");
+  Log.e("error message");
+  Log.console("console message 可完整打印不被截断并且无前缀");
+  HttpClient.instance.request("https:&#47;&#47;gutendex.com&#47;books",
+      data: {"xx": "xx"}, options: Options(extra: {'custom': true}));
+  Get.config(enableLog: false);
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ComConfiguration(
+      config: ComConfig.defaults(),
+      child: RefreshConfiguration(
+        hideFooterWhenNotFull: fa
+// ... (truncated)

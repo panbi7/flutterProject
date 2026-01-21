@@ -1,0 +1,55 @@
+import 'package:flutter&#47;material.dart';
+import 'package:yx_scope&#47;yx_scope.dart';
+import 'package:yx_scope_flutter&#47;yx_scope_flutter.dart';
+
+import 'di&#47;app&#47;app_scope.dart';
+import 'utils&#47;logger.dart';
+
+Future main() async {
+  ScopeObservatory.logger = const Logger();
+  runApp(const App());
+}
+
+class App extends StatefulWidget {
+  const App({super.key});
+
+  @override
+  State createState() => _AppState();
+}
+
+class _AppState extends State {
+  final _appScopeHolder = AppScopeHolder();
+
+  @override
+  void initState() {
+    super.initState();
+    _appScopeHolder.create();
+  }
+
+  @override
+  void dispose() {
+    _appScopeHolder.drop();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScopeProvider(
+      holder: _appScopeHolder,
+      child: ScopeBuilder.withPlaceholder(
+        builder: (context, appScope) {
+          return MaterialApp.router(
+            title: 'YxScopedFlutter Demo',
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+            ),
+            routerDelegate: appScope.routerDelegateDep.get,
+          );
+        },
+
+        &#47;&#47; Shows this widget while [appScopeHolder] is loading
+        placeholder: const Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
+}

@@ -1,0 +1,123 @@
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_week_view&#47;flutter_week_view.dart';
+import 'package:url_launcher&#47;url_launcher.dart' as launcher;
+
+&#47;&#47;&#47; First plugin test method.
+void main() => runApp(_FlutterWeekViewDemoApp());
+
+&#47;&#47;&#47; The demo material app.
+class _FlutterWeekViewDemoApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Flutter Week View Demo',
+        initialRoute: '&#47;',
+        routes: {
+          '&#47;': (context) => inScaffold(body: _FlutterWeekViewDemoAppBody()),
+          '&#47;day-view': (context) => inScaffold(
+                title: 'Demo day view',
+                body: _DemoDayView(),
+              ),
+          '&#47;week-view': (context) => inScaffold(
+                title: 'Demo week view',
+                body: _DemoWeekView(),
+              ),
+          '&#47;dynamic-day-view': (context) => _DynamicDayView(),
+        },
+      );
+
+  static Widget inScaffold({
+    String title = 'Flutter Week View',
+    required Widget body,
+  }) =>
+      Scaffold(
+        appBar: AppBar(
+          title: Text(title),
+        ),
+        body: body,
+      );
+}
+
+&#47;&#47;&#47; The demo app body widget.
+class _FlutterWeekViewDemoAppBody extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    String github = 'https:&#47;&#47;github.com&#47;Skyost&#47;FlutterWeekView';
+    return Padding(
+      padding: const EdgeInsets.all(30),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 40),
+              child: Text(
+                'Flutter Week View demo',
+                style: Theme.of(context).textTheme.headlineMedium,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            ElevatedButton(
+              child: const Text('Demo day view'),
+              onPressed: () => Navigator.pushNamed(context, '&#47;day-view'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              child: const Text('Demo week view'),
+              onPressed: () => Navigator.pushNamed(context, '&#47;week-view'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              child: const Text('Demo dynamic day view'),
+              onPressed: () => Navigator.pushNamed(context, '&#47;dynamic-day-view'),
+            ),
+            const Expanded(
+              child: SizedBox.expand(),
+            ),
+            GestureDetector(
+              onTap: () async {
+                Uri uri = Uri.parse(github);
+                if (await launcher.canLaunchUrl(uri)) {
+                  await launcher.launchUrl(uri);
+                }
+              },
+              child: Text(
+                github,
+                style: TextStyle(
+                  decoration: TextDecoration.underline,
+                  color: Colors.blue[800],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47; The demo day view widget.
+class _DemoDayView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    DateTime now = DateTime.now();
+    DateTime date = DateTime(now.year, now.month, now.day);
+    return DayView(
+      initialTime: const TimeOfDay(hour: 7, minute: 0),
+      date: now,
+      events: [
+        FlutterWeekViewEvent(
+          title: 'An event 1',
+          description: 'A description 1',
+          start: date.subtract(const Duration(hours: 1)),
+          end: date.add(const Duration(hours: 18, minutes: 30)),
+        ),
+        FlutterWeekViewEvent(
+          title: 'An event 2',
+          description: 'A description 2',
+          start: date.add(const Duration(hours: 19)),
+          en
+// ... (truncated)

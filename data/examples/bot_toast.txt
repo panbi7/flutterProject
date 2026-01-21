@@ -1,0 +1,117 @@
+import 'package:bot_toast&#47;bot_toast.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'all.dart';
+import 'attached_toast&#47;attached_toast.dart';
+import 'custom&#47;custom_animation.dart';
+import 'custom&#47;custom_widget.dart';
+import 'loading&#47;custom_loading.dart';
+import 'loading&#47;loading.dart';
+import 'notification&#47;custom_notification.dart';
+import 'notification&#47;simple_notification.dart';
+import 'notification&#47;notification.dart' as notification;
+import 'text&#47;custom_text.dart';
+import 'text&#47;text.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+          elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          primary: Colors.grey[300],
+          onPrimary: Colors.black,
+        ),
+      )),
+      builder: BotToastInit(),
+      title: 'BotToast Demo',
+      navigatorObservers: [BotToastNavigatorObserver()],
+      home: EnterPage(),
+    );
+  }
+}
+
+class EnterPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text("BotToast"),
+          centerTitle: true,
+        ),
+        body: Align(
+          alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+            child: Container(
+              margin: const EdgeInsets.only(top: 30),
+              child: Column(children: [
+                const Text(
+                  "Notification",
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                ),
+                const Divider(),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 10),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => SimpleNotification()));
+                          },
+                          child: const Text("SimpleNotification"),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 10),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        notification.Notification()));
+                          },
+                          child: const Text("Notification"),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => CustomNotification()));
+                    },
+                    child: const Text("CustomNotification"),
+                  ),
+                ),
+                Container(
+                  height: 40,
+                ),
+                const Text(
+                  "TextToast",
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                ),
+                const Divider(),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+        
+// ... (truncated)

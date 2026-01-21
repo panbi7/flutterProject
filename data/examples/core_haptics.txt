@@ -1,0 +1,144 @@
+import 'package:flutter&#47;cupertino.dart';
+
+import 'package:core_haptics&#47;core_haptics.dart';
+
+void main() => runApp(const _App());
+
+class _App extends StatefulWidget {
+  const _App();
+
+  @override
+  State createState() => _AppState();
+}
+
+class _AppState extends State {
+  HapticEngine? _engine;
+  HapticPattern? _assetPattern;
+  HapticPattern? _eventsPattern;
+  HapticPattern? _inlinePattern;
+  HapticPlayer? _continuousPlayer;
+  double _eventsPatternDurationSec = 0;
+  String _status = 'Idle';
+  String? _lastEvent;
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future _init() async {
+    setState(() => _status = 'Starting engine...');
+    try {
+      final engine = await HapticEngine.create(
+        onEvent: (event, msg) {
+          setState(() {
+            _lastEvent = '${event.name}${msg != null ? ': $msg' : ''}';
+          });
+        },
+      );
+      await engine.start();
+      _engine = engine;
+
+      _assetPattern = await engine.loadPatternFromAsset(
+        'assets&#47;patterns&#47;transient.ahap',
+      );
+
+      final events = [
+        const HapticEvent(
+          type: HapticEventType.transient,
+          time: Duration.zero,
+          duration: Duration(seconds: 1),
+          intensity: 0.1,
+          sharpness: 0.4,
+        ),
+        const HapticEvent(
+          type: HapticEventType.transient,
+          time: Duration(seconds: 3),
+          intensity: 0.5,
+          sharpness: 0.4,
+        ),
+        const HapticEvent(
+          type: HapticEventType.continuous,
+          time: Duration(seconds: 10),
+          duration: Duration(seconds: 3),
+          intensity: 0.7,
+          sharpness: 0.3,
+        ),
+      ];
+      _eventsPatternDurationSec = _computeDurationSeconds(events);
+      _eventsPattern = await engine.loadPatternFromEvents(events);
+
+      _inlinePattern = await engine.loadPatternFromAhap(_inlineAhap);
+      _continuousPlayer = await engine.createPlayer(_eventsPattern!);
+      setState(() => _status = 'Ready');
+    } catch (e) {
+      setState(() => _status = 'Failed: $e');
+    }
+  }
+
+  double _computeDurationSeconds(List events) {
+    double maxTime = 0;
+    for (final e in events) {
+      final start = e.time.inMicroseconds &#47; 1e6;
+      final end = start + (e.duration?.inMicroseconds ?? 0) &#47; 1e6;
+      if (end > maxTime) maxTime = end;
+    }
+    return maxTime;
+  }
+
+  Future _playOnce(
+    HapticPattern? pattern,
+    String label, {
+    double expectedSeconds = 1,
+  }) async {
+    if (_busy || _engine == null || pattern == null) return;
+    setState(() => _busy = true);
+    try {
+      final player = await _engine!.createPlayer(pattern);
+      await player.play();
+      if (expectedSeconds > 0) {
+        final waitMs = (expectedSeconds * 1000).round() + 200;
+        await Future.delayed(Duration(milliseconds: waitMs));
+      }
+      await player.dispose();
+      setState(() => _status = label);
+    } finally {
+      setState(() => _busy = false);
+    }
+  }
+
+  Future _playContinuous() async {
+    if (_busy || _continuousPlayer == null) return;
+    setState(() => _busy = true);
+    try {
+      await _continuousPlayer!.play();
+      setState(() => _status = 'Continuous playing');
+    } finally {
+      setState(() => _busy = false);
+    }
+  }
+
+  Future _stopContinuous() async {
+    if (_continuousPlayer == null) return;
+    await _continuousPlayer!.stop();
+    setState(() => _status = 'Continuous stopped');
+  }
+
+  Future _setIntensity() async {
+    if (_engine == null || _busy) return;
+    setState(() => _busy = true);
+    try {
+      &#47;&#47; Build a new pattern with boosted intensity (0.9) baked in.
+      final boostedPattern = await _engine!.loadPatternFromEvents([
+        HapticEvent(
+          type: HapticEventType.continuous,
+          duration: const Duration(seconds: 3),
+          intensity: 0.9,
+          sharpness: 0.5,
+        ),
+      ]);
+      final player = await _engine!.createPlayer(boostedPattern);
+      await player.play
+// ... (truncated)

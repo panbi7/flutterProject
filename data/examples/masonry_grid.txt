@@ -1,0 +1,3 @@
+dependencies:
+  // ... the rest of your dependencies
+  masonry_grid: [version]

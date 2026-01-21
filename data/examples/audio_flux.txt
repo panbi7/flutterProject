@@ -1,0 +1,89 @@
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:developer' as dev;
+
+import 'package:audio_flux&#47;audio_flux.dart';
+import 'package:flutter&#47;foundation.dart' show kDebugMode;
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_soloud&#47;flutter_soloud.dart';
+import 'package:logging&#47;logging.dart';
+
+&#47;&#47;&#47; Please see at `main_extended.dart` for a more in depth example.
+void main() {
+  Logger.root.level = kDebugMode ? Level.FINE : Level.INFO;
+  Logger.root.onRecord.listen((record) {
+    dev.log(
+      record.message,
+      time: record.time,
+      level: record.level.value,
+      name: record.loggerName,
+      zone: record.zone,
+      error: record.error,
+      stackTrace: record.stackTrace,
+    );
+  });
+
+  runApp(const MainApp());
+}
+
+class MainApp extends StatefulWidget {
+  const MainApp({super.key});
+
+  @override
+  State createState() => _MainAppState();
+}
+
+class _MainAppState extends State {
+  final soloud = SoLoud.instance;
+
+  @override
+  void initState() {
+    super.initState();
+
+    initSoLoud('assets&#47;audio&#47;ElectroNebulae.mp3');
+  }
+
+  @override
+  void dispose() {
+    soloud.deinit();
+    super.dispose();
+  }
+
+  Future initSoLoud(String audioAsset) async {
+    try {
+      await soloud.init(bufferSize: 1024, channels: Channels.mono);
+      soloud.setVisualizationEnabled(true);
+
+      await soloud.play(
+        await soloud.loadAsset(
+          audioAsset,
+          mode: LoadMode.disk,
+        ),
+        looping: true,
+      );
+    } on Exception catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: AudioFlux(
+          fluxType: FluxType.shader,
+          dataSource: DataSources.soloud,
+          modelParams: ModelParams(
+            shaderParams: ShaderParams(
+              shaderPath: 'assets&#47;shaders&#47;texture.frag',
+              textureChannels: [
+                TextureChannel(assetsTexturePath: 'assets&#47;dash.png'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

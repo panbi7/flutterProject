@@ -1,0 +1,135 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;rendering.dart';
+import 'package:flutter_styled_toast&#47;flutter_styled_toast.dart';
+
+import 'blur_transition.dart';
+import 'custom_toast_content_widget.dart';
+
+void main() {
+  debugPaintSizeEnabled = false;
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() {
+    return _MyAppState();
+  }
+}
+
+class _MyAppState extends State {
+  bool showPerformance = false;
+
+  onSettingCallback() {
+    setState(() {
+      showPerformance = !showPerformance;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const appTitle = 'Styled Toast Example';
+    return MaterialApp(
+      title: appTitle,
+      showPerformanceOverlay: showPerformance,
+      home: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return MyHomePage(
+            title: appTitle,
+            onSetting: onSettingCallback,
+          );
+        },
+      ),
+      builder: (BuildContext context, Widget? child) {
+        final isDarkMode =
+            MediaQuery.of(context).platformBrightness == Brightness.dark;
+
+        return StyledToast(
+          textStyle: TextStyle(
+              fontSize: 16.0, color: isDarkMode ? Colors.black : Colors.white),
+          backgroundColor:
+              isDarkMode ? const Color(0xCCFFFFFF) : const Color(0x99000000),
+          borderRadius: BorderRadius.circular(5.0),
+          textPadding:
+              const EdgeInsets.symmetric(horizontal: 17.0, vertical: 10.0),
+          toastAnimation: StyledToastAnimation.size,
+          reverseAnimation: StyledToastAnimation.size,
+          startOffset: const Offset(0.0, -1.0),
+          reverseEndOffset: const Offset(0.0, -1.0),
+          duration: const Duration(seconds: 4),
+          animDuration: const Duration(seconds: 1),
+          alignment: Alignment.center,
+          toastPositions: StyledToastPosition.center,
+          curve: Curves.fastOutSlowIn,
+          reverseCurve: Curves.fastOutSlowIn,
+          dismissOtherOnShow: true,
+          fullWidth: false,
+          isHideKeyboard: false,
+          isIgnoring: true,
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
+    );
+  }
+}
+
+&#47;&#47; The StatefulWidget's job is to take in some data and create a State class.
+&#47;&#47; In this case, the Widget takes a title, and creates a MyHomePageState.
+class MyHomePage extends StatefulWidget {
+  final String? title;
+
+  final VoidCallback? onSetting;
+
+  const MyHomePage({Key? key, this.title, this.onSetting}) : super(key: key);
+
+  @override
+  MyHomePageState createState() => MyHomePageState();
+}
+
+&#47;&#47; The State class is responsible for two things: holding some data you can
+&#47;&#47; update and building the UI using that data.
+class MyHomePageState extends State
+    with TickerProviderStateMixin {
+  &#47;&#47; Whether the green box should be visible or invisible
+
+  String dismissRemind = '';
+
+  TextEditingController controller = TextEditingController();
+
+  late AnimationController mController;
+
+  late AnimationController mReverseController;
+
+  @override
+  void initState() {
+    super.initState();
+    mController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200));
+    mReverseController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title ?? ''),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              widget.onSetting?.call();
+            },
+          )
+        ],
+      ),
+      body: Center(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
+          children: [
+            TextField(
+              controller: TextEditingController(),
+       
+// ... (truncated)

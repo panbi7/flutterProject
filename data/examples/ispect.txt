@@ -1,0 +1,124 @@
+import 'dart:developer';
+
+import 'package:flutter&#47;material.dart';
+import 'package:ispect&#47;ispect.dart';
+import 'package:open_filex&#47;open_filex.dart';
+import 'package:share_plus&#47;share_plus.dart';
+
+class SentryISpectObserver implements ISpectObserver {
+  @override
+  void onError(ISpectLogData err) {
+    log('SentryISpectObserver - onError: ${err.message}');
+  }
+
+  @override
+  void onException(ISpectLogData err) {
+    log('SentryISpectObserver - onException: ${err.message}');
+  }
+
+  @override
+  void onLog(ISpectLogData data) {
+    log('SentryISpectObserver - onLog: ${data.message}');
+  }
+}
+
+class BackendISpectObserver implements ISpectObserver {
+  @override
+  void onError(ISpectLogData err) {
+    log('BackendISpectObserver - onError: ${err.message}');
+  }
+
+  @override
+  void onException(ISpectLogData err) {
+    log('BackendISpectObserver - onException: ${err.message}');
+  }
+
+  @override
+  void onLog(ISpectLogData data) {
+    log('BackendISpectObserver - onLog: ${data.message}');
+  }
+}
+
+final observer = ISpectNavigatorObserver();
+
+void main() {
+  &#47;&#47; Example: Restore settings from storage (e.g., SharedPreferences)
+  &#47;&#47; final prefs = await SharedPreferences.getInstance();
+  &#47;&#47; final settingsJson = prefs.getString('ispect_settings');
+  &#47;&#47; final initialSettings = settingsJson != null
+  &#47;&#47;     ? ISpectSettingsState.fromJson(jsonDecode(settingsJson))
+  &#47;&#47;     : null;
+
+  final logger = ISpectFlutter.init(
+    options: ISpectLoggerOptions(
+      customColors: {
+        'error': AnsiPen()..yellow(),
+        'exception': AnsiPen()..yellow(),
+        'info': AnsiPen()..blue(),
+      },
+    ),
+  );
+
+  logger.addObserver(SentryISpectObserver());
+  logger.addObserver(BackendISpectObserver());
+
+  &#47;&#47; Wrap your app with ISpect
+  ISpect.run(logger: logger, () => runApp(const MyApp()));
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      localizationsDelegates: ISpectLocalizations.delegates(delegates: [
+        &#47;&#47; Add your localization delegates here
+      ]),
+      theme: ThemeData(
+        dividerColor: Colors.grey.shade300,
+      ),
+      darkTheme: ThemeData(
+        dividerColor: Colors.grey.shade800,
+      ),
+      navigatorObservers: [observer],
+      builder: (context, child) => ISpectBuilder(
+        options: ISpectOptions(
+          observer: observer,
+
+          &#47;&#47; This parameter is needed if you want the user to be able to manage settings
+          &#47;&#47; Example: Restore initial settings from storage
+          &#47;&#47; initialSettings: initialSettings,
+          initialSettings: const ISpectSettingsState(
+            disabledLogTypes: {
+              'riverpod-add',
+              'riverpod-update',
+              'riverpod-dispose',
+              'riverpod-fail',
+            },
+            enabled: true,
+            useConsoleLogs: true,
+            useHistory: true,
+          ),
+          locale: const Locale('en'),
+
+          onSettingsChanged: (settings) {
+            &#47;&#47; Persist settings when they change
+            ISpect.logger.print('ISpect settings changed: $settings');
+            &#47;&#47; Example: Save to SharedPreferences
+            &#47;&#47; final prefs = await SharedPreferences.getInstance();
+            &#47;&#47; await prefs.setString('ispect_settings', jsonEncode(settings.toJson()));
+          },
+          onLoadLogContent: (context) async {
+            &#47;&#47; Here you can load log content.
+            &#47;&#47; For example, from a file using file_picker.
+            return 'Loaded log content from callback';
+          },
+          onOpenFile: (path) async {
+            &#47;&#47; Here you can handle opening the file.
+            &#47;&#47; For example, using open_filex package.
+            await OpenFilex.open(path);
+          },
+          onShare: (ISpectShareRequest request) async {
+            &#47;&#47; Here you c
+// ... (truncated)

@@ -1,0 +1,113 @@
+import 'dart:io';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+import 'package:flutter_dynamic_icon_plus&#47;flutter_dynamic_icon_plus.dart';
+
+void main() => runApp(const MaterialApp(home: MyApp()));
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State {
+  int batchIconNumber = 0;
+
+  String currentIconName = "?";
+
+  bool loading = false;
+  bool showAlert = true;
+
+  TextEditingController controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (Platform.isIOS) {
+      FlutterDynamicIconPlus.applicationIconBadgeNumber.then((v) {
+        setState(() {
+          batchIconNumber = v;
+        });
+      });
+    }
+
+    FlutterDynamicIconPlus.alternateIconName.then((v) {
+      setState(() {
+        currentIconName = v ?? "default";
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    GlobalKey scaffoldKey = GlobalKey();
+    return Scaffold(
+      key: scaffoldKey,
+      appBar: AppBar(
+        title: const Text('Dynamic App Icon Plus'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 28),
+        child: ListView(
+          children: [
+            Visibility(
+              visible: Platform.isIOS,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "Current batch number: $batchIconNumber",
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+              ),
+            ),
+            Visibility(
+              visible: Platform.isIOS,
+              child: TextField(
+                controller: controller,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp("\\d+")),
+                ],
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: "Set Batch Icon Number",
+                  suffixIcon: loading
+                      ? const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: CircularProgressIndicator(
+                              &#47;&#47; strokeWidth: 2,
+                              ),
+                        )
+                      : IconButton(
+                          icon: const Icon(Icons.send),
+                          onPressed: () async {
+                            if (Platform.isIOS) {
+                              setState(() {
+                                loading = true;
+                              });
+                              try {
+                                await FlutterDynamicIconPlus
+                                    .setApplicationIconBadgeNumber(
+                                        int.parse(controller.text));
+                                batchIconNumber = await FlutterDynamicIconPlus
+                                    .applicationIconBadgeNumber;
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(const SnackBar(
+                                    duration: Duration(seconds: 3),
+                                    content: Text(
+                                        "Successfully changed batch number"),
+                                  ));
+                                }
+                              } on PlatformException {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar();
+                                  ScaffoldMessenger
+// ... (truncated)

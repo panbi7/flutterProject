@@ -1,0 +1,148 @@
+import 'package:flutter&#47;material.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+import 'package:saf&#47;saf.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'SAF File Explorer',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const FileExplorerPage(),
+    );
+  }
+}
+
+class FileExplorerPage extends StatefulWidget {
+  const FileExplorerPage({super.key});
+
+  @override
+  State createState() => _FileExplorerPageState();
+}
+
+class _FileExplorerPageState extends State {
+  List _filePaths = [];
+  String? _selectedFolderPath;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _requestStoragePermission();
+  }
+
+  Future _requestStoragePermission() async {
+    await Permission.storage.request();
+  }
+
+  Future _selectFolderAndGetFiles() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _filePaths.clear();
+    });
+
+    try {
+      &#47;&#47; Use SAF to get dynamic directory permission (user chooses folder)
+      bool? isGranted = await Saf.getDynamicDirectoryPermission();
+
+      if (isGranted == true) {
+        &#47;&#47; Get the list of persisted permission directories
+        List? directories =
+            await Saf.getPersistedPermissionDirectories();
+
+        if (directories != null && directories.isNotEmpty) {
+          &#47;&#47; Use the most recently granted directory
+          String selectedDirectory = directories.last;
+
+          setState(() {
+            _selectedFolderPath = selectedDirectory;
+          });
+
+          &#47;&#47; Get all files recursively from the selected directory
+          print("DEBUG: Calling Saf.getFilesPathFor with directory: $selectedDirectory");
+          List? filePaths = await Saf.getFilesPathFor(
+            selectedDirectory,
+            fileType: "any", &#47;&#47; Get all file types
+          );
+
+          print("DEBUG: Received filePaths: $filePaths");
+          print("DEBUG: FilePaths length: ${filePaths?.length ?? 0}");
+
+          if (filePaths != null) {
+            setState(() {
+              _filePaths = filePaths;
+              _isLoading = false;
+            });
+            print("DEBUG: Updated UI with ${filePaths.length} files");
+          } else {
+            setState(() {
+              _errorMessage = "No files found in the selected directory";
+              _isLoading = false;
+            });
+            print("DEBUG: No files found, showing error message");
+          }
+        } else {
+          setState(() {
+            _errorMessage = "No directory permissions found";
+            _isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          _errorMessage = "Permission denied or folder selection cancelled";
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Error: ${e.toString()}";
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future _clearPermissions() async {
+    await Saf.releasePersistedPermissions();
+    setState(() {
+      _filePaths.clear();
+      _selectedFolderPath = null;
+      _errorMessage = null;
+    });
+  }
+
+  Widget _buildFileItem(String filePath) {
+    String fileName = filePath.split('&#47;').last;
+    String fileExtension = fileName.contains('.')
+        ? fileName.split('.').last.toLowerCase()
+        : '';
+
+    IconData iconData;
+    Color iconColor;
+
+    &#47;&#47; Choose icon based on file extension
+    switch (fileExtension) {
+      case 'mp3':
+      case 'wav':
+      case 'flac':
+      case 'm4a':
+        iconData = Icons.audiotrack;
+        iconColor = Colors.blue;
+        break;
+      case 'mp4':
+      case 'avi':
+      case 'mkv':
+      case 'mov':
+        iconData = Icons.video_file;
+        
+// ... (truncated)

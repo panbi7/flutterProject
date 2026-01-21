@@ -1,0 +1,141 @@
+import 'package:easy_audience_network&#47;easy_audience_network.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() => runApp(AdExampleApp());
+
+class AdExampleApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Audience Network Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        buttonTheme: ButtonThemeData(
+          textTheme: ButtonTextTheme.primary,
+          buttonColor: Colors.blue,
+        ),
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Audience Network Example',
+          ),
+        ),
+        body: AdsPage(),
+      ),
+    );
+  }
+}
+
+class AdsPage extends StatefulWidget {
+  final String idfa;
+
+  const AdsPage({Key? key, this.idfa = ''}) : super(key: key);
+
+  @override
+  AdsPageState createState() => AdsPageState();
+}
+
+class AdsPageState extends State {
+  bool _isInterstitialAdLoaded = false;
+  bool _isRewardedAdLoaded = false;
+  InterstitialAd? _interstitialAd;
+  RewardedAd? _rewardedAd;
+
+  &#47;&#47;&#47; All widget ads are stored in this variable. When a button is pressed, its
+  &#47;&#47;&#47; respective ad widget is set to this variable and the view is rebuilt using
+  &#47;&#47;&#47; setState().
+  Widget _currentAd = SizedBox(
+    width: 0.0,
+    height: 0.0,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47; testingId is useful when you want to test if your implementation works in production
+    &#47;&#47; without getting real ads, I believe it does not work properly on iOS,
+    &#47;&#47; if you want to get your testingId, don't set any testingId and don't set testMode
+    EasyAudienceNetwork.init(
+      &#47;&#47; testingId: "b602d594afd2b0b327e07a06f36ca6a7e42546d0",
+      testMode: true,
+    ).then((_) {
+      _loadInterstitialAd();
+      _loadRewardedVideoAd();
+    });
+  }
+
+  void _loadInterstitialAd() {
+    final interstitialAd = InterstitialAd(InterstitialAd.testPlacementId);
+    interstitialAd.listener = InterstitialAdListener(
+      onLoaded: () {
+        _isInterstitialAdLoaded = true;
+        print('interstitial ad loaded');
+      },
+      onError: (code, message) {
+        print('interstitial ad error\ncode = $code\nmessage = $message');
+      },
+      onDismissed: () {
+        &#47;&#47; load next ad already
+        interstitialAd.destroy();
+        _isInterstitialAdLoaded = false;
+        _loadInterstitialAd();
+      },
+    );
+    interstitialAd.load();
+    _interstitialAd = interstitialAd;
+  }
+
+  void _loadRewardedVideoAd() {
+    final rewardedAd = RewardedAd(RewardedAd.testPlacementId);
+    rewardedAd.listener = RewardedAdListener(
+      onLoaded: () {
+        _isRewardedAdLoaded = true;
+        print('rewarded ad loaded');
+      },
+      onError: (code, message) {
+        print('rewarded ad error\ncode = $code\nmessage = $message');
+      },
+      onVideoClosed: () {
+        &#47;&#47; load next ad already
+        rewardedAd.destroy();
+        _isRewardedAdLoaded = false;
+        _loadRewardedVideoAd();
+      },
+    );
+    rewardedAd.load();
+    _rewardedAd = rewardedAd;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Flexible(
+          child: Align(
+            alignment: Alignment(0, -1.0),
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: _getAllButtons(),
+            ),
+          ),
+          fit: FlexFit.tight,
+          flex: 2,
+        ),
+        &#47;&#47; Column(children: [
+        &#47;&#47;   _nativeAd(),
+        &#47;&#47;   &#47;&#47; _nativeBannerAd(),
+        &#47;&#47;   _nativeAd(),
+        &#47;&#47; ],),
+        Flexible(
+          child: Align(
+            alignment: Alignment(0, 1.0),
+            child: _currentAd,
+          ),
+          fit: FlexFit.tight,
+          
+// ... (truncated)

@@ -1,0 +1,126 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+import 'package:math_keyboard&#47;math_keyboard.dart';
+
+void main() {
+  runApp(const ExampleApp());
+}
+
+&#47;&#47;&#47; Example app demonstrating how to use the `math_keyboard` package.
+class ExampleApp extends StatelessWidget {
+  &#47;&#47;&#47; Creates an [ExampleApp] widget.
+  const ExampleApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Math Keyboard Demo',
+      supportedLocales: const [
+        Locale('en', 'US'),
+        &#47;&#47; Providing another supported locale ("de_DE" in this case) allows
+        &#47;&#47; switching the locale on the emulator (for example) and then seeing
+        &#47;&#47; a different decimal separator. Only locales that are declared in the
+        &#47;&#47; supportedLocales will be returned by Localizations.localeOf.
+        &#47;&#47; So if you want to prevent commas as decimal separators, you should
+        &#47;&#47; not provide supported locales that use commas as decimal separators.
+        Locale('de', 'DE'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+      ],
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const DemoPage(),
+    );
+  }
+}
+
+&#47;&#47;&#47; Widget for a page demonstrating how to use the `math_keyboard` package.
+class DemoPage extends StatefulWidget {
+  &#47;&#47;&#47; Creates a [DemoPage] widget.
+  const DemoPage({Key? key}) : super(key: key);
+
+  @override
+  _DemoPageState createState() => _DemoPageState();
+}
+
+class _DemoPageState extends State {
+  var _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget child;
+    if (_currentIndex == 0) {
+      child = const _MathFieldTextFieldExample();
+    } else if (_currentIndex == 1) {
+      child = const Center(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Text(
+            'The math keyboard should be automatically dismissed when '
+            'switching to this page.',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    } else {
+      child = const _ClearableAutofocusExample();
+    }
+
+    return MathKeyboardViewInsets(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Math keyboard demo'),
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: child,
+            ),
+            &#47;&#47; We insert the bottom navigation bar here instead of the
+            &#47;&#47; bottomNavigationBar parameter in order to make it stick on
+            &#47;&#47; top of the keyboard.
+            BottomNavigationBar(
+              currentIndex: _currentIndex,
+              onTap: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              items: const [
+                BottomNavigationBarItem(
+                  label: 'Fields',
+                  icon: Icon(Icons.text_fields_outlined),
+                ),
+                BottomNavigationBarItem(
+                  label: 'Empty',
+                  icon: Icon(Icons.hourglass_empty_outlined),
+                ),
+                BottomNavigationBarItem(
+                  label: 'Autofocus',
+                  icon: Icon(Icons.auto_awesome),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+&#47;&#47;&#47; Widget that displays an example column with different math fields and a text
+&#47;&#47;&#47; field for comparison.
+class _MathFieldTextFieldExample extends StatelessWidget {
+  &#47;&#47;&#47; Constructs a [_MathFieldTextFieldExample] widget.
+  const _MathFieldTextFieldExample({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: ListView(
+        children: [
+          const Padding(
+            padding
+// ... (truncated)

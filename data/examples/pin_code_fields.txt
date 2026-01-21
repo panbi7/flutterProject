@@ -1,0 +1,138 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:pin_code_fields&#47;pin_code_fields.dart';
+
+import '.&#47;constants&#47;constants.dart';
+
+void main() => runApp(MyApp());
+
+&#47;&#47; ignore: use_key_in_widget_constructors
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.blue,
+          backgroundColor: Colors.white,
+        ),
+      ),
+      home: const PinCodeVerificationScreen(
+        phoneNumber: "+8801376221100", &#47;&#47; a random number, please don't call xD
+      ),
+    );
+  }
+}
+
+class PinCodeVerificationScreen extends StatefulWidget {
+  const PinCodeVerificationScreen({
+    Key? key,
+    this.phoneNumber,
+  }) : super(key: key);
+
+  final String? phoneNumber;
+
+  @override
+  State createState() =>
+      _PinCodeVerificationScreenState();
+}
+
+class _PinCodeVerificationScreenState extends State {
+  TextEditingController textEditingController = TextEditingController();
+  &#47;&#47; ..text = "123456";
+
+  &#47;&#47; ignore: close_sinks
+  StreamController? errorController;
+
+  bool hasError = false;
+  String currentText = "";
+  final formKey = GlobalKey();
+
+  @override
+  void initState() {
+    errorController = StreamController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    errorController!.close();
+
+    super.dispose();
+  }
+
+  &#47;&#47; snackBar Widget
+  snackBar(String? message) {
+    return ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message!),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Constants.primaryColor,
+      body: GestureDetector(
+        onTap: () {},
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: ListView(
+            children: [
+              const SizedBox(height: 30),
+              SizedBox(
+                height: MediaQuery.of(context).size.height &#47; 3,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: Image.asset(Constants.otpGifImage),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  'Phone Number Verification',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30.0, vertical: 8),
+                child: RichText(
+                  text: TextSpan(
+                    text: "Enter the code sent to ",
+                    children: [
+                      TextSpan(
+                        text: "${widget.phoneNumber}",
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 15,
+                    ),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Form(
+                key: formKey,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8.
+// ... (truncated)

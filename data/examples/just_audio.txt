@@ -1,0 +1,105 @@
+&#47;&#47; This is a minimal example demonstrating a play&#47;pause button and a seek bar.
+&#47;&#47; More advanced examples demonstrating other features can be found in the same
+&#47;&#47; directory as this example in the GitHub repository.
+
+import 'media_kit_stub.dart' if (dart.library.io) 'media_kit_impl.dart';
+import 'package:audio_session&#47;audio_session.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:just_audio&#47;just_audio.dart';
+import 'package:just_audio_example&#47;common.dart';
+import 'package:rxdart&#47;rxdart.dart';
+
+void main() {
+  initMediaKit(); &#47;&#47; Initialise just_audio_media_kit for Linux&#47;Windows.
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State with WidgetsBindingObserver {
+  final _player = AudioPlayer();
+
+  @override
+  void initState() {
+    super.initState();
+    ambiguate(WidgetsBinding.instance)!.addObserver(this);
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.black,
+    ));
+    _init();
+  }
+
+  Future _init() async {
+    &#47;&#47; Inform the operating system of our app's audio attributes etc.
+    &#47;&#47; We pick a reasonable default for an app that plays speech.
+    final session = await AudioSession.instance;
+    await session.configure(const AudioSessionConfiguration.speech());
+    &#47;&#47; Listen to errors during playback.
+    _player.errorStream.listen((e) {
+      print('A stream error occurred: $e');
+    });
+    &#47;&#47; Try to load audio from a source and catch any errors.
+    try {
+      &#47;&#47; AAC example: https:&#47;&#47;dl.espressif.com&#47;dl&#47;audio&#47;ff-16b-2c-44100hz.aac
+      await _player.setAudioSource(AudioSource.uri(Uri.parse(
+          "https:&#47;&#47;s3.amazonaws.com&#47;scifri-episodes&#47;scifri20181123-episode.mp3")));
+    } on PlayerException catch (e) {
+      print("Error loading audio source: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    ambiguate(WidgetsBinding.instance)!.removeObserver(this);
+    &#47;&#47; Release decoders and buffers back to the operating system making them
+    &#47;&#47; available for other apps to use.
+    _player.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      &#47;&#47; Release the player's resources when not in use. We use "stop" so that
+      &#47;&#47; if the app resumes later, it will still remember what position to
+      &#47;&#47; resume from.
+      _player.stop();
+    }
+  }
+
+  &#47;&#47;&#47; Collects the data useful for displaying in a seek bar, using a handy
+  &#47;&#47;&#47; feature of rx_dart to combine the 3 streams of interest into one.
+  Stream get _positionDataStream =>
+      Rx.combineLatest3(
+          _player.positionStream,
+          _player.bufferedPositionStream,
+          _player.durationStream,
+          (position, bufferedPosition, duration) => PositionData(
+              position, bufferedPosition, duration ?? Duration.zero));
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              &#47;&#47; Display play&#47;pause button and volume&#47;speed sliders.
+              ControlButtons(_player),
+              &#47;&#47; Display seek bar. Using StreamBuilder, this widget rebuilds
+              &#47;&#47; each time the position, buffered position or duration changes.
+              StreamBuilder(
+                stream: _positionDataStream,
+                builder: (context, snapshot) {
+                  final positionData = snapshot.data;
+      
+// ... (truncated)

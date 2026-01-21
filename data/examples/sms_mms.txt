@@ -1,0 +1,112 @@
+import 'package:file_picker&#47;file_picker.dart';
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+import 'package:flutter&#47;services.dart';
+import 'package:fluttertoast&#47;fluttertoast.dart';
+import 'package:sms_mms&#47;sms_mms.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  TextEditingController recipientController = TextEditingController();
+  TextEditingController messageController = TextEditingController();
+  TextEditingController filePathController = TextEditingController();
+
+  List recipientsList = [];
+
+  String? filePath;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('SMS&#47;MMS Example'),
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Flutter MMS helps in sending multimedia message using native message sender on ios&#47;android',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              if (recipientsList.isNotEmpty)
+                SizedBox(
+                  height: 50,
+                  child: ListView.separated(
+                    itemCount: recipientsList.length,
+                    scrollDirection: Axis.horizontal,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    itemBuilder: (_, index) {
+                      return recipientTile(recipientsList[index], index);
+                    },
+                    separatorBuilder: (_, index) {
+                      return const SizedBox(
+                        width: 16,
+                      );
+                    },
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: recipientController,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: 'Enter recipient numbers here',
+                        label: const Text('Recipient'),
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            if (recipientController.text.isEmpty) return;
+                            recipientsList.add(recipientController.text);
+                            recipientController.text = "";
+                            setState(() {});
+                          },
+                          icon: const Icon(Icons.add),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      controller: messageController,
+                      keyboardType: TextInputType.text,
+                      decoration: const InputDecoration(
+                        hintText: 'Enter your message here',
+                        label: Text('Message'),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      controller: filePathController,
+// ... (truncated)

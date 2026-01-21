@@ -1,0 +1,30 @@
+import 'package:cloudinary_flutter&#47;image&#47;cld_image.dart';
+import 'package:cloudinary_flutter&#47;cloudinary_object.dart';
+import 'package:flutter&#47;material.dart';
+
+late CloudinaryObject cloudinary;
+
+void main() {
+  cloudinary = CloudinaryObject.fromCloudName(cloudName: '');
+  runApp(App());
+}
+
+class App extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: SizedBox(
+            width: 200,
+            height: 140,
+            child: CldImageWidget(
+              cloudinary: cloudinary,
+              publicId: "dog",
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

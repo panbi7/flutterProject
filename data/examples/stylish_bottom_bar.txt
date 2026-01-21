@@ -1,0 +1,128 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:stylish_bottom_bar&#47;stylish_bottom_bar.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Stylish Bottom Navigation Bar Example',
+      theme: ThemeData(
+        &#47;&#47; useMaterial3: true,
+        primarySwatch: Colors.green,
+      ),
+      &#47;&#47; home: const BubbelBarExample(),
+      home: const AnimatedBarExample(),
+    );
+  }
+}
+
+class AnimatedBarExample extends StatefulWidget {
+  const AnimatedBarExample({super.key});
+
+  @override
+  State createState() => _AnimatedBarExampleState();
+}
+
+class _AnimatedBarExampleState extends State {
+  int selected = 0;
+  bool heart = false;
+  final controller = PageController();
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBody: true, &#47;&#47;to make floating action button notch transparent
+
+      &#47;&#47;to avoid the floating action button overlapping behavior,
+      &#47;&#47; when a soft keyboard is displayed
+      &#47;&#47; resizeToAvoidBottomInset: false,
+
+      bottomNavigationBar: StylishBottomBar(
+        option: AnimatedBarOptions(
+          &#47;&#47; iconSize: 32,
+          &#47;&#47; barAnimation: BarAnimation.liquid,
+          iconStyle: IconStyle.animated,
+
+          &#47;&#47; opacity: 0.3,
+        ),
+        &#47;&#47; option: DotBarOptions(
+        &#47;&#47;   dotStyle: DotStyle.tile,
+        &#47;&#47;   gradient: const LinearGradient(
+        &#47;&#47;     colors: [
+        &#47;&#47;       Colors.deepPurple,
+        &#47;&#47;       Colors.pink,
+        &#47;&#47;     ],
+        &#47;&#47;     begin: Alignment.topLeft,
+        &#47;&#47;     end: Alignment.bottomRight,
+        &#47;&#47;   ),
+        &#47;&#47; ),
+        items: [
+          BottomBarItem(
+            icon: const Icon(Icons.house_outlined),
+            selectedIcon: const Icon(Icons.house_rounded),
+            selectedColor: Colors.red,
+            unSelectedColor: Colors.grey,
+            title: const Text('Home'),
+            badge: const Text('9+'),
+            showBadge: true,
+            badgeColor: Colors.purple,
+            badgePadding: const EdgeInsets.only(left: 4, right: 4),
+          ),
+          BottomBarItem(
+            icon: const Icon(Icons.star_border_rounded),
+            selectedIcon: const Icon(Icons.star_rounded),
+            selectedColor: Colors.red,
+            &#47;&#47; unSelectedColor: Colors.purple,
+            &#47;&#47; backgroundColor: Colors.orange,
+            title: const Text('Star'),
+          ),
+          &#47;&#47; BottomBarItem(
+          &#47;&#47;     icon: const Icon(
+          &#47;&#47;       Icons.style_outlined,
+          &#47;&#47;     ),
+          &#47;&#47;     selectedIcon: const Icon(
+          &#47;&#47;       Icons.style,
+          &#47;&#47;     ),
+          &#47;&#47;     selectedColor: Colors.deepOrangeAccent,
+          &#47;&#47;     title: const Text('Style')),
+          BottomBarItem(
+              icon: const Icon(
+                Icons.person_outline,
+              ),
+              selectedIcon: const Icon(
+                Icons.person,
+              ),
+              selectedColor: Colors.deepPurple,
+              title: const Text('Profile')),
+        ],
+        hasNotch: true,
+        fabLocation: StylishBarFabLocation.center,
+        currentIndex: selected,
+        notchStyle: NotchStyle.square,
+        onTap: (index) {
+          if (index == selected) return;
+          controller.jumpToPage(index);
+          setState(() {
+            selected = index;
+          });
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            heart = !heart;
+
+// ... (truncated)

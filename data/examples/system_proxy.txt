@@ -1,0 +1,62 @@
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+import 'package:system_proxy&#47;system_proxy.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  String _proxyStr = 'loading';
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    String proxyStr;
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    try {
+      Map proxy = await SystemProxy.getProxySettings();
+      if (proxy != null) {
+        proxyStr = '${proxy["host"]}:${proxy["port"]}';
+      }
+      else {
+        proxyStr = 'no proxy';
+      }
+    } on PlatformException {
+      proxyStr = 'Failed to get system proxy.';
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _proxyStr = proxyStr;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('SystemProxy Plugin example app'),
+        ),
+        body: Center(
+          child: Text('proxy setting on: $_proxyStr\n'),
+        ),
+      ),
+    );
+  }
+}

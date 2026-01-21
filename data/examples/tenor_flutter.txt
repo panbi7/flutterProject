@@ -1,0 +1,113 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_config&#47;flutter_config.dart';
+import 'package:tenor_flutter&#47;tenor_flutter.dart';
+import 'package:tenor_flutter_example&#47;examples&#47;dark_theme.dart';
+import 'package:tenor_flutter_example&#47;examples&#47;localization.dart';
+
+void main() async {
+  &#47;&#47; only used to load api key from .env file, not required
+  WidgetsFlutterBinding.ensureInitialized();
+  await FlutterConfig.loadEnvVariables();
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Tenor Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  &#47;&#47; replace apiKey with an api key provided by Tenor > https:&#47;&#47;developers.google.com&#47;tenor&#47;guides&#47;quickstart
+  var tenor = Tenor(apiKey: FlutterConfig.get('TENOR_API_KEY'));
+  &#47;&#47; define a result that we can display later
+  TenorResult? selectedResult;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Tenor Flutter Demo'),
+      ),
+      body: _exampleBody(),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          &#47;&#47; A default implementation of tenor flutter. Displays the gif picker
+          &#47;&#47; as a bottom sheet and then updates the selectedResult in state.
+          FloatingActionButton(
+            onPressed: () async {
+              final result = await tenor.showAsBottomSheet(context: context);
+              setState(() {
+                selectedResult = result;
+              });
+            },
+            tooltip: 'Default',
+            child: const Icon(Icons.add),
+          ),
+        ],
+      ),
+    );
+  }
+
+  &#47;&#47; Additional examples, see: https:&#47;&#47;github.com&#47;Flyclops&#47;tenor_flutter&#47;tree&#47;main&#47;example&#47;lib&#47;examples
+  Widget _exampleBody() {
+    final selectedGif = selectedResult?.media.tinyGif ??
+        selectedResult?.media.tinyGifTransparent;
+    return Center(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Align(
+            alignment: Alignment.topCenter,
+            child: Column(
+              children: [
+                const SizedBox(height: 8),
+                const Text('Additional Examples'),
+                const SizedBox(height: 8),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  children: [
+                    &#47;&#47; https:&#47;&#47;github.com&#47;Flyclops&#47;tenor_flutter&#47;tree&#47;main&#47;example&#47;lib&#47;examples&#47;dark_theme.dart
+                    ElevatedButton(
+                      onPressed: () => push(const DarkTheme()),
+                      child: const Text('Dark Theme'),
+                    ),
+                    &#47;&#47; https:&#47;&#47;github.com&#47;Flyclops&#47;tenor_flutter&#47;tree&#47;main&#47;example&#47;lib&#47;examples&#47;localization.dart
+                    ElevatedButton(
+                      onPressed: () => push(const Localization()),
+                      child: const Text('Localization'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              selectedResult != null && selectedGif != null
+                  ? Image.network(
+                      selectedGif.url,
+                      width: selectedGif.dimensions.width,
+                     
+// ... (truncated)

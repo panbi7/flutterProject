@@ -1,0 +1,132 @@
+import 'package:connectivity_watcher&#47;connectivity_watcher.dart';
+import 'package:connectivity_watcher&#47;core&#47;manager&#47;socket_internet_checker.dart';
+import 'package:dio&#47;dio.dart';
+
+import 'package:example&#47;no_internet.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  ZoConnectivityWatcher().setUp(
+      internetChecker:
+          StealthInternetChecker(heartbeatUrl: "https:&#47;&#47;www.google.com&#47;"));
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  MyApp({super.key});
+
+  final GlobalKey navigatorKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return ZoConnectivityWrapper(
+      &#47;&#47;&#47; connectivityStyle: NoConnectivityStyle.CUSTOM,
+      navigationKey: navigatorKey,
+      connectivityStyle: NoConnectivityStyle.CUSTOM,
+      customAlert: AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.wifi_off,
+              color: Colors.redAccent,
+            ),
+            SizedBox(width: 8.0),
+            Text(
+              'No Internet Connection',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Text(
+          'It looks like you are not connected to the internet. Please check your connection and try again.',
+          style: TextStyle(fontSize: 16.0),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('CANCEL', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () {},
+            child: Text('RETRY'),
+          ),
+        ],
+      ),
+
+      offlineWidget: CustomNoInternetWrapper(
+        builder: (context) {
+          return CustomNoInternet();
+        },
+      ),
+      &#47;&#47; Place your custom no internet Widget
+      builder: (context, connectionKey) {
+        return MaterialApp(
+            navigatorKey: navigatorKey,
+            debugShowCheckedModeBanner: false,
+            title: 'Connectivity_Watcher',
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+            ),
+            home: LoginDemo());
+      },
+    );
+  }
+}
+
+class LoginDemo extends StatefulWidget {
+  @override
+  _LoginDemoState createState() => _LoginDemoState();
+}
+
+class _LoginDemoState extends State {
+  @override
+  void initState() {
+    &#47;&#47; TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text("Login Page"),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 200,
+            ),
+            Padding(
+              &#47;&#47;padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: TextField(
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Email',
+                    hintText: 'Enter valid email id as abc@gmail.com'),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 15.0, right: 15.0, top: 15, bottom: 0),
+              child: TextField(
+                obscureText: true,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Password',
+                    hintText: 'Enter secure password'),
+              ),
+            ),
+            MaterialButton(
+              onPressed: () async {},
+              child: Text(
+                'Forgot Password',
+                style: TextStyle(color: Colors.blue, fontSize: 15),
+  
+// ... (truncated)

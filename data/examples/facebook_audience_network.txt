@@ -1,0 +1,129 @@
+import 'package:flutter&#47;material.dart';
+import 'package:facebook_audience_network&#47;facebook_audience_network.dart';
+
+void main() => runApp(AdExampleApp());
+
+class AdExampleApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'FB Audience Network Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        buttonTheme: ButtonThemeData(
+          textTheme: ButtonTextTheme.primary,
+          buttonColor: Colors.blue,
+        ),
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            "FB Audience Network Example",
+          ),
+        ),
+        body: AdsPage(),
+      ),
+    );
+  }
+}
+
+class AdsPage extends StatefulWidget {
+  final String idfa;
+
+  const AdsPage({Key? key, this.idfa = ''}) : super(key: key);
+
+  @override
+  AdsPageState createState() => AdsPageState();
+}
+
+class AdsPageState extends State {
+  bool _isInterstitialAdLoaded = false;
+  bool _isRewardedAdLoaded = false;
+
+  &#47;&#47;&#47; All widget ads are stored in this variable. When a button is pressed, its
+  &#47;&#47;&#47; respective ad widget is set to this variable and the view is rebuilt using
+  &#47;&#47;&#47; setState().
+  Widget _currentAd = SizedBox(
+    width: 0.0,
+    height: 0.0,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+
+    &#47;&#47;&#47; please add your own device testingId
+    &#47;&#47;&#47; (testingId will print in console if you don't provide  )
+    FacebookAudienceNetwork.init(
+      testingId: "a77955ee-3304-4635-be65-81029b0f5201",
+      iOSAdvertiserTrackingEnabled: true,
+    );
+
+    _loadInterstitialAd();
+    _loadRewardedVideoAd();
+  }
+
+  void _loadInterstitialAd() {
+    FacebookInterstitialAd.loadInterstitialAd(
+      &#47;&#47; placementId: "YOUR_PLACEMENT_ID",
+      placementId: "IMG_16_9_APP_INSTALL#2312433698835503_2650502525028617",
+      listener: (result, value) {
+        print(">> FAN > Interstitial Ad: $result --> $value");
+        if (result == InterstitialAdResult.LOADED)
+          _isInterstitialAdLoaded = true;
+
+        &#47;&#47;&#47; Once an Interstitial Ad has been dismissed and becomes invalidated,
+        &#47;&#47;&#47; load a fresh Ad by calling this function.
+        if (result == InterstitialAdResult.DISMISSED &&
+            value["invalidated"] == true) {
+          _isInterstitialAdLoaded = false;
+          _loadInterstitialAd();
+        }
+      },
+    );
+  }
+
+  void _loadRewardedVideoAd() {
+    FacebookRewardedVideoAd.loadRewardedVideoAd(
+      placementId: "YOUR_PLACEMENT_ID",
+      listener: (result, value) {
+        print("Rewarded Ad: $result --> $value");
+        if (result == RewardedVideoAdResult.LOADED) _isRewardedAdLoaded = true;
+        if (result == RewardedVideoAdResult.VIDEO_COMPLETE)
+
+        &#47;&#47;&#47; Once a Rewarded Ad has been closed and becomes invalidated,
+        &#47;&#47;&#47; load a fresh Ad by calling this function.
+        if (result == RewardedVideoAdResult.VIDEO_CLOSED &&
+            (value == true || value["invalidated"] == true)) {
+          _isRewardedAdLoaded = false;
+          _loadRewardedVideoAd();
+        }
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Flexible(
+          child: Align(
+            alignment: Alignment(0, -1.0),
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: _getAllButtons(),
+            ),
+          ),
+          fit: FlexFit.tight,
+          flex: 2,
+        ),
+        &#47;&#47; Column(children: [
+        &#47;&#47;   _nativeAd(),
+        &#47;&#47;   &#47;&#47; _nativeBannerAd(),
+        &#47;&#47;   _nativeAd(),
+        &#47;&#47; ],),
+  
+// ... (truncated)

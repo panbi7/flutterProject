@@ -1,0 +1,111 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+import 'package:flutter_dynamic_icon&#47;flutter_dynamic_icon.dart';
+
+void main() => runApp(MaterialApp(home: MyApp()));
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  int batchIconNumber = 0;
+
+  String currentIconName = "?";
+
+  bool loading = false;
+  bool showAlert = true;
+
+  TextEditingController controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    FlutterDynamicIcon.getApplicationIconBadgeNumber().then((v) {
+      setState(() {
+        batchIconNumber = v;
+      });
+    });
+
+    FlutterDynamicIcon.getAlternateIconName().then((v) {
+      setState(() {
+        currentIconName = v ?? "`primary`";
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    GlobalKey _scaffoldKey = GlobalKey();
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: const Text('Dynamic App Icon'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 28),
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Current batch number: $batchIconNumber",
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headline4,
+              ),
+            ),
+            TextField(
+              controller: controller,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp("\\d+")),
+              ],
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: "Set Batch Icon Number",
+                suffixIcon: loading
+                    ? Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: CircularProgressIndicator(
+                            &#47;&#47; strokeWidth: 2,
+                            ),
+                      )
+                    : IconButton(
+                        icon: Icon(Icons.send),
+                        onPressed: () async {
+                          setState(() {
+                            loading = true;
+                          });
+                          try {
+                            await FlutterDynamicIcon
+                                .setApplicationIconBadgeNumber(
+                                    int.parse(controller.text));
+                            batchIconNumber = await FlutterDynamicIcon
+                                .getApplicationIconBadgeNumber();
+                            if (this.mounted) {
+                              ScaffoldMessenger.of(context)
+                                  .hideCurrentSnackBar();
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content:
+                                    Text("Successfully changed batch number"),
+                              ));
+                            }
+                          } on PlatformException {
+                            if (this.mounted) {
+                              ScaffoldMessenger.of(context)
+                                  .hideCurrentSnackBar();
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text("Failed to change batch number"),
+                              ));
+                            }
+                          } catch (e) {
+                            if (this.mounted) {
+                              ScaffoldMessenger.of(context)
+                                  .hideCurrentSnackBar();
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+             
+// ... (truncated)

@@ -1,0 +1,154 @@
+import 'dart:developer';
+
+import 'package:flutter&#47;material.dart';
+import 'dart:async';
+
+import 'package:flutter&#47;services.dart';
+import 'package:pdf_manipulator&#47;pdf_manipulator.dart';
+import 'package:pick_or_save&#47;pick_or_save.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'PDF Manipulator example',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(useMaterial3: true),
+      darkTheme: ThemeData.dark(useMaterial3: true),
+      themeMode: ThemeMode.system,
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final _pdfManipulatorPlugin = PdfManipulator();
+  final _pickOrSavePlugin = PickOrSave();
+
+  bool _isBusy = false;
+  final bool _localOnly = false;
+  final bool getCachedFilePath = false;
+  List isSelected = [true, false];
+
+  List? _pickedFilesPathsForMerge;
+  String? _mergedPDFsPath;
+
+  String? _pickedFilePathForSplit;
+  List? _splitPDFPaths;
+  int pageCount = 2;
+  int byteSize = 1000000;
+  List pageNumbers = [2, 5, 9];
+  String pageRange = "1-3,5-8";
+
+  String? _pickedFilePathForRotateDeleteReorder;
+  String? _pdfPageRotatorDeleterReorderPath;
+  List pagesRotationInfo = [
+    PageRotationInfo(pageNumber: 1, rotationAngle: 90)
+  ];
+  List pageNumbersForDeleter = [2, 4];
+  List? pageNumbersForReorder = [9, 8, 7, 6, 5, 4, 3, 2, 1, 10];
+
+  String? _pickedFilePathForCompressingPDF;
+  String? _compressedPDFPath;
+  int imageQuality = 70;
+  double imageScale = 0.5;
+
+  String? _pickedFilePathForWatermarkingPDF;
+  String? _watermarkedPDFPath;
+  String watermarkText = "My Watermark";
+
+  String? _pickedFilePathForEncryptingPDF;
+  String? _encryptedPDFPath;
+  String userPassword = "userpw";
+  bool standardEncryptionAES128 = true;
+
+  String? _pickedFilePathForDecryptingPDF;
+  String? _decryptedPDFPath;
+  String userOrOwnerPassword = "userpw";
+
+  List? _pickedFilePathsForImagesToPDF;
+  List? _imagesToPDFPath;
+  bool createSinglePdf = true;
+
+  String? _pickedFilePathForPageSizeInfoOfPDF;
+
+  String? _pickedFilePathForValidityAndProtectionInfoOfPDF;
+
+  Future _cancelTask() async {
+    String? result;
+    try {
+      result = await _pdfManipulatorPlugin.cancelManipulations();
+    } on PlatformException catch (e) {
+      log(e.toString());
+    } catch (e) {
+      log(e.toString());
+    }
+    return result;
+  }
+
+  Future?> _filePicker(FilePickerParams params) async {
+    List? result;
+    try {
+      setState(() {
+        _isBusy = true;
+      });
+      result = await _pickOrSavePlugin.filePicker(params: params);
+    } on PlatformException catch (e) {
+      log(e.toString());
+    } catch (e) {
+      log(e.toString());
+    }
+    if (!mounted) return result;
+    setState(() {
+      _isBusy = false;
+    });
+    return result;
+  }
+
+  Future?> _fileSaver(FileSaverParams params) async {
+    List? result;
+    try {
+      setState(() {
+        _isBusy = true;
+      });
+      result = await _pickOrSavePlugin.fileSaver(params: params);
+    } on PlatformException catch (e) {
+      log(e.toString());
+    } catch (e) {
+      log(e.toString());
+    }
+    if (!mounted) return result;
+    setState(() {
+      _isBusy = false;
+    });
+    return result;
+  }
+
+  Future _mergePDFs(PDFMergerParams params) async {
+    String? result;
+    try {
+      result = await _pdfManipulatorPlugin.mergePDFs(params: params);
+    } on PlatformException catch (e) {
+      log(e.toString());
+    } catch (e) {
+      log(e.toString());
+    }
+    return result;
+  }
+
+  Future?> _splitPDF(PDFSplitterParams params) async {
+    List? result;
+    try {
+      result = await _pdfManipulatorPlugin
+// ... (truncated)

@@ -1,0 +1,106 @@
+import 'package:flutter&#47;material.dart';
+import 'package:google_places_autocomplete_text_field&#47;google_places_autocomplete_text_field.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Google Places Autocomplete Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const MyHomePage(title: 'Google Places Autocomplete Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final _config = GoogleApiConfig(
+    apiKey: 'foo-bar',
+    locationRestriction: LocationConfig.circle(
+      circleCenter: const Coordinates(latitude: 52.5200, longitude: 13.4050),
+      circleRadiusInKilometers: 1000,
+    ),
+    &#47;&#47; only needed if you build for the web
+    &#47;&#47; proxyURL: 'https:&#47;&#47;your-proxy.com&#47;',
+    placeTypeRestriction: PlaceType.city,
+  );
+
+  final _textController = TextEditingController();
+  final GlobalKey _formKey = GlobalKey();
+  AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.title)),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Form(
+              key: _formKey,
+              autovalidateMode: _autovalidateMode,
+              child: GooglePlacesAutoCompleteTextFormField(
+                config: _config,
+                textEditingController: _textController,
+                decoration: const InputDecoration(
+                  hintText: 'Enter your address',
+                  labelText: 'Address',
+                  labelStyle: TextStyle(color: Colors.purple),
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter some text';
+                  }
+                  return null;
+                },
+                &#47;&#47; proxyURL: _yourProxyURL,
+                maxLines: 1,
+                overlayContainerBuilder:
+                    (child) => Material(
+                      elevation: 1.0,
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      child: child,
+                    ),
+                onPredictionWithCoordinatesReceived: (prediction) {
+                  &#47;&#47; Do something with the place details with coordinates
+                  &#47;&#47;print('placeDetails${prediction.lng}');
+                },
+                onSuggestionClicked:
+                    (Prediction prediction) =>
+                        _textController.text = prediction.description!,
+                minInputLength: 3,
+              ),
+            ),
+            const SizedBox(height: 24),
+            TextButton(onPressed: _onSubmit, child: const Text('Submit')),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future _onSubmit() async {
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _autovalidateMode = AutovalidateMode.always);
+      return;
+    }
+  }
+}

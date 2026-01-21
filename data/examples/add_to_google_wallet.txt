@@ -1,0 +1,118 @@
+import 'package:add_to_google_wallet&#47;widgets&#47;add_to_google_wallet_button.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:uuid&#47;uuid.dart';
+
+void main() => runApp(const MaterialApp(home: MyApp()));
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('Plugin example app')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AddToGoogleWalletButton(
+                pass: _examplePass,
+                onError: (Object error) => _onError(context, error),
+                onSuccess: () => _onSuccess(context),
+                onCanceled: () => _onCanceled(context),
+                &#47;&#47; Unsupported locale. Button will display English version.
+                locale: const Locale('und'),
+              ),
+              const SizedBox(height: 8.0),
+              AddToGoogleWalletButton(
+                pass: _examplePass,
+                onError: (Object error) => _onError(context, error),
+                onSuccess: () => _onSuccess(context),
+                onCanceled: () => _onCanceled(context),
+                locale: const Locale.fromSubtags(
+                  languageCode: 'fr',
+                  countryCode: 'FR',
+                ),
+              ),
+              const SizedBox(height: 8.0),
+              AddToGoogleWalletButton(
+                pass: _examplePass,
+                onError: (Object error) => _onError(context, error),
+                onSuccess: () => _onSuccess(context),
+                onCanceled: () => _onCanceled(context),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  void _onError(BuildContext context, Object error) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(error.toString()),
+        ),
+      );
+
+  void _onSuccess(BuildContext context) => ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.green,
+          content: Text('Pass has been successfully added to the Google Wallet.'),
+        ),
+      );
+
+  void _onCanceled(BuildContext context) => ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.yellow,
+          content: Text('Adding a pass has been canceled.'),
+        ),
+      );
+}
+
+final String _passId = const Uuid().v4();
+const String _passClass = 'example';
+const String _issuerId = '3333000000000000000';
+const String _issuerEmail = 'example@example.com';
+
+final String _examplePass = """
+    {
+      "iss": "$_issuerEmail",
+      "aud": "google",
+      "typ": "savetowallet",
+      "origins": [],
+      "payload": {
+        "genericObjects": [
+          {
+            "id": "$_issuerId.$_passId",
+            "classId": "$_issuerId.$_passClass",
+            "genericType": "GENERIC_TYPE_UNSPECIFIED",
+            "hexBackgroundColor": "#4285f4",
+            "logo": {
+              "sourceUri": {
+                "uri": "https:&#47;&#47;storage.googleapis.com&#47;wallet-lab-tools-codelab-artifacts-public&#47;pass_google_logo.jpg"
+              }
+            },
+            "cardTitle": {
+              "defaultValue": {
+                "language": "en",
+                "value": "Google I&#47;O '22 [DEMO ONLY]"
+              }
+            },
+            "subheader": {
+              "defaultValue": {
+                "language": "en",
+                "value": "Attendee"
+              }
+            },
+            "header": {
+              "defaultValue": {
+                "language": "en",
+                "value": "Alex McJacobs"
+              }
+            },
+            "barcode": {
+              "type": "QR_CODE",
+              "value": "$_passId"
+            },
+            "heroImage": {
+              "sourceUri": {
+                "uri": "https:&#47;&#47;storage.googleapis.com
+// ... (truncated)

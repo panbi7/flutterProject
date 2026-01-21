@@ -1,0 +1,132 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_parsed_text&#47;flutter_parsed_text.dart';
+import 'package:url_launcher&#47;url_launcher.dart' show canLaunch, launch;
+
+main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'example_app',
+      home: MainApp(),
+    );
+  }
+}
+
+class MainApp extends StatefulWidget {
+  @override
+  _MainAppState createState() => _MainAppState();
+}
+
+class _MainAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    final parse = [
+      MatchText(
+          type: ParsedType.EMAIL,
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 24,
+          ),
+          onTap: (url) {
+            launch("mailto:" + url);
+          }),
+      MatchText(
+          type: ParsedType.URL,
+          style: TextStyle(
+            color: Colors.blue,
+            fontSize: 24,
+          ),
+          onTap: (url) async {
+            var a = await canLaunch(url);
+
+            if (a) {
+              launch(url);
+            }
+          }),
+      MatchText(
+          type: ParsedType.PHONE,
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 24,
+          ),
+          onTap: (url) {
+            launch("tel:" + url);
+          }),
+      MatchText(
+        type: ParsedType.CUSTOM,
+        pattern:
+            r"^(?:http|https):\&#47;\&#47;[\w\-_]+(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)",
+        style: TextStyle(color: Colors.lime),
+        onTap: (url) => print(url),
+      ),
+      MatchText(
+          type: ParsedType.CUSTOM,
+          pattern:
+              "(---( )?(`)?spoiler(`)?( )?---)\n\n(.*?)\n( )?(---( )?(`)?spoiler(`)?( )?---)",
+          style: TextStyle(
+            color: Colors.purple,
+            fontSize: 50,
+          ),
+          onTap: (url) {
+            launch("tel:" + url);
+          }),
+      MatchText(
+        pattern: r"\[(@[^:]+):([^\]]+)\]",
+        style: TextStyle(
+          color: Colors.green,
+          fontSize: 24,
+        ),
+        renderText: ({required pattern, required str}) {
+          RegExp customRegExp = RegExp(r"\[(@[^:]+):([^\]]+)\]");
+          Match match = customRegExp.firstMatch(str)!;
+
+          print('test test: ${match[1]}');
+          &#47;&#47; return Container(
+          &#47;&#47;   padding: EdgeInsets.all(5.0),
+          &#47;&#47;   color: Colors.amber,
+          &#47;&#47;   child: Text(match[1]!),
+          &#47;&#47; );
+          &#47;&#47;
+          return {'display': match[1]!};
+        },
+        onTap: (url) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              Map map = Map();
+              RegExp customRegExp = RegExp(r"\[(@[^:]+):([^\]]+)\]");
+              Match match = customRegExp.firstMatch(url)!;
+              &#47;&#47; return object of type Dialog
+              return AlertDialog(
+                title: new Text("Mentions clicked"),
+                content: new Text("${match.group(1)!} clicked."),
+                actions: [
+                  &#47;&#47; usually buttons at the bottom of the dialog
+                  new FlatButton(
+                    child: new Text("Close"),
+                    onPressed: () {},
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        &#47;&#47; onLongTap: (url) {
+        &#47;&#47;   print('long press');
+        &#47;&#47; },
+      ),
+      MatchText(
+        pattern: r"\B#+([\w]+)\b",
+        style: TextStyle(
+          color: Colors.pink,
+          fontSize: 24,
+        ),
+        onTap: (url) async {
+          showDialog(
+  
+// ... (truncated)

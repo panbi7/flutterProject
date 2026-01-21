@@ -1,0 +1,132 @@
+&#47;&#47; Copyright 2017 The Chromium Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:async';
+import 'dart:developer' as developer;
+
+import 'package:device_info_plus&#47;device_info_plus.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+
+void main() {
+  runZonedGuarded(
+    () {
+      runApp(const MyApp());
+    },
+    (dynamic error, dynamic stack) {
+      developer.log("Something went wrong!", error: error, stackTrace: stack);
+    },
+  );
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  static final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+  Map _deviceData = {};
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  Future initPlatformState() async {
+    var deviceData = {};
+
+    try {
+      if (kIsWeb) {
+        deviceData = _readWebBrowserInfo(await deviceInfoPlugin.webBrowserInfo);
+      } else {
+        deviceData = switch (defaultTargetPlatform) {
+          TargetPlatform.android => _readAndroidBuildData(
+            await deviceInfoPlugin.androidInfo,
+          ),
+          TargetPlatform.iOS => _readIosDeviceInfo(
+            await deviceInfoPlugin.iosInfo,
+          ),
+          TargetPlatform.linux => _readLinuxDeviceInfo(
+            await deviceInfoPlugin.linuxInfo,
+          ),
+          TargetPlatform.windows => _readWindowsDeviceInfo(
+            await deviceInfoPlugin.windowsInfo,
+          ),
+          TargetPlatform.macOS => _readMacOsDeviceInfo(
+            await deviceInfoPlugin.macOsInfo,
+          ),
+          TargetPlatform.fuchsia => {
+            'Error:': 'Fuchsia platform isn\'t supported',
+          },
+        };
+      }
+    } on PlatformException {
+      deviceData = {
+        'Error:': 'Failed to get platform version.',
+      };
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _deviceData = deviceData;
+    });
+  }
+
+  Map _readAndroidBuildData(AndroidDeviceInfo build) {
+    return {
+      'version.securityPatch': build.version.securityPatch,
+      'version.sdkInt': build.version.sdkInt,
+      'version.release': build.version.release,
+      'version.previewSdkInt': build.version.previewSdkInt,
+      'version.incremental': build.version.incremental,
+      'version.codename': build.version.codename,
+      'version.baseOS': build.version.baseOS,
+      'board': build.board,
+      'bootloader': build.bootloader,
+      'brand': build.brand,
+      'device': build.device,
+      'display': build.display,
+      'fingerprint': build.fingerprint,
+      'hardware': build.hardware,
+      'host': build.host,
+      'id': build.id,
+      'manufacturer': build.manufacturer,
+      'model': build.model,
+      'product': build.product,
+      'name': build.name,
+      'supported32BitAbis': build.supported32BitAbis,
+      'supported64BitAbis': build.supported64BitAbis,
+      'supportedAbis': build.supportedAbis,
+      'tags': build.tags,
+      'type': build.type,
+      'isPhysicalDevice': build.isPhysicalDevice,
+      'freeDiskSize': build.freeDiskSize,
+      'totalDiskSize': build.totalDiskSize,
+      'systemFeatures': build.systemFeatures,
+      'isLowRamDevice': build.isLowRamDevice,
+      'physicalRamSize': build.physicalRamSize,
+      'availableRamSize': build.availableRamSize,
+    };
+  }
+
+  Map _readIosDeviceInfo(IosDeviceInfo data) {
+    return {
+      'name': data.name,
+      'systemName': data.systemName,
+      'systemVersion': data.systemVersion,
+      'model': data.model,
+      'modelName': data.modelName,
+      'localizedModel': data.localizedModel,
+      'identifierForVendor': data.identifierForVendor,
+      'isPhysicalDevice': data.isPhysicalDevice,
+      'isiOSAppOnMac': data.isiOSAppO
+// ... (truncated)

@@ -1,0 +1,107 @@
+import 'package:animated_login&#47;animated_login.dart';
+import 'package:async&#47;async.dart';
+import 'package:flutter&#47;material.dart';
+
+import 'dialog_builders.dart';
+import 'login_functions.dart';
+
+&#47;&#47;&#47; Main function.
+void main() {
+  runApp(const MyApp());
+}
+
+&#47;&#47;&#47; Example app widget.
+class MyApp extends StatelessWidget {
+  &#47;&#47;&#47; Main app widget.
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Animated Login',
+      theme: ThemeData(
+        primaryColor: Colors.blue,
+        colorScheme: const ColorScheme.light(primary: Colors.blue),
+        &#47;&#47; useMaterial3: true,
+        textTheme: Theme.of(context).textTheme.apply(
+            &#47;&#47; Note: The below line is required due to a current bug in Flutter:
+            &#47;&#47; https:&#47;&#47;github.com&#47;flutter&#47;flutter&#47;issues&#47;129553
+            decorationColor: Colors.blue),
+        inputDecorationTheme: const InputDecorationTheme(
+          prefixIconColor: Colors.black54,
+          suffixIconColor: Colors.black54,
+          iconColor: Colors.black54,
+          labelStyle: TextStyle(color: Colors.black54),
+          hintStyle: TextStyle(color: Colors.black54),
+        ),
+      ),
+      debugShowCheckedModeBanner: false,
+      initialRoute: '&#47;login',
+      routes: {
+        '&#47;login': (BuildContext context) => const LoginScreen(),
+        '&#47;forgotPass': (BuildContext context) => const ForgotPasswordScreen(),
+      },
+    );
+  }
+
+  &#47;&#47; static const Map color = {
+  &#47;&#47;   50: Color.fromRGBO(4, 131, 184, .1),
+  &#47;&#47;   100: Color.fromRGBO(4, 131, 184, .2),
+  &#47;&#47;   200: Color.fromRGBO(4, 131, 184, .3),
+  &#47;&#47;   300: Color.fromRGBO(4, 131, 184, .4),
+  &#47;&#47;   400: Color.fromRGBO(4, 131, 184, .5),
+  &#47;&#47;   500: Color.fromRGBO(4, 131, 184, .6),
+  &#47;&#47;   600: Color.fromRGBO(4, 131, 184, .7),
+  &#47;&#47;   700: Color.fromRGBO(4, 131, 184, .8),
+  &#47;&#47;   800: Color.fromRGBO(4, 131, 184, .9),
+  &#47;&#47;   900: Color.fromRGBO(4, 131, 184, 1),
+  &#47;&#47; };
+}
+
+&#47;&#47;&#47; Example login screen
+class LoginScreen extends StatefulWidget {
+  &#47;&#47;&#47; Simulates the multilanguage, you will implement your own logic.
+  &#47;&#47;&#47; According to the current language, you can display a text message
+  &#47;&#47;&#47; with the help of [LoginTexts] class.
+  const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State {
+  &#47;&#47;&#47; Example selected language, default is English.
+  LanguageOption language = _languageOptions[1];
+
+  &#47;&#47;&#47; Current auth mode, default is [AuthMode.login].
+  AuthMode currentMode = AuthMode.login;
+
+  CancelableOperation? _operation;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedLogin(
+      onLogin: (LoginData data) async =>
+          _authOperation(LoginFunctions(context).onLogin(data)),
+      onSignup: (SignUpData data) async =>
+          _authOperation(LoginFunctions(context).onSignup(data)),
+      onForgotPassword: _onForgotPassword,
+      logo: Image.asset('assets&#47;images&#47;logo.gif'),
+      &#47;&#47; backgroundImage: 'images&#47;background_image.jpg',
+      signUpMode: SignUpModes.both,
+      socialLogins: _socialLogins(context),
+      loginDesktopTheme: _desktopTheme,
+      loginMobileTheme: _mobileTheme,
+      loginTexts: _loginTexts,
+      emailValidator: ValidatorModel(
+          validatorCallback: (String? email) => 'What an email! $email'),
+      changeLanguageCallback: (LanguageOption? _language) {
+        if (_language != null) {
+          DialogBuilder(context).showResultDialog(
+              'Successfully changed the language to: ${_language.value}.');
+          if (mounted) setState(() => language = _language);
+        }
+      },
+      changeLangDefaultOnPressed: () async => _operation?.cancel(),
+      
+// ... (truncated)

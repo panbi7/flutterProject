@@ -1,0 +1,145 @@
+&#47;&#47; Copyright (c) 2022, the Dart project authors.  Please see the AUTHORS file
+&#47;&#47; for details. All rights reserved. Use of this source code is governed by a
+&#47;&#47; BSD-style license that can be found in the LICENSE file.
+
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:cupertino_http&#47;cupertino_http.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:http&#47;http.dart';
+import 'package:http&#47;io_client.dart';
+import 'package:http_image_provider&#47;http_image_provider.dart';
+import 'package:provider&#47;provider.dart';
+
+import 'book.dart';
+
+void main() {
+  final Client httpClient;
+  if (Platform.isIOS || Platform.isMacOS) {
+    final config = URLSessionConfiguration.ephemeralSessionConfiguration()
+      ..cache = URLCache.withCapacity(memoryCapacity: 2 * 1024 * 1024)
+      ..httpAdditionalHeaders = {'User-Agent': 'Book Agent'};
+    httpClient = CupertinoClient.fromSessionConfiguration(config);
+  } else {
+    httpClient = IOClient(HttpClient()..userAgent = 'Book Agent');
+  }
+
+  runApp(
+    Provider(
+      create: (_) => httpClient,
+      child: const BookSearchApp(),
+      dispose: (_, client) => client.close(),
+    ),
+  );
+}
+
+class BookSearchApp extends StatelessWidget {
+  const BookSearchApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => const MaterialApp(
+    &#47;&#47; Remove the debug banner.
+    debugShowCheckedModeBanner: false,
+    title: 'Book Search',
+    home: HomePage(),
+  );
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  List? _books;
+  String? _lastQuery;
+  late Client _client;
+
+  @override
+  void initState() {
+    super.initState();
+    _client = context.read();
+  }
+
+  &#47;&#47; Get the list of books matching `query`.
+  &#47;&#47; The `get` call will automatically use the `client` configured in `main`.
+  Future> _findMatchingBooks(String query) async {
+    final response = await _client.get(
+      Uri.https('www.googleapis.com', '&#47;books&#47;v1&#47;volumes', {
+        'q': query,
+        'maxResults': '20',
+        'printType': 'books',
+      }),
+    );
+
+    final json = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+    return Book.listFromJson(json);
+  }
+
+  void _runSearch(String query) async {
+    _lastQuery = query;
+    if (query.isEmpty) {
+      setState(() {
+        _books = null;
+      });
+      return;
+    }
+
+    final books = await _findMatchingBooks(query);
+    &#47;&#47; Avoid the situation where a slow-running query finishes late and
+    &#47;&#47; replaces newer search results.
+    if (query != _lastQuery) return;
+    setState(() {
+      _books = books;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final searchResult = _books == null
+        ? const Text('Please enter a query', style: TextStyle(fontSize: 24))
+        : _books!.isNotEmpty
+        ? BookList(_books!)
+        : const Text('No results found', style: TextStyle(fontSize: 24));
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Book Search')),
+      body: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            TextField(
+              onChanged: _runSearch,
+              decoration: const InputDecoration(
+                labelText: 'Search',
+                suffixIcon: Icon(Icons.search),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(child: searchResult),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class BookList extends StatefulWidget {
+  final List books;
+  const BookList(this.books, {super.key});
+
+  @override
+  State createState() => _BookListState();
+}
+
+class _BookListState extends State {
+  @override
+  Widget build(BuildContext context) => ListView.builder(
+    itemCount: widget.books.length,
+    itemBuilder: (context, index) => Card(
+      key: ValueKey(widget.b
+// ... (truncated)

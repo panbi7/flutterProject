@@ -1,0 +1,126 @@
+&#47;&#47; EXAMPLE use case for TextFieldSearch Widget
+import 'package:flutter&#47;material.dart';
+import 'package:textfield_search&#47;textfield_search.dart';
+import 'dart:async';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  &#47;&#47; This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, this.title = 'My Home Page'}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  final _testList = [
+    'Test Item 1',
+    'Test Item 2',
+    'Test Item 3',
+    'Test Item 4',
+  ];
+
+  TextEditingController myController = TextEditingController();
+  TextEditingController myController2 = TextEditingController();
+  TextEditingController myController3 = TextEditingController();
+  TextEditingController myController4 = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    myController.addListener(_printLatestValue);
+    myController2.addListener(_printLatestValue);
+    myController3.addListener(_printLatestValue);
+    myController4.addListener(_printLatestValue);
+  }
+
+  _printLatestValue() {
+    print("text field: ${myController.text}");
+    print("text field: ${myController2.text}");
+    print("text field: ${myController3.text}");
+    print("text field: ${myController4.text}");
+  }
+
+  @override
+  void dispose() {
+    &#47;&#47; Clean up the controller when the widget is removed from the
+    &#47;&#47; widget tree.
+    myController.dispose();
+    myController2.dispose();
+    myController3.dispose();
+    myController4.dispose();
+    super.dispose();
+  }
+
+  &#47;&#47; mocking a future
+  Future fetchSimpleData() async {
+    print("Calling future simple data...");
+    await Future.delayed(Duration(milliseconds: 2000));
+    List _list = [];
+    &#47;&#47; create a list from the text input of three items
+    &#47;&#47; to mock a list of items from an http call
+    _list.add('Test' + ' Item 1');
+    _list.add('Test' + ' Item 2');
+    _list.add('Test' + ' Item 3');
+    return _list;
+  }
+
+  &#47;&#47; mocking a future that returns List of Objects
+  Future fetchComplexData() async {
+    print("Calling future complex data");
+    await Future.delayed(Duration(milliseconds: 1000));
+    List _list = [];
+    List _jsonList = [
+      {'label': 'Test' + ' Item 1', 'value': 30},
+      {'label': 'Test' + ' Item 2', 'value': 31},
+      {'label': 'Test' + ' Item 3', 'value': 32},
+    ];
+    &#47;&#47; create a list from the text input of three items
+    &#47;&#47; to mock a list of items from an http call where
+    &#47;&#47; the label is what is seen in the textfield and something like an
+    &#47;&#47; ID is the selected value
+    _list.add(new TestItem.fromJson(_jsonList[0]));
+    _list.add(new TestItem.fromJson(_jsonList[1]));
+    _list.add(new TestItem.fromJson(_jsonList[2]));
+    return _list;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        &#47;&#47; Here we take the value from the MyHomePage object that was created by
+        &#47;&#47; the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        &#47;&#47; Center is a layout widget. It takes a single child and positions it
+        &#47;&#47; in the middle of the parent.
+        child: Form(
+          child: ListView(
+            children: [
+              SizedBox(height: 16),
+              TextFieldSearch(
+                  label: 'Simple Future List',
+                  controller: myController2,
+                  future: () {
+                    return fetchSimpleData();
+                 
+// ... (truncated)

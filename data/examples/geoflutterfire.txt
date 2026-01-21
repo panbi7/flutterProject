@@ -1,0 +1,129 @@
+import 'package:cloud_firestore&#47;cloud_firestore.dart';
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:geoflutterfire&#47;geoflutterfire.dart';
+import 'package:google_maps_flutter&#47;google_maps_flutter.dart';
+import 'package:rxdart&#47;rxdart.dart';
+
+import 'streambuilder_test.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MaterialApp(
+    title: 'Geo Flutter Fire example',
+    home: MyApp(),
+    debugShowCheckedModeBanner: false,
+  ));
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  GoogleMapController? _mapController;
+  TextEditingController? _latitudeController, _longitudeController;
+
+  &#47;&#47; firestore init
+  final radius = BehaviorSubject.seeded(1.0);
+  final _firestore = FirebaseFirestore.instance;
+  final markers = {};
+
+  late Stream> stream;
+  late Geoflutterfire geo;
+
+  @override
+  void initState() {
+    super.initState();
+    _latitudeController = TextEditingController();
+    _longitudeController = TextEditingController();
+
+    geo = Geoflutterfire();
+    GeoFirePoint center = geo.point(latitude: 12.960632, longitude: 77.641603);
+    stream = radius.switchMap((rad) {
+      final collectionReference = _firestore.collection('locations');
+
+      return geo.collection(collectionRef: collectionReference).within(
+          center: center, radius: rad, field: 'position', strictMode: true);
+
+      &#47;*
+      ****Example to specify nested object****
+
+      var collectionReference = _firestore.collection('nestedLocations');
+&#47;&#47;          .where('name', isEqualTo: 'darshan');
+      return geo.collection(collectionRef: collectionReference).within(
+          center: center, radius: rad, field: 'address.location.position');
+
+      *&#47;
+    });
+  }
+
+  @override
+  void dispose() {
+    _latitudeController?.dispose();
+    _longitudeController?.dispose();
+    radius.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('GeoFlutterFire'),
+          actions: [
+            IconButton(
+              onPressed: _mapController == null
+                  ? null
+                  : () {
+                      _showHome();
+                    },
+              icon: Icon(Icons.home),
+            )
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+              return StreamTestWidget();
+            }));
+          },
+          child: Icon(Icons.navigate_next),
+        ),
+        body: Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Center(
+                child: Card(
+                  elevation: 4,
+                  margin: EdgeInsets.symmetric(vertical: 8),
+                  child: SizedBox(
+                    width: mediaQuery.size.width - 30,
+                    height: mediaQuery.size.height * (1 &#47; 3),
+                    child: GoogleMap(
+                      onMapCreated: _onMapCreated,
+                      initialCameraPosition: const CameraPosition(
+                        target: LatLng(12.960632, 77.641603),
+                        zoom: 15.0,
+                      ),
+                      markers: Set.of(markers.values),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Slider(
+                  min: 1,
+                  max: 200,
+                  divisions: 4,
+                  value: _value,
+                  label: _label,
+                  activeColor: Colors.blue,
+   
+// ... (truncated)

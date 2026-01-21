@@ -1,0 +1,131 @@
+import 'dart:math';
+
+import 'package:flutter&#47;material.dart';
+import 'package:liquid_swipe&#47;liquid_swipe.dart';
+
+void main() {
+  &#47;&#47;&#47; Comment or uncomment to run both examples
+  runApp(
+      WithBuilder()
+      &#47;&#47; WithPages()
+  );
+}
+
+&#47;&#47;&#47;Class to hold data for itembuilder in Withbuilder app.
+class ItemData {
+  final Color color;
+  final String image;
+  final String text1;
+  final String text2;
+  final String text3;
+
+  ItemData(this.color, this.image, this.text1, this.text2, this.text3);
+}
+
+&#47;&#47;&#47; Example of LiquidSwipe with itemBuilder
+class WithBuilder extends StatefulWidget {
+  @override
+  _WithBuilder createState() => _WithBuilder();
+}
+
+class _WithBuilder extends State {
+  int page = 0;
+  late LiquidController liquidController;
+  late UpdateType updateType;
+
+  List data = [
+    ItemData(Colors.blue, "assets&#47;1.png", "Hi", "It's Me", "Sahdeep"),
+    ItemData(Colors.deepPurpleAccent, "assets&#47;1.png", "Take a", "Look At",
+        "Liquid Swipe"),
+    ItemData(Colors.green, "assets&#47;1.png", "Liked?", "Fork!", "Give Star!"),
+    ItemData(Colors.yellow, "assets&#47;1.png", "Can be", "Used for",
+        "Onboarding design"),
+    ItemData(
+        Colors.pink, "assets&#47;1.png", "Example", "of a page", "with Gesture"),
+    ItemData(Colors.red, "assets&#47;1.png", "Do", "try it", "Thank you"),
+  ];
+
+  @override
+  void initState() {
+    liquidController = LiquidController();
+    super.initState();
+  }
+
+  Widget _buildDot(int index) {
+    double selectedness = Curves.easeOut.transform(
+      max(
+        0.0,
+        1.0 - ((page) - index).abs(),
+      ),
+    );
+    double zoom = 1.0 + (2.0 - 1.0) * selectedness;
+    return new Container(
+      width: 25.0,
+      child: new Center(
+        child: new Material(
+          color: Colors.white,
+          type: MaterialType.circle,
+          child: new Container(
+            width: 8.0 * zoom,
+            height: 8.0 * zoom,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Stack(
+          children: [
+            LiquidSwipe.builder(
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  width: double.infinity,
+                  color: data[index].color,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Image.asset(
+                        data[index].image,
+                        height: 300,
+                        fit: BoxFit.contain,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(index != 4 ? 24.0 : 0),
+                      ),
+                      index == 4
+                          ? Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 70.0),
+                              child: ExampleSlider(),
+                            )
+                          : SizedBox.shrink(),
+                      Column(
+                        children: [
+                          Text(
+                            data[index].text1,
+                            style: WithPages.style,
+                          ),
+                          Text(
+                            data[index].text2,
+                            style: WithPages.style,
+                          ),
+                          Text(
+                            data[index].text3,
+                            style: WithPages.style,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+              positionSlideIcon: 0.8,
+              slideIconW
+// ... (truncated)

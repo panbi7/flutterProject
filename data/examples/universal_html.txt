@@ -1,0 +1,19 @@
+import 'package:universal_html&#47;html.dart';
+
+void main() {
+  &#47;&#47; Create a DOM tree
+  final divElement = DivElement();
+  divElement.append(
+    Element.tag('h1')
+      ..classes.add('greeting')
+      ..appendText('Hello world!'),
+  );
+
+  &#47;&#47; Print outer HTML
+  print(divElement.outerHtml);
+  &#47;&#47; --> Hello world
+
+  &#47;&#47; Do a CSS query
+  print(divElement.querySelector('div > .greeting')!.text);
+  &#47;&#47; --> Hello world
+}

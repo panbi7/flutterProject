@@ -1,0 +1,119 @@
+&#47;&#47;Dart imports
+import 'dart:async';
+import 'dart:ui';
+
+&#47;&#47;Package imports
+import 'package:app_links&#47;app_links.dart';
+import 'package:firebase_core&#47;firebase_core.dart';
+import 'package:firebase_crashlytics&#47;firebase_crashlytics.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_foreground_task&#47;flutter_foreground_task.dart';
+import 'package:flutter_svg&#47;svg.dart';
+import 'package:hms_room_kit&#47;hms_room_kit.dart';
+import 'package:hmssdk_flutter_example&#47;app_settings_bottom_sheet.dart';
+import 'package:hmssdk_flutter_example&#47;foreground_task_handler.dart';
+import 'package:hmssdk_flutter_example&#47;qr_code_screen.dart';
+import 'package:hmssdk_flutter_example&#47;room_service.dart';
+import 'package:lottie&#47;lottie.dart';
+import 'package:provider&#47;provider.dart';
+import 'package:package_info_plus&#47;package_info_plus.dart';
+import 'package:uuid&#47;uuid.dart';
+
+bool _initialURILinkHandled = false;
+StreamSubscription? _streamSubscription;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  &#47;&#47;This sends all the fatal crashes in the application to crashlytics
+  FlutterError.onError = (errorDetails) {
+    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+  };
+
+  &#47;&#47;This sends all the errors in the application(be it in flutter or native layer) to crashlytics
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+
+  Provider.debugCheckInvalidValueType = null;
+
+  await SystemChrome.setPreferredOrientations(
+    [DeviceOrientation.portraitUp],
+  );
+  runApp(HMSExampleApp());
+}
+
+&#47;&#47;&#47;This function sets up the foreground service interaction
+@pragma('vm:entry-point')
+void startCallback() {
+  &#47;&#47; The setTaskHandler function must be called to handle the task in the background.
+  FlutterForegroundTask.setTaskHandler(ForegroundTaskHandler());
+}
+
+class HMSExampleApp extends StatefulWidget {
+  HMSExampleApp({Key? key}) : super(key: key);
+
+  @override
+  _HMSExampleAppState createState() => _HMSExampleAppState();
+  static _HMSExampleAppState of(BuildContext context) =>
+      context.findAncestorStateOfType()!;
+}
+
+class _HMSExampleAppState extends State
+    with TickerProviderStateMixin {
+  ThemeMode _themeMode = ThemeMode.dark;
+  Uri? _currentURI;
+  AppLinks? _appLinks;
+  late AnimationController _controller;
+
+  ThemeData _darkTheme = ThemeData(
+      bottomSheetTheme: BottomSheetThemeData(
+          backgroundColor: themeBottomSheetColor, elevation: 5),
+      brightness: Brightness.dark,
+      primaryColor: Color.fromARGB(255, 13, 107, 184),
+      scaffoldBackgroundColor: Colors.black);
+
+  ThemeData _lightTheme = ThemeData(
+      bottomSheetTheme: BottomSheetThemeData(
+          backgroundColor: themeDefaultColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 5),
+      primaryTextTheme:
+          TextTheme(bodyLarge: TextStyle(color: themeSurfaceColor)),
+      primaryColor: hmsdefaultColor,
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: Colors.white,
+      dividerColor: Colors.white54);
+
+  @override
+  void initState() {
+    super.initState();
+    _initURIHandler();
+    _incomingLinkHandler();
+    _controller = AnimationController(
+      duration: Duration(seconds: (5)),
+      vsync: this,
+    );
+  }
+
+  Future _initURIHandler() async {
+    if (!_initialURILinkHandled) {
+      _initialURILinkHandled = true;
+      try {
+        _appLinks = AppLinks();
+        _currentURI = await _appLinks?.getInitialLink();
+        if (_currentURI != null) {
+          if (!mounted) {
+            return;
+          }
+          setState(() {});
+        }
+      } on PlatformException {
+        debugPrint("Failed to recei
+// ... (truncated)

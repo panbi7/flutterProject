@@ -1,0 +1,127 @@
+import 'dart:io';
+import 'dart:developer' as dev;
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_recorder&#47;flutter_recorder.dart';
+import 'package:flutter_recorder_example&#47;ui&#47;bars.dart';
+import 'package:logging&#47;logging.dart';
+import 'package:open_filex&#47;open_filex.dart';
+import 'package:path_provider&#47;path_provider.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+
+&#47;&#47;&#47; Demostrate how to use flutter_recorder.
+&#47;&#47;&#47;
+&#47;&#47;&#47; The silence detection and the visualizer works when using [PCMFormat.f32].
+&#47;&#47;&#47; Writing audio stream to file is not implemented on Web.
+void main() async {
+  &#47;&#47; The `flutter_recorder` package logs everything
+  &#47;&#47; (from severe warnings to fine debug messages)
+  &#47;&#47; using the standard `package:logging`.
+  &#47;&#47; You can listen to the logs as shown below.
+  Logger.root.level = kDebugMode ? Level.FINE : Level.INFO;
+  Logger.root.onRecord.listen((record) {
+    dev.log(
+      record.message,
+      time: record.time,
+      level: record.level.value,
+      name: record.loggerName,
+      zone: record.zone,
+      error: record.error,
+      stackTrace: record.stackTrace,
+    );
+  });
+
+  runApp(
+    MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Flutter Recorder'),
+        ),
+        body: MyApp(),
+      ),
+    ),
+  );
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  Directory? savingDir;
+  final format = PCMFormat.f32le;
+  final sampleRate = 22050;
+  final channels = RecorderChannels.mono;
+  final recorder = Recorder.instance;
+  String? filePath;
+  var thresholdDb = -20.0;
+  var silenceDuration = 2.0;
+  var secondsOfAudioToWriteBefore = 0.0;
+
+  File? file;
+
+  @override
+  void initState() {
+    super.initState();
+    if (defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS) {
+      Permission.microphone.request().isGranted.then((value) async {
+        if (!value) {
+          await [Permission.microphone].request();
+        }
+      });
+    }
+
+    &#47;&#47;&#47; Listen to audio data stream. The data is received as Uint8List.
+    recorder.uint8ListStream.listen((data) {
+      &#47;&#47;&#47; Write the PCM data to file. It can then be imported with the correct
+      &#47;&#47;&#47; parameters with for example Audacity.
+      &#47;&#47;&#47; Not testing on Web platform.
+      if (!kIsWeb) {
+        file?.writeAsBytesSync(
+          &#47;&#47; If you want a conversion, call one of the `to*List` methods.
+          &#47;&#47; data.toF32List(from: format).buffer.asUint8List(),
+          data.rawData,
+          mode: FileMode.writeOnlyAppend,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            &#47;&#47;&#47; List capture devices, init, start, deinit
+            Wrap(
+              runSpacing: 6,
+              spacing: 6,
+              children: [
+                OutlinedButton(
+                  onPressed: () {
+                    showDeviceListDialog();
+                  },
+                  child: const Text('listCaptureDevices'),
+                ),
+                OutlinedButton(
+                  onPressed: () async {
+                    try {
+                      await recorder.init(
+                        format: format,
+                        sampleRate: sampleRate,
+                        channels: channels,
+                      );
+                    } on Exception catch (e) {
+                      debugPrint('-------------- init() error: $e\n');
+                    }
+                  },
+                  child: const Text('init
+// ... (truncated)

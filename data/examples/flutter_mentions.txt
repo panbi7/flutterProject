@@ -1,0 +1,109 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_mentions&#47;flutter_mentions.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      builder: (_, child) => Portal(child: child!),
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, this.title}) : super(key: key);
+
+  final String? title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  GlobalKey key = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title!),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          RaisedButton(
+            child: Text('Get Text'),
+            onPressed: () {
+              print(key.currentState!.controller!.markupText);
+            },
+          ),
+          Container(
+            child: FlutterMentions(
+              key: key,
+              suggestionPosition: SuggestionPosition.Top,
+              maxLines: 5,
+              minLines: 1,
+              decoration: InputDecoration(hintText: 'hello'),
+              mentions: [
+                Mention(
+                    trigger: '@',
+                    style: TextStyle(
+                      color: Colors.amber,
+                    ),
+                    data: [
+                      {
+                        'id': '61as61fsa',
+                        'display': 'fayeedP',
+                        'full_name': 'Fayeed Pawaskar',
+                        'photo':
+                            'https:&#47;&#47;images.pexels.com&#47;photos&#47;220453&#47;pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940'
+                      },
+                      {
+                        'id': '61asasgasgsag6a',
+                        'display': 'khaled',
+                        'full_name': 'DJ Khaled',
+                        'style': TextStyle(color: Colors.purple),
+                        'photo':
+                            'https:&#47;&#47;images.pexels.com&#47;photos&#47;220453&#47;pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940'
+                      },
+                      {
+                        'id': 'asfgasga41',
+                        'display': 'markT',
+                        'full_name': 'Mark Twain',
+                        'photo':
+                            'https:&#47;&#47;images.pexels.com&#47;photos&#47;220453&#47;pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940'
+                      },
+                      {
+                        'id': 'asfsaf451a',
+                        'display': 'JhonL',
+                        'full_name': 'Jhon Legend',
+                        'photo':
+                            'https:&#47;&#47;images.pexels.com&#47;photos&#47;220453&#47;pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940'
+                      },
+                    ],
+                    matchAll: false,
+                    suggestionBuilder: (data) {
+                      return Container(
+                        padding: EdgeInsets.all(10.0),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                data['photo'],
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                            ),
+        
+// ... (truncated)

@@ -1,0 +1,7 @@
+import 'main&#47;main_base.dart'
+    if (dart.library.html) 'main&#47;main_web.dart'
+    if (dart.library.io) 'main&#47;main_io.dart';
+
+Future main() async {
+  await runMain();
+}

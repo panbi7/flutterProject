@@ -1,0 +1,135 @@
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:flutter_geofire&#47;flutter_geofire.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  List keysRetrieved = [];
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  &#47;&#47; Platform messages are asynchronous, so we initialize in an async method.
+  Future initPlatformState() async {
+    String pathToReference = "Sites";
+
+    &#47;&#47;Intializing geoFire
+    Geofire.initialize(pathToReference);
+
+    &#47;&#47; Platform messages may fail, so we use a try&#47;catch PlatformException.
+    try {
+      Geofire.queryAtLocation(30.730743, 76.774948, 5)?.listen((map) {
+        print(map);
+        if (map != null) {
+          var callBack = map['callBack'];
+
+          &#47;&#47;latitude will be retrieved from map['latitude']
+          &#47;&#47;longitude will be retrieved from map['longitude']
+
+          switch (callBack) {
+            case Geofire.onKeyEntered:
+              keysRetrieved.add(map["key"]);
+              break;
+
+            case Geofire.onKeyExited:
+              keysRetrieved.remove(map["key"]);
+              break;
+
+            case Geofire.onKeyMoved:
+&#47;&#47;              keysRetrieved.add(map[callBack]);
+              break;
+
+            case Geofire.onGeoQueryReady:
+&#47;&#47;              map["result"].forEach((key){
+&#47;&#47;                keysRetrieved.add(key);
+&#47;&#47;              });
+
+              break;
+          }
+        }
+
+        setState(() {});
+      }).onError((error) {
+        print(error);
+      });
+    } on PlatformException {
+&#47;&#47;      response = 'Failed to get platform version.';
+    }
+
+    &#47;&#47; If the widget was removed from the tree while the asynchronous platform
+    &#47;&#47; message was in flight, we want to discard the reply rather than calling
+    &#47;&#47; setState to update our non-existent appearance.
+    if (!mounted) return;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+          appBar: AppBar(
+            title: const Text('Plugin example app'),
+          ),
+          body: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(20.0),
+              ),
+              Center(
+                child: keysRetrieved.length > 0
+                    ? Text("First key is " +
+                        keysRetrieved.first.toString() +
+                        "\nTotal Keys " +
+                        keysRetrieved.length.toString())
+                    : CircularProgressIndicator(),
+              ),
+              Padding(
+                padding: EdgeInsets.all(10.0),
+              ),
+              Center(
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                  ),
+                  onPressed: () {
+                    setLocation();
+                  },
+                  child: Text(
+                    "Set Location",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(10.0),
+              ),
+              Center(
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                  ),
+                  onPressed: () {
+                    setLocationFirst();
+                  },
+                  child: Text(
+                    "Set Location AsH28LWk8MXfwRLfVxgx",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(10.0),
+              ),
+              Center(
+      
+// ... (truncated)

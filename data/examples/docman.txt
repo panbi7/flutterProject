@@ -1,0 +1,19 @@
+import 'package:docman_example&#47;src&#47;doc_man.dart';
+import 'package:docman_example&#47;src&#47;utils&#47;app_dir.dart';
+import 'package:docman_example&#47;src&#47;utils&#47;provider_folder_initializer.dart';
+import 'package:docman_example&#47;src&#47;utils&#47;router.dart';
+import 'package:flutter&#47;material.dart';
+
+&#47;&#47;&#47; Main entry point for the DocMan example app.
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  &#47;&#47;1. Init directories
+  await AppDir().init();
+  &#47;&#47;2. Init router
+  AppRouter().init();
+  &#47;&#47;3. Init DocumentsProvider sample folder with media and documents
+  await ProviderFolderInitializer().init();
+  &#47;&#47;4. Run the app
+  runApp(const DocManExample());
+}

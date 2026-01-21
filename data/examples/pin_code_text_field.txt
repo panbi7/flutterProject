@@ -1,0 +1,141 @@
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:pin_code_text_field&#47;pin_code_text_field.dart';
+
+const String MATERIAL_SCREEN = "&#47;material_screen";
+const String CUPERTINO_SCREEN = "&#47;cupertino_screen";
+
+void main() => runApp(new SampleApp());
+
+class SampleApp extends StatelessWidget {
+  bool isMaterial = true;
+
+  MaterialPageRoute _buildRoute(RouteSettings settings, Widget builder) {
+    return new MaterialPageRoute(
+      settings: settings,
+      builder: (ctx) => builder,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+&#47;&#47;      home: MainApp(),
+&#47;&#47;      initialRoute: '&#47;',
+      routes: {
+        MATERIAL_SCREEN: (context) => MyApp(
+              isMaterial: true,
+            ),
+        CUPERTINO_SCREEN: (context) => MyApp(
+              isMaterial: false,
+            ),
+      },
+      home: MainApp(),
+    );
+  }
+}
+
+class MainApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; TODO: implement build
+    return Scaffold(
+      appBar: AppBar(),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Container(
+          child: Column(
+            children: [
+              RaisedButton(
+                child: Text("Material"),
+                onPressed: () {
+                  Navigator.pushNamed(context, MATERIAL_SCREEN);
+                },
+              ),
+              if (!kIsWeb)
+                RaisedButton(
+                  child: Text("Cupertino"),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(CUPERTINO_SCREEN);
+                  },
+                )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MyApp extends StatefulWidget {
+  &#47;&#47; This widget is the root of your application.
+  final bool isMaterial;
+
+  const MyApp({Key key, this.isMaterial}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  TextEditingController controller = TextEditingController(text: "");
+  String thisText = "";
+  int pinLength = 4;
+  bool hasError = false;
+  String errorMessage;
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.isMaterial
+        ? new MaterialApp(
+            title: "Flutter Demo",
+            home: materialPin(),
+            theme: ThemeData(
+              inputDecorationTheme: InputDecorationTheme(
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFF9FA0A5),
+                  ),
+                ),
+              ),
+            ),
+          )
+        : new CupertinoApp(
+            title: 'Flutter Demo',
+            theme: CupertinoThemeData(),
+            home: cupertinoPin(),
+          );
+  }
+
+  Scaffold materialPin() {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Material Pin Code Text Field Example"),
+      ),
+      body: Container(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+&#47;&#47;            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 60.0),
+                child: Text(thisText, style: Theme.of(context).textTheme.title),
+              ),
+              Container(
+                height: 100.0,
+                child: GestureDetector(
+                  onLongPress: () {
+                    print("LONG");
+                    showDialog(
+                        context: context,
+                        bu
+// ... (truncated)

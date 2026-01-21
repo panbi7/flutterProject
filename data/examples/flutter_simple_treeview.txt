@@ -1,0 +1,67 @@
+&#47;&#47; Copyright 2020 the Dart project authors.
+&#47;&#47;
+&#47;&#47; Use of this source code is governed by a BSD-style
+&#47;&#47; license that can be found in the LICENSE file or at
+&#47;&#47; https:&#47;&#47;developers.google.com&#47;open-source&#47;licenses&#47;bsd
+
+import 'package:flutter&#47;material.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+
+import 'trees&#47;controller_usage.dart';
+import 'trees&#47;tree_from_json.dart';
+
+void main() {
+  runApp(Demo());
+}
+
+class Demo extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('flutter_simple_treeview Demo'),
+            actions: [
+              TextButton(
+                  child: Text(
+                    "Source Code",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () async => await launchUrl(
+                        Uri.https('github.com',
+                            'google&#47;flutter.widgets&#47;tree&#47;master&#47;packages&#47;flutter_simple_treeview&#47;example'),
+                      )),
+            ],
+            bottom: TabBar(
+              tabs: [
+                Tab(text: "Tree Controller Usage"),
+                Tab(text: "Tree From JSON"),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              buildBodyFrame(ControllerUsage()),
+              buildBodyFrame(TreeFromJson()),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  &#47;&#47;&#47; Adds scrolling and padding to the [content].
+  Widget buildBodyFrame(Widget content) {
+    return SingleChildScrollView(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Padding(
+          padding: EdgeInsets.all(40),
+          child: content,
+        ),
+      ),
+    );
+  }
+}

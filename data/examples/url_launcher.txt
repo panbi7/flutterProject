@@ -1,0 +1,154 @@
+&#47;&#47; Copyright 2013 The Flutter Authors. All rights reserved.
+&#47;&#47; Use of this source code is governed by a BSD-style license that can be
+&#47;&#47; found in the LICENSE file.
+
+&#47;&#47; ignore_for_file: public_member_api_docs
+
+import 'dart:async';
+
+import 'package:flutter&#47;material.dart';
+import 'package:url_launcher&#47;link.dart';
+import 'package:url_launcher&#47;url_launcher.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'URL Launcher',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'URL Launcher'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  bool _hasCallSupport = false;
+  Future? _launched;
+  String _phone = '';
+
+  @override
+  void initState() {
+    super.initState();
+    &#47;&#47; Check for phone call support.
+    canLaunchUrl(Uri(scheme: 'tel', path: '123')).then((bool result) {
+      setState(() {
+        _hasCallSupport = result;
+      });
+    });
+  }
+
+  Future _launchInBrowser(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
+  Future _launchInBrowserView(Uri url) async {
+    if (!await launchUrl(url, mode: LaunchMode.inAppBrowserView)) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
+  Future _launchInWebView(Uri url) async {
+    if (!await launchUrl(url, mode: LaunchMode.inAppWebView)) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
+  Future _launchInAppWithBrowserOptions(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.inAppBrowserView,
+      browserConfiguration: const BrowserConfiguration(showTitle: true),
+    )) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
+  Future _launchAsInAppWebViewWithCustomHeaders(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.inAppWebView,
+      webViewConfiguration: const WebViewConfiguration(
+          headers: {'my_header_key': 'my_header_value'}),
+    )) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
+  Future _launchInWebViewWithoutJavaScript(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.inAppWebView,
+      webViewConfiguration: const WebViewConfiguration(enableJavaScript: false),
+    )) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
+  Future _launchInWebViewWithoutDomStorage(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.inAppWebView,
+      webViewConfiguration: const WebViewConfiguration(enableDomStorage: false),
+    )) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
+  Future _launchUniversalLinkIOS(Uri url) async {
+    final bool nativeAppLaunchSucceeded = await launchUrl(
+      url,
+      mode: LaunchMode.externalNonBrowserApplication,
+    );
+    if (!nativeAppLaunchSucceeded) {
+      await launchUrl(
+        url,
+        mode: LaunchMode.inAppBrowserView,
+      );
+    }
+  }
+
+  Widget _launchStatus(BuildContext context, AsyncSnapshot snapshot) {
+    if (snapshot.hasError) {
+      return Text('Error: ${snapshot.error}');
+    } else {
+      return const Text('');
+    }
+  }
+
+  Future _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    await launchUrl(launchUri);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47; onPressed calls using this URL are not gated on a 'canLaunch' check
+    &#47;&#47; because the assumption is that every device can launch a web URL.
+    final Uri toLaunch =
+        Uri(scheme: 'https', host: 'www.cylog.org', path: 'headers&#47;');
+  
+// ... (truncated)

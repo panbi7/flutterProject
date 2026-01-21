@@ -1,0 +1,88 @@
+import 'dart:math' as math;
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_svga&#47;flutter_svga.dart';
+
+import 'cache_example.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(home: HomeScreen(), theme: ThemeData(useMaterial3: false));
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State {
+  final TextEditingController _urlController = TextEditingController();
+  String? svgaUrl;
+
+  final samples = const [
+    "assets&#47;angel.svga",
+    "assets&#47;pin_jump.svga",
+    "assets&#47;audio_biling.svga",
+    "assets&#47;lion.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;EmptyState.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;HamburgerArrow.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;PinJump.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;TwitterHeart.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;Walkthrough.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;kingset.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;halloween.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;heartbeat.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;matteBitmap.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;matteBitmap_1.x.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;matteRect.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;mutiMatte.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;posche.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;rose.svga",
+    "https:&#47;&#47;cdn.jsdelivr.net&#47;gh&#47;svga&#47;SVGA-Samples@master&#47;Rocket.svga",
+  ].map((e) => [e.split('&#47;').last, e]).toList(growable: false);
+
+  &#47;&#47;&#47; Navigate to the [SVGASampleScreen] showing the animation at the given
+  &#47;&#47;&#47; [sample] URL.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; The [sample] is a list of 2 elements, where the first is the display name
+  &#47;&#47;&#47; of the sample, and the second is the URL of the animation.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; The [dynamicCallback] parameter of [SVGASampleScreen] is set to the value
+  &#47;&#47;&#47; in [dynamicSamples] for the given [sample] name, or null if there is no
+  &#47;&#47;&#47; entry in that map.
+  void _goToSample(BuildContext context, List sample) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>
+            SVGASampleScreen(name: sample.first, image: sample.last, dynamicCallback: dynamicSamples[sample.first]),
+      ),
+    );
+  }
+
+  &#47;&#47;&#47; Navigate to the [SVGASampleScreen] showing the animation at the given
+  &#47;&#47;&#47; [imageUrl].
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; This function is used by the "Load SVGA from text field" button in the
+  &#47;&#47;&#47; [MyApp] widget, to load an animation from a URL entered in the text field.
+  void _goToSampleFromInput(BuildContext context, String imageUrl) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SVGASampleScreen(image: imageUrl)));
+  }
+
+  &#47;&#47;&#47; Load the animation from the URL in the text field, and navig
+// ... (truncated)

@@ -1,0 +1,115 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:otp_pin_field&#47;otp_pin_field.dart';
+
+import 'next_page.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+void _hideKeyboard() {
+  SystemChannels.textInput.invokeMethod('TextInput.hide');
+}
+
+class _MyHomePageState extends State {
+  &#47;&#47;&#47;  Otp pin Controller
+  final _otpPinFieldController = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _hideKeyboard(),
+      child: Scaffold(
+        appBar: AppBar(title: Text(widget.title)),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            OtpPinField(
+              key: _otpPinFieldController,
+
+              &#47;&#47;&#47;in case you want to enable autoFill
+              autoFillEnable: true,
+
+              &#47;&#47;&#47;for Ios it is not needed as the SMS autofill is provided by default, but not for Android, that's where this key is useful.
+              textInputAction: TextInputAction.done,
+
+              &#47;&#47;&#47;in case you want to change the action of keyboard
+              &#47;&#47;&#47; to clear the Otp pin Controller
+              onSubmit: (text) {
+                debugPrint('Entered pin is $text');
+
+                &#47;&#47;&#47; return the entered pin
+              },
+              onChange: (text) {
+                debugPrint('Enter on change pin is $text');
+
+                &#47;&#47;&#47; return the entered pin
+              },
+              onCodeChanged: (code) {
+                debugPrint('onCodeChanged  is $code');
+              },
+
+              &#47;&#47;&#47; to decorate your Otp_Pin_Field
+              otpPinFieldStyle: const OtpPinFieldStyle(
+                &#47;&#47;&#47; bool to show hints in pin field or not
+                showHintText: true,
+
+                &#47;&#47;&#47; to set the color of hints in pin field or not
+                &#47;&#47; hintTextColor: Colors.red,
+
+                &#47;&#47;&#47; to set the text  of hints in pin field
+                &#47;&#47; hintText: '1',
+
+                &#47;&#47;&#47; border color for inactive&#47;unfocused Otp_Pin_Field
+                &#47;&#47; defaultFieldBorderColor: Colors.red,
+
+                &#47;&#47;&#47; border color for active&#47;focused Otp_Pin_Field
+                &#47;&#47; activeFieldBorderColor: Colors.indigo,
+
+                &#47;&#47;&#47; Background Color for inactive&#47;unfocused Otp_Pin_Field
+                &#47;&#47; defaultFieldBackgroundColor: Colors.yellow,
+
+                &#47;&#47;&#47; Background Color for active&#47;focused Otp_Pin_Field
+                &#47;&#47; activeFieldBackgroundColor: Colors.cyanAccent,
+
+                &#47;&#47;&#47; Background Color for filled field pin box
+                &#47;&#47; filledFieldBackgroundColor: Colors.green,
+
+                &#47;&#47;&#47; border Color for filled field pin box
+                &#47;&#47; filledFieldBorderColor: Colors.green,
+                &#47;&#47;
+                &#47;&#47;&#47; gradient border Color for field pin box
+                activeFieldBorderGradient: LinearGradient(
+                  colors: [Colors.black, Colors.redAccent],
+                ),
+                filledFieldBorderGradient: LinearGradient(
+                  colors: [Colors.green, Colors.tealAccent],
+       
+// ... (truncated)

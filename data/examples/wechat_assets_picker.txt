@@ -1,0 +1,68 @@
+&#47;&#47; Copyright 2019 The FlutterCandies author. All rights reserved.
+&#47;&#47; Use of this source code is governed by an Apache license that can be found
+&#47;&#47; in the LICENSE file.
+
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'package:wechat_assets_picker&#47;wechat_assets_picker.dart';
+
+import 'constants&#47;extensions.dart';
+import 'l10n&#47;gen&#47;app_localizations.dart';
+import 'pages&#47;splash_page.dart';
+
+const Color themeColor = Color(0xff00bc56);
+
+String? packageVersion;
+
+void main() {
+  runApp(const MyApp());
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
+  );
+  AssetPicker.registerObserve();
+  &#47;&#47; Enables logging with the photo_manager.
+  PhotoManager.setLog(true);
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  ThemeData _buildTheme(Brightness brightness) {
+    return ThemeData.from(
+      colorScheme: ColorScheme.fromSwatch(
+        primarySwatch: themeColor.swatch,
+        brightness: brightness,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      onGenerateTitle: (context) => context.l10n.appTitle,
+      theme: _buildTheme(Brightness.light),
+      darkTheme: _buildTheme(Brightness.dark),
+      home: const SplashPage(),
+      builder: (BuildContext c, Widget? w) {
+        return ScrollConfiguration(
+          behavior: const NoGlowScrollBehavior(),
+          child: w!,
+        );
+      },
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+    );
+  }
+}
+
+class NoGlowScrollBehavior extends ScrollBehavior {
+  const NoGlowScrollBehavior();
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) =>
+      child;
+}

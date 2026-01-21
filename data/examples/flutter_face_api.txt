@@ -1,0 +1,151 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter&#47;services.dart';
+import 'dart:async';
+import 'package:flutter_face_api&#47;flutter_face_api.dart';
+import 'package:image_picker&#47;image_picker.dart';
+
+var faceSdk = FaceSDK.instance;
+MatchFacesImage? image1;
+MatchFacesImage? image2;
+
+void init() async {
+  if (!await initialize()) return;
+  setStatus("Ready");
+}
+
+void startFaceCapture(int position) async {
+  var image = (await faceSdk.startFaceCapture()).image;
+  if (image == null) return;
+  setImage(image.image, image.imageType, position);
+}
+
+void startLiveness() async {
+  var result = await faceSdk.startLiveness(
+    config: LivenessConfig(
+      skipStep: [LivenessSkipStep.ONBOARDING_STEP],
+    ),
+    notificationCompletion: (notification) {
+      print(notification.status);
+    },
+  );
+  if (result.image == null) return;
+  setImage(result.image!, ImageType.LIVE, 1);
+  setLivenessStatus(result.liveness.name.toLowerCase());
+}
+
+void matchFaces() async {
+  if (image1 == null || image2 == null) {
+    setStatus("Both images required!");
+    return;
+  }
+  setStatus("Processing...");
+  var request = MatchFacesRequest([image1!, image2!]);
+  var response = await faceSdk.matchFaces(request);
+  var split = await faceSdk.splitComparedFaces(response.results, 0.75);
+  var match = split.matchedFaces;
+  setSimilarityStatus("failed");
+  if (match.isNotEmpty) {
+    setSimilarityStatus((match[0].similarity * 100).toStringAsFixed(2) + "%");
+  }
+  setStatus("Ready");
+}
+
+void getImage(int position) async {
+  var source = await chooseOption();
+  if (source == null) return;
+  if (source) {
+    startFaceCapture(position);
+  } else {
+    var image = await pickImage();
+    if (image == null) return;
+    setImage(image, ImageType.PRINTED, position);
+  }
+}
+
+void setImage(Uint8List bytes, ImageType type, int number) {
+  setSimilarityStatus("null");
+  var mfImage = MatchFacesImage(bytes, type);
+  if (number == 1) {
+    image1 = mfImage;
+    uiImage1 = Image.memory(bytes);
+    setLivenessStatus("null");
+  }
+  if (number == 2) {
+    image2 = mfImage;
+    uiImage2 = Image.memory(bytes);
+  }
+}
+
+&#47;&#47; If 'assets&#47;regula.license' exists, init using license(enables offline match)
+&#47;&#47; otherwise init without license.
+Future initialize() async {
+  setStatus("Initializing...");
+
+  InitConfig? config = null;
+  try {
+    config = InitConfig(await rootBundle.load("assets&#47;regula.license"));
+  } catch (_) {}
+  var (success, error) = await faceSdk.initialize(config: config);
+
+  if (error != null) {
+    setStatus(error.message);
+    print("${error.code}: ${error.message}");
+  }
+  return success;
+}
+
+&#47;&#47; --------------------------------------------------------------------------------------------------------------------
+
+var status = "Loading...";
+void setStatus(String? s) {
+  if (s != null) {
+    MyAppState.update(() => status = s);
+  }
+}
+
+var liveness = "null";
+void setLivenessStatus(String? s) {
+  if (s != null) {
+    MyAppState.update(() => liveness = s);
+  }
+}
+
+var similarity = "null";
+void setSimilarityStatus(String? s) {
+  if (s != null) {
+    MyAppState.update(() => similarity = s);
+  }
+}
+
+var uiImage1 = Image.asset('assets&#47;images&#47;portrait.png');
+void setUiImage1(Uint8List? data) {
+  if (data != null) {
+    MyAppState.update(() => uiImage1 = Image.memory(data));
+  }
+}
+
+var uiImage2 = Image.asset('assets&#47;images&#47;portrait.png');
+void setUiImage2(Uint8List? data) {
+  if (data != null) {
+    MyAppState.update(() => uiImage2 = Image.memory(data));
+  }
+}
+
+void clearResults() {
+  setStatus("Ready");
+  setSimilarityStatus("null");
+  setLivenessStatus("null");
+  MyAppState.update(() {
+    uiImage1 = Image.asset('assets&#47;images&#47;portrait.png');
+    uiImage2 = Image.asset('assets&#47;images&#47;portrait.png');
+  });
+  image1 = null;
+  image2 = null;
+}
+
+List customHeader() => [
+      header([label(status)]),
+      header(top: false, [
+        Row(children: [
+          Expanded(child: label("Similarity: $similari
+// ... (truncated)

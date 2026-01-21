@@ -1,0 +1,76 @@
+import 'package:flutter/material.dart';
+import 'package:vyuh_node_flow/vyuh_node_flow.dart';
+
+class SimpleFlowEditor extends StatefulWidget {
+  @override
+  State createState() => _SimpleFlowEditorState();
+}
+
+class _SimpleFlowEditorState extends State {
+  late final NodeFlowController controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 1. Create the controller
+    controller = NodeFlowController();
+
+    // 2. Add some nodes
+    controller.addNode(Node(
+      id: 'node-1',
+      type: 'input',
+      position: const Offset(100, 100),
+      data: 'Input Node',
+      outputPorts: const [Port(id: 'out', name: 'Output')],
+    ));
+
+    controller.addNode(Node(
+      id: 'node-2',
+      type: 'output',
+      position: const Offset(400, 100),
+      data: 'Output Node',
+      inputPorts: const [Port(id: 'in', name: 'Input')],
+    ));
+
+    // 3. Create a connection between nodes
+    controller.createConnection('node-1', 'out', 'node-2', 'in');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Simple Flow Editor')),
+      body: NodeFlowEditor(
+        controller: controller,
+        theme: NodeFlowTheme.light,
+        nodeBuilder: (context, node) => _buildNode(node),
+      ),
+    );
+  }
+
+  Widget _buildNode(Node node) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            node.data,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            node.type,
+            style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+          ),
+        ],
+      ),
+    );
+  }
+}

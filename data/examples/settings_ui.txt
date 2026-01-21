@@ -1,0 +1,47 @@
+import 'package:device_preview&#47;device_preview.dart';
+import 'package:example&#47;screens&#47;gallery_screen.dart';
+import 'package:flutter&#47;cupertino.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(
+    DevicePreview(
+      &#47;&#47; enabled: kIsWeb ? false : !kReleaseMode,
+      enabled: false,
+      builder: (_) => MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    &#47;&#47;&#47; Set to `true` to see the full possibilities of the iOS Developer Screen
+    final bool runCupertinoApp = false;
+
+    if (runCupertinoApp) {
+      return CupertinoApp(
+        useInheritedMediaQuery: true,
+        locale: DevicePreview.locale(context),
+        debugShowCheckedModeBanner: false,
+        localizationsDelegates: >[
+          DefaultMaterialLocalizations.delegate,
+          DefaultWidgetsLocalizations.delegate,
+          DefaultCupertinoLocalizations.delegate,
+        ],
+        title: 'Settings UI Demo',
+        home: GalleryScreen(),
+      );
+    } else {
+      return MaterialApp(
+        useInheritedMediaQuery: true,
+        debugShowCheckedModeBanner: false,
+        locale: DevicePreview.locale(context),
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
+        title: 'Settings UI Demo',
+        home: GalleryScreen(),
+      );
+    }
+  }
+}

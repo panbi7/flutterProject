@@ -1,0 +1,125 @@
+import 'package:flutter&#47;foundation.dart' show kIsWeb;
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_colorpicker&#47;flutter_colorpicker.dart';
+import 'package:siri_wave&#47;siri_wave.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: const HomePage(),
+    darkTheme: ThemeData(brightness: Brightness.dark),
+    themeMode: ThemeMode.dark,
+    title: 'siri_wave Demo',
+  );
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  double amplitude = 1;
+  Color color = Colors.white;
+  Color color1 = const Color(0xFFAD394C);
+  Color color2 = const Color(0xFF30DC9B);
+  Color color3 = const Color(0xFF0F52A9);
+  SiriWaveformController controller = IOS9SiriWaveformController();
+  double frequency = 6;
+  final selection = [false, true];
+  bool showSupportBar = true;
+  double speed = .2;
+
+  SiriWaveformStyle get style =>
+      selection[0] ? SiriWaveformStyle.ios_7 : SiriWaveformStyle.ios_9;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(centerTitle: kIsWeb, title: const Text('siri_wave Demo')),
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Spacer(),
+          CustomSlider(
+            onChanged: (value) {
+              controller.amplitude = value;
+              setState(() => amplitude = value);
+            },
+            label: 'Amplitude',
+            value: amplitude,
+          ),
+          CustomSlider(
+            onChanged: (value) {
+              controller.speed = value;
+              setState(() => speed = value);
+            },
+            label: 'Speed',
+            value: speed,
+          ),
+          if (style == SiriWaveformStyle.ios_9) ...[
+            CustomSwitch(
+              onChanged: (value) {
+                setState(() => showSupportBar = value);
+              },
+              value: showSupportBar,
+            ),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 10,
+              children: [
+                ColorPickerWidget(
+                  title: 'Color 1',
+                  onChanged: (value) {
+                    setState(() => color1 = value);
+                    (controller as IOS9SiriWaveformController).color1 = value;
+                  },
+                  color: color1,
+                ),
+                ColorPickerWidget(
+                  title: 'Color 2',
+                  onChanged: (value) {
+                    setState(() => color2 = value);
+                    (controller as IOS9SiriWaveformController).color2 = value;
+                  },
+                  color: color2,
+                ),
+                ColorPickerWidget(
+                  title: 'Color 3',
+                  onChanged: (value) {
+                    setState(() => color3 = value);
+                    (controller as IOS9SiriWaveformController).color3 = value;
+                  },
+                  color: color3,
+                ),
+              ],
+            ),
+          ] else ...[
+            FrequencySlider(
+              onChanged: (value) {
+                (controller as IOS7SiriWaveformController).frequency =
+                    value.round();
+                setState(() => frequency = value);
+              },
+              value: frequency,
+            ),
+            ColorPickerWidget(
+              onChanged: (value) {
+                setState(() => color = value);
+                (controller as IOS7SiriWaveformController).color = value;
+              },
+              color: color,
+            ),
+          ],
+          WaveformStyleToggleButtons(
+            onPressed: (index) {
+              if (selection[index]) return;
+              for (var i = 0; i  on
+// ... (truncated)

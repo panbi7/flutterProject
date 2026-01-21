@@ -1,0 +1,146 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:ff_native_screenshot&#47;ff_native_screenshot.dart';
+import 'package:permission_handler&#47;permission_handler.dart';
+import 'package:webview_flutter&#47;webview_flutter.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(home: HomePage());
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State createState() => _HomePageState();
+}
+
+class _HomePageState extends State with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    init();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  Future init() async {
+    if (Platform.isAndroid) {
+      await Permission.storage.request();
+    }
+    FfNativeScreenshot().setup(ScreenshotFlutterApiImplements(context));
+    await FfNativeScreenshot().startListeningScreenshot();
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    FfNativeScreenshot().stopListeningScreenshot();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  bool? listening;
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (listening == true && !FfNativeScreenshot().listening) {
+          FfNativeScreenshot().startListeningScreenshot();
+        }
+        break;
+      case AppLifecycleState.paused:
+        listening = FfNativeScreenshot().listening;
+        if (listening == true) {
+          FfNativeScreenshot().stopListeningScreenshot();
+        }
+
+        break;
+      default:
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Native Screenshot'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              takeScreenshot(context);
+            },
+            icon: const Icon(
+              Icons.screenshot,
+            ),
+          ),
+          IconButton(
+              onPressed: () {
+                _listeningScreenshotTapped();
+              },
+              icon: FfNativeScreenshot().listening
+                  ? const Icon(
+                      Icons.stop,
+                    )
+                  : const Icon(Icons.start))
+        ],
+      ),
+      body: WebView(
+        initialUrl: 'https:&#47;&#47;flutter.cn',
+        &#47;&#47;
+        &#47;&#47; android
+        &#47;&#47; initExpensiveAndroidView
+        &#47;&#47; On some Android devices, transparent backgrounds can cause
+        &#47;&#47; rendering issues on the non hybrid composition
+        &#47;&#47; AndroidViewSurface. This switches the WebView to Hybrid
+        &#47;&#47; Composition when the background color is not 100% opaque.
+        &#47;&#47; hybridComposition:
+        &#47;&#47; backgroundColor != null && backgroundColor.opacity  _listeningScreenshotTapped() async {
+    if (FfNativeScreenshot().listening) {
+      await FfNativeScreenshot().stopListeningScreenshot();
+    } else {
+      await FfNativeScreenshot().startListeningScreenshot();
+    }
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future takeScreenshot(BuildContext context) async {
+    Uint8List? data = await FfNativeScreenshot().takeScreenshot();
+    showScreenshotDialog(data, context);
+  }
+
+  static void showScreenshotDialog(Uint8List? bytes, BuildContext context) {
+    if (bytes != null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return GestureDetector(
+            behavior: HitTestBehavior.trans
+// ... (truncated)

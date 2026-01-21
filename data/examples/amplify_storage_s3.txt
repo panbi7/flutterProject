@@ -1,0 +1,136 @@
+&#47;&#47; Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+&#47;&#47; SPDX-License-Identifier: Apache-2.0
+
+import 'package:amplify_auth_cognito&#47;amplify_auth_cognito.dart';
+import 'package:amplify_authenticator&#47;amplify_authenticator.dart';
+import 'package:amplify_core&#47;amplify_core.dart';
+import 'package:amplify_secure_storage&#47;amplify_secure_storage.dart';
+import 'package:amplify_storage_s3&#47;amplify_storage_s3.dart';
+import 'package:file_picker&#47;file_picker.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:go_router&#47;go_router.dart';
+import 'package:path_provider&#47;path_provider.dart';
+
+import 'amplify_outputs.dart';
+
+final AmplifyLogger _logger = AmplifyLogger('MyStorageApp');
+
+void main() {
+  AmplifyLogger().logLevel = LogLevel.debug;
+  runApp(const MyApp(title: 'Amplify Storage Example'));
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key, required this.title});
+
+  final String title;
+
+  &#47;&#47; This widget is the root of your application.
+  @override
+  State createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  static final _router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '&#47;',
+        builder: (BuildContext _, GoRouterState _) => const HomeScreen(),
+      ),
+    ],
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    configureAmplify();
+  }
+
+  Future configureAmplify() async {
+    final auth = AmplifyAuthCognito(
+      &#47;&#47; FIXME: In your app, make sure to remove this line and set up
+      &#47;&#47;&#47; Keychain Sharing in Xcode as described in the docs:
+      &#47;&#47;&#47; https:&#47;&#47;docs.amplify.aws&#47;lib&#47;project-setup&#47;platform-setup&#47;q&#47;platform&#47;flutter&#47;#enable-keychain
+      secureStorageFactory: AmplifySecureStorage.factoryFrom(
+        macOSOptions:
+            &#47;&#47; ignore: invalid_use_of_visible_for_testing_member
+            MacOSSecureStorageOptions(useDataProtection: false),
+      ),
+    );
+    final storage = AmplifyStorageS3();
+
+    try {
+      await Amplify.addPlugins([auth, storage]);
+      await Amplify.configure(amplifyConfig);
+      _logger.debug('Successfully configured Amplify');
+    } on Exception catch (error) {
+      _logger.error('Something went wrong configuring Amplify: $error');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Authenticator(
+      preferPrivateSession: true,
+      child: MaterialApp.router(
+        title: 'Flutter Demo',
+        builder: Authenticator.builder(),
+        theme: ThemeData.light(useMaterial3: true),
+        darkTheme: ThemeData.dark(useMaterial3: true),
+        routeInformationParser: _router.routeInformationParser,
+        routerDelegate: _router.routerDelegate,
+        debugShowCheckedModeBanner: false,
+      ),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State {
+  List list = [];
+  var imageUrl = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthStatus();
+    _listAllPublicFiles();
+  }
+
+  &#47;&#47; sign out of the app
+  Future _signOut() async {
+    try {
+      await Amplify.Auth.signOut();
+      _logger.debug('Signed out');
+    } on AuthException catch (e) {
+      _logger.error('Could not sign out - ${e.message}');
+    }
+  }
+
+  &#47;&#47; check if the user is signed in
+  Future _checkAuthStatus() async {
+    try {
+      final session = await Amplify.Auth.fetchAuthSession();
+      _logger.debug('Signed in: ${session.isSignedIn}');
+    } on AuthException catch (e) {
+      _logger.error('Could not check auth status - ${e.message}');
+    }
+  }
+
+  &#47;&#47; upload a file to the S3 bucket
+  Future _uploadFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withReadStream: true,
+      withData: false,
+    );
+
+    if (result == null) {
+      _logger.debug('No file se
+// ... (truncated)

@@ -1,0 +1,143 @@
+import 'dart:async';
+
+import 'package:control&#47;control.dart';
+import 'package:flutter&#47;material.dart';
+import 'package:l&#47;l.dart';
+
+&#47;&#47;&#47; Observer for [Controller], react to changes in the any controller.
+final class ControllerObserver implements IControllerObserver {
+  const ControllerObserver();
+
+  @override
+  void onCreate(Controller controller) {
+    l.v6('Controller | ${controller.name}.new');
+  }
+
+  @override
+  void onDispose(Controller controller) {
+    l.v5('Controller | ${controller.name}.dispose');
+  }
+
+  @override
+  void onHandler(HandlerContext context) {
+    l.d(
+      'Controller | ' '${context.controller.name}.${context.name}',
+      context.meta,
+    );
+  }
+
+  @override
+  void onStateChanged(
+    StateController controller,
+    S prevState,
+    S nextState,
+  ) {
+    final context = Controller.context;
+    if (context == null) {
+      &#47;&#47; State change occurred outside of the handler
+      l.d(
+        'StateController | '
+        '${controller.name} | '
+        '$prevState -> $nextState',
+      );
+    } else {
+      &#47;&#47; State change occurred inside the handler
+      l.d(
+        'StateController | '
+        '${controller.name}.${context.name} | '
+        '$prevState -> $nextState',
+        context.meta,
+      );
+    }
+  }
+
+  @override
+  void onError(Controller controller, Object error, StackTrace stackTrace) {
+    final context = Controller.context;
+    if (context == null) {
+      &#47;&#47; Error occurred outside of the handler
+      l.w(
+        'Controller | '
+        '${controller.name} | '
+        '$error',
+        stackTrace,
+      );
+    } else {
+      &#47;&#47; Error occurred inside the handler
+      l.w(
+        'Controller | '
+        '${controller.name}.${context.name} | '
+        '$error',
+        stackTrace,
+        context.meta,
+      );
+    }
+  }
+}
+
+void main() => runZonedGuarded>(
+      () async {
+        &#47;&#47; Setup controller observer
+        Controller.observer = const ControllerObserver();
+        runApp(const App());
+      },
+      (error, stackTrace) => l.e('Top level exception: $error', stackTrace),
+    );
+
+&#47;&#47;&#47; Counter state for [CounterController]
+typedef CounterState = ({int count, bool idle});
+
+&#47;&#47;&#47; Counter controller
+final class CounterController extends StateController
+    with SequentialControllerHandler {
+  CounterController({CounterState? initialState})
+      : super(initialState: initialState ?? (idle: true, count: 0));
+
+  void add(int value) => handle(() async {
+        setState((idle: false, count: state.count));
+        await Future.delayed(const Duration(milliseconds: 1500));
+        setState((idle: true, count: state.count + value));
+      });
+
+  void subtract(int value) => handle(() async {
+        setState((idle: false, count: state.count));
+        await Future.delayed(const Duration(milliseconds: 1500));
+        setState((idle: true, count: state.count - value));
+      });
+}
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+      title: 'StateController example',
+      theme: ThemeData.dark(),
+      home: const CounterScreen(),
+      builder: (context, child) =>
+          &#47;&#47; Create and inject the controller into the element tree.
+          ControllerScope(
+            CounterController.new,
+            child: child,
+          ));
+}
+
+class CounterScreen extends StatelessWidget {
+  const CounterScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Counter'),
+        ),
+        floatingActionButton: const CounterScreen$Buttons(),
+        body: const SafeArea(
+          child: Center(
+            child: CounterScreen$Text(),
+          ),
+        ),
+      );
+}
+
+class CounterScreen$Text extends StatelessWidget
+// ... (truncated)

@@ -1,0 +1,10 @@
+import 'dart:core';
+
+import 'package:flutter&#47;material.dart';
+import 'package:native_video_player_example&#47;app-view.dart';
+
+void main() {
+  runApp(
+    const AppView(),
+  );
+}

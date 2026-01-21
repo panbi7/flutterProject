@@ -1,0 +1,130 @@
+import 'package:flutter&#47;material.dart';
+import 'package:flutter_custom_clippers&#47;flutter_custom_clippers.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Flutter custom clipper example"),
+      ),
+      body: ListView(
+        padding: EdgeInsets.all(20.0),
+        children: [
+          ClipPath(
+            clipper: WaveClipperOne(flip: true, reverse: true),
+            child: Container(
+              height: 120,
+              color: Colors.orange,
+              child: Center(
+                  child: Text("WaveClipperTwo(flip: true,reverse: true)")),
+            ),
+          ),
+          SizedBox(height: 10.0),
+          ClipPath(
+            clipper: WaveClipperOne(flip: true),
+            child: Container(
+              height: 120,
+              color: Colors.orange,
+              child: Center(child: Text("WaveClipperTwo(flip: true)")),
+            ),
+          ),
+          SizedBox(height: 10.0),
+          ClipPath(
+            clipper: WaveClipperTwo(flip: true, reverse: true),
+            child: Container(
+              height: 120,
+              color: Colors.orange,
+              child: Center(
+                  child: Text("WaveClipperTwo(flip: true,reverse:true)")),
+            ),
+          ),
+          SizedBox(height: 10.0),
+          ClipPath(
+            clipper: WaveClipperTwo(flip: true),
+            child: Container(
+              height: 120,
+              color: Colors.orange,
+              child: Center(child: Text("WaveClipperTwo(flip: true)")),
+            ),
+          ),
+          SizedBox(height: 10.0),
+          ClipPath(
+            clipper: OvalBottomBorderClipper(),
+            child: Container(
+              height: 100,
+              color: Colors.blue,
+              child: Center(child: Text("OvalBottomBorderClipper()")),
+            ),
+          ),
+          const SizedBox(height: 10.0),
+          ClipPath(
+            clipper: OvalRightBorderClipper(),
+            child: Container(
+              height: 100,
+              color: Colors.red,
+              child: Center(child: Text("OvalRightBorderClipper()")),
+            ),
+          ),
+          const SizedBox(height: 10.0),
+          ClipPath(
+            clipper: SideCutClipper(),
+            child: Container(
+              height: 200,
+              color: Colors.pink,
+              &#47;&#47;play with scals to get more clear versions
+              child: Center(child: Text("SideCutClipper()")),
+            ),
+          ),
+          const SizedBox(height: 10.0),
+          ClipPath(
+            clipper: OvalLeftBorderClipper(),
+            child: Container(
+              height: 100,
+              color: Colors.green,
+              child: Center(child: Text("OvalLeftBorderClipper()")),
+            ),
+          ),
+          const SizedBox(height: 10.0),
+          ClipPath(
+            clipper: ArcClipper(),
+            child: Container(
+              height: 100,
+              color: Colors.pink,
+              child: Center(child: Text("ArcClipper()")),
+            ),
+          ),
+          ClipPath(
+            clipper: PointsClipper(),
+            child: Container(
+              height: 100,
+              color: Colors.indigo,
+              child: Center(child: Text("PointsClipper()")),
+            ),
+          ),
+          SizedBox(height: 10.0),
+          ClipPath(
+            clipper: TriangleClipper(),
+            child: Container(
+              height: 100,
+              color: Colors.deepOrange,
+              child: Center(child: Text("TriangleClipper()")),
+            ),
+          ),
+          ClipPath(
+            clipper: MovieTicketClipper(),
+            child: Container(
+              height: 100,
+              color: Col
+// ... (truncated)

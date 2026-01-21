@@ -1,0 +1,48 @@
+import 'package:animated_icon_button&#47;animated_icon_button.dart';
+import 'package:flutter&#47;material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+      ),
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: AnimatedIconButton(
+          size: 100,
+          onPressed: () {},
+          duration: const Duration(milliseconds: 500),
+          splashColor: Colors.transparent,
+          icons: const [
+            AnimatedIconItem(
+              icon: Icon(Icons.add, color: Colors.purple),
+            ),
+            AnimatedIconItem(
+              icon: Icon(Icons.close, color: Colors.purple),
+            ),
+          ],
+        ),
+        &#47;&#47; AnimatedIconButton
+      ),
+    );
+  }
+}

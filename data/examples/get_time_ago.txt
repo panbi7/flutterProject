@@ -1,0 +1,120 @@
+import 'package:flutter&#47;material.dart';
+import 'package:get_time_ago&#47;get_time_ago.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(GetTimeAgoExampleApp());
+}
+
+class GetTimeAgoExampleApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'GetTimeAgo Example',
+      theme: ThemeData(
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        brightness: Brightness.light,
+        primarySwatch: Colors.blue,
+      ),
+      darkTheme: ThemeData(
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        brightness: Brightness.dark,
+        primarySwatch: Colors.blue,
+      ),
+      home: GetTimeAgoExampleScreen(),
+    );
+  }
+}
+
+class GetTimeAgoExampleScreen extends StatefulWidget {
+  @override
+  State createState() =>
+      _GetTimeAgoExampleScreenState();
+}
+
+const Map languageNames = {
+  'ar': 'Arabic',
+  'en': 'English',
+  'es': 'Spanish',
+  'fa': 'Persian (Farsi)',
+  'fr': 'French',
+  'hi': 'Hindi',
+  'pt': 'Portuguese (Brazil)',
+  'br': 'Portuguese (Brazil alternate)',
+  'zh': 'Simplified Chinese',
+  'zh_tr': 'Traditional Chinese',
+  'ja': 'Japanese',
+  'oc': 'Occitan',
+  'ko': 'Korean',
+  'de': 'German',
+  'id': 'Indonesian',
+  'tr': 'Turkish',
+  'ur': 'Urdu',
+  'vi': 'Vietnamese',
+  'ro': 'Romanian',
+  'nl': 'Dutch',
+  "ne": 'Nepali',
+  'it': 'Italian'
+};
+
+class _GetTimeAgoExampleScreenState extends State {
+  &#47;&#47; Helper function to get the DateTime relative to now
+  DateTime _getRelativeDateTime(Duration duration) {
+    return DateTime.now().subtract(duration);
+  }
+
+  &#47;&#47; Variable to hold the selected language code
+  String? _selectedLanguage = Data.defaultLocale;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('GetTimeAgo Example'),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+      ),
+      body: SafeArea(
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            margin: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Select Locale: ',
+                        style: TextStyle(fontSize: 16)),
+                    Expanded(
+                      child: DropdownButton(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(16.0)),
+                        isExpanded: true,
+                        isDense: true,
+                        elevation: 0,
+                        underline: Container(),
+                        focusColor: Colors.transparent,
+                        hint: const Text("Select Locale"),
+                        value: _selectedLanguage,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedLanguage = newValue;
+                          });
+                        },
+                        items: languageNames.entries.map((entry) {
+                          var code = entry.key;
+                          var name = entry.value;
+                          return DropdownMenuItem(
+                            value: code,
+                            child: Text('$name ($code)',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                )),
+                        
+// ... (truncated)

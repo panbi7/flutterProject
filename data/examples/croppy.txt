@@ -1,0 +1,151 @@
+import 'dart:io';
+import 'dart:math';
+
+import 'package:croppy&#47;croppy.dart';
+import 'package:example&#47;custom_cropper.dart';
+import 'package:example&#47;settings_modal.dart';
+import 'package:file_picker&#47;file_picker.dart';
+import 'package:flutter&#47;foundation.dart';
+import 'package:flutter&#47;gestures.dart';
+import 'package:flutter&#47;material.dart';
+import 'dart:ui' as ui;
+
+import 'package:flutter_localizations&#47;flutter_localizations.dart';
+
+void main() {
+  if (!kIsWeb) {
+    &#47;&#47; For some reason, the C++ implementation of the Cassowary solver is super
+    &#47;&#47; slow in debug mode. So we force the Dart implementation to be used in
+    &#47;&#47; debug mode. This only applies to Windows.
+    croppyForceUseCassowaryDartImpl = true;
+  }
+
+  runApp(const MyApp());
+}
+
+class ExampleScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) =>
+      const BouncingScrollPhysics();
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Croppy Demo',
+      scrollBehavior: ExampleScrollBehavior(),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.orange,
+          &#47;&#47; primary: Colors.purple,
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
+      ),
+      debugShowCheckedModeBanner: false,
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State {
+  late final PageController _pageController;
+  var _cropSettings = CropSettings.initial();
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(
+      viewportFraction: 0.9,
+    );
+
+    final random = Random();
+    for (var i = 0; i  _pickImage() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+    );
+
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.first.path!;
+
+      if (kIsWeb) {
+        _imageProviders.insert(0, NetworkImage(path));
+      } else {
+        _imageProviders.insert(0, FileImage(File(path)));
+      }
+
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  final _imageProviders = [];
+  final _data = {};
+  final _croppedImage = {};
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: () async {
+              final newSettings = await showCropSettingsModal(
+                context: context,
+                initialSettings: _cropSettings,
+              );
+
+              setState(() {
+                _cropSettings = newSettings;
+              });
+            },
+            icon: const Icon(Icons.settings),
+          ),
+        ],
+      ),
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.extended(
+            onPressed: _pickImage,
+            label: const Text('Pick image'),
+          ),
+          const SizedBox(width: 16.0),
+          FloatingActionButton(
+            onPressed: () {
+              final page = _pageController.page?.round() ?? 0;
+
+              showCupertinoImageCropper(
+                context,
+                locale: _cropSettings.locale,
+                imageProvider: _imageProviders[page],
+                heroTag: 'image-$page',
+                initialData:
+// ... (truncated)
