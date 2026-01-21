@@ -1,11 +1,19 @@
 import { callGeminiForGuide } from './gemini.js';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-// ESM __dirname 대체
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Netlify Functions 환경 감지 및 경로 설정
+const isNetlify = !!process.env.LAMBDA_TASK_ROOT;
+
+function getExamplesBundlePath() {
+  // Netlify Functions 환경
+  if (isNetlify) {
+    // esbuild 번들링 후 경로: /var/task/netlify/functions/data/examples.json
+    return path.join(process.env.LAMBDA_TASK_ROOT, 'netlify', 'functions', 'data', 'examples.json');
+  }
+  // 로컬 개발 환경
+  return path.join(process.cwd(), 'netlify', 'functions', 'data', 'examples.json');
+}
 
 // 캐시
 let cachedPackages = null;
@@ -84,10 +92,10 @@ function loadExamplesBundle() {
     return cachedExamples;
   }
 
-  try {
-    // Netlify Functions에서는 상대 경로로 접근
-    const bundlePath = path.join(__dirname, '..', 'data', 'examples.json');
+  const bundlePath = getExamplesBundlePath();
+  console.log(`[Guide Generator] Example 번들 경로: ${bundlePath}`);
 
+  try {
     if (fs.existsSync(bundlePath)) {
       const content = fs.readFileSync(bundlePath, 'utf-8');
       cachedExamples = JSON.parse(content);
