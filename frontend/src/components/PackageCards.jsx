@@ -74,7 +74,7 @@ export default function PackageCards({ packages }) {
               </div>
 
               <div className="package-description">
-                {p.description || '설명 없음'}
+                {p.description?.trim() || `${p.id} Flutter 패키지`}
               </div>
 
               {platforms.length > 0 && (

@@ -208,12 +208,61 @@ JSON 형식 (마크다운 없이):
       throw new Error('Gemini 빈 응답');
     }
 
-    const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+    // 마크다운 코드블록 및 불필요한 문자 제거
+    let cleanJson = responseText
+      .replace(/```json\s*/gi, '')
+      .replace(/```\s*/g, '')
+      .trim();
 
+    // JSON 파싱 시도
     try {
       const guide = JSON.parse(cleanJson);
+      // plainText가 JSON에 포함되어 있으면 제거 (구조화된 가이드 우선)
+      if (guide.plainText) delete guide.plainText;
       return { ...guide, source: 'generated' };
     } catch (parseError) {
+      console.warn(`[Guide Generator] 첫 번째 JSON 파싱 실패, 재시도...`);
+
+      // JSON 객체 추출 재시도 (응답 중간에 JSON이 있을 수 있음)
+      const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          const extracted = JSON.parse(jsonMatch[0]);
+          if (extracted.plainText) delete extracted.plainText;
+          console.log(`[Guide Generator] JSON 추출 성공`);
+          return { ...extracted, source: 'generated-extracted' };
+        } catch (extractError) {
+          console.warn(`[Guide Generator] JSON 추출도 실패`);
+        }
+      }
+
+      // 최종 fallback: 마크다운 형식으로 표시
+      // JSON 형태의 텍스트가 아닌 경우에만 plainText로 반환
+      const looksLikeJson = cleanJson.trim().startsWith('{') && cleanJson.trim().endsWith('}');
+      if (looksLikeJson) {
+        // JSON처럼 보이지만 파싱 실패 -> 기본 구조 반환
+        return {
+          packageId: pkgData.name,
+          title: `${pkgData.name} 구현 가이드`,
+          description: pkgData.description,
+          difficulty: '중급',
+          estimatedTime: '30분',
+          prerequisites: ['Flutter SDK 설치'],
+          steps: [{
+            stepNumber: 1,
+            title: '패키지 설치',
+            description: `pubspec.yaml에 ${pkgData.name} 패키지를 추가합니다.`,
+            code: {
+              language: 'yaml',
+              filename: 'pubspec.yaml',
+              content: `dependencies:\n  ${pkgData.name}: ^${pkgData.version || 'latest'}`
+            }
+          }],
+          references: [{ title: '공식 문서', url: `https://pub.dev/packages/${pkgData.name}` }],
+          source: 'generated-minimal'
+        };
+      }
+
       return {
         packageId: pkgData.name,
         title: `${pkgData.name} 구현 가이드`,

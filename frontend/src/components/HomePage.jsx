@@ -161,7 +161,7 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
           이달의 추천 패키지
         </h2>
         <div className="widget-cards">
-          {monthlyWidgets.map(widget => (
+          {monthlyWidgets.slice(0, 5).map(widget => (
             <div key={widget.id} className="widget-card">
               <h3 className="widget-name">{widget.name}</h3>
               <p className="widget-desc">{widget.description}</p>

@@ -1,11 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import './GuideModal.css';
 import SimpleMarkdown from './SimpleMarkdown';
 
-function GuideModal({ guide, onClose }) {
+function GuideModal({ guide: rawGuide, onClose }) {
   // Default to expanding ALL steps
   const [expandedSteps, setExpandedSteps] = useState([]);
   const [copiedCode, setCopiedCode] = useState(null);
+
+  // plainText가 JSON 형태면 파싱하여 구조화된 가이드로 변환
+  const guide = useMemo(() => {
+    if (!rawGuide) return null;
+
+    // plainText가 있고 JSON처럼 보이면 파싱 시도
+    if (rawGuide.plainText && typeof rawGuide.plainText === 'string') {
+      const trimmed = rawGuide.plainText.trim();
+      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+        try {
+          const parsed = JSON.parse(trimmed);
+          // 파싱 성공하면 구조화된 가이드로 변환
+          return { ...rawGuide, ...parsed, plainText: null };
+        } catch {
+          // 파싱 실패하면 그대로 유지
+        }
+      }
+    }
+    return rawGuide;
+  }, [rawGuide]);
 
   useEffect(() => {
     if (guide && guide.steps) {

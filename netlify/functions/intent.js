@@ -95,10 +95,24 @@ export async function handler(event, context) {
       }
 
       // 관련성 + 품질 점수 기반 정렬
+      // 정규화 함수: 공백, 언더스코어, 하이픈을 모두 공백으로 통일
+      const normalize = (str) => str.toLowerCase().replace(/[\s_-]+/g, ' ').trim()
+      const normalizedMsg = normalize(lowerMsg)
+
       const finalPackages = combined.sort((a, b) => {
-        // 1. 키워드 매칭 (최우선)
-        const aMatch = lowerMsg.includes(a.id.toLowerCase()) || (a.name && lowerMsg.includes(a.name.toLowerCase()))
-        const bMatch = lowerMsg.includes(b.id.toLowerCase()) || (b.name && lowerMsg.includes(b.name.toLowerCase()))
+        // 1. 키워드 매칭 (최우선) - 정규화된 비교
+        const normalizedAId = normalize(a.id)
+        const normalizedBId = normalize(b.id)
+        const normalizedAName = a.name ? normalize(a.name) : ''
+        const normalizedBName = b.name ? normalize(b.name) : ''
+
+        // 양방향 매칭: 검색어에 패키지명 포함 OR 패키지명에 검색어 포함
+        const aMatch = normalizedMsg.includes(normalizedAId) ||
+                       normalizedAId.includes(normalizedMsg) ||
+                       (normalizedAName && (normalizedMsg.includes(normalizedAName) || normalizedAName.includes(normalizedMsg)))
+        const bMatch = normalizedMsg.includes(normalizedBId) ||
+                       normalizedBId.includes(normalizedMsg) ||
+                       (normalizedBName && (normalizedMsg.includes(normalizedBName) || normalizedBName.includes(normalizedMsg)))
         if (aMatch && !bMatch) return -1
         if (!aMatch && bMatch) return 1
 
@@ -117,6 +131,10 @@ export async function handler(event, context) {
       // 데이터 보강 (Enrichment)
       const enrichedPackages = await Promise.all(finalPackages.map(async (p) => {
         const localInfo = await getLocalPackageInfo(p.id);
+
+        // description 우선순위: localInfo > 기존 p.description > 기본값
+        const description = localInfo?.description || p.description || '';
+
         if (localInfo) {
           return {
             ...p,
@@ -124,11 +142,11 @@ export async function handler(event, context) {
             githubInfo: localInfo.githubInfo,
             apiTags: localInfo.apiTags,
             maintenance: localInfo.maintenance,
-            description: localInfo.description || p.description,
+            description,
             tags: localInfo.tags
           };
         }
-        return p;
+        return { ...p, description };
       }));
 
       return {
