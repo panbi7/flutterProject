@@ -217,12 +217,24 @@ async function fetchFromApi() {
  */
 function getDefaultCategories() {
   return [
-    { id: 'auth', label: '인증', icon: '🔐', color: '#4CAF50' },
-    { id: 'ui', label: 'UI/UX', icon: '🎨', color: '#9C27B0' },
-    { id: 'network', label: '네트워크', icon: '🌐', color: '#2196F3' },
-    { id: 'storage', label: '저장소', icon: '💾', color: '#FF9800' },
-    { id: 'media', label: '미디어', icon: '📷', color: '#E91E63' },
-    { id: 'device', label: '디바이스', icon: '📱', color: '#00BCD4' },
+    { id: 'auth', label: '인증', icon: '🔐', color: '#4CAF50', keywords: ['auth', 'login', 'firebase_auth', 'sign_in'] },
+    { id: 'ui', label: 'UI/UX', icon: '🎨', color: '#9C27B0', keywords: ['widget', 'design', 'theme', 'color'] },
+    { id: 'network', label: '네트워크', icon: '🌐', color: '#2196F3', keywords: ['http', 'dio', 'api', 'network', 'connectivity'] },
+    { id: 'storage', label: '저장소', icon: '💾', color: '#FF9800', keywords: ['storage', 'database', 'cache', 'sqflite', 'shared_preferences'] },
+    { id: 'media', label: '미디어', icon: '📷', color: '#E91E63', keywords: ['camera', 'video', 'audio', 'image', 'image_picker'] },
+    { id: 'device', label: '디바이스', icon: '📱', color: '#00BCD4', keywords: ['device', 'sensor', 'platform', 'device_info'] },
+    { id: 'state', label: '상태관리', icon: '🔄', color: '#673AB7', keywords: ['bloc', 'riverpod', 'provider', 'state', 'getx'] },
+    { id: 'animation', label: '애니메이션', icon: '✨', color: '#FF5722', keywords: ['animation', 'animate', 'lottie', 'rive'] },
+    { id: 'firebase', label: 'Firebase', icon: '🔥', color: '#FFCA28', keywords: ['firebase', 'firestore', 'firebase_auth'] },
+    { id: 'map', label: '지도', icon: '🗺️', color: '#009688', keywords: ['map', 'google_maps', 'location', 'geolocator'] },
+    { id: 'chart', label: '차트', icon: '📊', color: '#3F51B5', keywords: ['chart', 'graph', 'fl_chart', 'syncfusion'] },
+    { id: 'notification', label: '알림', icon: '🔔', color: '#F44336', keywords: ['notification', 'push', 'local_notifications'] },
+    { id: 'payment', label: '결제/광고', icon: '💳', color: '#795548', keywords: ['payment', 'purchase', 'ads', 'in_app_purchase'] },
+    { id: 'qr', label: 'QR/바코드', icon: '📷', color: '#607D8B', keywords: ['qr', 'barcode', 'scanner', 'qr_flutter'] },
+    { id: 'i18n', label: '다국어', icon: '🌍', color: '#8BC34A', keywords: ['localization', 'i18n', 'translation', 'easy_localization'] },
+    { id: 'navigation', label: '네비게이션', icon: '🧭', color: '#03A9F4', keywords: ['router', 'navigation', 'go_router'] },
+    { id: 'form', label: '폼/입력', icon: '📝', color: '#CDDC39', keywords: ['form', 'input', 'validation', 'text_field'] },
+    { id: 'pdf', label: 'PDF/문서', icon: '📄', color: '#9E9E9E', keywords: ['pdf', 'document', 'printing', 'file'] },
   ];
 }
 
