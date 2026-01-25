@@ -5,6 +5,7 @@
  */
 
 import { callGeminiForGuide } from './gemini.js';
+import { getPackageInfo } from './pubdevApi.js';
 
 // 패키지 데이터 캐시
 let cachedPackages = null;
@@ -75,12 +76,29 @@ function decodeHtmlEntities(text) {
 export async function generateGuide(packageName) {
   console.log(`[GuideGenerator] 시작: ${packageName}`);
 
-  // 1. 패키지 데이터 조회
-  const pkg = await findPackage(packageName);
+  // 1. 패키지 데이터 조회 (로컬 캐시 우선, 없으면 pub.dev API)
+  let pkg = await findPackage(packageName);
 
   if (!pkg) {
-    console.warn(`[GuideGenerator] 패키지를 찾을 수 없음: ${packageName}`);
-    return null;
+    console.log(`[GuideGenerator] 로컬 데이터에 없음, pub.dev API 조회: ${packageName}`);
+    const pubdevInfo = await getPackageInfo(packageName);
+
+    if (!pubdevInfo) {
+      console.warn(`[GuideGenerator] pub.dev에서도 패키지를 찾을 수 없음: ${packageName}`);
+      return null;
+    }
+
+    // pub.dev 정보를 pkg 형식으로 변환
+    pkg = {
+      name: pubdevInfo.name,
+      version: pubdevInfo.version,
+      description: pubdevInfo.description,
+      homepage: pubdevInfo.homepage,
+      repository: pubdevInfo.repository,
+      platforms: [], // pub.dev 기본 API에는 플랫폼 정보 없음
+      exampleCode: '', // 예제 코드도 별도 요청 필요
+    };
+    console.log(`[GuideGenerator] pub.dev에서 패키지 정보 로드 완료: ${packageName}`);
   }
 
   // 2. exampleCode 준비 (HTML 엔티티 디코딩 + 길이 제한)

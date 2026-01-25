@@ -26,7 +26,7 @@ export async function callGeminiForGuide(prompt) {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.1,
-        maxOutputTokens: 4096, // 응답 크기 제한으로 속도 향상
+        // maxOutputTokens 제한 없음 - 상세한 가이드 생성을 위해
       },
     })
     const response = await result.response
