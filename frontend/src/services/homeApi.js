@@ -55,20 +55,6 @@ export async function getMonthlyWidgets() {
 }
 
 /**
- * Flutter Favorites 가져오기
- */
-export async function getFlutterFavorites() {
-  try {
-    const res = await fetch('/data/flutter-favorites.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (error) {
-    console.error('[HomeAPI] Flutter Favorites 로드 실패:', error);
-    return null;
-  }
-}
-
-/**
  * 홈페이지 전체 데이터 가져오기 (기존 API 호환)
  *
  * 반환 형식:
@@ -236,35 +222,6 @@ function getDefaultCategories() {
     { id: 'form', label: '폼/입력', icon: '📝', color: '#CDDC39', keywords: ['form', 'input', 'validation', 'text_field'] },
     { id: 'pdf', label: 'PDF/문서', icon: '📄', color: '#9E9E9E', keywords: ['pdf', 'document', 'printing', 'file'] },
   ];
-}
-
-/**
- * 경량 패키지 목록 가져오기 (검색용)
- */
-export async function getPackagesLite() {
-  try {
-    const res = await fetch('/data/packages-lite.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (error) {
-    console.error('[HomeAPI] 경량 패키지 목록 로드 실패:', error);
-    return [];
-  }
-}
-
-/**
- * 플랫폼별 패키지 가져오기
- */
-export async function getPackagesByPlatform(platform) {
-  try {
-    const res = await fetch('/data/by-platform.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    return data[platform] || [];
-  } catch (error) {
-    console.error('[HomeAPI] 플랫폼별 패키지 로드 실패:', error);
-    return [];
-  }
 }
 
 /**

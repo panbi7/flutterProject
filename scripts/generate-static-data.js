@@ -5,13 +5,9 @@
  *
  * 생성 파일:
  * - frontend/public/data/meta.json          - 메타 정보 및 통계
- * - frontend/public/data/packages-lite.json - 경량 패키지 목록 (빠른 로딩용)
- * - frontend/public/data/packages-full.json - 전체 패키지 데이터
+ * - frontend/public/data/packages-lite.json - 경량 패키지 목록 (가이드 API용)
  * - frontend/public/data/top-100.json       - 인기 상위 100개
- * - frontend/public/data/flutter-favorites.json - Flutter Favorite 패키지
- * - frontend/public/data/by-platform.json   - 플랫폼별 패키지
- * - frontend/public/data/by-tag.json        - 태그별 패키지
- * - frontend/public/data/search-index.json  - 검색용 인덱스
+ * - frontend/public/data/monthly-widgets.json - 월별 추천 패키지
  *
  * 사용법:
  *   node scripts/generate-static-data.js
@@ -30,7 +26,6 @@ const CONFIG = {
     INPUT_FILE: path.join(ROOT_DIR, 'data', 'all-packages.json'),
     OUTPUT_DIR: path.join(ROOT_DIR, 'frontend', 'public', 'data'),
     TOP_COUNT: 100,
-    TAG_MIN_COUNT: 5,  // 최소 패키지 수가 있는 태그만 포함
 };
 
 // 유틸리티
@@ -108,11 +103,7 @@ async function main() {
     }));
     writeJson('packages-lite.json', packagesLite);
 
-    // 3. 전체 패키지 데이터
-    log.info('\nGenerating packages-full.json...');
-    writeJson('packages-full.json', packages);
-
-    // 4. 인기 상위 100개
+    // 3. 인기 상위 100개
     log.info('\nGenerating top-100.json...');
     const topByLikes = [...packages]
         .sort((a, b) => (b.likes || 0) - (a.likes || 0))
@@ -130,31 +121,7 @@ async function main() {
         byPubPoints: topByPubPoints,
     });
 
-    // 5. Flutter Favorites
-    log.info('\nGenerating flutter-favorites.json...');
-    const flutterFavorites = packages.filter(pkg => pkg.isFlutterFavorite);
-    writeJson('flutter-favorites.json', flutterFavorites);
-
-    // 6. 플랫폼별 패키지
-    log.info('\nGenerating by-platform.json...');
-    const byPlatform = generateByPlatform(packages);
-    writeJson('by-platform.json', byPlatform);
-
-    // 7. 태그별 패키지
-    log.info('\nGenerating by-tag.json...');
-    const byTag = generateByTag(packages);
-    writeJson('by-tag.json', byTag);
-
-    // 8. 검색 인덱스
-    log.info('\nGenerating search-index.json...');
-    const searchIndex = packages.map(pkg => ({
-        n: pkg.name,
-        d: pkg.description?.substring(0, 80) || '',
-        l: pkg.likes || 0,
-    }));
-    writeJson('search-index.json', searchIndex);
-
-    // 9. 월별 추천 패키지 (홈페이지용)
+    // 4. 월별 추천 패키지 (홈페이지용)
     log.info('\nGenerating monthly-widgets.json...');
     const monthlyWidgets = [...packages]
         .filter(pkg => (pkg.likes || 0) > 100)
@@ -230,60 +197,6 @@ function generateStats(packages) {
         platformCounts,
         tagCloud,
     };
-}
-
-// 플랫폼별 패키지 그룹화
-function generateByPlatform(packages) {
-    const platforms = ['android', 'ios', 'web', 'macos', 'windows', 'linux'];
-    const result = {};
-
-    platforms.forEach(platform => {
-        result[platform] = packages
-            .filter(pkg => (pkg.platforms || []).includes(platform))
-            .sort((a, b) => (b.likes || 0) - (a.likes || 0))
-            .slice(0, 200)  // 플랫폼당 상위 200개
-            .map(pkg => ({
-                name: pkg.name,
-                description: pkg.description?.substring(0, 100) || '',
-                likes: pkg.likes || 0,
-                popularity: pkg.popularity || 0,
-            }));
-    });
-
-    return result;
-}
-
-// 태그별 패키지 그룹화
-function generateByTag(packages) {
-    const tagMap = {};
-
-    packages.forEach(pkg => {
-        (pkg.tags || []).forEach(tag => {
-            // 유용한 태그만 포함
-            if (!tag.startsWith('platform:') &&
-                !tag.startsWith('is:') &&
-                !tag.startsWith('sdk:') &&
-                !tag.startsWith('license:')) {
-                if (!tagMap[tag]) tagMap[tag] = [];
-                tagMap[tag].push({
-                    name: pkg.name,
-                    likes: pkg.likes || 0,
-                });
-            }
-        });
-    });
-
-    // 최소 패키지 수 이상인 태그만
-    const result = {};
-    Object.entries(tagMap)
-        .filter(([_, pkgs]) => pkgs.length >= CONFIG.TAG_MIN_COUNT)
-        .forEach(([tag, pkgs]) => {
-            result[tag] = pkgs
-                .sort((a, b) => b.likes - a.likes)
-                .slice(0, 50);  // 태그당 상위 50개
-        });
-
-    return result;
 }
 
 // 빠른 카테고리
