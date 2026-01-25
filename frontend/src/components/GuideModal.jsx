@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import './GuideModal.css';
 import SimpleMarkdown from './SimpleMarkdown';
+import { clearGuideCache } from '../services/guideApi';
 
-function GuideModal({ guide: rawGuide, onClose }) {
+function GuideModal({ guide: rawGuide, onClose, onRefresh }) {
   // Default to expanding ALL steps
   const [expandedSteps, setExpandedSteps] = useState([]);
   const [copiedCode, setCopiedCode] = useState(null);
@@ -72,9 +73,33 @@ function GuideModal({ guide: rawGuide, onClose }) {
             <div className="guide-meta">
               <span className="badge badge-difficulty">{guide.difficulty}</span>
               <span className="badge badge-time">⏱️ {guide.estimatedTime}</span>
+              {/* 캐시 출처 표시 */}
+              {guide.source && (
+                <span className={`badge badge-source ${guide.source}`}>
+                  {guide.source === 'browser-cache' && '⚡ 브라우저 캐시'}
+                  {guide.source === 'cache' && '💾 서버 캐시'}
+                  {guide.source === 'generated' && '🤖 AI 생성'}
+                  {guide.source === 'fallback' && '📋 기본 가이드'}
+                </span>
+              )}
             </div>
           </div>
-          <button className="close-button" onClick={onClose}>✕</button>
+          <div className="header-actions">
+            {/* 새로고침 버튼 */}
+            {onRefresh && guide.packageId && (
+              <button
+                className="refresh-button"
+                onClick={() => {
+                  clearGuideCache(guide.packageId);
+                  onRefresh(guide.packageId);
+                }}
+                title="캐시 삭제 후 새로 생성"
+              >
+                🔄
+              </button>
+            )}
+            <button className="close-button" onClick={onClose}>✕</button>
+          </div>
         </div>
 
         {/* 콘텐츠 */}
@@ -102,6 +127,27 @@ function GuideModal({ guide: rawGuide, onClose }) {
           ) : (
             /* 기존 구조화된 가이드 */
             <>
+              {/* 핵심 개념 (초심자용) */}
+              {guide.coreConcepts && guide.coreConcepts.length > 0 && (
+                <section className="guide-section">
+                  <h3>💡 핵심 개념 이해하기</h3>
+                  <div className="concepts-container">
+                    {guide.coreConcepts.map((concept, idx) => (
+                      <div key={idx} className="concept-card">
+                        <div className="concept-term">{concept.term}</div>
+                        <div className="concept-explanation">{concept.explanation}</div>
+                        {concept.analogy && (
+                          <div className="concept-analogy">
+                            <span className="analogy-icon">💭</span>
+                            <span>{concept.analogy}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
               {/* 사전 준비사항 */}
               {guide.prerequisites && guide.prerequisites.length > 0 && (
                 <section className="guide-section">
@@ -143,6 +189,18 @@ function GuideModal({ guide: rawGuide, onClose }) {
                         {expandedSteps.includes(idx) && (
                           <div className="step-content">
                             <p className="step-description">{step.description}</p>
+
+                            {/* 이 단계에서 배울 내용 */}
+                            {step.whatYouWillLearn && step.whatYouWillLearn.length > 0 && (
+                              <div className="learn-box">
+                                <div className="learn-header">🎯 이 단계에서 배울 내용</div>
+                                <ul className="learn-list">
+                                  {step.whatYouWillLearn.map((item, learnIdx) => (
+                                    <li key={learnIdx}>{item}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
 
                             {/* Substeps */}
                             {step.substeps && step.substeps.length > 0 && (
@@ -216,6 +274,22 @@ function GuideModal({ guide: rawGuide, onClose }) {
                             {step.note && (
                               <p className="step-note">💡 {step.note}</p>
                             )}
+
+                            {/* 초심자 팁 */}
+                            {step.beginnerTip && (
+                              <div className="beginner-tip-box">
+                                <div className="tip-header">🌱 초심자 팁</div>
+                                <p>{step.beginnerTip}</p>
+                              </div>
+                            )}
+
+                            {/* 흔한 실수 */}
+                            {step.commonMistake && (
+                              <div className="common-mistake-box">
+                                <div className="mistake-header">⚠️ 흔한 실수</div>
+                                <p>{step.commonMistake}</p>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -253,6 +327,21 @@ function GuideModal({ guide: rawGuide, onClose }) {
                       <li key={idx}>{tip}</li>
                     ))}
                   </ul>
+                </section>
+              )}
+
+              {/* 베스트 프랙티스 */}
+              {guide.bestPractices && guide.bestPractices.length > 0 && (
+                <section className="guide-section">
+                  <h3>✨ 베스트 프랙티스</h3>
+                  <div className="best-practices-container">
+                    {guide.bestPractices.map((practice, idx) => (
+                      <div key={idx} className="practice-item">
+                        <div className="practice-title">{practice.title}</div>
+                        <div className="practice-description">{practice.description}</div>
+                      </div>
+                    ))}
+                  </div>
                 </section>
               )}
 

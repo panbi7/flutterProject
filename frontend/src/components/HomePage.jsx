@@ -332,7 +332,14 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
 
       {/* 가이드 모달 */}
       {selectedGuide && (
-        <GuideModal guide={selectedGuide} onClose={() => setSelectedGuide(null)} />
+        <GuideModal
+          guide={selectedGuide}
+          onClose={() => setSelectedGuide(null)}
+          onRefresh={(packageId) => {
+            setSelectedGuide(null);
+            handleShowGuide(packageId);
+          }}
+        />
       )}
     </div>
   )

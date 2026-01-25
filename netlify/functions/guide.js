@@ -71,10 +71,13 @@ export async function handler(event) {
       };
     }
 
-    // 3. Blobs에 저장 (비동기, 응답 지연 없음)
-    setCachedGuide(packageId, guide).catch((err) => {
+    // 3. Blobs에 저장 (await로 저장 완료 보장)
+    try {
+      await setCachedGuide(packageId, guide);
+      console.log(`[Guide API] ✅ 캐시 저장 완료: ${packageId}`);
+    } catch (err) {
       console.error(`[Guide API] 캐시 저장 실패:`, err.message);
-    });
+    }
 
     return {
       statusCode: 200,
