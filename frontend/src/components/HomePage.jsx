@@ -178,7 +178,7 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
           {monthlyWidgets
             .filter(widget => widget.likes >= 1000)
             .sort((a, b) => b.likes - a.likes)
-            .slice(0, 5)
+            .slice(0, 30)
             .map(widget => (
             <div key={widget.id} className="widget-card">
               <h3 className="widget-name">{widget.name}</h3>

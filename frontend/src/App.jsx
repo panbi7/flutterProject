@@ -88,7 +88,7 @@ export default function App() {
             {isWidgetDropdownOpen && (
               <div className="widget-dropdown-content">
                 {monthlyWidgets.length > 0 ? (
-                  monthlyWidgets.map((widget) => (
+                  monthlyWidgets.slice(0, 5).map((widget) => (
                     <a
                       key={widget.id}
                       href={widget.pub_url}
