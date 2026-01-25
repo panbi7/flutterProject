@@ -1,60 +1,20 @@
+/**
+ * 패키지 구현 가이드 생성기
+ *
+ * all-packages.json의 exampleCode를 활용하여 Gemini로 구조화된 가이드 생성
+ */
+
 import { callGeminiForGuide } from './gemini.js';
-import fs from 'fs';
-import path from 'path';
 
-// Netlify Functions 환경 감지 및 경로 설정
-const isNetlify = !!process.env.LAMBDA_TASK_ROOT;
-
-function getExamplesBundlePath() {
-  // Netlify Functions 환경
-  if (isNetlify) {
-    // esbuild 번들링 후 경로: /var/task/netlify/functions/data/examples.json
-    return path.join(process.env.LAMBDA_TASK_ROOT, 'netlify', 'functions', 'data', 'examples.json');
-  }
-  // 로컬 개발 환경
-  return path.join(process.cwd(), 'netlify', 'functions', 'data', 'examples.json');
-}
-
-// 캐시
+// 패키지 데이터 캐시
 let cachedPackages = null;
-let cachedExamples = null;
 let cacheTimestamp = 0;
-const CACHE_TTL = 5 * 60 * 1000;
+const CACHE_TTL = 10 * 60 * 1000; // 10분
 
 /**
- * 미리 생성된 가이드 JSON을 로드합니다
+ * all-packages.json에서 패키지 데이터 로드
  */
-async function loadPreGeneratedGuide(packageName) {
-  try {
-    const baseUrl = process.env.URL || process.env.DEPLOY_URL || 'http://localhost:8888';
-
-    // netlify/functions/data/examples/{package}.json 경로
-    // 빌드 시 이 폴더도 복사되어야 함
-    const guideUrl = `${baseUrl}/guides/${packageName}.json`;
-
-    console.log(`[Guide Generator] 미리 생성된 가이드 확인: ${guideUrl}`);
-
-    const response = await fetch(guideUrl, {
-      signal: AbortSignal.timeout(3000)
-    });
-
-    if (response.ok) {
-      const guide = await response.json();
-      console.log(`[Guide Generator] ✅ 미리 생성된 가이드 발견: ${packageName}`);
-      return guide;
-    }
-
-    return null;
-  } catch (error) {
-    console.log(`[Guide Generator] 미리 생성된 가이드 없음: ${packageName}`);
-    return null;
-  }
-}
-
-/**
- * 패키지 기본 정보를 로드합니다
- */
-async function loadPackagesData() {
+async function loadAllPackages() {
   const now = Date.now();
 
   if (cachedPackages && (now - cacheTimestamp) < CACHE_TTL) {
@@ -63,216 +23,263 @@ async function loadPackagesData() {
 
   try {
     const baseUrl = process.env.URL || process.env.DEPLOY_URL || 'http://localhost:8888';
-    const dataUrl = `${baseUrl}/data/packages-lite.json`;
+    const dataUrl = `${baseUrl}/data/all-packages.json`;
+
+    console.log(`[GuideGenerator] 패키지 데이터 로드: ${dataUrl}`);
 
     const response = await fetch(dataUrl, {
-      signal: AbortSignal.timeout(5000)
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch packages: ${response.status}`);
+      throw new Error(`Failed to fetch: ${response.status}`);
     }
 
     const data = await response.json();
     cachedPackages = data.packages || [];
     cacheTimestamp = now;
 
+    console.log(`[GuideGenerator] ✅ ${cachedPackages.length}개 패키지 로드 완료`);
     return cachedPackages;
   } catch (error) {
-    console.error(`[Guide Generator] 패키지 로드 실패:`, error.message);
+    console.error(`[GuideGenerator] 패키지 로드 실패:`, error.message);
     return cachedPackages || [];
   }
 }
 
 /**
- * Example 번들 로드 (캐싱)
+ * 패키지 이름으로 데이터 조회 (exampleCode 포함)
  */
-function loadExamplesBundle() {
-  if (cachedExamples) {
-    return cachedExamples;
-  }
-
-  const bundlePath = getExamplesBundlePath();
-  console.log(`[Guide Generator] Example 번들 경로: ${bundlePath}`);
-
-  try {
-    if (fs.existsSync(bundlePath)) {
-      const content = fs.readFileSync(bundlePath, 'utf-8');
-      cachedExamples = JSON.parse(content);
-      console.log(`[Guide Generator] ✅ Example 번들 로드 완료: ${Object.keys(cachedExamples).length}개`);
-      return cachedExamples;
-    }
-
-    console.log(`[Guide Generator] ⚠️ Example 번들 파일 없음: ${bundlePath}`);
-    return {};
-  } catch (error) {
-    console.error(`[Guide Generator] Example 번들 로드 실패:`, error.message);
-    return {};
-  }
+async function findPackage(packageName) {
+  const packages = await loadAllPackages();
+  return packages.find((p) => p.name === packageName) || null;
 }
 
 /**
- * Example 코드 로드 (번들에서)
+ * HTML 엔티티 디코딩
  */
-async function loadExampleCode(packageName) {
-  const examples = loadExamplesBundle();
-  const code = examples[packageName];
-
-  if (code) {
-    console.log(`[Guide Generator] ✅ Example 발견: ${packageName} (${code.length} bytes)`);
-  } else {
-    console.log(`[Guide Generator] ⚠️ Example 없음: ${packageName}`);
-  }
-
-  return code || null;
+function decodeHtmlEntities(text) {
+  if (!text) return '';
+  return text
+    .replace(/&#47;/g, '/')
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
 }
 
 /**
- * 패키지 이름으로 데이터를 찾습니다
+ * 가이드 생성 메인 함수
  */
-async function findPackageData(packageName) {
-  const packages = await loadPackagesData();
-  return packages.find(p => p.name === packageName) || null;
-}
+export async function generateGuide(packageName) {
+  console.log(`[GuideGenerator] 시작: ${packageName}`);
 
-/**
- * 가이드를 생성합니다
- * 1. 미리 생성된 가이드가 있으면 즉시 반환
- * 2. 없으면 Gemini로 실시간 생성
- */
-export async function generateGuideFromPubDev(packageName) {
-  console.log(`[Guide Generator] 시작: ${packageName}`);
+  // 1. 패키지 데이터 조회
+  const pkg = await findPackage(packageName);
 
-  // 1. 미리 생성된 가이드 확인
-  const preGenerated = await loadPreGeneratedGuide(packageName);
-  if (preGenerated) {
-    return { ...preGenerated, source: 'pre-generated' };
-  }
-
-  // 2. 패키지 정보 확인
-  const pkgData = await findPackageData(packageName);
-
-  if (!pkgData) {
-    console.warn(`[Guide Generator] 패키지를 찾을 수 없음: ${packageName}`);
+  if (!pkg) {
+    console.warn(`[GuideGenerator] 패키지를 찾을 수 없음: ${packageName}`);
     return null;
   }
 
-  // 3. Example 코드 로드
-  const exampleCode = await loadExampleCode(packageName);
+  // 2. exampleCode 준비 (HTML 엔티티 디코딩 + 길이 제한)
+  const rawExample = pkg.exampleCode || '';
+  const exampleCode = decodeHtmlEntities(rawExample).substring(0, 1500);
+  const hasExample = exampleCode.length > 50;
 
-  console.log(`[Guide Generator] 실시간 생성:`, {
-    name: pkgData.name,
-    version: pkgData.version,
-    hasExample: !!exampleCode
+  console.log(`[GuideGenerator] 패키지 정보:`, {
+    name: pkg.name,
+    version: pkg.version,
+    hasExample,
+    exampleLength: exampleCode.length,
   });
 
-  // 4. Gemini 프롬프트 (간소화 버전)
-  const exampleSnippet = exampleCode ? `\n예제:\n${exampleCode.substring(0, 2000)}` : '';
+  // 3. Gemini 프롬프트 구성
+  const prompt = buildPrompt(pkg, exampleCode, hasExample);
 
-  const prompt = `Flutter 전문가로서 ${pkgData.name} 패키지의 구현 가이드를 JSON으로 작성하세요.
-
-패키지: ${pkgData.name} v${pkgData.version}
-설명: ${pkgData.description}
-플랫폼: ${(pkgData.platforms || []).join(', ')}${exampleSnippet}
-
-JSON 형식 (마크다운 없이):
-{
-  "packageId": "${pkgData.name}",
-  "title": "${pkgData.name} 구현 가이드",
-  "description": "간단한 설명",
-  "difficulty": "초급/중급/고급",
-  "estimatedTime": "예상 시간",
-  "prerequisites": ["준비사항"],
-  "steps": [
-    {
-      "stepNumber": 1,
-      "title": "단계 제목",
-      "description": "설명",
-      "code": { "language": "dart", "filename": "파일명", "content": "코드" },
-      "command": "명령어 (선택)",
-      "note": "참고 (선택)"
-    }
-  ],
-  "commonErrors": [{ "error": "에러", "solution": "해결" }],
-  "tips": ["팁1", "팁2"],
-  "references": [{ "title": "공식 문서", "url": "https://pub.dev/packages/${pkgData.name}" }]
-}
-
-한국어로 작성하고, 핵심 단계 4-5개를 포함하세요.`;
-
+  // 4. Gemini API 호출
   try {
-    console.log(`[Guide Generator] Gemini API 호출...`);
+    console.log(`[GuideGenerator] Gemini API 호출...`);
     const responseText = await callGeminiForGuide(prompt);
 
     if (!responseText) {
       throw new Error('Gemini 빈 응답');
     }
 
-    // 마크다운 코드블록 및 불필요한 문자 제거
-    let cleanJson = responseText
-      .replace(/```json\s*/gi, '')
-      .replace(/```\s*/g, '')
-      .trim();
-
-    // JSON 파싱 시도
-    try {
-      const guide = JSON.parse(cleanJson);
-      // plainText가 JSON에 포함되어 있으면 제거 (구조화된 가이드 우선)
-      if (guide.plainText) delete guide.plainText;
-      return { ...guide, source: 'generated' };
-    } catch (parseError) {
-      console.warn(`[Guide Generator] 첫 번째 JSON 파싱 실패, 재시도...`);
-
-      // JSON 객체 추출 재시도 (응답 중간에 JSON이 있을 수 있음)
-      const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        try {
-          const extracted = JSON.parse(jsonMatch[0]);
-          if (extracted.plainText) delete extracted.plainText;
-          console.log(`[Guide Generator] JSON 추출 성공`);
-          return { ...extracted, source: 'generated-extracted' };
-        } catch (extractError) {
-          console.warn(`[Guide Generator] JSON 추출도 실패`);
-        }
-      }
-
-      // 최종 fallback: 마크다운 형식으로 표시
-      // JSON 형태의 텍스트가 아닌 경우에만 plainText로 반환
-      const looksLikeJson = cleanJson.trim().startsWith('{') && cleanJson.trim().endsWith('}');
-      if (looksLikeJson) {
-        // JSON처럼 보이지만 파싱 실패 -> 기본 구조 반환
-        return {
-          packageId: pkgData.name,
-          title: `${pkgData.name} 구현 가이드`,
-          description: pkgData.description,
-          difficulty: '중급',
-          estimatedTime: '30분',
-          prerequisites: ['Flutter SDK 설치'],
-          steps: [{
-            stepNumber: 1,
-            title: '패키지 설치',
-            description: `pubspec.yaml에 ${pkgData.name} 패키지를 추가합니다.`,
-            code: {
-              language: 'yaml',
-              filename: 'pubspec.yaml',
-              content: `dependencies:\n  ${pkgData.name}: ^${pkgData.version || 'latest'}`
-            }
-          }],
-          references: [{ title: '공식 문서', url: `https://pub.dev/packages/${pkgData.name}` }],
-          source: 'generated-minimal'
-        };
-      }
-
-      return {
-        packageId: pkgData.name,
-        title: `${pkgData.name} 구현 가이드`,
-        description: pkgData.description,
-        plainText: responseText,
-        source: 'generated-fallback'
-      };
-    }
+    // 5. JSON 파싱
+    const guide = parseGuideResponse(responseText, pkg);
+    return guide;
   } catch (error) {
-    console.error(`[Guide Generator] 에러 (${packageName}):`, error.message);
-    throw error;
+    console.error(`[GuideGenerator] Gemini 에러:`, error.message);
+
+    // Fallback: 기본 가이드 반환
+    return createFallbackGuide(pkg, exampleCode);
   }
 }
+
+/**
+ * Gemini 프롬프트 구성
+ */
+function buildPrompt(pkg, exampleCode, hasExample) {
+  const exampleSection = hasExample
+    ? `
+
+## 공식 예제 코드 (참고용)
+\`\`\`dart
+${exampleCode}
+\`\`\`
+`
+    : '';
+
+  return `당신은 Flutter 전문가입니다. 아래 패키지의 구현 가이드를 JSON으로 작성하세요.
+
+## 패키지 정보
+- 이름: ${pkg.name}
+- 버전: ${pkg.version || 'latest'}
+- 설명: ${pkg.description || ''}
+- 플랫폼: ${(pkg.platforms || []).join(', ') || 'all'}
+${exampleSection}
+## 출력 형식 (JSON만, 마크다운 없이)
+
+{
+  "packageId": "${pkg.name}",
+  "title": "${pkg.name} 구현 가이드",
+  "description": "이 패키지의 핵심 기능을 한 문장으로",
+  "difficulty": "초급|중급|고급",
+  "estimatedTime": "예상 소요 시간",
+  "prerequisites": ["사전 준비사항 1-2개"],
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "패키지 설치",
+      "description": "단계 설명",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\\n  ${pkg.name}: ^${pkg.version || 'latest'}"
+      }
+    },
+    {
+      "stepNumber": 2,
+      "title": "기본 설정",
+      "description": "단계 설명",
+      "code": {
+        "language": "dart",
+        "filename": "main.dart",
+        "content": "// 코드"
+      }
+    }
+  ],
+  "commonErrors": [
+    { "error": "자주 발생하는 에러", "solution": "해결 방법" }
+  ],
+  "tips": ["유용한 팁 1-2개"],
+  "references": [
+    { "title": "공식 문서", "url": "https://pub.dev/packages/${pkg.name}" }
+  ]
+}
+
+## 규칙
+1. 한국어로 작성
+2. steps는 3-4개로 핵심만 간결하게
+3. 예제 코드가 있으면 참고하여 실제 사용법 반영
+4. JSON만 출력, 다른 텍스트 없이`;
+}
+
+/**
+ * Gemini 응답 파싱
+ */
+function parseGuideResponse(responseText, pkg) {
+  // 마크다운 코드블록 제거
+  let cleanJson = responseText
+    .replace(/```json\s*/gi, '')
+    .replace(/```\s*/g, '')
+    .trim();
+
+  // 첫 번째 파싱 시도
+  try {
+    const guide = JSON.parse(cleanJson);
+    console.log(`[GuideGenerator] ✅ JSON 파싱 성공`);
+    return guide;
+  } catch (e) {
+    console.warn(`[GuideGenerator] 첫 번째 파싱 실패, 재시도...`);
+  }
+
+  // JSON 객체 추출 시도
+  const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      const guide = JSON.parse(jsonMatch[0]);
+      console.log(`[GuideGenerator] ✅ JSON 추출 성공`);
+      return guide;
+    } catch (e) {
+      console.warn(`[GuideGenerator] JSON 추출 실패`);
+    }
+  }
+
+  // 파싱 실패 시 fallback
+  console.warn(`[GuideGenerator] JSON 파싱 완전 실패, fallback 반환`);
+  return createFallbackGuide(pkg, '');
+}
+
+/**
+ * Fallback 가이드 생성
+ */
+function createFallbackGuide(pkg, exampleCode) {
+  const steps = [
+    {
+      stepNumber: 1,
+      title: '패키지 설치',
+      description: `pubspec.yaml에 ${pkg.name} 패키지를 추가합니다.`,
+      code: {
+        language: 'yaml',
+        filename: 'pubspec.yaml',
+        content: `dependencies:\n  ${pkg.name}: ^${pkg.version || 'latest'}`,
+      },
+      command: 'flutter pub get',
+    },
+    {
+      stepNumber: 2,
+      title: '패키지 import',
+      description: '사용할 파일에서 패키지를 import합니다.',
+      code: {
+        language: 'dart',
+        filename: 'main.dart',
+        content: `import 'package:${pkg.name}/${pkg.name}.dart';`,
+      },
+    },
+  ];
+
+  // exampleCode가 있으면 추가 단계로 포함
+  if (exampleCode && exampleCode.length > 100) {
+    steps.push({
+      stepNumber: 3,
+      title: '기본 사용 예제',
+      description: '공식 예제를 참고하여 구현합니다.',
+      code: {
+        language: 'dart',
+        filename: 'example.dart',
+        content: exampleCode.substring(0, 800),
+      },
+    });
+  }
+
+  return {
+    packageId: pkg.name,
+    title: `${pkg.name} 구현 가이드`,
+    description: pkg.description || `${pkg.name} 패키지 사용 가이드`,
+    difficulty: '중급',
+    estimatedTime: '30분',
+    prerequisites: ['Flutter SDK 설치', 'Dart 기본 문법 이해'],
+    steps,
+    tips: ['공식 문서를 참고하여 추가 기능을 확인하세요.'],
+    references: [
+      { title: '공식 문서', url: `https://pub.dev/packages/${pkg.name}` },
+    ],
+    source: 'fallback',
+  };
+}
+
+// 이전 함수명 호환성 유지
+export { generateGuide as generateGuideFromPubDev };
