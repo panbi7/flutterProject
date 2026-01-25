@@ -200,7 +200,12 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
                   disabled={loadingGuide === widget.id}
                   className="btn-guide"
                 >
-                  {loadingGuide === widget.id ? '생성중...' : '구현 가이드'}
+                  {loadingGuide === widget.id ? (
+                    <span className="btn-spinner">
+                      <span className="spinner"></span>
+                      생성중
+                    </span>
+                  ) : '구현 가이드'}
                 </button>
               </div>
             </div>
@@ -274,7 +279,11 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
                   disabled={loadingGuide === pkg.id}
                   className="btn-sm"
                 >
-                  {loadingGuide === pkg.id ? '...' : '가이드'}
+                  {loadingGuide === pkg.id ? (
+                    <span className="btn-spinner">
+                      <span className="spinner"></span>
+                    </span>
+                  ) : '가이드'}
                 </button>
               </div>
             </div>
@@ -302,7 +311,12 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
                 disabled={loadingGuide === pkg.id}
                 className="btn-update-guide"
               >
-                {loadingGuide === pkg.id ? '생성중...' : '가이드 보기'}
+                {loadingGuide === pkg.id ? (
+                  <span className="btn-spinner btn-spinner-outline">
+                    <span className="spinner"></span>
+                    AI가 가이드를 작성하고 있어요
+                  </span>
+                ) : '가이드 보기'}
               </button>
             </div>
           ))}
@@ -329,6 +343,26 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
           ))}
         </div>
       </section>
+
+      {/* 가이드 생성 로딩 오버레이 */}
+      {loadingGuide && (
+        <div className="guide-loading-overlay">
+          <div className="guide-loading-content">
+            <div className="guide-loading-spinner"></div>
+            <div className="guide-loading-text">
+              AI가 구현 가이드를 작성하고 있습니다
+              <span className="guide-loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </div>
+            <div className="guide-loading-subtext">
+              "{loadingGuide}" 패키지의 상세 가이드를 생성 중입니다
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 가이드 모달 */}
       {selectedGuide && (

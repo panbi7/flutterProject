@@ -106,13 +106,38 @@ export default function PackageCards({ packages }) {
                   disabled={loadingGuide === p.id}
                   className="btn-primary"
                 >
-                  {loadingGuide === p.id ? '⏳ 생성중...' : '📖 구현 가이드'}
+                  {loadingGuide === p.id ? (
+                    <span className="btn-spinner">
+                      <span className="spinner"></span>
+                      생성중
+                    </span>
+                  ) : '📖 구현 가이드'}
                 </button>
               </div>
             </div>
           )
         })}
       </div>
+
+      {/* 가이드 생성 로딩 오버레이 */}
+      {loadingGuide && (
+        <div className="guide-loading-overlay">
+          <div className="guide-loading-content">
+            <div className="guide-loading-spinner"></div>
+            <div className="guide-loading-text">
+              AI가 구현 가이드를 작성하고 있습니다
+              <span className="guide-loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </div>
+            <div className="guide-loading-subtext">
+              "{loadingGuide}" 패키지의 상세 가이드를 생성 중입니다
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 가이드 모달 */}
       {selectedGuide && (
