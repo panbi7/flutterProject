@@ -85,7 +85,7 @@ export async function generateGuide(packageName) {
 
   // 2. exampleCode 준비 (HTML 엔티티 디코딩 + 길이 제한)
   const rawExample = pkg.exampleCode || '';
-  const exampleCode = decodeHtmlEntities(rawExample).substring(0, 1500);
+  const exampleCode = decodeHtmlEntities(rawExample).substring(0, 4000); // 1,500 -> 4,000으로 확대
   const hasExample = exampleCode.length > 50;
 
   console.log(`[GuideGenerator] 패키지 정보:`, {
@@ -132,7 +132,7 @@ ${exampleCode}
 `
     : '';
 
-  return `당신은 세계 최고의 Flutter 및 Dart 전문가입니다. 아래 패키지를 사용하여 앱을 구현하려는 개발자를 위해 **완벽하고 상세한 구현 가이드**를 JSON 형식으로 작성하세요.
+  return `당신은 10년 차 이상의 시니어 Flutter 소프트웨어 엔지니어이자 탁월한 교육자입니다. 아래 패키지를 사용하여 앱을 개발하려는 후배 개발자에게 **"이것만 보면 바로 실무 코딩이 가능할 수준"**의 심층 구현 마스터 클래스 가이드를 작성하세요.
 
 ## 패키지 정보
 - 이름: ${pkg.name}
@@ -141,49 +141,65 @@ ${exampleCode}
 - 플랫폼: ${(pkg.platforms || []).join(', ') || 'all'}
 ${exampleSection}
 
-## 출력 형식 (반드시 아래 구조의 순수 JSON만 출력하세요)
+## 출력 형식 (반드시 아래 순수 JSON만 출력)
 
 {
   "packageId": "${pkg.name}",
-  "title": "${pkg.name} 마스터 가이드: 설치부터 실무 구현까지",
-  "description": "이 패키지의 핵심 목적과 기능을 개발자 관점에서 한 문장으로 정의",
+  "title": "${pkg.name} 실무 마스터: 시니어 개발자의 구현 전략",
+  "description": "패키지의 공식 설명을 넘어, 실제 현업에서 이 패키지가 해결해주는 핵심 문제와 가치를 정의",
   "difficulty": "초급|중급|고급",
-  "estimatedTime": "실제 구현에 걸리는 예상 시간 (예: 20분)",
-  "prerequisites": ["사전 필요한 설정이나 지식 2-3개"],
+  "estimatedTime": "실제 주니어 개발자가 완벽히 터득하는 데 걸리는 시간",
+  "prerequisites": ["이 패키지를 다루기 전 반드시 알아야 하는 개념이나 도구 2-3개"],
   "steps": [
     {
       "stepNumber": 1,
-      "title": "단계 제목",
-      "description": "이 단계에서 수행할 작업의 핵심 설명",
-      "substeps": ["구체적인 세부 실행 항목 1", "구체적인 세부 실행 항목 2"],
+      "title": "기본 셋업 및 환경 구성",
+      "description": "설치와 임포트부터 초기화까지 한 번에 끝내는 전문가의 방법",
+      "substeps": ["가장 권장되는 설치 방식", "최적화된 라이브러리 초기화 위치"],
       "code": {
-        "language": "dart|yaml|bash",
-        "filename": "파일명",
-        "content": "// 실제 작동하는 고품질 코드 예제"
+        "language": "dart",
+        "filename": "pubspec.yaml / main.dart",
+        "content": "// 한 줄 예제가 아닌, 전체적인 컨텍스트가 포함된 코드 블록"
       },
-      "commands": ["실행할 터미널 명령어들"],
-      "explanation": "코드에 대한 친절하고 상세한 설명",
-      "note": "주의사항이나 꿀팁"
+      "commands": ["flutter pub add ${pkg.name}"],
+      "explanation": "왜 이 방식이 베스트 프랙티스인지에 대한 시니어의 설명"
+    },
+    {
+      "stepNumber": 2,
+      "title": "실무 핵심 아키텍처 구현",
+      "description": "패키지의 메인 기능을 실제 앱의 UI나 비즈니스 로직과 결합하는 심층 과정",
+      "substeps": [
+        "핵심 클래스 활용법",
+        "비동기 처리 및 데이터 스트림 관리",
+        "StatefulWidget 또는 상태 관리 라이브러리와의 연동"
+      ],
+      "code": {
+        "language": "dart",
+        "filename": "custom_implementation.dart",
+        "content": "// 바로 복사해서 사용 가능한 수준의 완성도 높은 코드"
+      },
+      "explanation": "코드의 동작 원리와 내부 매커니즘을 상세히 설명",
+      "note": "이 단계에서 흔히 실수하는 포인트와 성능 최적화 꿀팁"
     }
   ],
   "commonErrors": [
-    { "error": "에러 상황", "solution": "해결 방법", "link": "참고 URL(선택)" }
+    { "error": "심화 에러 상황", "solution": "원인 분석 및 해결 시나리오" }
   ],
-  "tips": ["전문가만의 최적화 팁이나 실무 노하우 2-3개"],
+  "tips": ["공식 문서에는 없는, 실전에서만 알 수 있는 트러블슈팅 및 최적화 기법 3개"],
   "nextSteps": [
-    { "title": "다음 도전 과제", "description": "가이드 완료 후 시도해볼 만한 응용 기능" }
+    { "title": "고급 확장 기능", "description": "더 나아가서 적용해볼 수 있는 커스텀 구현이나 연동 아이디어" }
   ],
   "references": [
     { "title": "공식 문서", "url": "https://pub.dev/packages/${pkg.name}" }
   ]
 }
 
-## 규칙
-1. **분량 극대화**: steps는 최소 5개에서 최대 8개까지 매우 상세하게 작성하세요.
-2. **구조 활용**: substeps, explanation, note, commands, nextSteps 필드를 적극적으로 사용하여 정보를 풍성하게 만드세요.
-3. **실무 중심**: 단순히 패키지 로드만 보여주지 말고, 실제 앱에서 에러 핸들링이나 상태 관리와 연동하는 실무적인 패턴을 포함하세요.
-4. **언어**: 모든 텍스트 설명은 친절한 한국어로 작성하세요.
-5. **순수 JSON**: 마크다운 코드 블록(\`\`\`json) 없이 오직 JSON 객체만 출력하세요.`;
+## 시니어 가이드 규칙 (필독)
+1. **설치 단계 최소화**: 뻔한 '설치', '추가'는 1단계로 요약하고, 2단계부터는 바로 **"어떻게 실제 화면에 그리거나 로직을 돌리는지"**에 집중하세요.
+2. **코드 완성도**: snippets가 아닌, 하나의 완전한 **Class나 Function 단위**로 코드를 전달하여 가독성과 활용성을 높이세요.
+3. **깊이 있는 설명**: "이 함수는 A를 합니다"가 아니라 "현업에서는 이 함수를 B 상황에서 C를 방지하기 위해 사용합니다"와 같이 **맥락(Context)**을 담아 설명하세요.
+4. **학습 데이터 활용**: 위에서 제공된 '공식 예제 코드'의 패턴을 분석하여, 패키지마다의 특수한 사용법(예: 옵션 설정, 리스너 등록 등)을 가이드에 녹여내세요.
+5. **언어**: 교육적이면서 친절한 한국어로 작성하세요.`;
 }
 
 /**

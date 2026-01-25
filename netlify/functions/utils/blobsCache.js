@@ -46,7 +46,7 @@ export async function setCachedGuide(packageId, guide) {
       ...guide,
       packageName: packageId,
       cachedAt: new Date().toISOString(),
-      generatorVersion: '2.0', // 프롬프트 엔진 버전
+      generatorVersion: '3.0', // 심층 고도화 엔진 버전
     };
 
     await store.setJSON(packageId, dataToStore);
