@@ -19,14 +19,14 @@ export async function getCachedGuide(packageId) {
     const cached = await store.get(packageId, { type: 'json' });
 
     if (cached) {
-      console.log(`[Blobs Cache] ✅ 캐시 히트: ${packageId}`);
+      console.log(`[Blobs Cache] ✅ HIT: ${packageId} (Cached at: ${cached.cachedAt || 'unknown'})`);
       return cached;
     }
 
-    console.log(`[Blobs Cache] ⚪ 캐시 미스: ${packageId}`);
+    console.log(`[Blobs Cache] ⚪ MISS: ${packageId}`);
     return null;
   } catch (error) {
-    console.error(`[Blobs Cache] 조회 실패 (${packageId}):`, error.message);
+    console.error(`[Blobs Cache] ❌ Get failed (${packageId}):`, error.message);
     return null;
   }
 }
@@ -44,14 +44,16 @@ export async function setCachedGuide(packageId, guide) {
     // 메타데이터와 함께 저장
     const dataToStore = {
       ...guide,
+      packageName: packageId,
       cachedAt: new Date().toISOString(),
+      generatorVersion: '2.0', // 프롬프트 엔진 버전
     };
 
     await store.setJSON(packageId, dataToStore);
-    console.log(`[Blobs Cache] ✅ 캐시 저장: ${packageId}`);
+    console.log(`[Blobs Cache] ✅ STORED: ${packageId} (Version: ${dataToStore.generatorVersion})`);
     return true;
   } catch (error) {
-    console.error(`[Blobs Cache] 저장 실패 (${packageId}):`, error.message);
+    console.error(`[Blobs Cache] ❌ Store failed (${packageId}):`, error.message);
     return false;
   }
 }
@@ -64,10 +66,10 @@ export async function deleteCachedGuide(packageId) {
   try {
     const store = getStore(STORE_NAME);
     await store.delete(packageId);
-    console.log(`[Blobs Cache] 🗑️ 캐시 삭제: ${packageId}`);
+    console.log(`[Blobs Cache] 🗑️ DELETED: ${packageId}`);
     return true;
   } catch (error) {
-    console.error(`[Blobs Cache] 삭제 실패 (${packageId}):`, error.message);
+    console.error(`[Blobs Cache] ❌ Delete failed (${packageId}):`, error.message);
     return false;
   }
 }

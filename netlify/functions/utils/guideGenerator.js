@@ -132,7 +132,7 @@ ${exampleCode}
 `
     : '';
 
-  return `당신은 Flutter 전문가입니다. 아래 패키지의 구현 가이드를 JSON으로 작성하세요.
+  return `당신은 세계 최고의 Flutter 및 Dart 전문가입니다. 아래 패키지를 사용하여 앱을 구현하려는 개발자를 위해 **완벽하고 상세한 구현 가이드**를 JSON 형식으로 작성하세요.
 
 ## 패키지 정보
 - 이름: ${pkg.name}
@@ -140,51 +140,50 @@ ${exampleCode}
 - 설명: ${pkg.description || ''}
 - 플랫폼: ${(pkg.platforms || []).join(', ') || 'all'}
 ${exampleSection}
-## 출력 형식 (JSON만, 마크다운 없이)
+
+## 출력 형식 (반드시 아래 구조의 순수 JSON만 출력하세요)
 
 {
   "packageId": "${pkg.name}",
-  "title": "${pkg.name} 구현 가이드",
-  "description": "이 패키지의 핵심 기능을 한 문장으로",
+  "title": "${pkg.name} 마스터 가이드: 설치부터 실무 구현까지",
+  "description": "이 패키지의 핵심 목적과 기능을 개발자 관점에서 한 문장으로 정의",
   "difficulty": "초급|중급|고급",
-  "estimatedTime": "예상 소요 시간",
-  "prerequisites": ["사전 준비사항 1-2개"],
+  "estimatedTime": "실제 구현에 걸리는 예상 시간 (예: 20분)",
+  "prerequisites": ["사전 필요한 설정이나 지식 2-3개"],
   "steps": [
     {
       "stepNumber": 1,
-      "title": "패키지 설치",
-      "description": "단계 설명",
+      "title": "단계 제목",
+      "description": "이 단계에서 수행할 작업의 핵심 설명",
+      "substeps": ["구체적인 세부 실행 항목 1", "구체적인 세부 실행 항목 2"],
       "code": {
-        "language": "yaml",
-        "filename": "pubspec.yaml",
-        "content": "dependencies:\\n  ${pkg.name}: ^${pkg.version || 'latest'}"
-      }
-    },
-    {
-      "stepNumber": 2,
-      "title": "기본 설정",
-      "description": "단계 설명",
-      "code": {
-        "language": "dart",
-        "filename": "main.dart",
-        "content": "// 코드"
-      }
+        "language": "dart|yaml|bash",
+        "filename": "파일명",
+        "content": "// 실제 작동하는 고품질 코드 예제"
+      },
+      "commands": ["실행할 터미널 명령어들"],
+      "explanation": "코드에 대한 친절하고 상세한 설명",
+      "note": "주의사항이나 꿀팁"
     }
   ],
   "commonErrors": [
-    { "error": "자주 발생하는 에러", "solution": "해결 방법" }
+    { "error": "에러 상황", "solution": "해결 방법", "link": "참고 URL(선택)" }
   ],
-  "tips": ["유용한 팁 1-2개"],
+  "tips": ["전문가만의 최적화 팁이나 실무 노하우 2-3개"],
+  "nextSteps": [
+    { "title": "다음 도전 과제", "description": "가이드 완료 후 시도해볼 만한 응용 기능" }
+  ],
   "references": [
     { "title": "공식 문서", "url": "https://pub.dev/packages/${pkg.name}" }
   ]
 }
 
 ## 규칙
-1. 한국어로 작성
-2. steps는 3-4개로 핵심만 간결하게
-3. 예제 코드가 있으면 참고하여 실제 사용법 반영
-4. JSON만 출력, 다른 텍스트 없이`;
+1. **분량 극대화**: steps는 최소 5개에서 최대 8개까지 매우 상세하게 작성하세요.
+2. **구조 활용**: substeps, explanation, note, commands, nextSteps 필드를 적극적으로 사용하여 정보를 풍성하게 만드세요.
+3. **실무 중심**: 단순히 패키지 로드만 보여주지 말고, 실제 앱에서 에러 핸들링이나 상태 관리와 연동하는 실무적인 패턴을 포함하세요.
+4. **언어**: 모든 텍스트 설명은 친절한 한국어로 작성하세요.
+5. **순수 JSON**: 마크다운 코드 블록(\`\`\`json) 없이 오직 JSON 객체만 출력하세요.`;
 }
 
 /**
