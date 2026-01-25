@@ -22,20 +22,41 @@ export async function callGeminiForGuide(prompt) {
       throw new Error('Gemini API key not configured')
     }
 
+    console.log(`[GEMINI GUIDE] 프롬프트 길이: ${prompt.length}자`)
+
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 0.1,
+        temperature: 0.2, // 약간 높여서 더 자연스러운 응답
+        topP: 0.8,
+        topK: 40,
         // maxOutputTokens 제한 없음 - 상세한 가이드 생성을 위해
       },
     })
+
     const response = await result.response
-    return response.text()
+    const text = response.text()
+
+    console.log(`[GEMINI GUIDE] 응답 길이: ${text.length}자`)
+
+    // 응답이 너무 짧으면 경고
+    if (text.length < 500) {
+      console.warn(`[GEMINI GUIDE] 응답이 너무 짧음: ${text.length}자`)
+    }
+
+    return text
   } catch (error) {
     const errorMsg = !GEMINI_API_KEY
       ? '가이드 생성용 GEMINI_API_KEY가 설정되지 않았습니다 (Netlify 설정 확인).'
       : error.message
+
     console.error('[GEMINI GUIDE] Error:', errorMsg)
+
+    // 상세 에러 로깅
+    if (error.response) {
+      console.error('[GEMINI GUIDE] Response error:', error.response)
+    }
+
     throw new Error(errorMsg)
   }
 }
