@@ -111,6 +111,25 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
 
   return (
     <div className="home-page">
+      {/* 데이터 업데이트 정보 */}
+      {lastUpdated && (
+        <div className="data-update-banner">
+          <div className="update-icon">🔄</div>
+          <div className="update-info">
+            <div className="update-label">최근 업데이트</div>
+            <div className="update-time">
+              {new Date(lastUpdated).toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 통계 대시보드 */}
       <section className="stats-dashboard">
         <div className="stat-card">
@@ -130,11 +149,6 @@ export default function HomePage({ onCategoryClick, onPackageSearch }) {
           <div className="stat-label">Flutter Favorites</div>
         </div>
       </section>
-      {lastUpdated && (
-        <div className="data-updated">
-          데이터 업데이트: {new Date(lastUpdated).toLocaleDateString('ko-KR')}
-        </div>
-      )}
 
       {/* 빠른 기능 찾기 */}
       <section className="quick-categories">

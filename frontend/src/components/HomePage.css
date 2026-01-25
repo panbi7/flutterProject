@@ -601,11 +601,38 @@
   }
 }
 
-/* 데이터 업데이트 날짜 */
-.data-updated {
-  text-align: center;
+/* 데이터 업데이트 배너 */
+.data-update-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.update-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.update-info {
+  flex: 1;
+}
+
+.update-label {
   font-size: 11px;
   color: var(--muted);
-  margin-bottom: 20px;
-  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.update-time {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
 }
