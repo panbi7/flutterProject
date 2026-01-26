@@ -12,8 +12,8 @@ if (!_dirname) _dirname = process.cwd()
 
 export const PORT = process.env.PORT || 3000
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
-// gemini-2.0-flash-exp - 실험적이지만 할당량이 넉넉함
-export const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp'
+// gemini-2.5-flash - 하루 20회 무료 할당량 (리셋: 매일)
+export const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
 
 export const ALLOWED_INTENTS = [
   'auth_basic',
