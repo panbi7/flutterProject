@@ -104,6 +104,13 @@ function decodeHtmlEntities(text) {
 export async function generateGuide(packageName) {
   console.log(`[GuideGenerator] 시작: ${packageName}`);
 
+  // 디버그 정보 수집
+  const debug = {
+    packageName,
+    timestamp: new Date().toISOString(),
+    steps: [],
+  };
+
   // 1. 패키지 데이터 조회
   const pkg = await findPackage(packageName);
 
@@ -112,10 +119,14 @@ export async function generateGuide(packageName) {
     return null;
   }
 
+  debug.steps.push({ step: 'package_found', name: pkg.name, version: pkg.version });
+
   // 2. exampleCode 준비
   const rawExample = pkg.exampleCode || '';
   const exampleCode = decodeHtmlEntities(rawExample).substring(0, 2000);
   const hasExample = exampleCode.length > 50;
+
+  debug.steps.push({ step: 'example_code', hasExample, length: exampleCode.length });
 
   console.log(`[GuideGenerator] 패키지 정보:`, {
     name: pkg.name,
@@ -126,6 +137,7 @@ export async function generateGuide(packageName) {
 
   // 3. Gemini 프롬프트 구성 (간소화된 버전)
   const prompt = buildPrompt(pkg, exampleCode, hasExample);
+  debug.steps.push({ step: 'prompt_built', promptLength: prompt.length });
 
   // 4. Gemini API 호출
   try {
@@ -133,24 +145,47 @@ export async function generateGuide(packageName) {
     const responseText = await callGeminiForGuide(prompt);
 
     if (!responseText) {
-      throw new Error('Gemini 빈 응답');
+      debug.steps.push({ step: 'gemini_error', reason: 'empty_response' });
+      debug.fallbackReason = 'Gemini API가 빈 응답을 반환했습니다.';
+      const fallback = createFallbackGuide(pkg, exampleCode);
+      fallback._debug = debug;
+      return fallback;
     }
 
+    debug.steps.push({ step: 'gemini_response', responseLength: responseText.length });
     console.log(`[GuideGenerator] Gemini 응답 길이: ${responseText.length}자`);
 
     // 5. JSON 파싱
-    const guide = parseGuideResponse(responseText, pkg);
+    const parseResult = parseGuideResponse(responseText, pkg);
 
-    if (guide && guide.steps && guide.steps.length > 0) {
-      console.log(`[GuideGenerator] ✅ 가이드 생성 성공: ${guide.steps.length}단계`);
-      return guide;
+    if (parseResult && parseResult.steps && parseResult.steps.length > 0) {
+      console.log(`[GuideGenerator] ✅ 가이드 생성 성공: ${parseResult.steps.length}단계`);
+      debug.steps.push({ step: 'parse_success', stepsCount: parseResult.steps.length });
+      parseResult._debug = debug;
+      return parseResult;
     }
 
+    // 파싱 실패 원인 기록
+    debug.steps.push({
+      step: 'parse_failed',
+      hasResult: !!parseResult,
+      hasSteps: !!(parseResult && parseResult.steps),
+      stepsLength: parseResult?.steps?.length || 0,
+      responsePreview: responseText.substring(0, 500),
+    });
+    debug.fallbackReason = `JSON 파싱 실패 - 응답 미리보기: ${responseText.substring(0, 200)}...`;
+
     console.warn(`[GuideGenerator] 파싱된 가이드가 유효하지 않음, fallback 사용`);
-    return createFallbackGuide(pkg, exampleCode);
+    const fallback = createFallbackGuide(pkg, exampleCode);
+    fallback._debug = debug;
+    return fallback;
   } catch (error) {
     console.error(`[GuideGenerator] Gemini 에러:`, error.message);
-    return createFallbackGuide(pkg, exampleCode);
+    debug.steps.push({ step: 'gemini_exception', error: error.message });
+    debug.fallbackReason = `Gemini API 에러: ${error.message}`;
+    const fallback = createFallbackGuide(pkg, exampleCode);
+    fallback._debug = debug;
+    return fallback;
   }
 }
 

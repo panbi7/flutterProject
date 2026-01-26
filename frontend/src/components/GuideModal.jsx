@@ -375,6 +375,81 @@ function GuideModal({ guide: rawGuide, onClose, onRefresh }) {
                   </ul>
                 </section>
               )}
+
+              {/* 디버그 정보 (fallback일 때만 표시) */}
+              {guide.source === 'fallback' && guide._debug && (
+                <section className="guide-section" style={{
+                  background: '#fff3cd',
+                  border: '1px solid #ffc107',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  marginTop: '20px'
+                }}>
+                  <h3 style={{ color: '#856404', marginBottom: '12px' }}>🔍 왜 기본 가이드가 나왔나요?</h3>
+
+                  {guide._debug.fallbackReason && (
+                    <div style={{
+                      background: '#fff',
+                      padding: '12px',
+                      borderRadius: '6px',
+                      marginBottom: '12px',
+                      fontFamily: 'monospace',
+                      fontSize: '13px',
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-all'
+                    }}>
+                      <strong>원인:</strong> {guide._debug.fallbackReason}
+                    </div>
+                  )}
+
+                  <details style={{ marginTop: '12px' }}>
+                    <summary style={{ cursor: 'pointer', fontWeight: 'bold', color: '#856404' }}>
+                      상세 처리 과정 보기
+                    </summary>
+                    <div style={{
+                      marginTop: '8px',
+                      background: '#fff',
+                      padding: '12px',
+                      borderRadius: '6px',
+                      fontFamily: 'monospace',
+                      fontSize: '12px'
+                    }}>
+                      {guide._debug.steps && guide._debug.steps.map((step, idx) => (
+                        <div key={idx} style={{
+                          padding: '4px 0',
+                          borderBottom: '1px solid #eee'
+                        }}>
+                          <strong>{idx + 1}. {step.step}</strong>
+                          <pre style={{
+                            margin: '4px 0 0 0',
+                            fontSize: '11px',
+                            color: '#666',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-all'
+                          }}>
+                            {JSON.stringify(step, null, 2)}
+                          </pre>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+
+                  <div style={{
+                    marginTop: '12px',
+                    padding: '10px',
+                    background: '#e7f5ff',
+                    borderRadius: '6px',
+                    fontSize: '13px'
+                  }}>
+                    <strong>💡 해결 방법:</strong>
+                    <ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
+                      <li>브라우저 캐시 삭제: 상단 🔄 버튼 클릭</li>
+                      <li>Gemini API 할당량 확인 (하루 제한 있음)</li>
+                      <li>Netlify 로그에서 상세 에러 확인</li>
+                    </ul>
+                  </div>
+                </section>
+              )}
             </>
           )}
         </div>
