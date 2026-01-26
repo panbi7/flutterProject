@@ -1,0 +1,245 @@
+{
+  "packageId": "flutter_bloc",
+  "title": "flutter_bloc 실전 마스터 가이드",
+  "generatedAt": "2026-01-26T08:45:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "8.1.6",
+  "packageLikes": 7960,
+
+  "overview": {
+    "what": "flutter_bloc은 Flutter에서 BLoC(Business Logic Component) 패턴을 구현하기 위한 상태 관리 라이브러리입니다. UI와 비즈니스 로직을 명확하게 분리하여 테스트 가능하고 유지보수하기 쉬운 앱을 만들 수 있습니다. 내부적으로 Stream을 사용하여 상태 변화를 관리하며, Cubit과 Bloc 두 가지 방식을 제공합니다.",
+    "why": "setState만으로 상태를 관리하면 코드가 복잡해지고 테스트가 어려워집니다. flutter_bloc은 명확한 상태 흐름(Event → Bloc → State)을 제공하여 버그를 줄이고 디버깅을 쉽게 합니다. Provider나 Riverpod보다 더 엄격한 구조를 원하는 팀에 적합하며, 대규모 앱에서 검증된 패턴입니다.",
+    "when": "1) 중대형 규모의 앱에서 체계적인 상태 관리가 필요할 때, 2) 팀 프로젝트에서 일관된 코드 구조가 필요할 때, 3) 상태 변화를 추적하고 디버깅해야 할 때, 4) 비즈니스 로직을 UI와 완전히 분리하고 싶을 때, 5) 단위 테스트를 철저히 작성해야 할 때",
+    "features": [
+      "🎯 명확한 구조: Event → Bloc → State 흐름으로 예측 가능한 상태 관리",
+      "⚡ Cubit 지원: 간단한 상태 관리를 위한 경량 버전 제공",
+      "🔧 DevTools 통합: 상태 변화 시각화 및 타임트래블 디버깅",
+      "📱 Flutter 위젯 통합: BlocBuilder, BlocListener 등 편리한 위젯 제공",
+      "🛡️ 테스트 용이성: bloc_test 패키지로 쉬운 단위 테스트"
+    ]
+  },
+
+  "description": "BLoC 패턴으로 UI와 비즈니스 로직을 분리하는 Flutter 공식 권장 상태 관리 라이브러리",
+  "difficulty": "중급 - BLoC 패턴 개념 이해 필요",
+  "estimatedTime": "2-3시간",
+  "prerequisites": [
+    "Flutter 기본 위젯 (StatefulWidget, StatelessWidget) 이해",
+    "Dart Stream 기본 개념",
+    "상태 관리의 필요성 인식",
+    "async/await 비동기 프로그래밍"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "Bloc",
+      "explanation": "Event를 받아 State를 생성하는 비즈니스 로직 컴포넌트입니다. Event 기반으로 동작하며, 복잡한 비즈니스 로직에 적합합니다. on<Event>() 메서드로 이벤트 핸들러를 등록합니다.",
+      "analogy": "🏭 공장에 비유하면, 원자재(Event)가 들어오면 가공하여 제품(State)을 만들어내는 것과 같습니다.",
+      "usage": "class CounterBloc extends Bloc<CounterEvent, int> { ... }"
+    },
+    {
+      "term": "Cubit",
+      "explanation": "Bloc의 간소화된 버전으로, Event 없이 메서드 호출로 상태를 변경합니다. 간단한 상태 관리에 적합하며 보일러플레이트가 적습니다.",
+      "analogy": "🎮 리모컨에 비유하면, 버튼(메서드)을 누르면 바로 TV 상태가 바뀌는 것처럼 직접적입니다.",
+      "usage": "class CounterCubit extends Cubit<int> { void increment() => emit(state + 1); }"
+    },
+    {
+      "term": "BlocProvider",
+      "explanation": "Bloc/Cubit 인스턴스를 위젯 트리에 제공하는 위젯입니다. 하위 위젯에서 context.read<Bloc>()로 접근할 수 있습니다.",
+      "analogy": "🔌 콘센트에 비유하면, 전기(Bloc)를 제공하여 하위 기기(위젯)들이 사용할 수 있게 합니다.",
+      "usage": "BlocProvider(create: (context) => CounterBloc(), child: MyApp())"
+    },
+    {
+      "term": "BlocBuilder",
+      "explanation": "Bloc/Cubit의 상태 변화에 따라 UI를 다시 빌드하는 위젯입니다. builder 콜백에서 현재 상태를 받아 UI를 구성합니다.",
+      "analogy": "📺 TV 화면에 비유하면, 채널(상태)이 바뀔 때마다 화면이 업데이트되는 것과 같습니다.",
+      "usage": "BlocBuilder<CounterBloc, int>(builder: (context, count) => Text('$count'))"
+    },
+    {
+      "term": "BlocListener",
+      "explanation": "상태 변화에 반응하여 일회성 작업(네비게이션, 스낵바 등)을 수행합니다. UI를 빌드하지 않고 사이드 이펙트만 처리합니다.",
+      "analogy": "🔔 알림 벨에 비유하면, 상태가 바뀔 때 알림을 주지만 화면 자체를 바꾸지는 않습니다.",
+      "usage": "BlocListener<AuthBloc, AuthState>(listener: (context, state) { if (state is Authenticated) Navigator.pushNamed(context, '/home'); })"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "flutter_bloc과 관련 패키지를 설치합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  flutter_bloc: ^8.1.6\n  equatable: ^2.0.5  # 상태 비교를 위한 패키지 (권장)\n\ndev_dependencies:\n  bloc_test: ^9.1.7  # Bloc 테스트용"
+      },
+      "commands": ["flutter pub add flutter_bloc equatable", "flutter pub add --dev bloc_test"],
+      "explanation": "• flutter_bloc: 핵심 패키지\n• equatable: 상태 객체 비교를 쉽게 해주는 패키지 (불필요한 리빌드 방지)\n• bloc_test: Bloc/Cubit 단위 테스트용 패키지",
+      "platformSetup": {
+        "android": "추가 설정 없음",
+        "ios": "추가 설정 없음"
+      },
+      "beginnerTip": "💡 equatable을 사용하면 상태 객체의 == 연산자를 쉽게 구현할 수 있어 불필요한 UI 업데이트를 방지합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 Cubit으로 시작하기 (간단한 카운터)",
+      "description": "가장 간단한 Cubit 예제로 BLoC 패턴의 기본을 익힙니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/counter/counter_cubit.dart",
+        "content": "import 'package:flutter_bloc/flutter_bloc.dart';\n\n/// 카운터 Cubit - 가장 간단한 상태 관리\n/// \n/// Cubit은 Event 없이 메서드 호출로 상태를 변경합니다.\n/// 간단한 로직에 적합합니다.\nclass CounterCubit extends Cubit<int> {\n  // 초기 상태를 생성자에서 super로 전달\n  CounterCubit() : super(0);\n\n  /// 카운터 증가\n  void increment() {\n    // emit()으로 새로운 상태를 발행\n    // state는 현재 상태 값\n    emit(state + 1);\n  }\n\n  /// 카운터 감소\n  void decrement() {\n    if (state > 0) {\n      emit(state - 1);\n    }\n  }\n\n  /// 카운터 초기화\n  void reset() => emit(0);\n\n  /// 특정 값으로 설정\n  void setValue(int value) => emit(value);\n}"
+      },
+      "explanation": "【Cubit 구조】\n• extends Cubit<StateType>: 상태 타입 지정\n• super(initialState): 초기 상태 설정\n• state: 현재 상태 읽기\n• emit(newState): 새 상태 발행\n\n【Cubit vs Bloc】\n• Cubit: 메서드 호출 → 상태 변경 (간단)\n• Bloc: 이벤트 발생 → 핸들러 처리 → 상태 변경 (복잡한 로직에 적합)",
+      "beginnerTip": "⚠️ emit()은 동일한 상태를 발행하면 UI가 업데이트되지 않습니다. 상태가 변경될 때만 호출하세요."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🎯 UI와 Cubit 연결하기",
+      "description": "BlocProvider로 Cubit을 제공하고 BlocBuilder로 UI를 업데이트합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/counter/counter_page.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter_bloc/flutter_bloc.dart';\nimport 'counter_cubit.dart';\n\n/// 카운터 페이지 - Cubit과 UI 연결\nclass CounterPage extends StatelessWidget {\n  const CounterPage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // BlocProvider로 Cubit 인스턴스 제공\n    return BlocProvider(\n      // create: Cubit 인스턴스 생성\n      create: (context) => CounterCubit(),\n      child: const CounterView(),\n    );\n  }\n}\n\n/// 카운터 뷰 - 실제 UI\nclass CounterView extends StatelessWidget {\n  const CounterView({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Cubit Counter')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            const Text('카운터 값:', style: TextStyle(fontSize: 18)),\n            const SizedBox(height: 8),\n            \n            // BlocBuilder: 상태 변화에 따라 UI 리빌드\n            BlocBuilder<CounterCubit, int>(\n              builder: (context, count) {\n                return Text(\n                  '$count',\n                  style: const TextStyle(\n                    fontSize: 48,\n                    fontWeight: FontWeight.bold,\n                  ),\n                );\n              },\n            ),\n            \n            const SizedBox(height: 24),\n            \n            // 버튼들\n            Row(\n              mainAxisAlignment: MainAxisAlignment.center,\n              children: [\n                // context.read<T>(): Cubit 인스턴스 접근 (리빌드 없음)\n                ElevatedButton(\n                  onPressed: () => context.read<CounterCubit>().decrement(),\n                  child: const Icon(Icons.remove),\n                ),\n                const SizedBox(width: 16),\n                ElevatedButton(\n                  onPressed: () => context.read<CounterCubit>().increment(),\n                  child: const Icon(Icons.add),\n                ),\n                const SizedBox(width: 16),\n                ElevatedButton(\n                  onPressed: () => context.read<CounterCubit>().reset(),\n                  child: const Icon(Icons.refresh),\n                ),\n              ],\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\n// main.dart에서 사용\nvoid main() {\n  runApp(\n    const MaterialApp(\n      home: CounterPage(),\n    ),\n  );\n}"
+      },
+      "explanation": "【핵심 위젯】\n• BlocProvider: Cubit/Bloc 인스턴스를 위젯 트리에 제공\n• BlocBuilder: 상태 변화 시 builder 콜백 실행하여 UI 업데이트\n• context.read<T>(): 리빌드 없이 Cubit/Bloc 인스턴스 접근\n• context.watch<T>(): 리빌드와 함께 상태 구독 (BlocBuilder 대안)",
+      "beginnerTip": "📌 context.read()는 onPressed 같은 콜백에서, context.watch()는 build() 메서드 내에서 사용하세요."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🏗️ Bloc으로 복잡한 로직 처리",
+      "description": "Event 기반의 Bloc을 사용하여 복잡한 비즈니스 로직을 처리합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/auth/auth_bloc.dart",
+        "content": "import 'package:equatable/equatable.dart';\nimport 'package:flutter_bloc/flutter_bloc.dart';\n\n// ===== Events =====\n/// 인증 관련 이벤트들\nabstract class AuthEvent extends Equatable {\n  const AuthEvent();\n  @override\n  List<Object?> get props => [];\n}\n\nclass LoginRequested extends AuthEvent {\n  final String email;\n  final String password;\n  \n  const LoginRequested({required this.email, required this.password});\n  \n  @override\n  List<Object?> get props => [email, password];\n}\n\nclass LogoutRequested extends AuthEvent {}\n\nclass AuthCheckRequested extends AuthEvent {}\n\n// ===== States =====\n/// 인증 상태들\nabstract class AuthState extends Equatable {\n  const AuthState();\n  @override\n  List<Object?> get props => [];\n}\n\nclass AuthInitial extends AuthState {}\n\nclass AuthLoading extends AuthState {}\n\nclass Authenticated extends AuthState {\n  final String userId;\n  final String email;\n  \n  const Authenticated({required this.userId, required this.email});\n  \n  @override\n  List<Object?> get props => [userId, email];\n}\n\nclass Unauthenticated extends AuthState {}\n\nclass AuthError extends AuthState {\n  final String message;\n  \n  const AuthError(this.message);\n  \n  @override\n  List<Object?> get props => [message];\n}\n\n// ===== Bloc =====\nclass AuthBloc extends Bloc<AuthEvent, AuthState> {\n  final AuthRepository _authRepository;\n\n  AuthBloc({required AuthRepository authRepository})\n      : _authRepository = authRepository,\n        super(AuthInitial()) {\n    // 이벤트 핸들러 등록\n    on<LoginRequested>(_onLoginRequested);\n    on<LogoutRequested>(_onLogoutRequested);\n    on<AuthCheckRequested>(_onAuthCheckRequested);\n  }\n\n  /// 로그인 요청 처리\n  Future<void> _onLoginRequested(\n    LoginRequested event,\n    Emitter<AuthState> emit,\n  ) async {\n    emit(AuthLoading());\n    \n    try {\n      final user = await _authRepository.login(\n        email: event.email,\n        password: event.password,\n      );\n      \n      emit(Authenticated(userId: user.id, email: user.email));\n    } catch (e) {\n      emit(AuthError(e.toString()));\n    }\n  }\n\n  /// 로그아웃 요청 처리\n  Future<void> _onLogoutRequested(\n    LogoutRequested event,\n    Emitter<AuthState> emit,\n  ) async {\n    await _authRepository.logout();\n    emit(Unauthenticated());\n  }\n\n  /// 인증 상태 확인\n  Future<void> _onAuthCheckRequested(\n    AuthCheckRequested event,\n    Emitter<AuthState> emit,\n  ) async {\n    final user = await _authRepository.getCurrentUser();\n    if (user != null) {\n      emit(Authenticated(userId: user.id, email: user.email));\n    } else {\n      emit(Unauthenticated());\n    }\n  }\n}\n\n// ===== Repository (예시) =====\nclass User {\n  final String id;\n  final String email;\n  User({required this.id, required this.email});\n}\n\nclass AuthRepository {\n  Future<User> login({required String email, required String password}) async {\n    await Future.delayed(const Duration(seconds: 1));\n    // 실제 로그인 로직\n    return User(id: '123', email: email);\n  }\n  \n  Future<void> logout() async {\n    await Future.delayed(const Duration(milliseconds: 500));\n  }\n  \n  Future<User?> getCurrentUser() async {\n    return null;\n  }\n}"
+      },
+      "explanation": "【Bloc 구조】\n• Event: 사용자 액션을 나타내는 불변 클래스\n• State: 앱 상태를 나타내는 불변 클래스\n• Bloc: Event를 받아 State를 생성하는 로직\n\n【Equatable 사용 이유】\n• 상태 비교를 자동화하여 불필요한 리빌드 방지\n• props에 비교할 필드들을 나열\n\n【이벤트 핸들러】\n• on<EventType>(handler): 특정 이벤트 처리기 등록\n• Emitter<State>: emit() 대신 사용하여 상태 발행",
+      "beginnerTip": "🎯 Event와 State는 불변(immutable)이어야 합니다. const 생성자와 final 필드를 사용하세요."
+    },
+    {
+      "stepNumber": 5,
+      "title": "⚡ BlocListener와 BlocConsumer",
+      "description": "상태 변화에 따른 사이드 이펙트 처리와 UI 업데이트를 함께 다룹니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/auth/login_page.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter_bloc/flutter_bloc.dart';\nimport 'auth_bloc.dart';\n\nclass LoginPage extends StatefulWidget {\n  const LoginPage({super.key});\n\n  @override\n  State<LoginPage> createState() => _LoginPageState();\n}\n\nclass _LoginPageState extends State<LoginPage> {\n  final _emailController = TextEditingController();\n  final _passwordController = TextEditingController();\n\n  @override\n  void dispose() {\n    _emailController.dispose();\n    _passwordController.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return BlocProvider(\n      create: (context) => AuthBloc(\n        authRepository: AuthRepository(),\n      ),\n      child: Scaffold(\n        appBar: AppBar(title: const Text('로그인')),\n        body: Padding(\n          padding: const EdgeInsets.all(16),\n          // BlocConsumer = BlocListener + BlocBuilder\n          child: BlocConsumer<AuthBloc, AuthState>(\n            // listener: 사이드 이펙트 처리 (네비게이션, 스낵바 등)\n            listener: (context, state) {\n              if (state is Authenticated) {\n                // 로그인 성공 → 홈으로 이동\n                Navigator.of(context).pushReplacementNamed('/home');\n              } else if (state is AuthError) {\n                // 에러 → 스낵바 표시\n                ScaffoldMessenger.of(context).showSnackBar(\n                  SnackBar(\n                    content: Text(state.message),\n                    backgroundColor: Colors.red,\n                  ),\n                );\n              }\n            },\n            // listenWhen: 특정 조건에서만 listener 실행 (선택)\n            listenWhen: (previous, current) {\n              return current is Authenticated || current is AuthError;\n            },\n            // builder: UI 빌드\n            builder: (context, state) {\n              return Column(\n                mainAxisAlignment: MainAxisAlignment.center,\n                children: [\n                  TextField(\n                    controller: _emailController,\n                    decoration: const InputDecoration(\n                      labelText: '이메일',\n                      border: OutlineInputBorder(),\n                    ),\n                    enabled: state is! AuthLoading,\n                  ),\n                  const SizedBox(height: 16),\n                  TextField(\n                    controller: _passwordController,\n                    decoration: const InputDecoration(\n                      labelText: '비밀번호',\n                      border: OutlineInputBorder(),\n                    ),\n                    obscureText: true,\n                    enabled: state is! AuthLoading,\n                  ),\n                  const SizedBox(height: 24),\n                  SizedBox(\n                    width: double.infinity,\n                    height: 48,\n                    child: ElevatedButton(\n                      onPressed: state is AuthLoading\n                          ? null\n                          : () {\n                              context.read<AuthBloc>().add(\n                                LoginRequested(\n                                  email: _emailController.text,\n                                  password: _passwordController.text,\n                                ),\n                              );\n                            },\n                      child: state is AuthLoading\n                          ? const SizedBox(\n                              width: 24,\n                              height: 24,\n                              child: CircularProgressIndicator(\n                                strokeWidth: 2,\n                                color: Colors.white,\n                              ),\n                            )\n                          : const Text('로그인'),\n                    ),\n                  ),\n                ],\n              );\n            },\n            // buildWhen: 특정 조건에서만 리빌드 (선택)\n            buildWhen: (previous, current) {\n              return current is AuthLoading ||\n                  current is AuthInitial ||\n                  current is Unauthenticated;\n            },\n          ),\n        ),\n      ),\n    );\n  }\n}\n\n// BlocListener만 사용하는 예시\nclass ListenerOnlyExample extends StatelessWidget {\n  const ListenerOnlyExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return BlocListener<AuthBloc, AuthState>(\n      listener: (context, state) {\n        // UI를 빌드하지 않고 사이드 이펙트만 처리\n        if (state is AuthError) {\n          ScaffoldMessenger.of(context).showSnackBar(\n            SnackBar(content: Text(state.message)),\n          );\n        }\n      },\n      child: const SomeOtherWidget(),\n    );\n  }\n}\n\nclass SomeOtherWidget extends StatelessWidget {\n  const SomeOtherWidget({super.key});\n  @override\n  Widget build(BuildContext context) => const SizedBox();\n}"
+      },
+      "explanation": "【BlocListener vs BlocBuilder vs BlocConsumer】\n\n• BlocListener: 사이드 이펙트만 처리 (UI 빌드 안 함)\n  - 네비게이션, 스낵바, 다이얼로그 등\n  - 상태 변화 시 한 번만 실행\n\n• BlocBuilder: UI만 빌드 (사이드 이펙트 안 함)\n  - 상태에 따른 UI 렌더링\n  - 상태 변화 시마다 builder 호출\n\n• BlocConsumer: listener + builder 합체\n  - 둘 다 필요할 때 사용\n  - listenWhen, buildWhen으로 최적화 가능",
+      "beginnerTip": "💡 네비게이션은 반드시 BlocListener에서 처리하세요. BlocBuilder에서 하면 무한 루프가 발생할 수 있습니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "Cubit<State>",
+      "description": "간단한 상태 관리를 위한 기본 클래스. 메서드 호출로 상태를 변경합니다.",
+      "parameters": "State: 상태 타입",
+      "returns": "Cubit 인스턴스",
+      "example": "class CounterCubit extends Cubit<int> {\n  CounterCubit() : super(0);\n  void increment() => emit(state + 1);\n}"
+    },
+    {
+      "name": "Bloc<Event, State>",
+      "description": "Event 기반 상태 관리 클래스. on<Event>()로 핸들러를 등록합니다.",
+      "parameters": "Event: 이벤트 타입, State: 상태 타입",
+      "returns": "Bloc 인스턴스",
+      "example": "class AuthBloc extends Bloc<AuthEvent, AuthState> {\n  AuthBloc() : super(AuthInitial()) {\n    on<LoginRequested>(_onLogin);\n  }\n}"
+    },
+    {
+      "name": "BlocProvider",
+      "description": "Bloc/Cubit 인스턴스를 위젯 트리에 제공하는 위젯.",
+      "parameters": "create: Bloc 생성 함수, child: 하위 위젯",
+      "returns": "Widget",
+      "example": "BlocProvider(create: (context) => CounterCubit(), child: MyApp())"
+    },
+    {
+      "name": "BlocBuilder",
+      "description": "상태 변화에 따라 UI를 리빌드하는 위젯.",
+      "parameters": "builder: UI 빌드 함수, buildWhen: 리빌드 조건 (선택)",
+      "returns": "Widget",
+      "example": "BlocBuilder<CounterCubit, int>(builder: (context, count) => Text('$count'))"
+    },
+    {
+      "name": "context.read<T>()",
+      "description": "Bloc/Cubit 인스턴스에 접근합니다. 리빌드를 트리거하지 않습니다.",
+      "parameters": "T: Bloc/Cubit 타입",
+      "returns": "T 인스턴스",
+      "example": "context.read<CounterCubit>().increment();"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "BlocProvider.of() called with a context that does not contain a Bloc of type T",
+      "cause": "context.read<T>()를 호출했지만 상위에 해당 타입의 BlocProvider가 없습니다.",
+      "solution": "1. BlocProvider가 더 상위에 있는지 확인\n2. 타입이 정확한지 확인 (AuthBloc vs AuthCubit)\n3. MultiBlocProvider를 사용하여 여러 Bloc 제공",
+      "prevention": "BlocProvider는 사용하는 위젯보다 반드시 상위에 있어야 합니다."
+    },
+    {
+      "error": "emit was called after an event handler completed",
+      "cause": "비동기 작업 완료 후 emit()을 호출했지만 Bloc이 이미 닫혔거나 다른 이벤트를 처리 중입니다.",
+      "solution": "emit 전에 isClosed 체크:\nif (!isClosed) emit(newState);",
+      "prevention": "비동기 작업에서는 항상 Bloc의 생명주기를 고려하세요."
+    },
+    {
+      "error": "StateError: Cannot emit new states after calling close",
+      "cause": "Bloc이 dispose된 후에 emit()을 호출했습니다.",
+      "solution": "비동기 작업을 취소하거나, emit 전에 isClosed를 확인하세요.",
+      "prevention": "Bloc의 close() 시점에 진행 중인 비동기 작업을 취소하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "Equatable로 상태 비교 최적화",
+      "description": "Equatable을 사용하면 상태 비교가 자동화되어 불필요한 리빌드를 방지합니다.",
+      "doThis": "class AuthState extends Equatable {\n  final String userId;\n  const AuthState(this.userId);\n  @override\n  List<Object?> get props => [userId];\n}",
+      "dontDoThis": "class AuthState {\n  final String userId;\n  AuthState(this.userId);\n  // == 연산자 미구현\n}"
+    },
+    {
+      "title": "buildWhen으로 리빌드 최적화",
+      "description": "특정 상태 변화에서만 UI를 리빌드하여 성능을 향상시킵니다.",
+      "doThis": "BlocBuilder<AuthBloc, AuthState>(\n  buildWhen: (prev, curr) => prev.userId != curr.userId,\n  builder: (context, state) => Text(state.userId),\n)",
+      "dontDoThis": "BlocBuilder<AuthBloc, AuthState>(\n  // 모든 상태 변화에 리빌드\n  builder: (context, state) => Text(state.userId),\n)"
+    },
+    {
+      "title": "Repository 패턴으로 의존성 분리",
+      "description": "Bloc에서 직접 API를 호출하지 말고, Repository를 주입받아 사용하세요.",
+      "doThis": "class AuthBloc extends Bloc<AuthEvent, AuthState> {\n  final AuthRepository _repo;\n  AuthBloc(this._repo) : super(...);\n}",
+      "dontDoThis": "class AuthBloc extends Bloc<AuthEvent, AuthState> {\n  Future<void> _onLogin(...) async {\n    final response = await http.post(...); // 직접 API 호출\n  }\n}"
+    }
+  ],
+
+  "tips": [
+    "💡 간단한 상태는 Cubit, 복잡한 이벤트 기반 로직은 Bloc을 사용하세요",
+    "🐛 Bloc DevTools 확장을 설치하면 상태 변화를 시각적으로 추적할 수 있습니다",
+    "⚡ MultiBlocProvider로 여러 Bloc을 한 번에 제공하면 위젯 트리가 깔끔해집니다",
+    "🧪 bloc_test 패키지의 blocTest()로 Bloc 로직을 쉽게 테스트할 수 있습니다",
+    "📱 BlocObserver를 구현하면 모든 Bloc의 상태 변화를 중앙에서 로깅할 수 있습니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "equatable",
+      "description": "객체 비교를 쉽게 해주는 패키지. Bloc 상태에 필수"
+    },
+    {
+      "name": "bloc_test",
+      "description": "Bloc/Cubit 단위 테스트를 위한 패키지"
+    },
+    {
+      "name": "hydrated_bloc",
+      "description": "Bloc 상태를 자동으로 영속화하는 패키지"
+    },
+    {
+      "name": "replay_bloc",
+      "description": "Bloc 상태 변화를 undo/redo 할 수 있게 해주는 패키지"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/flutter_bloc"},
+    {"title": "Bloc 공식 문서", "url": "https://bloclibrary.dev/"},
+    {"title": "Bloc 튜토리얼", "url": "https://bloclibrary.dev/tutorials/flutter-counter/"}
+  ]
+}

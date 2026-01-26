@@ -1,0 +1,233 @@
+{
+  "packageId": "flutter_native_splash",
+  "title": "flutter_native_splash 실전 마스터 가이드",
+  "generatedAt": "2026-01-26T08:35:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "2.4.7",
+  "packageLikes": 9536,
+
+  "overview": {
+    "what": "flutter_native_splash는 Flutter 앱의 네이티브 스플래시 화면을 쉽게 커스터마이징하는 패키지입니다. 기본 흰색 스플래시 대신 브랜드 로고, 배경색, 배경 이미지를 설정할 수 있습니다. Android의 launch screen과 iOS의 LaunchScreen.storyboard를 자동으로 생성해주며, 다크모드 지원과 전체화면 옵션도 제공합니다.",
+    "why": "네이티브 스플래시를 직접 설정하려면 Android에서는 styles.xml, launch_background.xml, iOS에서는 LaunchScreen.storyboard를 각각 수정해야 합니다. flutter_native_splash는 YAML 설정 하나로 모든 플랫폼을 자동 처리해줍니다. Flutter Favorite 패키지로 안정성이 검증되었으며, 10,000개 이상의 앱에서 사용 중입니다.",
+    "when": "1) 앱 브랜딩을 위해 로고가 있는 스플래시 화면이 필요할 때, 2) 앱 시작 시 흰색 깜빡임을 없애고 싶을 때, 3) 다크모드에 맞는 스플래시 화면이 필요할 때, 4) 초기 데이터 로딩 동안 스플래시를 유지하고 싶을 때",
+    "features": [
+      "🎯 원클릭 설정: YAML 설정 후 명령어 하나로 모든 플랫폼 적용",
+      "⚡ 다크모드 지원: 시스템 테마에 맞는 스플래시 화면 자동 전환",
+      "🔧 커스터마이징: 배경색, 이미지, 아이콘, 브랜딩 이미지 등 다양한 옵션",
+      "📱 전 플랫폼 지원: Android, iOS, Web 모두 지원",
+      "🛡️ 스플래시 유지 기능: 초기화 완료까지 스플래시 화면 유지 가능"
+    ]
+  },
+
+  "description": "네이티브 스플래시 화면을 YAML 설정만으로 쉽게 커스터마이징하는 Flutter Favorite 패키지",
+  "difficulty": "초급 - 설정 파일만 작성하면 자동 적용",
+  "estimatedTime": "15분",
+  "prerequisites": [
+    "Flutter 프로젝트 기본 구조 이해",
+    "pubspec.yaml 파일 편집 경험",
+    "터미널 명령어 실행 방법"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "네이티브 스플래시",
+      "explanation": "앱이 시작될 때 Flutter 엔진이 로드되기 전에 표시되는 화면입니다. 네이티브 코드로 구현되어 있어 앱이 실행되자마자 즉시 표시됩니다.",
+      "analogy": "🎬 영화관에서 영화 시작 전에 나오는 로고 화면과 같습니다. 영화(Flutter 앱)가 준비되는 동안 관객이 기다리는 시간을 채워줍니다.",
+      "usage": "flutter_native_splash가 자동으로 생성하며, 별도 코드 작성 불필요"
+    },
+    {
+      "term": "FlutterNativeSplash.preserve()",
+      "explanation": "스플래시 화면이 자동으로 사라지지 않고 유지되도록 합니다. 초기 데이터 로딩이 완료될 때까지 스플래시를 보여주고 싶을 때 사용합니다.",
+      "analogy": "🚦 신호등의 빨간불처럼, remove()를 호출할 때까지 '멈춰있으라'고 지시하는 것입니다.",
+      "usage": "final binding = WidgetsFlutterBinding.ensureInitialized(); FlutterNativeSplash.preserve(widgetsBinding: binding);"
+    },
+    {
+      "term": "FlutterNativeSplash.remove()",
+      "explanation": "preserve()로 유지하던 스플래시 화면을 제거합니다. 초기화가 완료된 후 호출하여 앱 화면을 표시합니다.",
+      "analogy": "🚦 신호등이 초록불로 바뀌어 '이제 진행해도 됩니다'라고 알려주는 것입니다.",
+      "usage": "FlutterNativeSplash.remove();"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치 및 기본 설정",
+      "description": "패키지를 설치하고 pubspec.yaml에 스플래시 설정을 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  flutter_native_splash: ^2.4.7\n\n# 스플래시 설정 (pubspec.yaml 최하단에 추가)\nflutter_native_splash:\n  # 배경색 (필수) - 헥스 코드\n  color: \"#ffffff\"\n  \n  # 중앙 이미지 (선택) - 투명 PNG 권장\n  image: assets/splash/logo.png\n  \n  # 다크모드 설정 (선택)\n  color_dark: \"#121212\"\n  image_dark: assets/splash/logo_dark.png\n  \n  # Android 12+ 설정 (선택)\n  android_12:\n    color: \"#ffffff\"\n    image: assets/splash/android12_logo.png\n    color_dark: \"#121212\"\n    image_dark: assets/splash/android12_logo_dark.png"
+      },
+      "commands": ["flutter pub add flutter_native_splash", "dart run flutter_native_splash:create"],
+      "explanation": "1. 패키지 설치 후 pubspec.yaml 하단에 flutter_native_splash: 섹션 추가\n2. 최소 color 속성은 필수입니다\n3. 설정 완료 후 dart run flutter_native_splash:create 명령어로 네이티브 파일 생성",
+      "platformSetup": {
+        "android": "android/app/src/main/res/ 폴더에 자동으로 스플래시 리소스가 생성됩니다.",
+        "ios": "ios/Runner/Base.lproj/LaunchScreen.storyboard가 자동으로 수정됩니다."
+      },
+      "beginnerTip": "💡 이미지는 투명 배경의 PNG 파일을 사용하세요. 중앙에 로고만 표시되고 배경은 color 설정이 적용됩니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 스플래시 이미지 준비",
+      "description": "스플래시 화면에 사용할 이미지 파일을 준비하고 프로젝트에 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "flutter:\n  assets:\n    - assets/splash/\n\n# 권장 이미지 사양:\n# - 일반 로고: 768x768 px (중앙 정렬됨)\n# - Android 12 아이콘: 288x288 px (원형 마스크 적용됨)\n# - 포맷: PNG (투명 배경 권장)\n# - 파일 위치: assets/splash/ 폴더\n\n# 폴더 구조 예시:\n# assets/\n#   splash/\n#     logo.png          (라이트모드용)\n#     logo_dark.png     (다크모드용)\n#     android12_logo.png"
+      },
+      "commands": ["mkdir -p assets/splash"],
+      "explanation": "【이미지 권장 사양】\n• 일반 로고: 768x768px, 투명 배경 PNG\n• Android 12 아이콘: 288x288px (원형 마스크가 자동 적용되므로 원형 로고 권장)\n• 너무 큰 이미지는 자동 축소되지만, 적절한 크기로 준비하는 것이 좋습니다",
+      "beginnerTip": "⚠️ Android 12+에서는 아이콘이 원형 마스크로 잘립니다. 로고가 원형 안에 들어오도록 여백을 충분히 두세요."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🎯 전체 설정 옵션 가이드",
+      "description": "flutter_native_splash의 모든 설정 옵션을 상세히 알아봅니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "flutter_native_splash:\n  # ===== 필수 설정 =====\n  color: \"#42a5f5\"  # 배경색 (헥스 코드)\n\n  # ===== 이미지 설정 =====\n  image: assets/splash/logo.png  # 중앙 로고\n  # 이미지 없이 색상만 사용하려면 image 줄을 삭제하세요\n\n  # ===== 다크모드 설정 =====\n  color_dark: \"#1a1a2e\"  # 다크모드 배경색\n  image_dark: assets/splash/logo_dark.png  # 다크모드 로고\n\n  # ===== 브랜딩 이미지 (하단 로고) =====\n  branding: assets/splash/branding.png  # 하단에 표시될 브랜딩\n  branding_mode: bottom  # bottom, center (기본값: bottom)\n  branding_dark: assets/splash/branding_dark.png\n\n  # ===== 배경 이미지 (전체 배경) =====\n  background_image: assets/splash/background.png\n  background_image_dark: assets/splash/background_dark.png\n\n  # ===== 전체화면 설정 =====\n  fullscreen: true  # 상태바, 네비게이션바 숨김\n\n  # ===== Android 12+ 전용 설정 =====\n  android_12:\n    color: \"#42a5f5\"\n    icon_background_color: \"#ffffff\"  # 아이콘 뒤 원형 배경\n    image: assets/splash/android12_icon.png  # 원형 마스크 적용됨\n    branding: assets/splash/branding.png\n    color_dark: \"#1a1a2e\"\n    icon_background_color_dark: \"#1a1a2e\"\n    image_dark: assets/splash/android12_icon_dark.png\n\n  # ===== Web 전용 설정 =====\n  web: true  # Web 스플래시 생성 여부\n  web_image_mode: center  # center, contain, cover, stretch\n\n  # ===== 플랫폼별 활성화 =====\n  android: true\n  ios: true\n  web: true"
+      },
+      "commands": ["dart run flutter_native_splash:create"],
+      "explanation": "설정을 변경할 때마다 dart run flutter_native_splash:create를 다시 실행해야 합니다.\n\n【주요 옵션 설명】\n• color: 필수. 배경색\n• image: 중앙에 표시될 로고 이미지\n• branding: 하단에 표시될 브랜딩 이미지 (\"Powered by\" 같은 용도)\n• fullscreen: 상태바/네비게이션바 숨김\n• android_12: Android 12 이상의 새로운 스플래시 API 전용 설정",
+      "beginnerTip": "🔄 설정 변경 후 반드시 dart run flutter_native_splash:create를 실행하세요!"
+    },
+    {
+      "stepNumber": 4,
+      "title": "🏗️ 스플래시 유지하기 (초기화 완료까지)",
+      "description": "앱 초기화가 완료될 때까지 스플래시 화면을 유지하는 방법입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter_native_splash/flutter_native_splash.dart';\n\nvoid main() {\n  // 1. 위젯 바인딩 초기화 및 스플래시 유지\n  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();\n  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);\n\n  runApp(const MyApp());\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      home: const SplashHandler(),\n    );\n  }\n}\n\nclass SplashHandler extends StatefulWidget {\n  const SplashHandler({super.key});\n\n  @override\n  State<SplashHandler> createState() => _SplashHandlerState();\n}\n\nclass _SplashHandlerState extends State<SplashHandler> {\n  @override\n  void initState() {\n    super.initState();\n    _initializeApp();\n  }\n\n  Future<void> _initializeApp() async {\n    // 앱 초기화 작업들\n    await Future.wait([\n      _loadUserData(),\n      _initializeServices(),\n      _checkAuthStatus(),\n    ]);\n\n    // 최소 2초는 스플래시 표시 (UX를 위해)\n    await Future.delayed(const Duration(seconds: 2));\n\n    // 2. 초기화 완료 후 스플래시 제거\n    FlutterNativeSplash.remove();\n  }\n\n  Future<void> _loadUserData() async {\n    // 사용자 데이터 로드\n    await Future.delayed(const Duration(milliseconds: 500));\n  }\n\n  Future<void> _initializeServices() async {\n    // Firebase, Analytics 등 초기화\n    await Future.delayed(const Duration(milliseconds: 800));\n  }\n\n  Future<void> _checkAuthStatus() async {\n    // 로그인 상태 확인\n    await Future.delayed(const Duration(milliseconds: 300));\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return const Scaffold(\n      body: Center(\n        child: Text('앱 메인 화면'),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【동작 흐름】\n1. main()에서 preserve() 호출 → 스플래시 유지됨\n2. 앱 초기화 작업 수행 (비동기)\n3. 초기화 완료 후 remove() 호출 → 스플래시 사라짐\n4. 앱 메인 화면 표시\n\n【주의사항】\n• preserve()와 remove()는 반드시 짝으로 사용\n• remove()를 호출하지 않으면 스플래시가 영원히 유지됨",
+      "beginnerTip": "⏱️ 초기화가 너무 빠르면 스플래시가 깜빡이듯 사라집니다. Future.delayed로 최소 표시 시간을 설정하세요."
+    },
+    {
+      "stepNumber": 5,
+      "title": "⚡ 고급 설정 및 트러블슈팅",
+      "description": "자주 발생하는 문제와 해결 방법, 고급 커스터마이징을 다룹니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml (고급 설정)",
+        "content": "flutter_native_splash:\n  color: \"#ffffff\"\n  image: assets/splash/logo.png\n\n  # ===== 고급 설정 =====\n  \n  # Android 상태바/네비게이션바 스타일\n  android_gravity: center  # center, fill, clip_horizontal 등\n  android_screen_orientation: portrait  # portrait, landscape\n  \n  # iOS 상태바 스타일  \n  ios_content_mode: center  # center, scaleAspectFit, scaleAspectFill\n  \n  # 기존 스플래시 복원 (원래 상태로 되돌리기)\n  # dart run flutter_native_splash:remove\n\n# ===== 별도 설정 파일 사용 =====\n# flutter_native_splash.yaml 파일로 분리 가능\n# dart run flutter_native_splash:create --path=flutter_native_splash.yaml"
+      },
+      "commands": [
+        "dart run flutter_native_splash:create",
+        "dart run flutter_native_splash:remove"
+      ],
+      "explanation": "【자주 발생하는 문제】\n\n1. 스플래시가 적용되지 않음\n   → flutter clean && flutter pub get 후 다시 create 실행\n\n2. Android 12에서 다르게 보임\n   → android_12: 섹션을 별도로 설정해야 함\n\n3. 이미지가 너무 크거나 작음\n   → 이미지 크기를 768x768px로 조정\n\n4. 다크모드가 적용되지 않음\n   → color_dark, image_dark 설정 확인",
+      "beginnerTip": "🧹 설정이 꼬였다면 dart run flutter_native_splash:remove로 초기화 후 다시 시작하세요."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "FlutterNativeSplash.preserve()",
+      "description": "스플래시 화면이 자동으로 사라지지 않도록 유지합니다. 앱 초기화 동안 스플래시를 표시하고 싶을 때 사용합니다.",
+      "parameters": "widgetsBinding (WidgetsBinding): WidgetsFlutterBinding.ensureInitialized()의 반환값",
+      "returns": "void",
+      "example": "WidgetsBinding binding = WidgetsFlutterBinding.ensureInitialized();\nFlutterNativeSplash.preserve(widgetsBinding: binding);"
+    },
+    {
+      "name": "FlutterNativeSplash.remove()",
+      "description": "preserve()로 유지하던 스플래시 화면을 제거합니다.",
+      "parameters": "없음",
+      "returns": "void",
+      "example": "FlutterNativeSplash.remove();"
+    },
+    {
+      "name": "dart run flutter_native_splash:create",
+      "description": "pubspec.yaml의 설정을 기반으로 네이티브 스플래시 리소스를 생성합니다.",
+      "parameters": "--path: 설정 파일 경로 지정 (선택)",
+      "returns": "네이티브 리소스 파일들",
+      "example": "dart run flutter_native_splash:create"
+    },
+    {
+      "name": "dart run flutter_native_splash:remove",
+      "description": "생성된 스플래시 설정을 제거하고 기본 상태로 복원합니다.",
+      "parameters": "없음",
+      "returns": "void",
+      "example": "dart run flutter_native_splash:remove"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "Could not find an option named \"path\"",
+      "cause": "flutter_native_splash 버전이 낮거나, 명령어 형식이 잘못되었습니다.",
+      "solution": "최신 버전으로 업데이트: flutter pub upgrade flutter_native_splash\n명령어 확인: dart run flutter_native_splash:create",
+      "prevention": "항상 최신 버전을 사용하세요."
+    },
+    {
+      "error": "Unable to load asset: assets/splash/logo.png",
+      "cause": "이미지 파일이 없거나 pubspec.yaml에 assets 경로가 등록되지 않았습니다.",
+      "solution": "1. 파일 존재 확인\n2. pubspec.yaml에 assets 경로 추가:\nflutter:\n  assets:\n    - assets/splash/",
+      "prevention": "이미지 경로와 파일명을 정확히 확인하세요."
+    },
+    {
+      "error": "스플래시 화면이 계속 표시됨 (앱이 멈춘 것처럼 보임)",
+      "cause": "FlutterNativeSplash.preserve()를 호출했지만 remove()를 호출하지 않았습니다.",
+      "solution": "초기화 완료 후 반드시 FlutterNativeSplash.remove()를 호출하세요.",
+      "prevention": "preserve()와 remove()는 항상 짝으로 사용하세요."
+    },
+    {
+      "error": "Android 12에서 스플래시가 다르게 보임",
+      "cause": "Android 12 이상은 새로운 SplashScreen API를 사용하며, 별도 설정이 필요합니다.",
+      "solution": "pubspec.yaml에 android_12: 섹션을 추가하고 별도로 설정하세요.",
+      "prevention": "Android 12 기기에서도 테스트하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "적절한 이미지 크기 사용",
+      "description": "너무 큰 이미지는 로딩 시간을 늘리고, 너무 작으면 흐릿하게 보입니다.",
+      "doThis": "768x768px PNG 이미지 사용, 투명 배경, 로고만 포함",
+      "dontDoThis": "4000x4000px 고해상도 이미지 또는 JPEG 이미지 사용"
+    },
+    {
+      "title": "다크모드 대응",
+      "description": "시스템 다크모드에 맞는 스플래시를 제공하여 일관된 UX를 유지하세요.",
+      "doThis": "color_dark, image_dark 설정을 함께 지정",
+      "dontDoThis": "라이트모드 설정만 하고 다크모드 무시"
+    },
+    {
+      "title": "Android 12+ 별도 설정",
+      "description": "Android 12 이상에서는 스플래시 API가 변경되어 별도 설정이 필요합니다.",
+      "doThis": "android_12: 섹션을 별도로 설정하고, 원형 마스크를 고려한 아이콘 사용",
+      "dontDoThis": "Android 12 설정 없이 기본 설정만 사용"
+    }
+  ],
+
+  "tips": [
+    "💡 이미지 없이 색상만 사용하면 앱 시작이 더 빨라집니다. 브랜딩이 중요하지 않다면 color만 설정하세요",
+    "🐛 스플래시가 적용되지 않으면 flutter clean && flutter pub get && dart run flutter_native_splash:create 순서로 실행하세요",
+    "⚡ Android 12 에뮬레이터에서 테스트할 때는 앱을 완전히 삭제 후 재설치해야 변경사항이 적용됩니다",
+    "🧪 다양한 화면 크기에서 테스트하세요. 특히 태블릿에서 이미지가 어떻게 보이는지 확인하세요",
+    "📱 iOS 시뮬레이터에서는 스플래시가 캐시될 수 있습니다. 시뮬레이터를 재시작하거나 앱을 삭제 후 재설치하세요"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "flutter_launcher_icons",
+      "description": "앱 아이콘을 쉽게 생성하는 패키지. 스플래시와 함께 사용하면 브랜딩 완성"
+    },
+    {
+      "name": "animated_splash_screen",
+      "description": "애니메이션이 있는 스플래시 화면을 만드는 패키지 (네이티브 스플래시 후 표시)"
+    },
+    {
+      "name": "after_layout",
+      "description": "위젯 빌드 완료 후 콜백을 실행하는 패키지. 스플래시 제거 타이밍에 활용"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/flutter_native_splash"},
+    {"title": "GitHub 저장소", "url": "https://github.com/jonbhanson/flutter_native_splash"},
+    {"title": "Android 12 Splash Screen 가이드", "url": "https://developer.android.com/develop/ui/views/launch/splash-screen"}
+  ]
+}

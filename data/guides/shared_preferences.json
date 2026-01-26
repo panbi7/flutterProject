@@ -1,0 +1,228 @@
+{
+  "packageId": "shared_preferences",
+  "title": "shared_preferences 실전 마스터 가이드",
+  "generatedAt": "2026-01-26T08:30:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "2.5.4",
+  "packageLikes": 10426,
+
+  "overview": {
+    "what": "shared_preferences는 Flutter 앱에서 간단한 키-값 데이터를 영구 저장하는 플러그인입니다. Android에서는 SharedPreferences, iOS에서는 NSUserDefaults를 내부적으로 래핑하여 플랫폼 간 일관된 API를 제공합니다. 앱을 종료해도 데이터가 유지되며, 문자열, 정수, 불린, 실수, 문자열 리스트 등 기본 타입을 저장할 수 있습니다.",
+    "why": "직접 플랫폼별 저장소를 구현하면 Android와 iOS 각각의 네이티브 코드를 작성해야 하지만, shared_preferences를 사용하면 단 몇 줄의 Dart 코드로 해결됩니다. Hive나 SQLite 같은 복잡한 데이터베이스가 필요 없는 간단한 설정값이나 사용자 선호도 저장에 최적화되어 있습니다. Flutter 공식 팀에서 관리하는 Flutter Favorite 패키지로 안정성이 검증되었습니다.",
+    "when": "1) 사용자 로그인 상태나 자동 로그인 토큰 저장 시, 2) 다크모드/언어 설정 같은 앱 환경설정 저장 시, 3) 온보딩 화면 표시 여부 플래그 저장 시, 4) 최근 검색어나 간단한 캐시 데이터 저장 시, 5) 튜토리얼 완료 여부 등 일회성 플래그 저장 시",
+    "features": [
+      "🎯 간단한 API: getString, setString 등 직관적인 메서드로 즉시 사용 가능",
+      "⚡ 캐시 지원: SharedPreferencesWithCache로 동기적 읽기 성능 향상",
+      "🔧 비동기 API: SharedPreferencesAsync로 메인 스레드 블로킹 없이 안전한 저장",
+      "📱 전 플랫폼 지원: Android, iOS, Web, Windows, macOS, Linux 모두 지원",
+      "🛡️ 타입 안전성: 제네릭 기반 API로 타입 실수 방지"
+    ]
+  },
+
+  "description": "앱 설정과 간단한 데이터를 키-값 형태로 영구 저장하는 Flutter 공식 플러그인",
+  "difficulty": "초급 - Flutter 기본 문법만 알면 바로 사용 가능",
+  "estimatedTime": "30분",
+  "prerequisites": [
+    "Flutter 기본 위젯 (StatefulWidget, setState) 이해",
+    "async/await 비동기 프로그래밍 기초",
+    "Dart 기본 자료형 (String, int, bool, double) 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "SharedPreferences",
+      "explanation": "레거시 동기 API입니다. getInstance()로 인스턴스를 얻고, 동기적으로 데이터를 읽을 수 있습니다. 단, 초기 로드 시 비동기 작업이 필요합니다.",
+      "analogy": "📦 서랍장에 비유하면, 한 번 서랍을 열어두면(getInstance) 그 다음부터는 바로 물건을 꺼낼 수 있는 것과 같습니다.",
+      "usage": "final prefs = await SharedPreferences.getInstance(); final value = prefs.getString('key');"
+    },
+    {
+      "term": "SharedPreferencesAsync",
+      "explanation": "새로운 비동기 전용 API입니다. 모든 읽기/쓰기 작업이 비동기로 처리되어 메인 스레드를 블로킹하지 않습니다. 대용량 데이터나 빈번한 접근 시 권장됩니다.",
+      "analogy": "📬 우편함에 비유하면, 편지를 보내고 답장을 기다리는 것처럼 모든 작업에 await가 필요합니다.",
+      "usage": "final prefs = SharedPreferencesAsync(); final value = await prefs.getString('key');"
+    },
+    {
+      "term": "SharedPreferencesWithCache",
+      "explanation": "캐시를 활용한 하이브리드 API입니다. 초기화 시 지정한 키들을 메모리에 캐싱하여 동기적으로 빠르게 읽을 수 있습니다. 자주 접근하는 설정값에 최적입니다.",
+      "analogy": "🗂️ 즐겨찾기 폴더에 비유하면, 자주 쓰는 파일만 바로 접근할 수 있게 모아두는 것과 같습니다.",
+      "usage": "final prefs = await SharedPreferencesWithCache.create(cacheOptions: SharedPreferencesWithCacheOptions(allowList: {'theme', 'language'}));"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "shared_preferences 패키지를 프로젝트에 추가합니다. 네이티브 설정은 자동으로 처리됩니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  shared_preferences: ^2.5.4"
+      },
+      "commands": ["flutter pub add shared_preferences", "flutter pub get"],
+      "explanation": "shared_preferences는 순수 Dart와 네이티브 코드를 모두 포함하므로 패키지 추가 후 앱을 완전히 재시작해야 합니다.",
+      "platformSetup": {
+        "android": "추가 설정 불필요. SharedPreferences API를 자동으로 사용합니다.",
+        "ios": "추가 설정 불필요. NSUserDefaults를 자동으로 사용합니다."
+      },
+      "beginnerTip": "💡 hot reload로는 네이티브 플러그인이 반영되지 않습니다. flutter run으로 앱을 재시작하세요."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 기본 사용법 - 데이터 저장/불러오기",
+      "description": "가장 간단한 형태로 문자열과 정수를 저장하고 불러오는 예제입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/basic_example.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:shared_preferences/shared_preferences.dart';\n\nclass BasicPrefsExample extends StatefulWidget {\n  const BasicPrefsExample({super.key});\n\n  @override\n  State<BasicPrefsExample> createState() => _BasicPrefsExampleState();\n}\n\nclass _BasicPrefsExampleState extends State<BasicPrefsExample> {\n  // SharedPreferences 인스턴스를 저장할 변수\n  SharedPreferences? _prefs;\n  \n  // 저장된 값들\n  String _username = '';\n  int _counter = 0;\n  bool _isDarkMode = false;\n\n  @override\n  void initState() {\n    super.initState();\n    _loadPreferences(); // 앱 시작 시 저장된 값 불러오기\n  }\n\n  // 저장된 데이터 불러오기\n  Future<void> _loadPreferences() async {\n    // getInstance()는 비동기 - 최초 한 번만 호출하면 됨\n    _prefs = await SharedPreferences.getInstance();\n    \n    setState(() {\n      // 저장된 값이 없으면 기본값 사용\n      _username = _prefs?.getString('username') ?? '게스트';\n      _counter = _prefs?.getInt('counter') ?? 0;\n      _isDarkMode = _prefs?.getBool('isDarkMode') ?? false;\n    });\n  }\n\n  // 사용자명 저장\n  Future<void> _saveUsername(String name) async {\n    await _prefs?.setString('username', name);\n    setState(() => _username = name);\n  }\n\n  // 카운터 증가 및 저장\n  Future<void> _incrementCounter() async {\n    final newValue = _counter + 1;\n    await _prefs?.setInt('counter', newValue);\n    setState(() => _counter = newValue);\n  }\n\n  // 다크모드 토글 및 저장\n  Future<void> _toggleDarkMode() async {\n    final newValue = !_isDarkMode;\n    await _prefs?.setBool('isDarkMode', newValue);\n    setState(() => _isDarkMode = newValue);\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('SharedPreferences 기본')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            Text('사용자: $_username', style: const TextStyle(fontSize: 18)),\n            const SizedBox(height: 8),\n            Text('카운터: $_counter', style: const TextStyle(fontSize: 18)),\n            const SizedBox(height: 8),\n            Text('다크모드: ${_isDarkMode ? \"ON\" : \"OFF\"}'),\n            const SizedBox(height: 24),\n            ElevatedButton(\n              onPressed: _incrementCounter,\n              child: const Text('카운터 +1'),\n            ),\n            const SizedBox(height: 8),\n            ElevatedButton(\n              onPressed: _toggleDarkMode,\n              child: const Text('다크모드 토글'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "1. initState에서 _loadPreferences를 호출하여 저장된 값을 불러옵니다.\n2. getString, getInt, getBool로 값을 읽고, ?? 연산자로 기본값을 지정합니다.\n3. setString, setInt, setBool로 값을 저장합니다. 모두 비동기 메서드입니다.\n4. 저장 후 setState로 UI를 업데이트합니다.",
+      "beginnerTip": "⚠️ get 메서드는 저장된 값이 없으면 null을 반환합니다. 항상 ?? 연산자로 기본값을 지정하세요."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🎯 지원하는 데이터 타입과 활용",
+      "description": "shared_preferences가 지원하는 모든 데이터 타입과 실전 활용 예제입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/data_types_example.dart",
+        "content": "import 'package:shared_preferences/shared_preferences.dart';\n\nclass PrefsService {\n  static SharedPreferences? _prefs;\n\n  // 싱글톤 패턴으로 인스턴스 관리\n  static Future<void> init() async {\n    _prefs = await SharedPreferences.getInstance();\n  }\n\n  // ===== String 타입 =====\n  // 사용처: 사용자명, 토큰, 선택된 언어 코드 등\n  static Future<void> setUsername(String value) async {\n    await _prefs?.setString('username', value);\n  }\n  static String getUsername() => _prefs?.getString('username') ?? 'Guest';\n\n  // ===== int 타입 =====\n  // 사용처: 카운터, 마지막 접속 시간(timestamp), 레벨 등\n  static Future<void> setLastVisit(int timestamp) async {\n    await _prefs?.setInt('lastVisit', timestamp);\n  }\n  static int getLastVisit() => _prefs?.getInt('lastVisit') ?? 0;\n\n  // ===== bool 타입 =====\n  // 사용처: 다크모드, 알림 설정, 온보딩 완료 여부 등\n  static Future<void> setDarkMode(bool value) async {\n    await _prefs?.setBool('darkMode', value);\n  }\n  static bool isDarkMode() => _prefs?.getBool('darkMode') ?? false;\n\n  // ===== double 타입 =====\n  // 사용처: 폰트 크기, 볼륨, 마지막 스크롤 위치 등\n  static Future<void> setFontSize(double value) async {\n    await _prefs?.setDouble('fontSize', value);\n  }\n  static double getFontSize() => _prefs?.getDouble('fontSize') ?? 14.0;\n\n  // ===== List<String> 타입 =====\n  // 사용처: 최근 검색어, 즐겨찾기 ID 목록, 태그 등\n  static Future<void> setRecentSearches(List<String> value) async {\n    await _prefs?.setStringList('recentSearches', value);\n  }\n  static List<String> getRecentSearches() {\n    return _prefs?.getStringList('recentSearches') ?? [];\n  }\n\n  // ===== 특정 키 삭제 =====\n  static Future<void> removeKey(String key) async {\n    await _prefs?.remove(key);\n  }\n\n  // ===== 모든 데이터 삭제 (로그아웃 시 활용) =====\n  static Future<void> clearAll() async {\n    await _prefs?.clear();\n  }\n\n  // ===== 키 존재 여부 확인 =====\n  static bool hasKey(String key) {\n    return _prefs?.containsKey(key) ?? false;\n  }\n\n  // ===== 저장된 모든 키 조회 =====\n  static Set<String> getAllKeys() {\n    return _prefs?.getKeys() ?? {};\n  }\n}\n\n// main.dart에서 초기화\nvoid main() async {\n  WidgetsFlutterBinding.ensureInitialized();\n  await PrefsService.init(); // 앱 시작 시 한 번만 호출\n  runApp(const MyApp());\n}"
+      },
+      "explanation": "• String: 문자열 데이터 저장 (토큰, 이름 등)\n• int: 정수 저장 (타임스탬프, 카운트 등)\n• bool: 불린 저장 (설정 플래그 등)\n• double: 실수 저장 (폰트 크기, 볼륨 등)\n• List<String>: 문자열 리스트 저장 (검색어 등)\n\n⚠️ 주의: Map이나 커스텀 객체는 직접 저장 불가. JSON 문자열로 변환하여 String으로 저장해야 합니다.",
+      "beginnerTip": "🔍 복잡한 객체를 저장하려면 jsonEncode/jsonDecode로 변환하세요:\nawait prefs.setString('user', jsonEncode(user.toJson()));"
+    },
+    {
+      "stepNumber": 4,
+      "title": "🏗️ 실전 패턴 - 설정 관리 서비스",
+      "description": "실제 프로덕션 앱에서 사용하는 설정 관리 패턴입니다. Riverpod과 함께 사용하는 예제입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/services/settings_service.dart",
+        "content": "import 'dart:convert';\nimport 'package:flutter/material.dart';\nimport 'package:shared_preferences/shared_preferences.dart';\n\n// 앱 설정을 담는 불변 클래스\nclass AppSettings {\n  final ThemeMode themeMode;\n  final String languageCode;\n  final double fontSize;\n  final bool notificationsEnabled;\n  final bool onboardingCompleted;\n\n  const AppSettings({\n    this.themeMode = ThemeMode.system,\n    this.languageCode = 'ko',\n    this.fontSize = 14.0,\n    this.notificationsEnabled = true,\n    this.onboardingCompleted = false,\n  });\n\n  // copyWith 패턴으로 불변성 유지\n  AppSettings copyWith({\n    ThemeMode? themeMode,\n    String? languageCode,\n    double? fontSize,\n    bool? notificationsEnabled,\n    bool? onboardingCompleted,\n  }) {\n    return AppSettings(\n      themeMode: themeMode ?? this.themeMode,\n      languageCode: languageCode ?? this.languageCode,\n      fontSize: fontSize ?? this.fontSize,\n      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,\n      onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,\n    );\n  }\n\n  // JSON 직렬화\n  Map<String, dynamic> toJson() => {\n    'themeMode': themeMode.index,\n    'languageCode': languageCode,\n    'fontSize': fontSize,\n    'notificationsEnabled': notificationsEnabled,\n    'onboardingCompleted': onboardingCompleted,\n  };\n\n  factory AppSettings.fromJson(Map<String, dynamic> json) {\n    return AppSettings(\n      themeMode: ThemeMode.values[json['themeMode'] ?? 0],\n      languageCode: json['languageCode'] ?? 'ko',\n      fontSize: (json['fontSize'] ?? 14.0).toDouble(),\n      notificationsEnabled: json['notificationsEnabled'] ?? true,\n      onboardingCompleted: json['onboardingCompleted'] ?? false,\n    );\n  }\n}\n\n// 설정 관리 서비스\nclass SettingsService extends ChangeNotifier {\n  static const _settingsKey = 'app_settings';\n  \n  late SharedPreferences _prefs;\n  AppSettings _settings = const AppSettings();\n\n  AppSettings get settings => _settings;\n\n  // 초기화 (앱 시작 시 호출)\n  Future<void> init() async {\n    _prefs = await SharedPreferences.getInstance();\n    await _loadSettings();\n  }\n\n  // 저장된 설정 불러오기\n  Future<void> _loadSettings() async {\n    final jsonString = _prefs.getString(_settingsKey);\n    if (jsonString != null) {\n      try {\n        final json = jsonDecode(jsonString) as Map<String, dynamic>;\n        _settings = AppSettings.fromJson(json);\n      } catch (e) {\n        // 파싱 실패 시 기본값 사용\n        _settings = const AppSettings();\n      }\n    }\n    notifyListeners();\n  }\n\n  // 설정 저장\n  Future<void> _saveSettings() async {\n    final jsonString = jsonEncode(_settings.toJson());\n    await _prefs.setString(_settingsKey, jsonString);\n    notifyListeners();\n  }\n\n  // 개별 설정 업데이트 메서드들\n  Future<void> setThemeMode(ThemeMode mode) async {\n    _settings = _settings.copyWith(themeMode: mode);\n    await _saveSettings();\n  }\n\n  Future<void> setLanguage(String code) async {\n    _settings = _settings.copyWith(languageCode: code);\n    await _saveSettings();\n  }\n\n  Future<void> setFontSize(double size) async {\n    _settings = _settings.copyWith(fontSize: size);\n    await _saveSettings();\n  }\n\n  Future<void> setNotifications(bool enabled) async {\n    _settings = _settings.copyWith(notificationsEnabled: enabled);\n    await _saveSettings();\n  }\n\n  Future<void> completeOnboarding() async {\n    _settings = _settings.copyWith(onboardingCompleted: true);\n    await _saveSettings();\n  }\n\n  // 설정 초기화\n  Future<void> resetSettings() async {\n    _settings = const AppSettings();\n    await _prefs.remove(_settingsKey);\n    notifyListeners();\n  }\n}"
+      },
+      "explanation": "【설계 포인트】\n• AppSettings: 불변 클래스로 설정값을 안전하게 관리\n• copyWith: 일부 값만 변경할 때 새 인스턴스 생성\n• JSON 직렬화: 복잡한 설정도 하나의 키로 저장\n• ChangeNotifier: UI 자동 업데이트를 위한 상태 관리\n• 에러 핸들링: 파싱 실패 시 기본값으로 복구",
+      "beginnerTip": "📁 이 서비스를 main.dart에서 Provider로 감싸면 앱 전체에서 설정에 접근할 수 있습니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "⚡ SharedPreferencesWithCache 활용",
+      "description": "최신 API인 SharedPreferencesWithCache를 활용한 고성능 설정 관리입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/services/cached_prefs_service.dart",
+        "content": "import 'package:shared_preferences/shared_preferences.dart';\n\n/// SharedPreferencesWithCache를 활용한 고성능 설정 서비스\n/// \n/// 장점:\n/// - 지정한 키들을 메모리에 캐싱하여 동기적으로 빠르게 읽기 가능\n/// - 쓰기는 여전히 비동기로 안전하게 처리\n/// - allowList로 관리할 키를 명시적으로 지정\nclass CachedPrefsService {\n  static SharedPreferencesWithCache? _prefs;\n\n  // 캐싱할 키 목록 정의\n  static const _cachedKeys = {\n    'theme',\n    'language', \n    'fontSize',\n    'notifications',\n    'onboardingDone',\n  };\n\n  /// 초기화 - 앱 시작 시 반드시 호출\n  static Future<void> init() async {\n    _prefs = await SharedPreferencesWithCache.create(\n      cacheOptions: SharedPreferencesWithCacheOptions(\n        // 이 키들만 메모리에 캐싱됨\n        allowList: _cachedKeys,\n      ),\n    );\n  }\n\n  /// 테마 설정 (동기 읽기 가능!)\n  static String get theme => _prefs?.getString('theme') ?? 'system';\n  \n  static Future<void> setTheme(String value) async {\n    await _prefs?.setString('theme', value);\n  }\n\n  /// 언어 설정\n  static String get language => _prefs?.getString('language') ?? 'ko';\n  \n  static Future<void> setLanguage(String value) async {\n    await _prefs?.setString('language', value);\n  }\n\n  /// 폰트 크기\n  static double get fontSize => _prefs?.getDouble('fontSize') ?? 14.0;\n  \n  static Future<void> setFontSize(double value) async {\n    await _prefs?.setDouble('fontSize', value);\n  }\n\n  /// 알림 설정\n  static bool get notifications => _prefs?.getBool('notifications') ?? true;\n  \n  static Future<void> setNotifications(bool value) async {\n    await _prefs?.setBool('notifications', value);\n  }\n\n  /// 온보딩 완료 여부\n  static bool get onboardingDone => _prefs?.getBool('onboardingDone') ?? false;\n  \n  static Future<void> setOnboardingDone(bool value) async {\n    await _prefs?.setBool('onboardingDone', value);\n  }\n\n  /// 캐시 새로고침 (다른 곳에서 값이 변경되었을 때)\n  static Future<void> reloadCache() async {\n    await _prefs?.reloadCache();\n  }\n}\n\n// 사용 예시\nvoid main() async {\n  WidgetsFlutterBinding.ensureInitialized();\n  await CachedPrefsService.init();\n\n  // 동기적으로 바로 읽기 가능! (await 불필요)\n  final theme = CachedPrefsService.theme;\n  final language = CachedPrefsService.language;\n  \n  print('현재 테마: $theme, 언어: $language');\n\n  runApp(const MyApp());\n}"
+      },
+      "explanation": "【SharedPreferencesWithCache의 핵심】\n• allowList에 지정된 키들만 초기화 시 메모리에 로드\n• getter로 동기적 접근 가능 (await 불필요)\n• 쓰기는 여전히 비동기로 안전하게 저장\n• reloadCache()로 외부 변경사항 동기화 가능\n\n【언제 사용하나요?】\n• 앱 전체에서 자주 읽는 설정값 (테마, 언어 등)\n• build() 메서드에서 설정값을 읽어야 할 때\n• FutureBuilder 없이 바로 설정값을 사용하고 싶을 때",
+      "beginnerTip": "💡 allowList에 없는 키를 읽으면 null이 반환됩니다. 반드시 사용할 키를 미리 등록하세요."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "SharedPreferences.getInstance()",
+      "description": "SharedPreferences 싱글톤 인스턴스를 반환합니다. 최초 호출 시 플랫폼 저장소에서 데이터를 로드합니다.",
+      "parameters": "없음",
+      "returns": "Future<SharedPreferences>",
+      "example": "final prefs = await SharedPreferences.getInstance();"
+    },
+    {
+      "name": "getString / setString",
+      "description": "문자열 값을 읽거나 저장합니다.",
+      "parameters": "key (String): 저장할 키, value (String): 저장할 값",
+      "returns": "String? / Future<bool>",
+      "example": "await prefs.setString('token', 'abc123');\nfinal token = prefs.getString('token');"
+    },
+    {
+      "name": "getInt / setInt",
+      "description": "정수 값을 읽거나 저장합니다.",
+      "parameters": "key (String), value (int)",
+      "returns": "int? / Future<bool>",
+      "example": "await prefs.setInt('count', 42);\nfinal count = prefs.getInt('count');"
+    },
+    {
+      "name": "getBool / setBool",
+      "description": "불린 값을 읽거나 저장합니다.",
+      "parameters": "key (String), value (bool)",
+      "returns": "bool? / Future<bool>",
+      "example": "await prefs.setBool('darkMode', true);\nfinal isDark = prefs.getBool('darkMode');"
+    },
+    {
+      "name": "remove / clear",
+      "description": "특정 키를 삭제하거나 모든 데이터를 삭제합니다.",
+      "parameters": "key (String) - remove만 해당",
+      "returns": "Future<bool>",
+      "example": "await prefs.remove('token');\nawait prefs.clear();"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "MissingPluginException(No implementation found for method getAll on channel plugins.flutter.io/shared_preferences)",
+      "cause": "네이티브 플러그인이 제대로 로드되지 않았습니다. 패키지 추가 후 hot reload만 했거나, 에뮬레이터/기기에서 앱을 재시작하지 않은 경우 발생합니다.",
+      "solution": "1. flutter clean 실행\n2. flutter pub get 실행\n3. 앱 완전히 종료 후 flutter run으로 재시작",
+      "prevention": "네이티브 플러그인 추가 후에는 항상 앱을 완전히 재시작하세요."
+    },
+    {
+      "error": "Null check operator used on a null value",
+      "cause": "SharedPreferences.getInstance()를 await 없이 호출했거나, 초기화 전에 prefs를 사용하려고 했습니다.",
+      "solution": "반드시 getInstance()를 await하고, 초기화 완료 후에만 prefs를 사용하세요.",
+      "prevention": "main()에서 WidgetsFlutterBinding.ensureInitialized() 후 바로 초기화하세요."
+    },
+    {
+      "error": "type 'Null' is not a subtype of type 'String'",
+      "cause": "getString()이 null을 반환했는데 non-null String 변수에 할당하려고 했습니다.",
+      "solution": "?? 연산자로 기본값을 지정하세요: prefs.getString('key') ?? 'default'",
+      "prevention": "모든 get 메서드에 ?? 연산자로 기본값을 항상 지정하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "키 이름을 상수로 관리",
+      "description": "문자열 키를 직접 사용하면 오타로 인한 버그가 발생할 수 있습니다. 상수로 정의하여 관리하세요.",
+      "doThis": "class PrefsKeys {\n  static const username = 'username';\n  static const darkMode = 'dark_mode';\n}\nprefs.getString(PrefsKeys.username);",
+      "dontDoThis": "prefs.getString('username');\nprefs.getString('userName'); // 오타!"
+    },
+    {
+      "title": "서비스 클래스로 추상화",
+      "description": "SharedPreferences를 직접 사용하지 말고, 서비스 클래스로 감싸서 사용하세요. 나중에 저장소를 변경해도 영향이 적습니다.",
+      "doThis": "class UserPrefs {\n  static Future<String> getToken() async {\n    final prefs = await SharedPreferences.getInstance();\n    return prefs.getString('token') ?? '';\n  }\n}",
+      "dontDoThis": "// 여러 위젯에서 직접 호출\nfinal prefs = await SharedPreferences.getInstance();\nfinal token = prefs.getString('token');"
+    },
+    {
+      "title": "민감한 데이터는 flutter_secure_storage 사용",
+      "description": "shared_preferences는 암호화되지 않습니다. 비밀번호, 토큰 등 민감한 데이터는 flutter_secure_storage를 사용하세요.",
+      "doThis": "// 민감한 데이터\nfinal storage = FlutterSecureStorage();\nawait storage.write(key: 'token', value: token);",
+      "dontDoThis": "// 민감한 데이터를 shared_preferences에 저장\nawait prefs.setString('password', password);"
+    }
+  ],
+
+  "tips": [
+    "💡 앱 시작 시 main()에서 한 번만 getInstance()를 호출하고 전역으로 관리하면 성능이 향상됩니다",
+    "🐛 값이 저장되지 않는다면 await를 빠뜨리지 않았는지 확인하세요. set 메서드는 모두 비동기입니다",
+    "⚡ 자주 읽는 설정은 SharedPreferencesWithCache를 사용하면 동기적으로 빠르게 접근할 수 있습니다",
+    "🧪 테스트 시 SharedPreferences.setMockInitialValues({})로 모킹할 수 있습니다",
+    "📱 Web에서는 localStorage를 사용하므로 개발자 도구에서 저장된 값을 확인할 수 있습니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "flutter_secure_storage",
+      "description": "암호화된 저장소. 비밀번호, 토큰 등 민감한 데이터 저장에 적합"
+    },
+    {
+      "name": "hive",
+      "description": "빠른 NoSQL 데이터베이스. 구조화된 데이터나 대용량 데이터에 적합"
+    },
+    {
+      "name": "get_storage",
+      "description": "shared_preferences보다 빠른 대안. GetX 생태계와 잘 어울림"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/shared_preferences"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/shared_preferences/latest/"},
+    {"title": "Flutter 공식 쿡북 - 키-값 저장", "url": "https://docs.flutter.dev/cookbook/persistence/key-value"}
+  ]
+}

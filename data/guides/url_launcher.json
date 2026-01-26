@@ -1,0 +1,214 @@
+{
+  "packageId": "url_launcher",
+  "title": "url_launcher 실전 마스터 가이드",
+  "generatedAt": "2026-01-26T08:40:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "6.3.2",
+  "packageLikes": 8104,
+
+  "overview": {
+    "what": "url_launcher는 Flutter 앱에서 URL을 열 수 있게 해주는 공식 플러그인입니다. 웹사이트, 이메일, 전화, SMS, 지도 등 다양한 URL 스킴을 지원합니다. 내부적으로 Android의 Intent와 iOS의 UIApplication을 사용하여 적절한 앱이나 브라우저를 실행합니다.",
+    "why": "직접 플랫폼별 URL 실행 코드를 작성하면 Android Intent, iOS UIApplication 등 네이티브 코드를 각각 구현해야 합니다. url_launcher는 단일 API로 모든 플랫폼에서 동작하며, Flutter 공식 팀이 관리하는 Flutter Favorite 패키지로 안정성이 보장됩니다.",
+    "when": "1) 앱에서 외부 웹사이트 링크를 열 때, 2) 전화 걸기 버튼 구현 시, 3) 이메일 전송 기능 구현 시, 4) SMS 문자 보내기 기능 구현 시, 5) 지도 앱에서 위치 열기 구현 시",
+    "features": [
+      "🎯 다양한 URL 스킴: http, https, mailto, tel, sms, file 등 지원",
+      "⚡ 인앱 브라우저: WebView 없이 시스템 브라우저로 URL 열기",
+      "🔧 실행 가능 여부 확인: canLaunchUrl로 URL 처리 가능 여부 사전 체크",
+      "📱 전 플랫폼 지원: Android, iOS, Web, Windows, macOS, Linux",
+      "🛡️ 안전한 URL 처리: Uri 클래스 기반의 타입 안전한 API"
+    ]
+  },
+
+  "description": "웹사이트, 이메일, 전화, SMS 등 다양한 URL을 시스템 앱으로 열어주는 Flutter 공식 플러그인",
+  "difficulty": "초급 - 간단한 API로 즉시 사용 가능",
+  "estimatedTime": "20분",
+  "prerequisites": [
+    "Flutter 기본 위젯 사용법",
+    "async/await 비동기 프로그래밍 기초",
+    "Uri 클래스 기본 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "launchUrl()",
+      "explanation": "주어진 URL을 시스템 기본 앱으로 실행합니다. 웹 URL은 브라우저로, tel: URL은 전화 앱으로, mailto: URL은 이메일 앱으로 열립니다.",
+      "analogy": "📬 편지를 우체통에 넣으면 우체부가 알아서 배달하듯, URL을 주면 시스템이 알맞은 앱으로 열어줍니다.",
+      "usage": "await launchUrl(Uri.parse('https://flutter.dev'));"
+    },
+    {
+      "term": "canLaunchUrl()",
+      "explanation": "해당 URL을 처리할 수 있는 앱이 있는지 확인합니다. 예를 들어 전화 앱이 없는 태블릿에서는 tel: URL을 처리할 수 없습니다.",
+      "analogy": "📞 전화하기 전에 상대방 번호가 유효한지 확인하는 것과 같습니다.",
+      "usage": "if (await canLaunchUrl(uri)) { await launchUrl(uri); }"
+    },
+    {
+      "term": "LaunchMode",
+      "explanation": "URL을 어떻게 열지 결정하는 모드입니다. 인앱 WebView, 외부 브라우저, 외부 앱 등을 선택할 수 있습니다.",
+      "analogy": "🚗 같은 목적지라도 택시, 버스, 지하철 중 선택할 수 있는 것처럼 URL을 여는 방식을 선택합니다.",
+      "usage": "await launchUrl(uri, mode: LaunchMode.externalApplication);"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치 및 플랫폼 설정",
+      "description": "url_launcher 패키지를 설치하고 플랫폼별 필수 설정을 완료합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  url_launcher: ^6.3.2"
+      },
+      "commands": ["flutter pub add url_launcher"],
+      "explanation": "패키지 설치 후 Android와 iOS에서 추가 설정이 필요합니다. 특히 Android 11 이상에서는 queries 설정이 필수입니다.",
+      "platformSetup": {
+        "android": "【AndroidManifest.xml 수정 필수】\n\nandroid/app/src/main/AndroidManifest.xml 파일에 추가:\n\n<manifest ...>\n  <!-- URL 실행을 위한 인터넷 권한 -->\n  <uses-permission android:name=\"android.permission.INTERNET\"/>\n  \n  <!-- Android 11+ 에서 URL 실행 가능 여부 확인용 -->\n  <queries>\n    <!-- 웹 브라우저 -->\n    <intent>\n      <action android:name=\"android.intent.action.VIEW\" />\n      <data android:scheme=\"https\" />\n    </intent>\n    <!-- 전화 -->\n    <intent>\n      <action android:name=\"android.intent.action.DIAL\" />\n      <data android:scheme=\"tel\" />\n    </intent>\n    <!-- 이메일 -->\n    <intent>\n      <action android:name=\"android.intent.action.SENDTO\" />\n      <data android:scheme=\"mailto\" />\n    </intent>\n    <!-- SMS -->\n    <intent>\n      <action android:name=\"android.intent.action.SENDTO\" />\n      <data android:scheme=\"sms\" />\n    </intent>\n  </queries>\n  \n  <application ...>",
+        "ios": "【Info.plist 수정 (선택)】\n\n특정 URL 스킴을 열 때 확인이 필요하면 ios/Runner/Info.plist에 추가:\n\n<key>LSApplicationQueriesSchemes</key>\n<array>\n  <string>https</string>\n  <string>tel</string>\n  <string>mailto</string>\n  <string>sms</string>\n</array>"
+      },
+      "beginnerTip": "⚠️ Android 11(API 30) 이상에서는 queries 설정 없이 canLaunchUrl()이 항상 false를 반환합니다!"
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 기본 사용법 - URL 열기",
+      "description": "가장 기본적인 웹 URL 열기 예제입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/url_example.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:url_launcher/url_launcher.dart';\n\nclass UrlLauncherExample extends StatelessWidget {\n  const UrlLauncherExample({super.key});\n\n  // 웹 URL 열기\n  Future<void> _launchWebUrl() async {\n    final Uri url = Uri.parse('https://flutter.dev');\n    \n    // 1. URL을 열 수 있는지 확인 (선택적이지만 권장)\n    if (!await canLaunchUrl(url)) {\n      throw Exception('Could not launch $url');\n    }\n    \n    // 2. URL 열기\n    await launchUrl(url);\n  }\n\n  // 외부 브라우저로 열기\n  Future<void> _launchInBrowser() async {\n    final Uri url = Uri.parse('https://flutter.dev');\n    \n    await launchUrl(\n      url,\n      mode: LaunchMode.externalApplication, // 외부 브라우저\n    );\n  }\n\n  // 인앱 브라우저로 열기 (iOS Safari ViewController, Android Custom Tabs)\n  Future<void> _launchInAppBrowser() async {\n    final Uri url = Uri.parse('https://flutter.dev');\n    \n    await launchUrl(\n      url,\n      mode: LaunchMode.inAppBrowserView, // 인앱 브라우저\n    );\n  }\n\n  // 인앱 WebView로 열기\n  Future<void> _launchInWebView() async {\n    final Uri url = Uri.parse('https://flutter.dev');\n    \n    await launchUrl(\n      url,\n      mode: LaunchMode.inAppWebView, // 인앱 WebView\n      webViewConfiguration: const WebViewConfiguration(\n        enableJavaScript: true,\n        enableDomStorage: true,\n      ),\n    );\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('URL Launcher')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            ElevatedButton(\n              onPressed: _launchWebUrl,\n              child: const Text('기본으로 열기'),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton(\n              onPressed: _launchInBrowser,\n              child: const Text('외부 브라우저로 열기'),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton(\n              onPressed: _launchInAppBrowser,\n              child: const Text('인앱 브라우저로 열기'),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton(\n              onPressed: _launchInWebView,\n              child: const Text('WebView로 열기'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【LaunchMode 옵션 설명】\n• platformDefault: 플랫폼 기본 동작\n• inAppBrowserView: 인앱 브라우저 (Safari VC, Chrome Custom Tabs)\n• inAppWebView: 인앱 WebView (더 많은 제어 가능)\n• externalApplication: 외부 브라우저/앱으로 열기\n• externalNonBrowserApplication: 브라우저가 아닌 외부 앱으로 열기",
+      "beginnerTip": "💡 인앱 브라우저(inAppBrowserView)를 사용하면 사용자가 앱을 떠나지 않고 웹페이지를 볼 수 있습니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🎯 다양한 URL 스킴 활용",
+      "description": "전화, 이메일, SMS, 지도 등 다양한 URL 스킴을 사용하는 방법입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/url_schemes.dart",
+        "content": "import 'package:url_launcher/url_launcher.dart';\n\nclass UrlSchemeExamples {\n  \n  // ===== 전화 걸기 =====\n  // tel: 스킴 사용\n  static Future<void> makePhoneCall(String phoneNumber) async {\n    // 하이픈, 공백 제거\n    final cleanNumber = phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '');\n    final Uri uri = Uri.parse('tel:$cleanNumber');\n    \n    if (await canLaunchUrl(uri)) {\n      await launchUrl(uri);\n    } else {\n      throw Exception('전화를 걸 수 없습니다: $phoneNumber');\n    }\n  }\n\n  // ===== 이메일 보내기 =====\n  // mailto: 스킴 사용 - 제목, 본문 포함 가능\n  static Future<void> sendEmail({\n    required String to,\n    String? subject,\n    String? body,\n    List<String>? cc,\n    List<String>? bcc,\n  }) async {\n    final Uri uri = Uri(\n      scheme: 'mailto',\n      path: to,\n      queryParameters: {\n        if (subject != null) 'subject': subject,\n        if (body != null) 'body': body,\n        if (cc != null && cc.isNotEmpty) 'cc': cc.join(','),\n        if (bcc != null && bcc.isNotEmpty) 'bcc': bcc.join(','),\n      },\n    );\n    \n    if (await canLaunchUrl(uri)) {\n      await launchUrl(uri);\n    } else {\n      throw Exception('이메일을 보낼 수 없습니다');\n    }\n  }\n\n  // ===== SMS 보내기 =====\n  // sms: 스킴 사용\n  static Future<void> sendSms(String phoneNumber, {String? message}) async {\n    final Uri uri = Uri(\n      scheme: 'sms',\n      path: phoneNumber,\n      queryParameters: message != null ? {'body': message} : null,\n    );\n    \n    if (await canLaunchUrl(uri)) {\n      await launchUrl(uri);\n    } else {\n      throw Exception('SMS를 보낼 수 없습니다');\n    }\n  }\n\n  // ===== 지도 열기 (Google Maps) =====\n  static Future<void> openMap(double latitude, double longitude) async {\n    final Uri googleMapsUri = Uri.parse(\n      'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude'\n    );\n    \n    await launchUrl(\n      googleMapsUri,\n      mode: LaunchMode.externalApplication,\n    );\n  }\n\n  // ===== 앱스토어 열기 =====\n  static Future<void> openAppStore(String appId, {bool isIOS = true}) async {\n    final Uri uri = isIOS\n        ? Uri.parse('https://apps.apple.com/app/id$appId')\n        : Uri.parse('https://play.google.com/store/apps/details?id=$appId');\n    \n    await launchUrl(uri, mode: LaunchMode.externalApplication);\n  }\n}\n\n// 사용 예시\nvoid example() async {\n  // 전화\n  await UrlSchemeExamples.makePhoneCall('010-1234-5678');\n  \n  // 이메일\n  await UrlSchemeExamples.sendEmail(\n    to: 'support@example.com',\n    subject: '문의합니다',\n    body: '안녕하세요, 문의 내용입니다.',\n  );\n  \n  // SMS\n  await UrlSchemeExamples.sendSms('010-1234-5678', message: '안녕하세요!');\n  \n  // 지도\n  await UrlSchemeExamples.openMap(37.5665, 126.9780); // 서울시청\n}"
+      },
+      "explanation": "【URL 스킴 정리】\n• tel:전화번호 - 전화 걸기\n• mailto:이메일주소 - 이메일 작성\n• sms:전화번호 - SMS 작성\n• https://maps.google.com - 지도 열기\n• https://play.google.com - 플레이스토어\n• https://apps.apple.com - 앱스토어",
+      "beginnerTip": "📱 iOS 시뮬레이터에서는 전화(tel:), SMS(sms:) 기능이 동작하지 않습니다. 실제 기기에서 테스트하세요."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🏗️ 실전 유틸리티 클래스",
+      "description": "프로덕션 앱에서 사용할 수 있는 에러 처리가 포함된 유틸리티 클래스입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/utils/url_launcher_util.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:url_launcher/url_launcher.dart';\n\n/// URL 실행 결과\nenum LaunchResult {\n  success,\n  cannotLaunch,\n  invalidUrl,\n  error,\n}\n\n/// URL Launcher 유틸리티\nclass UrlLauncherUtil {\n  \n  /// 웹 URL 열기 (에러 처리 포함)\n  static Future<LaunchResult> openUrl(\n    String url, {\n    LaunchMode mode = LaunchMode.platformDefault,\n  }) async {\n    try {\n      // URL 유효성 검사\n      final Uri? uri = Uri.tryParse(url);\n      if (uri == null || !uri.hasScheme) {\n        return LaunchResult.invalidUrl;\n      }\n      \n      // http -> https 자동 변환 (보안)\n      final Uri secureUri = uri.scheme == 'http'\n          ? uri.replace(scheme: 'https')\n          : uri;\n      \n      // 실행 가능 여부 확인\n      if (!await canLaunchUrl(secureUri)) {\n        return LaunchResult.cannotLaunch;\n      }\n      \n      // URL 열기\n      final bool launched = await launchUrl(secureUri, mode: mode);\n      return launched ? LaunchResult.success : LaunchResult.error;\n      \n    } catch (e) {\n      debugPrint('URL 열기 실패: $e');\n      return LaunchResult.error;\n    }\n  }\n\n  /// 전화 걸기\n  static Future<LaunchResult> call(String phoneNumber) async {\n    final cleanNumber = phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '');\n    if (cleanNumber.isEmpty) return LaunchResult.invalidUrl;\n    \n    return _launch(Uri.parse('tel:$cleanNumber'));\n  }\n\n  /// 이메일 보내기\n  static Future<LaunchResult> email({\n    required String to,\n    String? subject,\n    String? body,\n  }) async {\n    final Uri uri = Uri(\n      scheme: 'mailto',\n      path: to,\n      queryParameters: {\n        if (subject != null && subject.isNotEmpty) 'subject': subject,\n        if (body != null && body.isNotEmpty) 'body': body,\n      },\n    );\n    \n    return _launch(uri);\n  }\n\n  /// SMS 보내기\n  static Future<LaunchResult> sms(String phoneNumber, {String? message}) async {\n    final cleanNumber = phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '');\n    if (cleanNumber.isEmpty) return LaunchResult.invalidUrl;\n    \n    final Uri uri = Uri(\n      scheme: 'sms',\n      path: cleanNumber,\n      queryParameters: message != null ? {'body': message} : null,\n    );\n    \n    return _launch(uri);\n  }\n\n  /// 내부 launch 헬퍼\n  static Future<LaunchResult> _launch(Uri uri) async {\n    try {\n      if (!await canLaunchUrl(uri)) {\n        return LaunchResult.cannotLaunch;\n      }\n      \n      final bool launched = await launchUrl(uri);\n      return launched ? LaunchResult.success : LaunchResult.error;\n    } catch (e) {\n      debugPrint('Launch 실패: $e');\n      return LaunchResult.error;\n    }\n  }\n\n  /// 결과에 따른 스낵바 표시\n  static void showResultSnackBar(\n    BuildContext context,\n    LaunchResult result,\n  ) {\n    final String message = switch (result) {\n      LaunchResult.success => '성공적으로 열었습니다',\n      LaunchResult.cannotLaunch => '이 기능을 사용할 수 없습니다',\n      LaunchResult.invalidUrl => '잘못된 URL입니다',\n      LaunchResult.error => '오류가 발생했습니다',\n    };\n    \n    ScaffoldMessenger.of(context).showSnackBar(\n      SnackBar(content: Text(message)),\n    );\n  }\n}\n\n// 사용 예시\nclass ContactScreen extends StatelessWidget {\n  const ContactScreen({super.key});\n\n  void _handleCall(BuildContext context) async {\n    final result = await UrlLauncherUtil.call('02-1234-5678');\n    if (context.mounted) {\n      UrlLauncherUtil.showResultSnackBar(context, result);\n    }\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return ElevatedButton(\n      onPressed: () => _handleCall(context),\n      child: const Text('전화하기'),\n    );\n  }\n}"
+      },
+      "explanation": "【설계 포인트】\n• LaunchResult enum으로 결과 상태 명확화\n• try-catch로 모든 예외 처리\n• http → https 자동 변환으로 보안 강화\n• 전화번호 자동 정제 (하이픈, 공백 제거)\n• 스낵바로 사용자에게 결과 피드백",
+      "beginnerTip": "🛡️ 사용자 입력 URL은 항상 유효성 검사를 하세요. 악의적인 URL이 입력될 수 있습니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "⚡ 링크 텍스트 자동 처리 위젯",
+      "description": "텍스트 내 URL, 이메일, 전화번호를 자동으로 클릭 가능하게 만드는 위젯입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/widgets/linkable_text.dart",
+        "content": "import 'package:flutter/gestures.dart';\nimport 'package:flutter/material.dart';\nimport 'package:url_launcher/url_launcher.dart';\n\n/// 텍스트 내 링크를 자동으로 감지하고 클릭 가능하게 만드는 위젯\nclass LinkableText extends StatelessWidget {\n  final String text;\n  final TextStyle? style;\n  final TextStyle? linkStyle;\n\n  const LinkableText(\n    this.text, {\n    super.key,\n    this.style,\n    this.linkStyle,\n  });\n\n  // URL, 이메일, 전화번호 패턴\n  static final RegExp _linkPattern = RegExp(\n    r'(https?:\\/\\/[^\\s]+)|'  // URL\n    r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})|'  // 이메일\n    r'((?:\\+?82[-\\s]?|0)(?:10|1[1-9]|2|3[1-3]|4[1-4]|5[1-5]|6[1-4])[-\\s]?\\d{3,4}[-\\s]?\\d{4})',  // 전화번호\n    caseSensitive: false,\n  );\n\n  @override\n  Widget build(BuildContext context) {\n    final defaultStyle = style ?? Theme.of(context).textTheme.bodyMedium;\n    final defaultLinkStyle = linkStyle ?? defaultStyle?.copyWith(\n      color: Theme.of(context).colorScheme.primary,\n      decoration: TextDecoration.underline,\n    );\n\n    final spans = <TextSpan>[];\n    int lastEnd = 0;\n\n    for (final match in _linkPattern.allMatches(text)) {\n      // 매치 전 일반 텍스트\n      if (match.start > lastEnd) {\n        spans.add(TextSpan(\n          text: text.substring(lastEnd, match.start),\n          style: defaultStyle,\n        ));\n      }\n\n      // 링크 텍스트\n      final linkText = match.group(0)!;\n      spans.add(TextSpan(\n        text: linkText,\n        style: defaultLinkStyle,\n        recognizer: TapGestureRecognizer()\n          ..onTap = () => _handleTap(linkText),\n      ));\n\n      lastEnd = match.end;\n    }\n\n    // 마지막 일반 텍스트\n    if (lastEnd < text.length) {\n      spans.add(TextSpan(\n        text: text.substring(lastEnd),\n        style: defaultStyle,\n      ));\n    }\n\n    return Text.rich(TextSpan(children: spans));\n  }\n\n  Future<void> _handleTap(String link) async {\n    Uri uri;\n\n    if (link.contains('@') && !link.startsWith('http')) {\n      // 이메일\n      uri = Uri.parse('mailto:$link');\n    } else if (RegExp(r'^[\\d\\s+\\-]+$').hasMatch(link.replaceAll(RegExp(r'[^\\d+]'), ''))) {\n      // 전화번호\n      final cleanNumber = link.replaceAll(RegExp(r'[^0-9+]'), '');\n      uri = Uri.parse('tel:$cleanNumber');\n    } else {\n      // URL\n      uri = Uri.parse(link);\n    }\n\n    if (await canLaunchUrl(uri)) {\n      await launchUrl(uri);\n    }\n  }\n}\n\n// 사용 예시\nclass ExampleScreen extends StatelessWidget {\n  const ExampleScreen({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: LinkableText(\n          '문의: support@example.com\\n'\n          '전화: 010-1234-5678\\n'\n          '웹사이트: https://flutter.dev',\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【LinkableText 위젯 특징】\n• 정규식으로 URL, 이메일, 전화번호 자동 감지\n• TapGestureRecognizer로 터치 이벤트 처리\n• 링크 스타일 커스터마이징 가능\n• 한국 전화번호 패턴 지원",
+      "beginnerTip": "💡 이 위젯을 활용하면 공지사항, 이용약관 등에서 링크를 자동으로 처리할 수 있습니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "launchUrl()",
+      "description": "주어진 URL을 시스템 앱으로 엽니다.",
+      "parameters": "url (Uri): 열 URL | mode (LaunchMode): 실행 모드 | webViewConfiguration: WebView 설정",
+      "returns": "Future<bool> - 성공 여부",
+      "example": "await launchUrl(Uri.parse('https://flutter.dev'));"
+    },
+    {
+      "name": "canLaunchUrl()",
+      "description": "해당 URL을 처리할 수 있는 앱이 있는지 확인합니다.",
+      "parameters": "url (Uri): 확인할 URL",
+      "returns": "Future<bool> - 처리 가능 여부",
+      "example": "if (await canLaunchUrl(uri)) { ... }"
+    },
+    {
+      "name": "LaunchMode",
+      "description": "URL을 여는 방식을 지정하는 enum입니다.",
+      "parameters": "platformDefault | inAppBrowserView | inAppWebView | externalApplication | externalNonBrowserApplication",
+      "returns": "enum",
+      "example": "await launchUrl(uri, mode: LaunchMode.inAppBrowserView);"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "canLaunchUrl() always returns false on Android 11+",
+      "cause": "Android 11부터 패키지 가시성 정책으로 인해 queries 설정이 필요합니다.",
+      "solution": "AndroidManifest.xml에 <queries> 섹션을 추가하세요. Step 1의 플랫폼 설정을 참고하세요.",
+      "prevention": "url_launcher 사용 시 반드시 AndroidManifest.xml에 queries를 설정하세요."
+    },
+    {
+      "error": "PlatformException: Could not launch URL",
+      "cause": "URL 형식이 잘못되었거나, 해당 URL을 처리할 앱이 없습니다.",
+      "solution": "1. Uri.parse() 전에 URL 유효성 검사\n2. canLaunchUrl()로 사전 체크\n3. try-catch로 예외 처리",
+      "prevention": "항상 canLaunchUrl()을 먼저 호출하고, 실패 시 사용자에게 알려주세요."
+    },
+    {
+      "error": "tel: and sms: not working on iOS Simulator",
+      "cause": "iOS 시뮬레이터에는 전화, SMS 앱이 없습니다.",
+      "solution": "실제 iOS 기기에서 테스트하세요.",
+      "prevention": "시뮬레이터에서는 canLaunchUrl()이 false를 반환하므로 예외 처리가 되어야 합니다."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "항상 canLaunchUrl() 먼저 호출",
+      "description": "URL을 열기 전에 처리 가능 여부를 확인하여 사용자에게 적절한 피드백을 제공하세요.",
+      "doThis": "if (await canLaunchUrl(uri)) {\n  await launchUrl(uri);\n} else {\n  showSnackBar('이 기능을 사용할 수 없습니다');\n}",
+      "dontDoThis": "await launchUrl(uri); // 실패 시 예외 발생"
+    },
+    {
+      "title": "http를 https로 변환",
+      "description": "보안을 위해 http URL은 https로 자동 변환하세요.",
+      "doThis": "final secureUri = uri.scheme == 'http'\n    ? uri.replace(scheme: 'https')\n    : uri;",
+      "dontDoThis": "// http URL을 그대로 사용"
+    },
+    {
+      "title": "유틸리티 클래스로 중앙화",
+      "description": "URL 실행 로직을 유틸리티 클래스로 분리하여 일관된 에러 처리와 로깅을 구현하세요.",
+      "doThis": "class UrlLauncherUtil {\n  static Future<bool> openUrl(String url) async { ... }\n}",
+      "dontDoThis": "// 여러 곳에서 launchUrl() 직접 호출"
+    }
+  ],
+
+  "tips": [
+    "💡 Android 11+ 테스트 시 queries 설정 후에도 안 되면 앱을 완전히 삭제 후 재설치하세요",
+    "🐛 canLaunchUrl()이 false인데 launchUrl()은 성공하는 경우가 있습니다. 둘 다 try-catch로 감싸세요",
+    "⚡ 인앱 브라우저(inAppBrowserView)는 앱 이탈을 줄여 사용자 경험을 향상시킵니다",
+    "🧪 Web 플랫폼에서는 window.open()이 호출되므로 팝업 차단에 주의하세요",
+    "📱 전화번호는 국제 형식(+82)이나 국내 형식(010) 모두 지원하지만, 통일하는 것이 좋습니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "flutter_linkify",
+      "description": "텍스트 내 URL을 자동으로 링크로 변환해주는 위젯"
+    },
+    {
+      "name": "webview_flutter",
+      "description": "앱 내에서 웹페이지를 완전히 컨트롤하고 싶을 때 사용"
+    },
+    {
+      "name": "share_plus",
+      "description": "URL이나 텍스트를 다른 앱으로 공유하는 기능"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/url_launcher"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/url_launcher/latest/"},
+    {"title": "Android Package Visibility", "url": "https://developer.android.com/training/package-visibility"}
+  ]
+}

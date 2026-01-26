@@ -99,6 +99,35 @@ function decodeHtmlEntities(text) {
 }
 
 /**
+ * 정적 가이드 파일 확인 (pre-generated)
+ * data/guides/{packageName}.json 파일을 찾습니다.
+ */
+async function loadStaticGuide(packageName) {
+  try {
+    // 배포 환경: /data/guides/ 경로에서 가져옴
+    const baseUrl = process.env.URL || process.env.DEPLOY_URL || 'https://flutterwebkit.netlify.app';
+    const guideUrl = `${baseUrl}/data/guides/${packageName}.json`;
+
+    console.log(`[GuideGenerator] 정적 가이드 확인: ${guideUrl}`);
+
+    const response = await fetch(guideUrl, {
+      signal: AbortSignal.timeout(2000), // 2초 타임아웃
+    });
+
+    if (response.ok) {
+      const guide = await response.json();
+      console.log(`[GuideGenerator] ✅ 정적 가이드 발견: ${packageName}`);
+      return guide;
+    }
+
+    return null;
+  } catch (error) {
+    console.log(`[GuideGenerator] 정적 가이드 없음: ${packageName} (${error.message})`);
+    return null;
+  }
+}
+
+/**
  * 가이드 생성 메인 함수
  */
 export async function generateGuide(packageName) {
@@ -110,6 +139,17 @@ export async function generateGuide(packageName) {
     timestamp: new Date().toISOString(),
     steps: [],
   };
+
+  // 0. 정적 가이드 파일 먼저 확인 (가장 빠름)
+  const staticGuide = await loadStaticGuide(packageName);
+  if (staticGuide) {
+    debug.steps.push({ step: 'static_guide_found' });
+    staticGuide._debug = debug;
+    staticGuide.source = 'static';
+    return staticGuide;
+  }
+
+  debug.steps.push({ step: 'static_guide_not_found' });
 
   // 1. 패키지 데이터 조회
   const pkg = await findPackage(packageName);
