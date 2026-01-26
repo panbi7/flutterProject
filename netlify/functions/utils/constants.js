@@ -12,8 +12,8 @@ if (!_dirname) _dirname = process.cwd()
 
 export const PORT = process.env.PORT || 3000
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
-// gemini-pro는 안정적인 기본 모델
-export const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-pro'
+// gemini-2.0-flash-exp - 실험적이지만 할당량이 넉넉함
+export const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp'
 
 export const ALLOWED_INTENTS = [
   'auth_basic',
