@@ -155,60 +155,156 @@ export async function generateGuide(packageName) {
 }
 
 /**
- * 간소화된 Gemini 프롬프트 - 최대한 단순하게
+ * Gemini 프롬프트 - 패키지 상세 설명 포함
  */
 function buildPrompt(pkg, exampleCode, hasExample) {
-  return `You are a Flutter expert. Create a JSON implementation guide for the "${pkg.name}" package.
+  const exampleSection = hasExample
+    ? `\n\n[공식 예제 코드]\n${exampleCode}`
+    : '';
+
+  return `You are a senior Flutter developer and technical writer. Create a comprehensive JSON guide for the "${pkg.name}" package in Korean.
 
 Package: ${pkg.name}
 Version: ${pkg.version || 'latest'}
 Description: ${pkg.description || 'Flutter package'}
+${exampleSection}
 
-IMPORTANT: Output ONLY valid JSON. No markdown, no explanation, just JSON.
+CRITICAL: Output ONLY valid JSON. No markdown, no explanation.
 
-Required JSON structure:
+Required JSON structure with DETAILED explanations:
 {
   "packageId": "${pkg.name}",
-  "title": "${pkg.name} 완벽 가이드",
-  "description": "한국어로 패키지 설명 2-3문장",
-  "difficulty": "초급",
-  "estimatedTime": "30분",
-  "prerequisites": ["Flutter 기초", "Dart 문법"],
+  "title": "${pkg.name} 완벽 마스터 가이드",
+
+  "overview": {
+    "what": "이 패키지가 무엇인지 상세히 설명 (3-5문장). 어떤 문제를 해결하는지, 핵심 기능이 무엇인지",
+    "why": "왜 이 패키지를 사용해야 하는지 (3-5문장). 직접 구현 대비 장점, 다른 패키지와의 차별점",
+    "when": "언제 사용하면 좋은지 구체적인 사용 시나리오 3가지 이상",
+    "features": [
+      "주요 기능 1: 상세 설명",
+      "주요 기능 2: 상세 설명",
+      "주요 기능 3: 상세 설명",
+      "주요 기능 4: 상세 설명",
+      "주요 기능 5: 상세 설명"
+    ]
+  },
+
+  "description": "패키지 한줄 요약",
+  "difficulty": "초급/중급/고급",
+  "estimatedTime": "예상 학습 시간",
+  "prerequisites": ["사전 지식 1", "사전 지식 2", "사전 지식 3"],
+
   "coreConcepts": [
-    {"term": "주요 개념", "explanation": "한국어 설명", "analogy": "비유"}
+    {
+      "term": "핵심 개념/클래스명",
+      "explanation": "이 개념이 무엇이고 왜 중요한지 상세 설명",
+      "analogy": "초보자도 이해할 수 있는 일상적인 비유",
+      "usage": "실제로 어떤 상황에서 사용하는지"
+    }
   ],
+
   "steps": [
     {
       "stepNumber": 1,
-      "title": "설치하기",
-      "description": "패키지 설치 방법",
-      "code": {"language": "dart", "filename": "pubspec.yaml", "content": "dependencies:\\n  ${pkg.name}: ^${pkg.version || '1.0.0'}"},
+      "title": "패키지 설치 및 설정",
+      "description": "단계에서 할 일 상세 설명",
+      "code": {
+        "language": "dart",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\\n  flutter:\\n    sdk: flutter\\n  ${pkg.name}: ^${pkg.version || '1.0.0'}"
+      },
       "commands": ["flutter pub add ${pkg.name}"],
-      "explanation": "설명"
+      "explanation": "이 코드가 하는 일과 각 부분의 의미",
+      "platformSetup": {
+        "android": "안드로이드 추가 설정 (필요시)",
+        "ios": "iOS 추가 설정 (필요시)"
+      }
     },
     {
       "stepNumber": 2,
-      "title": "기본 사용법",
-      "description": "기본 사용 방법",
-      "code": {"language": "dart", "filename": "lib/main.dart", "content": "import 'package:${pkg.name}/${pkg.name}.dart';\\n\\n// 기본 사용 예제 코드..."},
-      "explanation": "설명"
+      "title": "기본 사용법 익히기",
+      "description": "가장 기본적인 사용 방법",
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "// 40줄 이상의 완전한 동작 코드\\n// 한국어 주석으로 각 줄 설명"
+      },
+      "explanation": "코드의 동작 원리와 각 함수/클래스의 역할",
+      "beginnerTip": "초보자가 흔히 실수하는 부분과 해결법"
     },
     {
       "stepNumber": 3,
-      "title": "실전 예제",
-      "description": "실제 활용 예제",
-      "code": {"language": "dart", "filename": "lib/example.dart", "content": "// 실전 예제 코드..."},
-      "explanation": "설명"
+      "title": "핵심 기능 활용",
+      "description": "패키지의 핵심 기능 사용법",
+      "code": {
+        "language": "dart",
+        "filename": "lib/features.dart",
+        "content": "// 핵심 기능별 예제 코드"
+      },
+      "explanation": "각 기능의 동작 원리"
+    },
+    {
+      "stepNumber": 4,
+      "title": "실전 프로젝트 적용",
+      "description": "실제 앱에서 활용하는 방법",
+      "code": {
+        "language": "dart",
+        "filename": "lib/real_world_example.dart",
+        "content": "// 실제 프로젝트에서 사용하는 패턴"
+      },
+      "explanation": "실무에서 자주 사용하는 패턴과 이유"
     }
   ],
-  "commonErrors": [
-    {"error": "에러명", "cause": "원인", "solution": "해결책"}
+
+  "apiReference": [
+    {
+      "name": "주요 클래스/함수명",
+      "description": "무엇을 하는지",
+      "parameters": "주요 파라미터 설명",
+      "returns": "반환값 설명",
+      "example": "간단한 사용 예시"
+    }
   ],
-  "tips": ["팁1", "팁2"],
-  "references": [{"title": "pub.dev", "url": "https://pub.dev/packages/${pkg.name}"}]
+
+  "commonErrors": [
+    {
+      "error": "에러 메시지",
+      "cause": "발생 원인 상세 설명",
+      "solution": "해결 방법 단계별 설명",
+      "prevention": "예방하는 방법"
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "베스트 프랙티스 제목",
+      "description": "왜 이렇게 해야 하는지, 어떻게 적용하는지",
+      "doThis": "권장하는 방법",
+      "dontDoThis": "피해야 할 방법"
+    }
+  ],
+
+  "tips": [
+    "실무에서 유용한 팁 1",
+    "실무에서 유용한 팁 2",
+    "성능 최적화 팁",
+    "디버깅 팁"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "관련 패키지명",
+      "description": "함께 사용하면 좋은 이유"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 문서", "url": "https://pub.dev/packages/${pkg.name}"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/${pkg.name}/latest/"}
+  ]
 }
 
-Now generate the complete guide for ${pkg.name} in Korean:`;
+Generate a comprehensive, beginner-friendly guide for "${pkg.name}" with all fields filled in Korean:`;
 }
 
 /**
@@ -277,27 +373,31 @@ function parseGuideResponse(responseText, pkg) {
  * 가이드 유효성 검사
  */
 function isValidGuide(guide) {
-  return (
-    guide &&
-    typeof guide === 'object' &&
-    guide.steps &&
-    Array.isArray(guide.steps) &&
-    guide.steps.length > 0 &&
-    guide.steps[0].code
-  );
+  // 기본 구조 확인
+  if (!guide || typeof guide !== 'object') return false;
+  if (!guide.steps || !Array.isArray(guide.steps) || guide.steps.length === 0) return false;
+  if (!guide.steps[0].code) return false;
+
+  // overview가 있으면 더 좋은 가이드
+  const hasOverview = guide.overview && guide.overview.what;
+
+  console.log(`[GuideGenerator] 가이드 유효성: steps=${guide.steps.length}, hasOverview=${hasOverview}`);
+
+  return true;
 }
 
 /**
- * 고품질 Fallback 가이드 생성
+ * 고품질 Fallback 가이드 생성 - 상세 설명 포함
  */
 function createFallbackGuide(pkg, exampleCode) {
   const pascalName = toPascalCase(pkg.name);
+  const desc = pkg.description || `${pkg.name} 패키지`;
 
   const steps = [
     {
       stepNumber: 1,
-      title: '패키지 설치',
-      description: `${pkg.name} 패키지를 Flutter 프로젝트에 추가합니다.`,
+      title: '패키지 설치 및 설정',
+      description: `${pkg.name} 패키지를 Flutter 프로젝트에 추가하고 필요한 설정을 완료합니다.`,
       code: {
         language: 'yaml',
         filename: 'pubspec.yaml',
@@ -311,12 +411,16 @@ function createFallbackGuide(pkg, exampleCode) {
       },
       commands: [`flutter pub add ${pkg.name}`],
       explanation: 'pubspec.yaml에 의존성을 추가하고 flutter pub get으로 패키지를 다운로드합니다.',
-      beginnerTip: 'flutter pub add 명령어를 사용하면 자동으로 최신 버전이 추가됩니다.',
+      platformSetup: {
+        android: 'AndroidManifest.xml에 필요한 권한이 있는지 공식 문서를 확인하세요.',
+        ios: 'Info.plist에 필요한 설정이 있는지 공식 문서를 확인하세요.',
+      },
+      beginnerTip: 'flutter pub add 명령어를 사용하면 자동으로 최신 호환 버전이 추가됩니다.',
     },
     {
       stepNumber: 2,
-      title: '기본 사용법',
-      description: `${pkg.name} 패키지의 기본적인 사용 방법입니다.`,
+      title: '기본 사용법 익히기',
+      description: `${pkg.name} 패키지의 기본적인 사용 방법을 학습합니다.`,
       code: {
         language: 'dart',
         filename: 'lib/main.dart',
@@ -351,12 +455,32 @@ class ${pascalName}Example extends StatefulWidget {
 }
 
 class _${pascalName}ExampleState extends State<${pascalName}Example> {
-  // TODO: ${pkg.name} 관련 상태 변수 선언
+  // 상태 변수 선언
+  bool _isLoading = false;
+  String _result = '';
 
   @override
   void initState() {
     super.initState();
-    // TODO: 초기화 로직
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    // ${pkg.name} 초기화 로직
+    // 공식 문서를 참고하여 구현하세요
+  }
+
+  Future<void> _executeFeature() async {
+    setState(() => _isLoading = true);
+    try {
+      // ${pkg.name} 기능 실행
+      // 공식 문서의 예제를 참고하세요
+      setState(() => _result = '성공!');
+    } catch (e) {
+      setState(() => _result = '에러: \$e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -367,28 +491,50 @@ class _${pascalName}ExampleState extends State<${pascalName}Example> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              '${pkg.name} 패키지 사용 예제',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // TODO: ${pkg.name} 기능 호출
-              },
-              child: const Text('기능 실행'),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '${pkg.name}',
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                '${desc}',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 30),
+              if (_isLoading)
+                const CircularProgressIndicator()
+              else
+                ElevatedButton.icon(
+                  onPressed: _executeFeature,
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text('기능 실행'),
+                ),
+              const SizedBox(height: 20),
+              if (_result.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(_result),
+                ),
+            ],
+          ),
         ),
       ),
     );
   }
 }`,
       },
-      explanation: '기본 앱 구조와 함께 패키지를 import하고 사용할 준비를 합니다. TODO 주석 부분을 실제 구현으로 채워넣으세요.',
+      explanation: '기본 앱 구조와 함께 패키지를 import하고 사용할 준비를 합니다. _executeFeature() 메서드에 실제 패키지 기능을 구현하세요.',
+      beginnerTip: 'async/await 패턴으로 비동기 작업을 처리하고, try-catch로 에러를 핸들링하는 것이 좋습니다.',
     },
   ];
 
@@ -396,51 +542,91 @@ class _${pascalName}ExampleState extends State<${pascalName}Example> {
   if (exampleCode && exampleCode.length > 100) {
     steps.push({
       stepNumber: 3,
-      title: '공식 예제 코드',
-      description: 'pub.dev에서 제공하는 공식 예제 코드입니다. 이 코드를 참고하여 구현하세요.',
+      title: '공식 예제 코드 분석',
+      description: 'pub.dev에서 제공하는 공식 예제 코드입니다. 이 코드를 분석하고 프로젝트에 적용하세요.',
       code: {
         language: 'dart',
         filename: 'lib/official_example.dart',
         content: exampleCode,
       },
-      explanation: '공식 예제 코드를 분석하여 패키지의 핵심 사용법을 파악하세요.',
+      explanation: '공식 예제 코드를 분석하여 패키지의 핵심 사용법을 파악하세요. 주요 클래스와 메서드가 어떻게 사용되는지 확인하세요.',
     });
   }
 
   return {
     packageId: pkg.name,
-    title: `${pkg.name} 구현 가이드`,
-    description: pkg.description || `${pkg.name} 패키지를 Flutter 프로젝트에서 사용하는 방법을 안내합니다.`,
+    title: `${pkg.name} 완벽 가이드`,
+
+    // 상세 설명 섹션
+    overview: {
+      what: `${pkg.name}은(는) ${desc} 이 패키지를 사용하면 복잡한 기능을 쉽게 구현할 수 있으며, Flutter 앱 개발에서 자주 필요한 기능을 제공합니다. 공식 문서와 예제를 통해 더 자세한 정보를 확인하세요.`,
+      why: `직접 구현하면 많은 시간과 노력이 필요한 기능을 ${pkg.name} 패키지로 쉽게 해결할 수 있습니다. 커뮤니티에서 검증된 패키지이며, 지속적으로 유지보수되고 있어 안정적입니다. 다양한 엣지 케이스가 이미 처리되어 있어 프로덕션 환경에서도 안심하고 사용할 수 있습니다.`,
+      when: `앱에서 ${desc.toLowerCase()}이(가) 필요할 때 사용합니다. 프로토타입 개발 시 빠르게 기능을 구현하고 싶을 때, 검증된 솔루션이 필요할 때 적합합니다.`,
+      features: [
+        '공식 문서에서 전체 기능 목록을 확인하세요',
+        'pub.dev에서 예제 코드를 참고하세요',
+        'GitHub 저장소에서 상세 사용법을 확인하세요',
+      ],
+    },
+
+    description: desc,
     difficulty: '중급',
     estimatedTime: '30분 - 1시간',
     prerequisites: [
-      'Flutter SDK 설치 및 기본 프로젝트 생성',
-      'Dart 문법 기초 이해',
+      'Flutter SDK 설치 및 기본 프로젝트 생성 경험',
+      'Dart 비동기 프로그래밍 (async/await) 이해',
       'StatefulWidget 라이프사이클 이해',
     ],
     coreConcepts: [
       {
         term: pkg.name,
-        explanation: pkg.description || '이 패키지에 대한 설명입니다.',
+        explanation: desc,
         analogy: '자세한 내용은 pub.dev 공식 문서를 참고하세요.',
+        usage: '앱에서 해당 기능이 필요할 때 import하여 사용합니다.',
       },
     ],
     steps,
+    apiReference: [
+      {
+        name: '주요 API',
+        description: 'pub.dev 문서에서 전체 API 레퍼런스를 확인하세요.',
+        parameters: '공식 문서 참고',
+        returns: '공식 문서 참고',
+        example: '공식 예제 코드 참고',
+      },
+    ],
     commonErrors: [
       {
         error: 'MissingPluginException',
         cause: '네이티브 플러그인이 제대로 로드되지 않았습니다.',
-        solution: 'flutter clean && flutter pub get 실행 후 앱을 완전히 재시작하세요. iOS의 경우 cd ios && pod install도 필요할 수 있습니다.',
+        solution: 'flutter clean && flutter pub get 실행 후 앱을 완전히 재시작하세요.',
+        prevention: '핫 리로드 대신 앱을 완전히 재시작하면 대부분 해결됩니다.',
       },
       {
         error: 'Version solving failed',
         cause: '다른 패키지와 버전 충돌이 발생했습니다.',
         solution: 'flutter pub deps로 의존성 트리를 확인하고, 호환되는 버전을 찾으세요.',
+        prevention: '패키지 추가 전 호환성을 미리 확인하세요.',
       },
       {
         error: `Cannot find package '${pkg.name}'`,
         cause: '패키지 이름이 잘못되었거나 pubspec.yaml에 추가되지 않았습니다.',
         solution: `flutter pub add ${pkg.name}으로 패키지를 추가하세요.`,
+        prevention: 'pub.dev에서 정확한 패키지 이름을 확인하세요.',
+      },
+    ],
+    bestPractices: [
+      {
+        title: '버전 고정',
+        description: '프로덕션 앱에서는 특정 버전을 고정하여 예기치 않은 업데이트로 인한 문제를 방지하세요.',
+        doThis: `${pkg.name}: ^${pkg.version || '1.0.0'} 형태로 메이저 버전 고정`,
+        dontDoThis: `${pkg.name}: any 같은 느슨한 버전 지정`,
+      },
+      {
+        title: '에러 핸들링',
+        description: '패키지 기능 호출 시 try-catch로 예외를 처리하고, 사용자에게 친절한 에러 메시지를 보여주세요.',
+        doThis: 'try-catch로 감싸고 사용자 친화적 메시지 표시',
+        dontDoThis: '에러 처리 없이 직접 호출',
       },
     ],
     tips: [
@@ -449,24 +635,10 @@ class _${pascalName}ExampleState extends State<${pascalName}Example> {
       '패키지 버전 업데이트 시 CHANGELOG를 확인하여 breaking changes를 파악하세요.',
       '예제 프로젝트가 있다면 clone하여 직접 실행해보는 것이 가장 빠른 학습 방법입니다.',
     ],
-    bestPractices: [
+    relatedPackages: [
       {
-        title: '버전 고정',
-        description: '프로덕션 앱에서는 특정 버전을 고정하여 예기치 않은 업데이트로 인한 문제를 방지하세요.',
-      },
-      {
-        title: '에러 핸들링',
-        description: '패키지 기능 호출 시 try-catch로 예외를 처리하고, 사용자에게 친절한 에러 메시지를 보여주세요.',
-      },
-    ],
-    nextSteps: [
-      {
-        title: '고급 기능 탐색',
-        description: '공식 문서의 Advanced 섹션을 참고하여 추가 기능을 활용해보세요.',
-      },
-      {
-        title: '테스트 작성',
-        description: '패키지 기능에 대한 단위 테스트를 작성하여 안정성을 확보하세요.',
+        name: '관련 패키지',
+        description: 'pub.dev에서 비슷한 기능의 패키지를 검색해보세요.',
       },
     ],
     references: [
