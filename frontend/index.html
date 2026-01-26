@@ -50,6 +50,11 @@
       /* 헤더 액션 영역 */
       .header-actions { display: flex; align-items: center; gap: 12px; }
 
+      /* 캐시 초기화 버튼 */
+      .cache-clear-btn { background: #374151; color: #f87171; padding: 8px 14px; border: 1px solid #4b5563; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+      .cache-clear-btn:hover { background: #4b5563; border-color: #f87171; }
+      .cache-clear-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
       /* 뷰 전환 토글 */
       .view-toggle { display: flex; background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
       .view-btn { padding: 8px 16px; background: transparent; border: none; color: var(--muted); font-size: 13px; cursor: pointer; transition: all 0.2s; }

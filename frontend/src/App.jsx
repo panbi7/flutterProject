@@ -3,11 +3,14 @@ import Chat from './components/Chat.jsx'
 import HomePage from './components/HomePage.jsx'
 import { getHomeData } from './services/homeApi.js'
 
+const ADMIN_SECRET = 'flutter-guide-admin-2024'
+
 export default function App() {
   const [view, setView] = useState('home') // 'home' | 'chat'
   const [monthlyWidgets, setMonthlyWidgets] = useState([])
   const [isWidgetDropdownOpen, setIsWidgetDropdownOpen] = useState(false)
   const [initialMessage, setInitialMessage] = useState(null)
+  const [isClearingCache, setIsClearingCache] = useState(false)
 
   // 이달의 위젯 동적 로드
   useEffect(() => {
@@ -51,6 +54,36 @@ export default function App() {
     setView('chat')
   }
 
+  // 캐시 초기화 핸들러
+  const handleClearCache = async () => {
+    const confirmed = window.confirm(
+      '⚠️ 가이드 캐시 초기화\n\n' +
+      '모든 패키지의 캐시된 가이드가 삭제됩니다.\n' +
+      '다음 요청 시 가이드가 새로 생성됩니다.\n\n' +
+      '정말 삭제하시겠습니까?'
+    )
+
+    if (!confirmed) return
+
+    setIsClearingCache(true)
+    try {
+      const response = await fetch(
+        `/.netlify/functions/cache-clear?all=true&secret=${ADMIN_SECRET}`
+      )
+      const data = await response.json()
+
+      if (data.success) {
+        alert(`✅ 캐시 초기화 완료\n\n삭제된 항목: ${data.deleted?.length || 0}개`)
+      } else {
+        alert(`❌ 캐시 초기화 실패\n\n${data.error || '알 수 없는 오류'}`)
+      }
+    } catch (error) {
+      alert(`❌ 캐시 초기화 실패\n\n${error.message}`)
+    } finally {
+      setIsClearingCache(false)
+    }
+  }
+
   return (
     <div className="container">
       <div className="header">
@@ -76,6 +109,16 @@ export default function App() {
               채팅
             </button>
           </div>
+
+          {/* 캐시 초기화 버튼 */}
+          <button
+            className="cache-clear-btn"
+            onClick={handleClearCache}
+            disabled={isClearingCache}
+            title="가이드 캐시 초기화"
+          >
+            {isClearingCache ? '삭제 중...' : '🗑️ 캐시 초기화'}
+          </button>
 
           {/* 이달의 위젯 드롭다운 */}
           <div style={{ position: 'relative' }}>

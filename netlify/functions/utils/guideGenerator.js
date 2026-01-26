@@ -155,156 +155,259 @@ export async function generateGuide(packageName) {
 }
 
 /**
- * Gemini 프롬프트 - 패키지 상세 설명 포함
+ * Gemini 프롬프트 - Flutter 전문가 스타일의 체계적 가이드 생성
  */
 function buildPrompt(pkg, exampleCode, hasExample) {
-  const exampleSection = hasExample
-    ? `\n\n[공식 예제 코드]\n${exampleCode}`
-    : '';
+  // 예제 코드 분석 지시문 생성
+  const exampleAnalysisSection = hasExample
+    ? `
+═══════════════════════════════════════════════════════════════
+📚 공식 예제 코드 (이 코드를 철저히 분석하여 가이드에 반영하세요)
+═══════════════════════════════════════════════════════════════
+\`\`\`dart
+${exampleCode}
+\`\`\`
 
-  return `You are a senior Flutter developer and technical writer. Create a comprehensive JSON guide for the "${pkg.name}" package in Korean.
+【예제 코드 분석 가이드】
+위 공식 예제를 분석하여 다음을 파악하세요:
+1. 어떤 클래스/위젯이 사용되었는가? → coreConcepts에 반영
+2. 초기화는 어떻게 하는가? (initState, 생성자 등) → Step 2에 상세히
+3. 주요 메서드 호출 순서는? → Step 3에 단계별로
+4. 콜백/이벤트 처리 방식은? → Step 4에 실전 패턴으로
+5. 에러 처리는 어떻게 되어있는가? → commonErrors에 반영
+6. 상태 관리 패턴은? → bestPractices에 반영
+`
+    : `
+【예제 코드 없음】
+pub.dev의 ${pkg.name} 패키지 공식 문서와 README를 기반으로
+Flutter 전문가의 경험을 살려 체계적인 가이드를 작성하세요.
+`;
 
-Package: ${pkg.name}
-Version: ${pkg.version || 'latest'}
-Description: ${pkg.description || 'Flutter package'}
-${exampleSection}
+  return `당신은 10년 경력의 시니어 Flutter 개발자이자 기술 교육 전문가입니다.
+Flutter Korea 커뮤니티에서 활발히 활동하며, 수많은 개발자들을 가르쳐온 경험이 있습니다.
+지금부터 "${pkg.name}" 패키지에 대한 **실전 구현 가이드**를 작성합니다.
 
-CRITICAL: Output ONLY valid JSON. No markdown, no explanation.
+═══════════════════════════════════════════════════════════════
+📦 패키지 정보
+═══════════════════════════════════════════════════════════════
+• 패키지명: ${pkg.name}
+• 버전: ${pkg.version || 'latest'}
+• 설명: ${pkg.description || 'Flutter package'}
+• pub.dev: https://pub.dev/packages/${pkg.name}
+${exampleAnalysisSection}
 
-Required JSON structure with DETAILED explanations:
+═══════════════════════════════════════════════════════════════
+🎯 가이드 작성 원칙 (매우 중요!)
+═══════════════════════════════════════════════════════════════
+
+【원칙 1: 실제 동작하는 코드만 작성】
+- 복사해서 바로 실행할 수 있는 완전한 코드
+- 모든 import문 포함
+- 주석 없이도 이해되는 명확한 변수명
+- 한국어 주석으로 "왜" 이렇게 하는지 설명
+
+【원칙 2: 단계별 점진적 학습】
+- Step 1: 설치 + 플랫폼별 필수 설정 (권한, Info.plist 등)
+- Step 2: 가장 간단한 Hello World 수준 예제
+- Step 3: 핵심 기능 하나씩 깊이있게 파고들기
+- Step 4: 실제 앱에서 쓰는 패턴 (MVVM, Repository 등)
+- Step 5: 고급 활용 + 성능 최적화
+
+【원칙 3: 초보자 관점에서 설명】
+- "당연히 알겠지"라고 생략하지 말 것
+- 모든 개념에 일상적인 비유 추가
+- 흔히 하는 실수와 해결법 명시
+- 디버깅 방법까지 안내
+
+【원칙 4: 실무 경험 기반 조언】
+- 프로덕션에서 실제로 겪은 문제들
+- 성능 이슈와 해결책
+- 테스트 작성 방법
+- CI/CD 고려사항
+
+═══════════════════════════════════════════════════════════════
+📝 JSON 출력 형식 (반드시 이 구조로!)
+═══════════════════════════════════════════════════════════════
+
+CRITICAL: 오직 유효한 JSON만 출력하세요. 마크다운, 설명, 코드블록 없이 순수 JSON만!
+
 {
   "packageId": "${pkg.name}",
-  "title": "${pkg.name} 완벽 마스터 가이드",
+  "title": "${pkg.name} 실전 마스터 가이드",
 
   "overview": {
-    "what": "이 패키지가 무엇인지 상세히 설명 (3-5문장). 어떤 문제를 해결하는지, 핵심 기능이 무엇인지",
-    "why": "왜 이 패키지를 사용해야 하는지 (3-5문장). 직접 구현 대비 장점, 다른 패키지와의 차별점",
-    "when": "언제 사용하면 좋은지 구체적인 사용 시나리오 3가지 이상",
+    "what": "[3-5문장] 이 패키지가 정확히 무엇인지. 어떤 문제를 해결하는지. 내부적으로 어떻게 동작하는지 간단히.",
+    "why": "[3-5문장] 직접 구현 대비 이 패키지의 장점. 비슷한 패키지(예: xxx vs yyy) 대비 차별점. 언제 이 패키지를 선택해야 하는지.",
+    "when": "[구체적 시나리오 3개 이상] 예: 1) 사용자 프로필 사진 선택 기능 구현 시, 2) 갤러리에서 다중 이미지 선택 시, 3) 카메라로 문서 스캔 시",
     "features": [
-      "주요 기능 1: 상세 설명",
-      "주요 기능 2: 상세 설명",
-      "주요 기능 3: 상세 설명",
-      "주요 기능 4: 상세 설명",
-      "주요 기능 5: 상세 설명"
+      "🎯 핵심기능1: 구체적으로 무엇을 할 수 있는지",
+      "⚡ 핵심기능2: 성능/편의성 관점에서의 특징",
+      "🔧 핵심기능3: 커스터마이징 가능한 부분",
+      "📱 핵심기능4: 플랫폼별 지원 현황",
+      "🛡️ 핵심기능5: 안정성/보안 관련 특징"
     ]
   },
 
-  "description": "패키지 한줄 요약",
-  "difficulty": "초급/중급/고급",
-  "estimatedTime": "예상 학습 시간",
-  "prerequisites": ["사전 지식 1", "사전 지식 2", "사전 지식 3"],
+  "description": "한 문장으로 패키지 핵심 가치 요약",
+  "difficulty": "초급|중급|고급 (근거 포함)",
+  "estimatedTime": "실제 학습에 필요한 현실적 시간",
+  "prerequisites": [
+    "Flutter 기본 위젯 (StatefulWidget, setState) 이해",
+    "async/await 비동기 프로그래밍 기초",
+    "필요한 사전 지식 3..."
+  ],
 
   "coreConcepts": [
     {
-      "term": "핵심 개념/클래스명",
-      "explanation": "이 개념이 무엇이고 왜 중요한지 상세 설명",
-      "analogy": "초보자도 이해할 수 있는 일상적인 비유",
-      "usage": "실제로 어떤 상황에서 사용하는지"
+      "term": "핵심 클래스/개념명",
+      "explanation": "이것이 무엇이고, 전체 패키지에서 어떤 역할을 하는지. 언제 사용하는지.",
+      "analogy": "☕ 커피머신에 비유하면... (일상적 비유로 쉽게 이해)",
+      "usage": "실제 코드에서 이렇게 사용: ClassName.method()"
+    },
+    {
+      "term": "두 번째 핵심 개념",
+      "explanation": "상세 설명...",
+      "analogy": "비유...",
+      "usage": "사용법..."
     }
   ],
 
   "steps": [
     {
       "stepNumber": 1,
-      "title": "패키지 설치 및 설정",
-      "description": "단계에서 할 일 상세 설명",
+      "title": "🔧 프로젝트 설정 및 플랫폼별 구성",
+      "description": "패키지 설치와 함께 Android/iOS 각각에서 필요한 설정을 완료합니다.",
       "code": {
-        "language": "dart",
+        "language": "yaml",
         "filename": "pubspec.yaml",
         "content": "dependencies:\\n  flutter:\\n    sdk: flutter\\n  ${pkg.name}: ^${pkg.version || '1.0.0'}"
       },
-      "commands": ["flutter pub add ${pkg.name}"],
-      "explanation": "이 코드가 하는 일과 각 부분의 의미",
+      "commands": ["flutter pub add ${pkg.name}", "flutter pub get"],
+      "explanation": "패키지 추가 후 각 플랫폼별 설정이 필요합니다.",
       "platformSetup": {
-        "android": "안드로이드 추가 설정 (필요시)",
-        "ios": "iOS 추가 설정 (필요시)"
-      }
+        "android": "【AndroidManifest.xml 수정사항】\\n필요한 권한, 쿼리, 설정 등을 구체적으로",
+        "ios": "【Info.plist 수정사항】\\n필요한 권한 설명 문구, 설정 등을 구체적으로"
+      },
+      "beginnerTip": "💡 설정 후 반드시 앱을 완전히 재시작하세요. Hot reload로는 네이티브 설정이 반영되지 않습니다."
     },
     {
       "stepNumber": 2,
-      "title": "기본 사용법 익히기",
-      "description": "가장 기본적인 사용 방법",
+      "title": "📝 기본 사용법 - Hello World 예제",
+      "description": "가장 단순한 형태로 패키지가 동작하는 것을 확인합니다. 복잡한 것 없이 핵심만!",
       "code": {
         "language": "dart",
-        "filename": "lib/main.dart",
-        "content": "// 40줄 이상의 완전한 동작 코드\\n// 한국어 주석으로 각 줄 설명"
+        "filename": "lib/basic_example.dart",
+        "content": "// 50줄 이상의 완전히 동작하는 코드\\n// import문부터 시작\\n// 모든 라인에 왜 필요한지 한국어 주석\\n// 실행하면 바로 결과 확인 가능"
       },
-      "explanation": "코드의 동작 원리와 각 함수/클래스의 역할",
-      "beginnerTip": "초보자가 흔히 실수하는 부분과 해결법"
+      "explanation": "【코드 흐름 설명】\\n1. 먼저 ~ 합니다\\n2. 그 다음 ~ 합니다\\n3. 결과적으로 ~ 됩니다",
+      "beginnerTip": "⚠️ 초보자 주의: 흔히 하는 실수와 해결법"
     },
     {
       "stepNumber": 3,
-      "title": "핵심 기능 활용",
-      "description": "패키지의 핵심 기능 사용법",
+      "title": "🎯 핵심 기능 심화 학습",
+      "description": "패키지의 핵심 기능들을 하나씩 깊이있게 다룹니다.",
       "code": {
         "language": "dart",
-        "filename": "lib/features.dart",
-        "content": "// 핵심 기능별 예제 코드"
+        "filename": "lib/core_features.dart",
+        "content": "// 각 핵심 기능별로 섹션 나눠서\\n// 기능 A 사용법\\n// 기능 B 사용법\\n// 기능 C 사용법"
       },
-      "explanation": "각 기능의 동작 원리"
+      "explanation": "【기능별 상세 설명】\\n• 기능 A: ~할 때 사용, 내부적으로 ~하게 동작\\n• 기능 B: ~할 때 사용, 주의할 점은...",
+      "beginnerTip": "🔍 디버깅 팁: 문제 발생 시 이렇게 확인하세요"
     },
     {
       "stepNumber": 4,
-      "title": "실전 프로젝트 적용",
-      "description": "실제 앱에서 활용하는 방법",
+      "title": "🏗️ 실전 프로젝트 패턴",
+      "description": "실제 프로덕션 앱에서 사용하는 아키텍처 패턴을 적용합니다.",
       "code": {
         "language": "dart",
-        "filename": "lib/real_world_example.dart",
-        "content": "// 실제 프로젝트에서 사용하는 패턴"
+        "filename": "lib/production_pattern.dart",
+        "content": "// Repository 패턴 또는 Service 클래스로 분리\\n// 에러 핸들링 완벽하게\\n// 로딩 상태 관리\\n// 실제 앱에서 바로 사용 가능한 수준"
       },
-      "explanation": "실무에서 자주 사용하는 패턴과 이유"
+      "explanation": "【왜 이렇게 구조화하는가】\\n- 테스트 용이성\\n- 유지보수성\\n- 재사용성",
+      "beginnerTip": "📁 폴더 구조 제안: lib/services/, lib/models/, lib/widgets/"
+    },
+    {
+      "stepNumber": 5,
+      "title": "⚡ 고급 활용 및 최적화",
+      "description": "성능 최적화, 캐싱, 고급 설정 등을 다룹니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/advanced_usage.dart",
+        "content": "// 성능 최적화 코드\\n// 캐싱 전략\\n// 메모리 관리\\n// 고급 설정 옵션"
+      },
+      "explanation": "【성능 고려사항】\\n- 메모리 사용량 최적화 방법\\n- 네트워크 요청 최소화\\n- dispose 패턴",
+      "beginnerTip": "📊 프로파일링: DevTools로 성능 측정하는 방법"
     }
   ],
 
   "apiReference": [
     {
-      "name": "주요 클래스/함수명",
-      "description": "무엇을 하는지",
-      "parameters": "주요 파라미터 설명",
-      "returns": "반환값 설명",
-      "example": "간단한 사용 예시"
+      "name": "ClassName / methodName",
+      "description": "무엇을 하는 클래스/메서드인지",
+      "parameters": "param1 (Type): 설명 | param2 (Type): 설명",
+      "returns": "반환 타입과 의미",
+      "example": "final result = ClassName.method(param1, param2);"
     }
   ],
 
   "commonErrors": [
     {
-      "error": "에러 메시지",
-      "cause": "발생 원인 상세 설명",
-      "solution": "해결 방법 단계별 설명",
-      "prevention": "예방하는 방법"
+      "error": "실제 에러 메시지 전문",
+      "cause": "【원인】 왜 이 에러가 발생하는지 상세히",
+      "solution": "【해결법】 단계별로:\\n1. 먼저 ~확인\\n2. ~수정\\n3. ~재시작",
+      "prevention": "【예방법】 이런 습관을 들이면 방지할 수 있습니다"
+    },
+    {
+      "error": "MissingPluginException",
+      "cause": "네이티브 플러그인이 제대로 등록되지 않았습니다. Hot reload로는 네이티브 코드가 반영되지 않기 때문입니다.",
+      "solution": "1. flutter clean 실행\\n2. flutter pub get 실행\\n3. 앱 완전히 종료 후 재시작 (flutter run)",
+      "prevention": "네이티브 기능 패키지 추가 후에는 항상 앱을 재시작하세요."
     }
   ],
 
   "bestPractices": [
     {
-      "title": "베스트 프랙티스 제목",
-      "description": "왜 이렇게 해야 하는지, 어떻게 적용하는지",
-      "doThis": "권장하는 방법",
-      "dontDoThis": "피해야 할 방법"
+      "title": "✅ 권장 패턴 제목",
+      "description": "왜 이 패턴을 사용해야 하는지, 어떤 이점이 있는지",
+      "doThis": "// 좋은 예시 코드\\nfinal result = await service.getData();\\nif (result != null) { ... }",
+      "dontDoThis": "// 나쁜 예시 코드\\nservice.getData().then((r) => ...)  // 콜백 지옥"
     }
   ],
 
   "tips": [
-    "실무에서 유용한 팁 1",
-    "실무에서 유용한 팁 2",
-    "성능 최적화 팁",
-    "디버깅 팁"
+    "💡 [생산성] 실무에서 시간 절약하는 팁",
+    "🐛 [디버깅] 문제 발생 시 빠르게 원인 찾는 방법",
+    "⚡ [성능] 앱 성능을 높이는 최적화 팁",
+    "🧪 [테스트] 이 패키지를 테스트하는 방법",
+    "📱 [플랫폼] iOS/Android 각각에서 주의할 점"
   ],
 
   "relatedPackages": [
     {
       "name": "관련 패키지명",
-      "description": "함께 사용하면 좋은 이유"
+      "description": "이 패키지와 함께 사용하면 시너지가 나는 이유"
     }
   ],
 
   "references": [
-    {"title": "pub.dev 공식 문서", "url": "https://pub.dev/packages/${pkg.name}"},
-    {"title": "API 문서", "url": "https://pub.dev/documentation/${pkg.name}/latest/"}
+    {"title": "📦 pub.dev 공식 페이지", "url": "https://pub.dev/packages/${pkg.name}"},
+    {"title": "📖 API 문서", "url": "https://pub.dev/documentation/${pkg.name}/latest/"},
+    {"title": "💻 GitHub 저장소", "url": "${pkg.repository || pkg.homepage || '#'}"}
   ]
 }
 
-Generate a comprehensive, beginner-friendly guide for "${pkg.name}" with all fields filled in Korean:`;
+═══════════════════════════════════════════════════════════════
+🚨 최종 점검 사항
+═══════════════════════════════════════════════════════════════
+출력 전 반드시 확인하세요:
+□ 모든 코드가 실제로 동작하는가? (import 누락, 오타 없는지)
+□ 한국어로 작성되었는가?
+□ 초보자가 이해할 수 있는 설명인가?
+□ 각 단계가 논리적으로 연결되는가?
+□ 플랫폼별 설정이 구체적인가?
+□ 유효한 JSON 형식인가? (마크다운 코드블록 없이)
+
+지금 "${pkg.name}" 패키지에 대한 완벽한 구현 가이드를 JSON으로 출력하세요:`;
 }
 
 /**
