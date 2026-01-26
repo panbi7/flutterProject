@@ -18,6 +18,10 @@ export async function callGeminiForGuide(prompt) {
   try {
     initializeGemini()
 
+    // API 키 상태 로깅
+    console.log(`[GEMINI GUIDE] API Key 설정됨: ${!!GEMINI_API_KEY}`)
+    console.log(`[GEMINI GUIDE] Model 초기화됨: ${!!model}`)
+
     if (!model) {
       throw new Error('Gemini API key not configured')
     }

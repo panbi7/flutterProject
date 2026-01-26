@@ -155,99 +155,60 @@ export async function generateGuide(packageName) {
 }
 
 /**
- * 간소화된 Gemini 프롬프트
+ * 간소화된 Gemini 프롬프트 - 최대한 단순하게
  */
 function buildPrompt(pkg, exampleCode, hasExample) {
-  const exampleSection = hasExample
-    ? `\n\n## 공식 예제 코드\n\`\`\`dart\n${exampleCode}\n\`\`\``
-    : '';
+  return `You are a Flutter expert. Create a JSON implementation guide for the "${pkg.name}" package.
 
-  return `당신은 Flutter/Dart 전문가입니다. "${pkg.name}" 패키지의 구현 가이드를 JSON으로 작성하세요.
+Package: ${pkg.name}
+Version: ${pkg.version || 'latest'}
+Description: ${pkg.description || 'Flutter package'}
 
-## 패키지 정보
-- 이름: ${pkg.name}
-- 버전: ${pkg.version || 'latest'}
-- 설명: ${pkg.description || ''}
-${exampleSection}
+IMPORTANT: Output ONLY valid JSON. No markdown, no explanation, just JSON.
 
-## 작성 규칙
-1. 반드시 순수 JSON만 출력 (마크다운 코드블록 없이)
-2. 모든 코드는 한국어 주석 포함
-3. 실제로 동작하는 완전한 코드 작성
-4. 초보자도 이해할 수 있게 설명
-
-## 필수 JSON 구조
+Required JSON structure:
 {
   "packageId": "${pkg.name}",
   "title": "${pkg.name} 완벽 가이드",
-  "description": "패키지 설명 (2-3문장)",
-  "difficulty": "초급/중급/고급",
-  "estimatedTime": "예상 학습 시간",
-  "prerequisites": ["사전 지식 1", "사전 지식 2"],
+  "description": "한국어로 패키지 설명 2-3문장",
+  "difficulty": "초급",
+  "estimatedTime": "30분",
+  "prerequisites": ["Flutter 기초", "Dart 문법"],
   "coreConcepts": [
-    {
-      "term": "핵심 개념 이름",
-      "explanation": "쉬운 설명",
-      "analogy": "일상적인 비유"
-    }
+    {"term": "주요 개념", "explanation": "한국어 설명", "analogy": "비유"}
   ],
   "steps": [
     {
       "stepNumber": 1,
-      "title": "설치 및 설정",
-      "description": "단계 설명",
-      "code": {
-        "language": "dart",
-        "filename": "lib/main.dart",
-        "content": "// 완전한 동작 코드 (최소 30줄 이상)\\nimport 'package:flutter/material.dart';\\n..."
-      },
+      "title": "설치하기",
+      "description": "패키지 설치 방법",
+      "code": {"language": "dart", "filename": "pubspec.yaml", "content": "dependencies:\\n  ${pkg.name}: ^${pkg.version || '1.0.0'}"},
       "commands": ["flutter pub add ${pkg.name}"],
-      "explanation": "이 코드가 하는 일 설명",
-      "beginnerTip": "초보자 팁"
+      "explanation": "설명"
     },
     {
       "stepNumber": 2,
       "title": "기본 사용법",
-      "description": "단계 설명",
-      "code": {
-        "language": "dart",
-        "filename": "lib/example.dart",
-        "content": "// 기본 사용 예제 코드..."
-      },
+      "description": "기본 사용 방법",
+      "code": {"language": "dart", "filename": "lib/main.dart", "content": "import 'package:${pkg.name}/${pkg.name}.dart';\\n\\n// 기본 사용 예제 코드..."},
       "explanation": "설명"
     },
     {
       "stepNumber": 3,
-      "title": "고급 활용",
-      "description": "단계 설명",
-      "code": {
-        "language": "dart",
-        "filename": "lib/advanced.dart",
-        "content": "// 고급 사용 예제..."
-      },
+      "title": "실전 예제",
+      "description": "실제 활용 예제",
+      "code": {"language": "dart", "filename": "lib/example.dart", "content": "// 실전 예제 코드..."},
       "explanation": "설명"
     }
   ],
   "commonErrors": [
-    {
-      "error": "에러 메시지",
-      "cause": "원인",
-      "solution": "해결책"
-    }
+    {"error": "에러명", "cause": "원인", "solution": "해결책"}
   ],
-  "tips": ["팁 1", "팁 2", "팁 3"],
-  "bestPractices": [
-    {
-      "title": "제목",
-      "description": "설명"
-    }
-  ],
-  "references": [
-    {"title": "pub.dev", "url": "https://pub.dev/packages/${pkg.name}"}
-  ]
+  "tips": ["팁1", "팁2"],
+  "references": [{"title": "pub.dev", "url": "https://pub.dev/packages/${pkg.name}"}]
 }
 
-위 구조에 맞춰 "${pkg.name}" 패키지의 상세 구현 가이드를 JSON으로 출력하세요:`;
+Now generate the complete guide for ${pkg.name} in Korean:`;
 }
 
 /**
