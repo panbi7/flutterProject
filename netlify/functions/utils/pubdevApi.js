@@ -8,7 +8,9 @@
 export async function getPackageInfo(packageName) {
   try {
     const url = `https://pub.dev/api/packages/${packageName}`;
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(3000), // 3초 타임아웃
+    });
 
     if (!response.ok) {
       if (response.status === 404) {

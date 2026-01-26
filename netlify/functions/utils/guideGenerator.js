@@ -33,7 +33,7 @@ async function loadAllPackages() {
     console.log(`[GuideGenerator] 패키지 데이터 로드: ${dataUrl}`);
 
     const response = await fetch(dataUrl, {
-      signal: AbortSignal.timeout(10000),
+      signal: AbortSignal.timeout(3000), // 3초로 단축 (Netlify 10초 제한 고려)
     });
 
     if (!response.ok) {

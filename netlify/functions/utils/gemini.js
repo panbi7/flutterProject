@@ -14,6 +14,16 @@ function initializeGemini() {
 /**
  * Gemini를 사용하여 특정 패키지에 대한 구현 가이드를 생성합니다.
  */
+// 타임아웃 헬퍼 함수
+function withTimeout(promise, ms, timeoutMessage) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(timeoutMessage)), ms)
+    ),
+  ])
+}
+
 export async function callGeminiForGuide(prompt) {
   try {
     initializeGemini()
@@ -28,15 +38,19 @@ export async function callGeminiForGuide(prompt) {
 
     console.log(`[GEMINI GUIDE] 프롬프트 길이: ${prompt.length}자`)
 
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.2, // 약간 높여서 더 자연스러운 응답
-        topP: 0.8,
-        topK: 40,
-        // maxOutputTokens 제한 없음 - 상세한 가이드 생성을 위해
-      },
-    })
+    // 8초 타임아웃 (Netlify Functions 10초 제한 고려)
+    const result = await withTimeout(
+      model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.2,
+          topP: 0.8,
+          topK: 40,
+        },
+      }),
+      8000,
+      'TIMEOUT: Gemini 응답 시간 초과 (8초)'
+    )
 
     const response = await result.response
     const text = response.text()
