@@ -12,8 +12,8 @@ if (!_dirname) _dirname = process.cwd()
 
 export const PORT = process.env.PORT || 3000
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
-// gemini-2.0-flash - 2026년 3월 31일까지 사용 가능
-export const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+// gemini-2.5-flash - 균형 잡힌 성능, 무료 할당량 지원
+export const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
 
 export const ALLOWED_INTENTS = [
   'auth_basic',
