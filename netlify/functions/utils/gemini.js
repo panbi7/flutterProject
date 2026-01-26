@@ -7,8 +7,7 @@ let model = null
 function initializeGemini() {
   if (!genAI && GEMINI_API_KEY) {
     genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
-    // v1 API 사용 (v1beta에서 gemini-1.5-flash 지원 중단됨)
-    model = genAI.getGenerativeModel({ model: GEMINI_MODEL }, { apiVersion: 'v1' })
+    model = genAI.getGenerativeModel({ model: GEMINI_MODEL })
   }
 }
 
