@@ -4,6 +4,7 @@ import HomePage from './components/HomePage.jsx'
 import { getHomeData } from './services/homeApi.js'
 
 const ADMIN_SECRET = 'flutter-guide-admin-2024'
+const PROD_API_BASE = 'https://flutterwebkit.netlify.app'
 
 export default function App() {
   const [view, setView] = useState('home') // 'home' | 'chat'
@@ -67,8 +68,9 @@ export default function App() {
 
     setIsClearingCache(true)
     try {
+      // 항상 프로덕션 API 사용 (Netlify Blobs는 프로덕션에서만 동작)
       const response = await fetch(
-        `/.netlify/functions/cache-clear?all=true&secret=${ADMIN_SECRET}`
+        `${PROD_API_BASE}/.netlify/functions/cache-clear?all=true&secret=${ADMIN_SECRET}`
       )
       const data = await response.json()
 

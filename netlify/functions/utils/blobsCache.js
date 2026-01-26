@@ -2,11 +2,32 @@
  * Netlify Blobs 캐시 헬퍼
  *
  * 가이드를 영구 저장하여 2회차부터는 Gemini 호출 없이 즉시 반환
+ *
+ * 환경 변수 설정 필요:
+ * - NETLIFY_SITE_ID: Netlify 사이트 ID
+ * - NETLIFY_AUTH_TOKEN: Netlify Personal Access Token
  */
 
 import { getStore } from '@netlify/blobs';
 
 const STORE_NAME = 'guides-cache';
+
+/**
+ * Blobs store 가져오기 (환경 변수 기반 설정 지원)
+ */
+function getConfiguredStore() {
+  const config = { name: STORE_NAME };
+
+  // 환경 변수가 있으면 명시적으로 설정
+  if (process.env.NETLIFY_SITE_ID) {
+    config.siteID = process.env.NETLIFY_SITE_ID;
+  }
+  if (process.env.NETLIFY_AUTH_TOKEN || process.env.NETLIFY_ACCESS_TOKEN) {
+    config.token = process.env.NETLIFY_AUTH_TOKEN || process.env.NETLIFY_ACCESS_TOKEN;
+  }
+
+  return getStore(config);
+}
 
 /**
  * 캐시된 가이드 조회
@@ -15,7 +36,7 @@ const STORE_NAME = 'guides-cache';
  */
 export async function getCachedGuide(packageId) {
   try {
-    const store = getStore(STORE_NAME);
+    const store = getConfiguredStore();
     const cached = await store.get(packageId, { type: 'json' });
 
     if (cached) {
@@ -39,7 +60,7 @@ export async function getCachedGuide(packageId) {
  */
 export async function setCachedGuide(packageId, guide) {
   try {
-    const store = getStore(STORE_NAME);
+    const store = getConfiguredStore();
 
     // 메타데이터와 함께 저장
     const dataToStore = {
@@ -64,7 +85,7 @@ export async function setCachedGuide(packageId, guide) {
  */
 export async function deleteCachedGuide(packageId) {
   try {
-    const store = getStore(STORE_NAME);
+    const store = getConfiguredStore();
     await store.delete(packageId);
     console.log(`[Blobs Cache] 🗑️ DELETED: ${packageId}`);
     return true;
