@@ -1,0 +1,229 @@
+{
+  "packageId": "animations",
+  "title": "animations 실전 마스터 가이드",
+  "generatedAt": "2026-01-27T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "2.0.11",
+  "packageLikes": 4523,
+
+  "overview": {
+    "what": "animations는 Flutter 팀에서 만든 공식 애니메이션 패키지입니다. Material Design 모션 가이드라인에 따른 미리 정의된 전환 애니메이션을 제공합니다. 페이지 전환, 컨테이너 변환, 공유 축 전환 등 복잡한 애니메이션을 간단한 위젯으로 구현할 수 있습니다.",
+    "why": "Flutter의 기본 Hero나 PageRouteBuilder로 복잡한 전환 애니메이션을 구현하려면 많은 코드가 필요합니다. animations 패키지는 Material Design 모션 시스템을 그대로 구현하여, 한 줄의 코드로 전문적인 애니메이션을 적용할 수 있습니다. Google 공식 패키지로 안정성이 보장됩니다.",
+    "when": "1) 목록 → 상세 화면 전환 시 (OpenContainer), 2) 탭 간 전환 애니메이션 (SharedAxisTransition), 3) 모달/다이얼로그 표시 (FadeThroughTransition), 4) 버튼 → 전체 화면 확장 효과, 5) Material Design 앱에서 일관된 모션 적용 시",
+    "features": [
+      "🚀 OpenContainer: 컨테이너가 새 화면으로 확장되는 전환",
+      "↔️ SharedAxisTransition: X, Y, Z 축 기반 공유 전환",
+      "🔄 FadeThroughTransition: 페이드 아웃/인 전환",
+      "✨ FadeScaleTransition: 중앙에서 확대되며 나타나는 전환",
+      "📐 Material Motion: Google 공식 모션 가이드라인 구현"
+    ]
+  },
+
+  "description": "Material Design 모션 시스템을 구현한 Flutter 공식 애니메이션 패키지",
+  "difficulty": "중급 - 위젯 구조와 빌더 패턴 이해 필요",
+  "estimatedTime": "45분",
+  "prerequisites": [
+    "Flutter 기본 위젯과 Navigator 사용법",
+    "애니메이션 기초 개념 (duration, curve)",
+    "빌더 패턴 (Builder, FutureBuilder 등) 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "Container Transform",
+      "explanation": "하나의 컨테이너(카드, 버튼 등)가 새로운 화면 전체로 확장되는 전환 패턴입니다. 사용자가 어디를 탭했는지 시각적으로 연결하여 공간적 맥락을 유지합니다.",
+      "analogy": "🎁 선물 상자가 열리면서 그 안의 내용물이 펼쳐지는 것처럼, 작은 카드가 전체 화면으로 펼쳐집니다.",
+      "usage": "OpenContainer(closedBuilder: ..., openBuilder: ...)"
+    },
+    {
+      "term": "Shared Axis",
+      "explanation": "두 화면이 같은 축(X, Y, Z)을 공유하며 전환됩니다. 탭 전환이나 온보딩 스텝에서 연속성을 표현하는 데 사용됩니다.",
+      "analogy": "📚 책장을 넘기는 것처럼, 페이지가 같은 방향으로 밀려 들어오고 나갑니다.",
+      "usage": "SharedAxisTransition(transitionType: SharedAxisTransitionType.horizontal)"
+    },
+    {
+      "term": "Fade Through",
+      "explanation": "이전 화면이 페이드 아웃되면서 새 화면이 페이드 인되는 전환입니다. 두 화면 간 관계가 약할 때 사용합니다.",
+      "analogy": "💫 한 장면이 서서히 사라지고 다른 장면이 나타나는 영화 전환 효과와 같습니다.",
+      "usage": "FadeThroughTransition(animation: animation, secondaryAnimation: secondaryAnimation)"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "animations 패키지를 프로젝트에 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  animations: ^2.0.11"
+      },
+      "commands": ["flutter pub add animations", "flutter pub get"],
+      "explanation": "animations는 Flutter 공식 패키지로, 추가 설정 없이 바로 사용할 수 있습니다.",
+      "platformSetup": {
+        "android": "추가 설정 불필요",
+        "ios": "추가 설정 불필요"
+      },
+      "beginnerTip": "💡 animations 패키지는 flutter/packages 저장소에서 관리되는 공식 패키지입니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "🚀 OpenContainer - 컨테이너 변환",
+      "description": "카드나 리스트 아이템을 탭하면 해당 컨테이너가 새 화면으로 확장되는 가장 인상적인 전환입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/open_container_example.dart",
+        "content": "import 'package:animations/animations.dart';\nimport 'package:flutter/material.dart';\n\nclass OpenContainerExample extends StatelessWidget {\n  const OpenContainerExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('OpenContainer 예제')),\n      body: ListView.builder(\n        padding: const EdgeInsets.all(16),\n        itemCount: 10,\n        itemBuilder: (context, index) {\n          return Padding(\n            padding: const EdgeInsets.only(bottom: 16),\n            child: OpenContainer<bool>(\n              // 전환 시간\n              transitionDuration: const Duration(milliseconds: 500),\n              \n              // 열릴 때 배경색\n              openColor: Theme.of(context).scaffoldBackgroundColor,\n              closedColor: Colors.white,\n              \n              // 닫힌 상태의 모서리 둥글기\n              closedElevation: 2,\n              closedShape: RoundedRectangleBorder(\n                borderRadius: BorderRadius.circular(12),\n              ),\n              \n              // 닫힌 상태 (카드)\n              closedBuilder: (context, openContainer) {\n                return _ProductCard(\n                  index: index,\n                  onTap: openContainer,  // 탭 시 컨테이너 열기\n                );\n              },\n              \n              // 열린 상태 (상세 화면)\n              openBuilder: (context, closeContainer) {\n                return _ProductDetailPage(\n                  index: index,\n                  onClose: () => closeContainer(returnValue: true),\n                );\n              },\n              \n              // 결과값 받기\n              onClosed: (result) {\n                if (result == true) {\n                  ScaffoldMessenger.of(context).showSnackBar(\n                    const SnackBar(content: Text('상세 화면에서 돌아옴')),\n                  );\n                }\n              },\n            ),\n          );\n        },\n      ),\n      \n      // FAB에도 OpenContainer 적용 가능\n      floatingActionButton: OpenContainer(\n        transitionDuration: const Duration(milliseconds: 500),\n        openBuilder: (context, _) => const _CreateItemPage(),\n        closedElevation: 6,\n        closedShape: const CircleBorder(),\n        closedColor: Theme.of(context).colorScheme.primary,\n        closedBuilder: (context, openContainer) {\n          return SizedBox(\n            height: 56,\n            width: 56,\n            child: Center(\n              child: Icon(\n                Icons.add,\n                color: Theme.of(context).colorScheme.onPrimary,\n              ),\n            ),\n          );\n        },\n      ),\n    );\n  }\n}\n\nclass _ProductCard extends StatelessWidget {\n  final int index;\n  final VoidCallback onTap;\n\n  const _ProductCard({required this.index, required this.onTap});\n\n  @override\n  Widget build(BuildContext context) {\n    return InkWell(\n      onTap: onTap,\n      child: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Row(\n          children: [\n            Container(\n              width: 80,\n              height: 80,\n              decoration: BoxDecoration(\n                color: Colors.primaries[index % Colors.primaries.length],\n                borderRadius: BorderRadius.circular(8),\n              ),\n              child: const Icon(Icons.shopping_bag, color: Colors.white),\n            ),\n            const SizedBox(width: 16),\n            Expanded(\n              child: Column(\n                crossAxisAlignment: CrossAxisAlignment.start,\n                children: [\n                  Text('상품 ${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),\n                  const SizedBox(height: 4),\n                  Text('상품 설명입니다...', style: TextStyle(color: Colors.grey.shade600)),\n                  const SizedBox(height: 4),\n                  Text('₩${(index + 1) * 10000}', style: const TextStyle(fontWeight: FontWeight.bold)),\n                ],\n              ),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\nclass _ProductDetailPage extends StatelessWidget {\n  final int index;\n  final VoidCallback onClose;\n\n  const _ProductDetailPage({required this.index, required this.onClose});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: Text('상품 ${index + 1}'),\n        leading: IconButton(\n          icon: const Icon(Icons.close),\n          onPressed: onClose,\n        ),\n      ),\n      body: SingleChildScrollView(\n        child: Column(\n          children: [\n            Container(\n              width: double.infinity,\n              height: 300,\n              color: Colors.primaries[index % Colors.primaries.length],\n              child: const Icon(Icons.shopping_bag, color: Colors.white, size: 100),\n            ),\n            Padding(\n              padding: const EdgeInsets.all(16),\n              child: Column(\n                crossAxisAlignment: CrossAxisAlignment.start,\n                children: [\n                  Text('상품 ${index + 1}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),\n                  const SizedBox(height: 8),\n                  Text('₩${(index + 1) * 10000}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue)),\n                  const SizedBox(height: 16),\n                  const Text('이 상품의 상세 설명입니다. OpenContainer를 사용하면 카드가 자연스럽게 전체 화면으로 확장됩니다.'),\n                ],\n              ),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\nclass _CreateItemPage extends StatelessWidget {\n  const _CreateItemPage();\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('새 상품 추가')),\n      body: const Center(child: Text('FAB에서 확장된 화면')),\n    );\n  }\n}"
+      },
+      "explanation": "【OpenContainer 핵심 파라미터】\n• closedBuilder: 닫힌 상태(카드) 빌더 - openContainer 함수 제공\n• openBuilder: 열린 상태(상세 화면) 빌더 - closeContainer 함수 제공\n• transitionDuration: 전환 애니메이션 시간\n• closedShape/openShape: 닫힌/열린 상태의 모양\n• closedColor/openColor: 닫힌/열린 상태의 배경색\n• onClosed: 상세 화면에서 돌아올 때 콜백",
+      "beginnerTip": "💡 closedBuilder에서 받은 openContainer 함수를 InkWell의 onTap에 연결하면 탭 시 자동으로 전환됩니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "↔️ SharedAxisTransition - 공유 축 전환",
+      "description": "탭 전환이나 온보딩 스텝 간 전환에 사용하는 공유 축 애니메이션입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/shared_axis_example.dart",
+        "content": "import 'package:animations/animations.dart';\nimport 'package:flutter/material.dart';\n\nclass SharedAxisExample extends StatefulWidget {\n  const SharedAxisExample({super.key});\n\n  @override\n  State<SharedAxisExample> createState() => _SharedAxisExampleState();\n}\n\nclass _SharedAxisExampleState extends State<SharedAxisExample> {\n  int _currentIndex = 0;\n  bool _isForward = true;  // 전환 방향\n\n  final List<Widget> _pages = [\n    const _OnboardingPage(\n      title: '환영합니다!',\n      description: '앱의 주요 기능을 소개합니다.',\n      icon: Icons.waving_hand,\n      color: Colors.blue,\n    ),\n    const _OnboardingPage(\n      title: '빠른 검색',\n      description: '원하는 것을 빠르게 찾아보세요.',\n      icon: Icons.search,\n      color: Colors.green,\n    ),\n    const _OnboardingPage(\n      title: '시작하기',\n      description: '지금 바로 시작해보세요!',\n      icon: Icons.rocket_launch,\n      color: Colors.orange,\n    ),\n  ];\n\n  void _goToPage(int index) {\n    setState(() {\n      _isForward = index > _currentIndex;\n      _currentIndex = index;\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('SharedAxis 예제')),\n      body: Column(\n        children: [\n          // 전환 타입 선택\n          Padding(\n            padding: const EdgeInsets.all(16),\n            child: SegmentedButton<SharedAxisTransitionType>(\n              selected: {SharedAxisTransitionType.horizontal},\n              segments: const [\n                ButtonSegment(\n                  value: SharedAxisTransitionType.horizontal,\n                  label: Text('X축'),\n                ),\n                ButtonSegment(\n                  value: SharedAxisTransitionType.vertical,\n                  label: Text('Y축'),\n                ),\n                ButtonSegment(\n                  value: SharedAxisTransitionType.scaled,\n                  label: Text('Z축'),\n                ),\n              ],\n              onSelectionChanged: (_) {},\n            ),\n          ),\n\n          // 페이지 전환 영역\n          Expanded(\n            child: PageTransitionSwitcher(\n              duration: const Duration(milliseconds: 400),\n              reverse: !_isForward,  // 뒤로 갈 때 반대 방향 애니메이션\n              transitionBuilder: (child, primaryAnimation, secondaryAnimation) {\n                return SharedAxisTransition(\n                  animation: primaryAnimation,\n                  secondaryAnimation: secondaryAnimation,\n                  transitionType: SharedAxisTransitionType.horizontal,\n                  child: child,\n                );\n              },\n              child: _pages[_currentIndex],\n            ),\n          ),\n\n          // 페이지 인디케이터\n          Padding(\n            padding: const EdgeInsets.all(16),\n            child: Row(\n              mainAxisAlignment: MainAxisAlignment.center,\n              children: List.generate(_pages.length, (index) {\n                return GestureDetector(\n                  onTap: () => _goToPage(index),\n                  child: Container(\n                    width: 12,\n                    height: 12,\n                    margin: const EdgeInsets.symmetric(horizontal: 4),\n                    decoration: BoxDecoration(\n                      shape: BoxShape.circle,\n                      color: _currentIndex == index\n                          ? Theme.of(context).primaryColor\n                          : Colors.grey.shade300,\n                    ),\n                  ),\n                );\n              }),\n            ),\n          ),\n\n          // 네비게이션 버튼\n          Padding(\n            padding: const EdgeInsets.all(16),\n            child: Row(\n              mainAxisAlignment: MainAxisAlignment.spaceBetween,\n              children: [\n                TextButton(\n                  onPressed: _currentIndex > 0\n                      ? () => _goToPage(_currentIndex - 1)\n                      : null,\n                  child: const Text('이전'),\n                ),\n                ElevatedButton(\n                  onPressed: _currentIndex < _pages.length - 1\n                      ? () => _goToPage(_currentIndex + 1)\n                      : () {\n                          // 마지막 페이지에서 완료 처리\n                          Navigator.pop(context);\n                        },\n                  child: Text(\n                    _currentIndex < _pages.length - 1 ? '다음' : '시작하기',\n                  ),\n                ),\n              ],\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}\n\nclass _OnboardingPage extends StatelessWidget {\n  final String title;\n  final String description;\n  final IconData icon;\n  final Color color;\n\n  const _OnboardingPage({\n    required this.title,\n    required this.description,\n    required this.icon,\n    required this.color,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      mainAxisAlignment: MainAxisAlignment.center,\n      children: [\n        Icon(icon, size: 120, color: color),\n        const SizedBox(height: 32),\n        Text(\n          title,\n          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),\n        ),\n        const SizedBox(height: 16),\n        Padding(\n          padding: const EdgeInsets.symmetric(horizontal: 32),\n          child: Text(\n            description,\n            textAlign: TextAlign.center,\n            style: TextStyle(fontSize: 16, color: Colors.grey.shade600),\n          ),\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "【SharedAxisTransitionType】\n• horizontal (X축): 좌우로 밀려 들어오는 전환. 탭, 온보딩에 적합\n• vertical (Y축): 상하로 밀려 들어오는 전환. 수직 리스트에 적합\n• scaled (Z축): 확대/축소되며 전환. 관련성이 높은 콘텐츠에 적합\n\nPageTransitionSwitcher의 reverse 파라미터로 앞/뒤로 전환 방향을 제어합니다.",
+      "beginnerTip": "🔄 reverse: true면 애니메이션이 반대 방향으로 재생됩니다. 이전 페이지로 갈 때 사용하세요."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🔄 FadeThroughTransition - 페이드 전환",
+      "description": "BottomNavigationBar의 탭 간 전환에 적합한 페이드 스루 애니메이션입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/fade_through_example.dart",
+        "content": "import 'package:animations/animations.dart';\nimport 'package:flutter/material.dart';\n\nclass FadeThroughExample extends StatefulWidget {\n  const FadeThroughExample({super.key});\n\n  @override\n  State<FadeThroughExample> createState() => _FadeThroughExampleState();\n}\n\nclass _FadeThroughExampleState extends State<FadeThroughExample> {\n  int _currentIndex = 0;\n\n  final List<Widget> _pages = [\n    const _TabPage(title: '홈', icon: Icons.home, color: Colors.blue),\n    const _TabPage(title: '검색', icon: Icons.search, color: Colors.green),\n    const _TabPage(title: '알림', icon: Icons.notifications, color: Colors.orange),\n    const _TabPage(title: '프로필', icon: Icons.person, color: Colors.purple),\n  ];\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('FadeThrough 예제')),\n      body: PageTransitionSwitcher(\n        duration: const Duration(milliseconds: 300),\n        transitionBuilder: (child, primaryAnimation, secondaryAnimation) {\n          return FadeThroughTransition(\n            animation: primaryAnimation,\n            secondaryAnimation: secondaryAnimation,\n            child: child,\n          );\n        },\n        child: _pages[_currentIndex],\n      ),\n      bottomNavigationBar: NavigationBar(\n        selectedIndex: _currentIndex,\n        onDestinationSelected: (index) {\n          setState(() {\n            _currentIndex = index;\n          });\n        },\n        destinations: const [\n          NavigationDestination(icon: Icon(Icons.home), label: '홈'),\n          NavigationDestination(icon: Icon(Icons.search), label: '검색'),\n          NavigationDestination(icon: Icon(Icons.notifications), label: '알림'),\n          NavigationDestination(icon: Icon(Icons.person), label: '프로필'),\n        ],\n      ),\n    );\n  }\n}\n\nclass _TabPage extends StatelessWidget {\n  final String title;\n  final IconData icon;\n  final Color color;\n\n  const _TabPage({\n    required this.title,\n    required this.icon,\n    required this.color,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    // key를 지정해야 PageTransitionSwitcher가 위젯 변경을 인식\n    return Container(\n      key: ValueKey(title),\n      color: color.withOpacity(0.1),\n      child: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            Icon(icon, size: 80, color: color),\n            const SizedBox(height: 16),\n            Text(\n              title,\n              style: TextStyle(\n                fontSize: 24,\n                fontWeight: FontWeight.bold,\n                color: color,\n              ),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【FadeThroughTransition 특징】\n• 이전 화면이 페이드 아웃 + 약간 축소\n• 새 화면이 페이드 인 + 약간 확대\n• 두 화면 간 관계가 약할 때 (탭 전환) 적합\n• BottomNavigationBar, TabBar에 자연스러움\n\n중요: 각 페이지에 고유한 key를 지정해야 PageTransitionSwitcher가 변경을 인식합니다.",
+      "beginnerTip": "⚠️ 페이지 위젯에 ValueKey를 지정하지 않으면 애니메이션이 작동하지 않을 수 있습니다!"
+    },
+    {
+      "stepNumber": 5,
+      "title": "✨ FadeScaleTransition - 모달/다이얼로그",
+      "description": "중앙에서 확대되며 나타나는 전환으로, 모달이나 다이얼로그에 적합합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/fade_scale_example.dart",
+        "content": "import 'package:animations/animations.dart';\nimport 'package:flutter/material.dart';\n\nclass FadeScaleExample extends StatelessWidget {\n  const FadeScaleExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('FadeScale 예제')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            // 1. showModal 함수로 다이얼로그 표시\n            ElevatedButton(\n              onPressed: () {\n                showModal<void>(\n                  context: context,\n                  configuration: const FadeScaleTransitionConfiguration(\n                    transitionDuration: Duration(milliseconds: 300),\n                    reverseTransitionDuration: Duration(milliseconds: 200),\n                  ),\n                  builder: (context) {\n                    return AlertDialog(\n                      title: const Text('FadeScale 다이얼로그'),\n                      content: const Text('중앙에서 확대되며 나타납니다.'),\n                      actions: [\n                        TextButton(\n                          onPressed: () => Navigator.pop(context),\n                          child: const Text('확인'),\n                        ),\n                      ],\n                    );\n                  },\n                );\n              },\n              child: const Text('FadeScale 다이얼로그'),\n            ),\n\n            const SizedBox(height: 16),\n\n            // 2. 커스텀 모달 바텀 시트\n            ElevatedButton(\n              onPressed: () {\n                showModal<void>(\n                  context: context,\n                  configuration: const FadeScaleTransitionConfiguration(),\n                  builder: (context) {\n                    return Center(\n                      child: Container(\n                        margin: const EdgeInsets.all(32),\n                        padding: const EdgeInsets.all(24),\n                        decoration: BoxDecoration(\n                          color: Colors.white,\n                          borderRadius: BorderRadius.circular(16),\n                        ),\n                        child: Column(\n                          mainAxisSize: MainAxisSize.min,\n                          children: [\n                            const Icon(\n                              Icons.check_circle,\n                              size: 80,\n                              color: Colors.green,\n                            ),\n                            const SizedBox(height: 16),\n                            const Text(\n                              '성공!',\n                              style: TextStyle(\n                                fontSize: 24,\n                                fontWeight: FontWeight.bold,\n                              ),\n                            ),\n                            const SizedBox(height: 8),\n                            const Text('작업이 완료되었습니다.'),\n                            const SizedBox(height: 24),\n                            ElevatedButton(\n                              onPressed: () => Navigator.pop(context),\n                              child: const Text('확인'),\n                            ),\n                          ],\n                        ),\n                      ),\n                    );\n                  },\n                );\n              },\n              child: const Text('커스텀 모달'),\n            ),\n\n            const SizedBox(height: 16),\n\n            // 3. AnimatedSwitcher와 FadeScaleTransition 조합\n            const _AnimatedContent(),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\nclass _AnimatedContent extends StatefulWidget {\n  const _AnimatedContent();\n\n  @override\n  State<_AnimatedContent> createState() => _AnimatedContentState();\n}\n\nclass _AnimatedContentState extends State<_AnimatedContent>\n    with SingleTickerProviderStateMixin {\n  late AnimationController _controller;\n  bool _isVisible = false;\n\n  @override\n  void initState() {\n    super.initState();\n    _controller = AnimationController(\n      vsync: this,\n      duration: const Duration(milliseconds: 300),\n    );\n  }\n\n  @override\n  void dispose() {\n    _controller.dispose();\n    super.dispose();\n  }\n\n  void _toggle() {\n    setState(() {\n      _isVisible = !_isVisible;\n      if (_isVisible) {\n        _controller.forward();\n      } else {\n        _controller.reverse();\n      }\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      children: [\n        ElevatedButton(\n          onPressed: _toggle,\n          child: Text(_isVisible ? '숨기기' : '나타내기'),\n        ),\n        const SizedBox(height: 16),\n        FadeScaleTransition(\n          animation: _controller,\n          child: _isVisible\n              ? Card(\n                  child: Padding(\n                    padding: const EdgeInsets.all(24),\n                    child: Column(\n                      children: [\n                        const Icon(Icons.star, size: 48, color: Colors.amber),\n                        const SizedBox(height: 8),\n                        const Text('FadeScale 위젯!'),\n                      ],\n                    ),\n                  ),\n                )\n              : const SizedBox.shrink(),\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "【FadeScaleTransition 사용법】\n\n1. showModal 함수: 기존 showDialog 대신 사용\n   - FadeScaleTransitionConfiguration으로 설정\n\n2. AnimationController와 직접 사용:\n   - 위젯 표시/숨기기 애니메이션에 활용\n   - forward()로 나타나기, reverse()로 사라지기\n\n3. 특징:\n   - 중앙에서 확대되며 페이드 인\n   - 다이얼로그, 팝업, 플로팅 요소에 적합",
+      "beginnerTip": "💡 showModal은 showDialog의 Material Motion 버전입니다. 기존 showDialog를 대체하여 더 세련된 전환 효과를 적용하세요."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "OpenContainer",
+      "description": "컨테이너 변환 위젯. closedBuilder의 컨테이너가 openBuilder의 전체 화면으로 확장됩니다.",
+      "parameters": "closedBuilder, openBuilder, transitionDuration, closedShape, closedElevation, ...",
+      "returns": "Widget",
+      "example": "OpenContainer(closedBuilder: (context, action) => Card(), openBuilder: (context, action) => DetailPage())"
+    },
+    {
+      "name": "PageTransitionSwitcher",
+      "description": "자식 위젯 변경 시 지정된 전환 효과를 적용합니다.",
+      "parameters": "child, duration, reverse, transitionBuilder",
+      "returns": "Widget",
+      "example": "PageTransitionSwitcher(transitionBuilder: (child, primary, secondary) => SharedAxisTransition(...))"
+    },
+    {
+      "name": "SharedAxisTransition",
+      "description": "공유 축 전환 효과. X, Y, Z 축 중 하나를 선택합니다.",
+      "parameters": "animation, secondaryAnimation, transitionType, child",
+      "returns": "Widget",
+      "example": "SharedAxisTransition(animation: anim, transitionType: SharedAxisTransitionType.horizontal)"
+    },
+    {
+      "name": "FadeThroughTransition",
+      "description": "페이드 아웃/인 전환 효과.",
+      "parameters": "animation, secondaryAnimation, child",
+      "returns": "Widget",
+      "example": "FadeThroughTransition(animation: anim, secondaryAnimation: secAnim, child: page)"
+    },
+    {
+      "name": "showModal",
+      "description": "FadeScale 전환이 적용된 모달을 표시합니다.",
+      "parameters": "context, builder, configuration",
+      "returns": "Future<T?>",
+      "example": "showModal(context: context, builder: (c) => AlertDialog(...))"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "PageTransitionSwitcher 애니메이션이 작동하지 않음",
+      "cause": "자식 위젯에 고유한 key가 지정되지 않았습니다.",
+      "solution": "각 페이지 위젯에 ValueKey를 지정하세요:\nContainer(key: ValueKey(pageIndex), ...)",
+      "prevention": "PageTransitionSwitcher의 자식에는 항상 고유 key를 지정하세요."
+    },
+    {
+      "error": "OpenContainer의 closedBuilder가 터치되지 않음",
+      "cause": "closedBuilder 내부에 GestureDetector나 InkWell을 별도로 사용했습니다.",
+      "solution": "openContainer 함수를 직접 호출하세요:\nInkWell(onTap: openContainer, ...)",
+      "prevention": "closedBuilder에서 받은 openContainer 함수를 탭 핸들러로 사용하세요."
+    },
+    {
+      "error": "SharedAxisTransition 방향이 이상함",
+      "cause": "PageTransitionSwitcher의 reverse 파라미터가 잘못 설정되었습니다.",
+      "solution": "앞으로 갈 때 reverse: false, 뒤로 갈 때 reverse: true로 설정하세요.",
+      "prevention": "인덱스 비교로 방향을 결정: reverse: newIndex < oldIndex"
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "전환 유형 선택 가이드",
+      "description": "콘텐츠 관계에 따라 적절한 전환을 선택하세요.",
+      "doThis": "• 카드→상세: OpenContainer\n• 탭 전환: FadeThroughTransition\n• 온보딩 스텝: SharedAxisTransition\n• 다이얼로그: showModal (FadeScale)",
+      "dontDoThis": "모든 전환에 같은 애니메이션 사용"
+    },
+    {
+      "title": "일관된 duration 사용",
+      "description": "앱 전체에서 동일한 애니메이션 시간을 사용하면 일관된 느낌을 줍니다.",
+      "doThis": "const kTransitionDuration = Duration(milliseconds: 300);\n// 모든 전환에서 사용",
+      "dontDoThis": "전환마다 다른 duration (200ms, 500ms, 400ms...)"
+    },
+    {
+      "title": "접근성 고려",
+      "description": "모션 감소 설정을 존중하세요.",
+      "doThis": "MediaQuery.of(context).disableAnimations\n? Duration.zero\n: Duration(milliseconds: 300)",
+      "dontDoThis": "시스템 설정 무시하고 항상 애니메이션 적용"
+    }
+  ],
+
+  "tips": [
+    "💡 OpenContainer의 closedElevation을 0으로 설정하면 카드 그림자 없이 전환할 수 있습니다",
+    "🎨 OpenContainer의 tappable: false로 설정하면 커스텀 터치 영역을 구현할 수 있습니다",
+    "⚡ 성능을 위해 openBuilder 내부에서 무거운 작업은 FutureBuilder로 지연 로딩하세요",
+    "📱 iOS에서는 SharedAxisTransition이 Cupertino 스타일과 잘 어울립니다",
+    "🔧 Material Motion 가이드라인은 material.io/design/motion에서 확인할 수 있습니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "flutter_animate",
+      "description": "선언적 방식의 다양한 애니메이션 효과 라이브러리"
+    },
+    {
+      "name": "page_transition",
+      "description": "더 다양한 페이지 전환 효과를 제공하는 패키지"
+    },
+    {
+      "name": "hero_animation",
+      "description": "Flutter 기본 Hero 위젯 기반 공유 요소 전환"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/animations"},
+    {"title": "GitHub 저장소", "url": "https://github.com/flutter/packages/tree/main/packages/animations"},
+    {"title": "Material Design Motion", "url": "https://m3.material.io/styles/motion"},
+    {"title": "Flutter 애니메이션 가이드", "url": "https://docs.flutter.dev/ui/animations"}
+  ]
+}

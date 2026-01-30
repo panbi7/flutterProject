@@ -1,0 +1,141 @@
+{
+  "packageName": "fluttertoast",
+  "overview": {
+    "what": "fluttertoast는 Android의 Toast와 유사한 간단한 알림 메시지를 Flutter 앱에서 표시할 수 있게 해주는 패키지입니다.",
+    "why": "SnackBar보다 가벼운 알림이 필요하거나, 네이티브 Toast 스타일의 메시지를 표시하고 싶을 때 유용합니다. 사용자 상호작용 없이 자동으로 사라집니다.",
+    "when": "작업 완료 알림, 오류 메시지, 간단한 피드백, 상태 변경 알림 등에 사용합니다.",
+    "features": [
+      "네이티브 Toast 스타일 (Android/iOS)",
+      "커스텀 Toast 위젯",
+      "위치, 색상, 지속시간 설정",
+      "Web 지원",
+      "간단한 API"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치",
+      "description": "pubspec.yaml에 fluttertoast 패키지를 추가합니다.",
+      "code": "dependencies:\n  flutter:\n    sdk: flutter\n  fluttertoast: ^8.2.4",
+      "explanation": "Android와 iOS에서 네이티브 Toast를 사용합니다. 추가 설정은 필요 없습니다."
+    },
+    {
+      "title": "기본 Toast 표시",
+      "description": "Fluttertoast.showToast로 간단한 Toast 메시지를 표시합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:fluttertoast/fluttertoast.dart';\n\nclass BasicToastExample extends StatelessWidget {\n  const BasicToastExample({super.key});\n\n  void _showToast() {\n    Fluttertoast.showToast(\n      msg: '저장되었습니다!',\n      toastLength: Toast.LENGTH_SHORT, // SHORT (2초) 또는 LONG (3.5초)\n      gravity: ToastGravity.BOTTOM, // 표시 위치\n      backgroundColor: Colors.black87,\n      textColor: Colors.white,\n      fontSize: 16.0,\n    );\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Toast 기본')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            ElevatedButton(\n              onPressed: _showToast,\n              child: const Text('Toast 표시'),\n            ),\n            const SizedBox(height: 20),\n            ElevatedButton(\n              onPressed: () {\n                Fluttertoast.showToast(\n                  msg: '상단에 표시됩니다',\n                  gravity: ToastGravity.TOP,\n                );\n              },\n              child: const Text('상단 Toast'),\n            ),\n            const SizedBox(height: 20),\n            ElevatedButton(\n              onPressed: () {\n                Fluttertoast.showToast(\n                  msg: '가운데 표시됩니다',\n                  gravity: ToastGravity.CENTER,\n                );\n              },\n              child: const Text('중앙 Toast'),\n            ),\n            const SizedBox(height: 20),\n            ElevatedButton(\n              onPressed: () {\n                Fluttertoast.showToast(\n                  msg: '긴 메시지입니다',\n                  toastLength: Toast.LENGTH_LONG,\n                );\n              },\n              child: const Text('긴 Toast'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "showToast는 네이티브 Toast를 표시합니다. gravity로 위치를, toastLength로 표시 시간을 설정합니다. Android에서는 실제 네이티브 Toast가 표시됩니다."
+    },
+    {
+      "title": "커스텀 Toast (FToast)",
+      "description": "FToast를 사용하여 완전히 커스터마이징된 Toast를 표시합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:fluttertoast/fluttertoast.dart';\n\nclass CustomToastExample extends StatefulWidget {\n  const CustomToastExample({super.key});\n\n  @override\n  State<CustomToastExample> createState() => _CustomToastExampleState();\n}\n\nclass _CustomToastExampleState extends State<CustomToastExample> {\n  late FToast fToast;\n\n  @override\n  void initState() {\n    super.initState();\n    fToast = FToast();\n    fToast.init(context);\n  }\n\n  void _showSuccessToast() {\n    fToast.showToast(\n      child: Container(\n        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),\n        decoration: BoxDecoration(\n          borderRadius: BorderRadius.circular(25),\n          color: Colors.green,\n        ),\n        child: const Row(\n          mainAxisSize: MainAxisSize.min,\n          children: [\n            Icon(Icons.check, color: Colors.white),\n            SizedBox(width: 12),\n            Text(\n              '성공적으로 저장되었습니다!',\n              style: TextStyle(color: Colors.white),\n            ),\n          ],\n        ),\n      ),\n      gravity: ToastGravity.BOTTOM,\n      toastDuration: const Duration(seconds: 2),\n    );\n  }\n\n  void _showErrorToast() {\n    fToast.showToast(\n      child: Container(\n        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),\n        decoration: BoxDecoration(\n          borderRadius: BorderRadius.circular(25),\n          color: Colors.red,\n        ),\n        child: const Row(\n          mainAxisSize: MainAxisSize.min,\n          children: [\n            Icon(Icons.error, color: Colors.white),\n            SizedBox(width: 12),\n            Text(\n              '오류가 발생했습니다',\n              style: TextStyle(color: Colors.white),\n            ),\n          ],\n        ),\n      ),\n      gravity: ToastGravity.TOP,\n      toastDuration: const Duration(seconds: 3),\n    );\n  }\n\n  void _showWarningToast() {\n    fToast.showToast(\n      child: Container(\n        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),\n        decoration: BoxDecoration(\n          borderRadius: BorderRadius.circular(12),\n          color: Colors.orange,\n          boxShadow: [\n            BoxShadow(\n              color: Colors.black.withOpacity(0.2),\n              blurRadius: 10,\n              offset: const Offset(0, 5),\n            ),\n          ],\n        ),\n        child: const Row(\n          mainAxisSize: MainAxisSize.min,\n          children: [\n            Icon(Icons.warning, color: Colors.white),\n            SizedBox(width: 12),\n            Text(\n              '네트워크 연결을 확인하세요',\n              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),\n            ),\n          ],\n        ),\n      ),\n      gravity: ToastGravity.CENTER,\n      toastDuration: const Duration(seconds: 2),\n    );\n  }\n\n  void _showInfoToast() {\n    fToast.showToast(\n      child: Container(\n        padding: const EdgeInsets.all(16),\n        decoration: BoxDecoration(\n          borderRadius: BorderRadius.circular(12),\n          color: Colors.white,\n          border: Border.all(color: Colors.blue, width: 2),\n        ),\n        child: const Row(\n          mainAxisSize: MainAxisSize.min,\n          children: [\n            Icon(Icons.info, color: Colors.blue),\n            SizedBox(width: 12),\n            Text(\n              '새로운 업데이트가 있습니다',\n              style: TextStyle(color: Colors.blue),\n            ),\n          ],\n        ),\n      ),\n      gravity: ToastGravity.BOTTOM,\n      toastDuration: const Duration(seconds: 3),\n    );\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('커스텀 Toast')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            ElevatedButton.icon(\n              onPressed: _showSuccessToast,\n              icon: const Icon(Icons.check),\n              label: const Text('성공 Toast'),\n              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton.icon(\n              onPressed: _showErrorToast,\n              icon: const Icon(Icons.error),\n              label: const Text('오류 Toast'),\n              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton.icon(\n              onPressed: _showWarningToast,\n              icon: const Icon(Icons.warning),\n              label: const Text('경고 Toast'),\n              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton.icon(\n              onPressed: _showInfoToast,\n              icon: const Icon(Icons.info),\n              label: const Text('정보 Toast'),\n              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "FToast는 Flutter 위젯을 Toast로 표시합니다. init(context)로 초기화하고, showToast의 child에 원하는 위젯을 전달합니다."
+    },
+    {
+      "title": "Toast 헬퍼 클래스",
+      "description": "재사용 가능한 Toast 헬퍼 클래스를 만들어 앱 전체에서 일관된 Toast를 사용합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:fluttertoast/fluttertoast.dart';\n\nenum ToastType { success, error, warning, info }\n\nclass ToastHelper {\n  static final FToast _fToast = FToast();\n\n  static void init(BuildContext context) {\n    _fToast.init(context);\n  }\n\n  static void show({\n    required String message,\n    ToastType type = ToastType.info,\n    ToastGravity gravity = ToastGravity.BOTTOM,\n    Duration duration = const Duration(seconds: 2),\n  }) {\n    final config = _getConfig(type);\n\n    _fToast.showToast(\n      child: Container(\n        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),\n        decoration: BoxDecoration(\n          borderRadius: BorderRadius.circular(8),\n          color: config['backgroundColor'] as Color,\n          boxShadow: [\n            BoxShadow(\n              color: Colors.black.withOpacity(0.15),\n              blurRadius: 8,\n              offset: const Offset(0, 3),\n            ),\n          ],\n        ),\n        child: Row(\n          mainAxisSize: MainAxisSize.min,\n          children: [\n            Icon(\n              config['icon'] as IconData,\n              color: Colors.white,\n              size: 20,\n            ),\n            const SizedBox(width: 10),\n            Flexible(\n              child: Text(\n                message,\n                style: const TextStyle(\n                  color: Colors.white,\n                  fontSize: 14,\n                ),\n              ),\n            ),\n          ],\n        ),\n      ),\n      gravity: gravity,\n      toastDuration: duration,\n    );\n  }\n\n  static Map<String, dynamic> _getConfig(ToastType type) {\n    switch (type) {\n      case ToastType.success:\n        return {\n          'backgroundColor': Colors.green,\n          'icon': Icons.check_circle,\n        };\n      case ToastType.error:\n        return {\n          'backgroundColor': Colors.red,\n          'icon': Icons.error,\n        };\n      case ToastType.warning:\n        return {\n          'backgroundColor': Colors.orange,\n          'icon': Icons.warning,\n        };\n      case ToastType.info:\n        return {\n          'backgroundColor': Colors.blue,\n          'icon': Icons.info,\n        };\n    }\n  }\n\n  // 간편 메서드\n  static void success(String message) =>\n      show(message: message, type: ToastType.success);\n\n  static void error(String message) =>\n      show(message: message, type: ToastType.error, gravity: ToastGravity.TOP);\n\n  static void warning(String message) =>\n      show(message: message, type: ToastType.warning);\n\n  static void info(String message) =>\n      show(message: message, type: ToastType.info);\n\n  // 네이티브 Toast (간단한 메시지용)\n  static void showNative(String message) {\n    Fluttertoast.showToast(\n      msg: message,\n      toastLength: Toast.LENGTH_SHORT,\n      gravity: ToastGravity.BOTTOM,\n      backgroundColor: Colors.black87,\n      textColor: Colors.white,\n    );\n  }\n\n  // 현재 Toast 취소\n  static void cancel() {\n    _fToast.removeCustomToast();\n  }\n\n  // 모든 Toast 제거\n  static void removeAll() {\n    _fToast.removeQueuedCustomToasts();\n  }\n}\n\n// 사용 예시\nclass ToastHelperUsage extends StatefulWidget {\n  const ToastHelperUsage({super.key});\n\n  @override\n  State<ToastHelperUsage> createState() => _ToastHelperUsageState();\n}\n\nclass _ToastHelperUsageState extends State<ToastHelperUsage> {\n  @override\n  void initState() {\n    super.initState();\n    // 위젯 빌드 후 초기화\n    WidgetsBinding.instance.addPostFrameCallback((_) {\n      ToastHelper.init(context);\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Toast Helper')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            ElevatedButton(\n              onPressed: () => ToastHelper.success('저장되었습니다!'),\n              child: const Text('성공'),\n            ),\n            const SizedBox(height: 12),\n            ElevatedButton(\n              onPressed: () => ToastHelper.error('오류가 발생했습니다'),\n              child: const Text('오류'),\n            ),\n            const SizedBox(height: 12),\n            ElevatedButton(\n              onPressed: () => ToastHelper.warning('주의가 필요합니다'),\n              child: const Text('경고'),\n            ),\n            const SizedBox(height: 12),\n            ElevatedButton(\n              onPressed: () => ToastHelper.info('새 메시지가 있습니다'),\n              child: const Text('정보'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "ToastHelper 클래스를 만들면 앱 전체에서 일관된 스타일의 Toast를 쉽게 사용할 수 있습니다. success(), error() 같은 간편 메서드로 빠르게 호출합니다."
+    },
+    {
+      "title": "Toast 취소 및 큐 관리",
+      "description": "표시 중인 Toast를 취소하거나 큐에 있는 Toast를 관리합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:fluttertoast/fluttertoast.dart';\n\nclass ToastQueueExample extends StatefulWidget {\n  const ToastQueueExample({super.key});\n\n  @override\n  State<ToastQueueExample> createState() => _ToastQueueExampleState();\n}\n\nclass _ToastQueueExampleState extends State<ToastQueueExample> {\n  late FToast fToast;\n\n  @override\n  void initState() {\n    super.initState();\n    fToast = FToast();\n    fToast.init(context);\n  }\n\n  // 여러 Toast를 연속으로 표시 (큐에 쌓임)\n  void _showMultipleToasts() {\n    for (int i = 1; i <= 5; i++) {\n      fToast.showToast(\n        child: Container(\n          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),\n          decoration: BoxDecoration(\n            borderRadius: BorderRadius.circular(8),\n            color: Colors.primaries[i * 2],\n          ),\n          child: Text(\n            'Toast $i',\n            style: const TextStyle(color: Colors.white),\n          ),\n        ),\n        toastDuration: const Duration(seconds: 2),\n      );\n    }\n  }\n\n  // 현재 Toast 취소\n  void _cancelCurrentToast() {\n    fToast.removeCustomToast();\n  }\n\n  // 큐의 모든 Toast 취소\n  void _cancelAllToasts() {\n    fToast.removeQueuedCustomToasts();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Toast 큐 관리')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            ElevatedButton(\n              onPressed: _showMultipleToasts,\n              child: const Text('5개 Toast 표시'),\n            ),\n            const SizedBox(height: 20),\n            ElevatedButton(\n              onPressed: _cancelCurrentToast,\n              child: const Text('현재 Toast 취소'),\n            ),\n            const SizedBox(height: 20),\n            ElevatedButton(\n              onPressed: _cancelAllToasts,\n              child: const Text('모든 Toast 취소'),\n            ),\n            const SizedBox(height: 40),\n            // 네이티브 Toast 취소\n            ElevatedButton(\n              onPressed: () {\n                Fluttertoast.showToast(msg: '네이티브 Toast');\n              },\n              child: const Text('네이티브 Toast'),\n            ),\n            const SizedBox(height: 20),\n            ElevatedButton(\n              onPressed: () {\n                Fluttertoast.cancel();\n              },\n              child: const Text('네이티브 Toast 취소'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "FToast는 Toast를 큐에 쌓아서 순차적으로 표시합니다. removeCustomToast()로 현재 표시 중인 것을, removeQueuedCustomToasts()로 대기 중인 모든 것을 취소합니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "Fluttertoast.showToast",
+      "description": "네이티브 스타일의 Toast를 표시합니다. Android에서는 실제 시스템 Toast가 표시되며, 앱이 백그라운드에 있어도 표시됩니다."
+    },
+    {
+      "name": "FToast",
+      "description": "Flutter 위젯을 사용한 커스텀 Toast입니다. 완전한 커스터마이징이 가능하지만 앱 내에서만 표시됩니다. init(context)로 초기화가 필요합니다."
+    },
+    {
+      "name": "Toast 큐",
+      "description": "FToast는 여러 Toast를 큐에 쌓아 순차적으로 표시합니다. 이전 Toast가 끝나야 다음 Toast가 표시됩니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "Fluttertoast.showToast",
+      "signature": "Future<bool?> showToast({required String msg, ...})",
+      "description": "네이티브 Toast를 표시합니다."
+    },
+    {
+      "name": "Fluttertoast.cancel",
+      "signature": "Future<bool?> cancel()",
+      "description": "현재 네이티브 Toast를 취소합니다."
+    },
+    {
+      "name": "FToast.init",
+      "signature": "void init(BuildContext context)",
+      "description": "FToast를 초기화합니다. BuildContext가 필요합니다."
+    },
+    {
+      "name": "FToast.showToast",
+      "signature": "void showToast({required Widget child, ToastGravity? gravity, Duration? toastDuration, ...})",
+      "description": "커스텀 위젯을 Toast로 표시합니다."
+    },
+    {
+      "name": "FToast.removeCustomToast",
+      "signature": "void removeCustomToast()",
+      "description": "현재 표시 중인 커스텀 Toast를 제거합니다."
+    },
+    {
+      "name": "FToast.removeQueuedCustomToasts",
+      "signature": "void removeQueuedCustomToasts()",
+      "description": "큐에 있는 모든 커스텀 Toast를 제거합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "FToast context 오류",
+      "cause": "init(context) 없이 showToast 호출",
+      "solution": "FToast.showToast 전에 반드시 init(context)를 호출하세요."
+    },
+    {
+      "error": "Toast가 보이지 않음",
+      "cause": "context가 유효하지 않거나 화면 전환됨",
+      "solution": "현재 활성 화면의 context로 init하고, Navigator.push 전에 취소하세요."
+    },
+    {
+      "error": "iOS에서 네이티브 Toast 스타일 다름",
+      "cause": "iOS는 네이티브 Toast 개념이 없어 Flutter로 시뮬레이션",
+      "solution": "플랫폼 간 일관성을 위해 FToast를 사용하세요."
+    },
+    {
+      "error": "Web에서 동작 안함",
+      "cause": "네이티브 Toast는 Web을 지원하지 않음",
+      "solution": "Web에서는 FToast만 사용하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "일관된 스타일 유지",
+      "description": "Toast 헬퍼 클래스를 만들어 앱 전체에서 일관된 디자인을 유지하세요."
+    },
+    {
+      "title": "적절한 위치 선택",
+      "description": "성공 메시지는 하단(BOTTOM), 오류는 상단(TOP)에 표시하는 것이 일반적입니다."
+    },
+    {
+      "title": "간결한 메시지",
+      "description": "Toast는 짧은 메시지에 적합합니다. 긴 내용은 Dialog나 SnackBar를 사용하세요."
+    },
+    {
+      "title": "접근성 고려",
+      "description": "중요한 정보는 Toast만으로 전달하지 말고, 화면에도 표시하세요. Toast는 짧은 시간만 표시됩니다."
+    }
+  ],
+  "tips": [
+    "네이티브 Toast는 앱이 백그라운드에 있어도 표시됩니다 (Android)",
+    "FToast는 애니메이션을 커스터마이징할 수 있습니다 (positionedToastBuilder)",
+    "SnackBar와 달리 Toast는 Scaffold가 필요 없습니다",
+    "globalKey를 사용하면 어디서든 Toast를 표시할 수 있습니다",
+    "overlay_support 패키지는 더 많은 기능을 제공하는 대안입니다",
+    "테스트에서는 Toast가 표시되는지 직접 확인하기 어려우므로 로직 테스트에 집중하세요"
+  ]
+}

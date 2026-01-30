@@ -1,0 +1,208 @@
+{
+  "packageId": "awesome_notifications",
+  "title": "awesome_notifications 실전 마스터 가이드",
+  "generatedAt": "2026-01-28T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "0.9.3",
+  "packageLikes": 2800,
+
+  "overview": {
+    "what": "awesome_notifications는 Flutter에서 로컬 알림과 푸시 알림을 고급 기능과 함께 구현할 수 있는 패키지입니다. 이미지, 버튼, 프로그레스 바, 그룹 알림 등 다양한 알림 스타일을 지원하며, 예약 알림, 반복 알림, 액션 버튼 등 고급 기능을 제공합니다.",
+    "why": "flutter_local_notifications보다 더 쉬운 API와 더 풍부한 기능을 제공합니다. 특히 미디어 알림, 알림 채널 그룹, 크리티컬 알림, 알림 액션 핸들링 등 고급 기능이 필요할 때 최적입니다. 단일 API로 Android와 iOS 모두 지원하여 플랫폼별 코드 작성이 최소화됩니다.",
+    "when": "1) 이미지나 버튼이 포함된 리치 알림이 필요할 때, 2) 매일/매주 반복 알림을 예약해야 할 때, 3) 알림을 탭했을 때 특정 화면으로 이동해야 할 때, 4) 알림 버튼에 대한 액션 처리가 필요할 때, 5) 알림을 카테고리별로 그룹화해야 할 때",
+    "features": [
+      "🎨 리치 알림: 이미지, 큰 텍스트, 프로그레스 바 지원",
+      "🔘 액션 버튼: 알림에 버튼 추가 및 액션 처리",
+      "⏰ 예약/반복: 특정 시간 또는 주기적 알림 스케줄링",
+      "📱 크리티컬 알림: 방해 금지 모드에서도 표시",
+      "🔊 커스텀 사운드: 알림별 다른 소리 설정"
+    ]
+  },
+
+  "description": "고급 기능이 포함된 Flutter 알림 패키지",
+  "difficulty": "중급 - 알림 채널과 권한 설정 이해 필요",
+  "estimatedTime": "1시간",
+  "prerequisites": [
+    "Flutter 기본 위젯 이해",
+    "플랫폼별 권한 시스템 이해",
+    "async/await 비동기 프로그래밍"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "NotificationChannel",
+      "explanation": "알림을 분류하는 카테고리입니다. Android 8.0+에서 필수이며, 각 채널별로 소리, 진동, 중요도 등을 설정할 수 있습니다.",
+      "analogy": "📂 이메일 폴더처럼, 알림을 종류별로 분류합니다. '마케팅', '주문알림', '채팅' 등 각각 다른 설정이 가능합니다.",
+      "usage": "NotificationChannel(channelKey: 'basic', channelName: '기본 알림', ...)"
+    },
+    {
+      "term": "NotificationContent",
+      "explanation": "실제 알림에 표시될 내용입니다. 제목, 본문, 이미지, 아이콘 등을 포함합니다.",
+      "analogy": "📝 편지 내용과 같습니다. 누구에게(채널), 무슨 내용(content)을 보낼지 정의합니다.",
+      "usage": "NotificationContent(id: 1, channelKey: 'basic', title: '제목', body: '내용')"
+    },
+    {
+      "term": "ActionButton",
+      "explanation": "알림에 표시되는 버튼입니다. 사용자가 버튼을 누르면 앱에서 해당 액션을 처리할 수 있습니다.",
+      "analogy": "🔘 리모컨 버튼처럼, 알림에서 직접 특정 동작을 실행할 수 있는 단축키입니다.",
+      "usage": "NotificationActionButton(key: 'REPLY', label: '답장')"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치 및 플랫폼 설정",
+      "description": "awesome_notifications를 설치하고 플랫폼별 설정을 합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  awesome_notifications: ^0.9.3"
+      },
+      "commands": ["flutter pub add awesome_notifications"],
+      "platformSetup": {
+        "android": "AndroidManifest.xml에 권한 및 서비스 추가 필요",
+        "ios": "Xcode에서 Background Modes와 Push Notifications 활성화"
+      },
+      "subSteps": [
+        {
+          "title": "Android 설정 (android/app/src/main/AndroidManifest.xml)",
+          "code": {
+            "language": "xml",
+            "filename": "android/app/src/main/AndroidManifest.xml",
+            "content": "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\n    <!-- 알림 권한 -->\n    <uses-permission android:name=\"android.permission.POST_NOTIFICATIONS\"/>\n    <uses-permission android:name=\"android.permission.VIBRATE\"/>\n    <uses-permission android:name=\"android.permission.RECEIVE_BOOT_COMPLETED\"/>\n    \n    <!-- 예약 알림용 -->\n    <uses-permission android:name=\"android.permission.SCHEDULE_EXACT_ALARM\"/>\n    \n    <application ...>\n        <!-- 알림 서비스 -->\n        <service\n            android:name=\"me.carda.awesome_notifications.services.ForegroundService\"\n            android:exported=\"false\"\n            android:foregroundServiceType=\"dataSync\" />\n            \n        <!-- 부팅 시 예약 알림 복원 -->\n        <receiver\n            android:name=\"me.carda.awesome_notifications.core.broadcasters.ScheduleBroadcaster\"\n            android:exported=\"false\">\n            <intent-filter>\n                <action android:name=\"android.intent.action.BOOT_COMPLETED\"/>\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>"
+          }
+        },
+        {
+          "title": "iOS 설정 (AppDelegate.swift)",
+          "code": {
+            "language": "swift",
+            "filename": "ios/Runner/AppDelegate.swift",
+            "content": "import UIKit\nimport Flutter\nimport awesome_notifications\n\n@UIApplicationMain\n@objc class AppDelegate: FlutterAppDelegate {\n  override func application(\n    _ application: UIApplication,\n    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?\n  ) -> Bool {\n    GeneratedPluginRegistrant.register(with: self)\n    \n    // Awesome Notifications 초기화\n    SwiftAwesomeNotificationsPlugin.setPluginRegistrantCallback { registry in\n      SwiftAwesomeNotificationsPlugin.register(\n        with: registry.registrar(forPlugin: \"SwiftAwesomeNotificationsPlugin\")!\n      )\n    }\n    \n    return super.application(application, didFinishLaunchingWithOptions: launchOptions)\n  }\n}"
+          }
+        }
+      ],
+      "beginnerTip": "💡 Android 13+에서는 알림 권한을 런타임에 요청해야 합니다. 앱 시작 시 권한 요청 다이얼로그가 표시됩니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "🚀 알림 서비스 초기화",
+      "description": "앱 시작 시 알림 서비스를 초기화하고 채널을 설정합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/services/notification_service.dart",
+        "content": "import 'package:awesome_notifications/awesome_notifications.dart';\nimport 'package:flutter/material.dart';\n\nclass NotificationService {\n  // 알림 채널 키 상수\n  static const String basicChannelKey = 'basic_channel';\n  static const String scheduledChannelKey = 'scheduled_channel';\n  static const String chatChannelKey = 'chat_channel';\n\n  // 초기화\n  static Future<void> initialize() async {\n    await AwesomeNotifications().initialize(\n      // 앱 아이콘 (null이면 기본 아이콘 사용)\n      null, // 'resource://drawable/app_icon'\n      \n      // 알림 채널 정의\n      [\n        // 기본 알림 채널\n        NotificationChannel(\n          channelKey: basicChannelKey,\n          channelName: '기본 알림',\n          channelDescription: '일반적인 앱 알림',\n          defaultColor: Colors.blue,\n          importance: NotificationImportance.High,\n          channelShowBadge: true,\n        ),\n        \n        // 예약 알림 채널\n        NotificationChannel(\n          channelKey: scheduledChannelKey,\n          channelName: '예약 알림',\n          channelDescription: '일정 및 리마인더 알림',\n          defaultColor: Colors.orange,\n          importance: NotificationImportance.High,\n          ledColor: Colors.orange,\n        ),\n        \n        // 채팅 알림 채널\n        NotificationChannel(\n          channelKey: chatChannelKey,\n          channelName: '채팅',\n          channelDescription: '새 메시지 알림',\n          defaultColor: Colors.green,\n          importance: NotificationImportance.Max,\n          playSound: true,\n          enableVibration: true,\n        ),\n      ],\n      \n      // 디버그 모드\n      debug: true,\n    );\n  }\n\n  // 알림 리스너 설정\n  static Future<void> setListeners() async {\n    // 알림 생성 시\n    AwesomeNotifications().setListeners(\n      // 알림이 생성되었을 때\n      onNotificationCreatedMethod: onNotificationCreated,\n      // 알림이 표시되었을 때\n      onNotificationDisplayedMethod: onNotificationDisplayed,\n      // 알림을 탭했을 때\n      onActionReceivedMethod: onActionReceived,\n      // 알림이 닫혔을 때\n      onDismissActionReceivedMethod: onDismissActionReceived,\n    );\n  }\n\n  // 콜백 메서드들 (반드시 static 또는 top-level 함수여야 함)\n  @pragma('vm:entry-point')\n  static Future<void> onNotificationCreated(\n    ReceivedNotification receivedNotification,\n  ) async {\n    print('알림 생성됨: ${receivedNotification.title}');\n  }\n\n  @pragma('vm:entry-point')\n  static Future<void> onNotificationDisplayed(\n    ReceivedNotification receivedNotification,\n  ) async {\n    print('알림 표시됨: ${receivedNotification.title}');\n  }\n\n  @pragma('vm:entry-point')\n  static Future<void> onActionReceived(\n    ReceivedAction receivedAction,\n  ) async {\n    print('알림 액션: ${receivedAction.buttonKeyPressed}');\n    \n    // 특정 화면으로 이동 (예: payload 사용)\n    final payload = receivedAction.payload;\n    if (payload != null && payload['screen'] != null) {\n      // 네비게이션 처리\n      // navigatorKey.currentState?.pushNamed(payload['screen']!);\n    }\n  }\n\n  @pragma('vm:entry-point')\n  static Future<void> onDismissActionReceived(\n    ReceivedAction receivedAction,\n  ) async {\n    print('알림 닫힘: ${receivedAction.id}');\n  }\n\n  // 권한 요청\n  static Future<bool> requestPermission() async {\n    final isAllowed = await AwesomeNotifications().isNotificationAllowed();\n    if (!isAllowed) {\n      return await AwesomeNotifications().requestPermissionToSendNotifications();\n    }\n    return true;\n  }\n}\n\n// main.dart에서 초기화\nvoid main() async {\n  WidgetsFlutterBinding.ensureInitialized();\n  \n  // 알림 서비스 초기화\n  await NotificationService.initialize();\n  await NotificationService.setListeners();\n  \n  runApp(const MyApp());\n}"
+      },
+      "explanation": "• initialize(): 앱 시작 시 한 번만 호출\n• NotificationChannel: 알림 종류별 채널 정의 (Android 8.0+ 필수)\n• setListeners(): 알림 이벤트 핸들러 등록\n• @pragma('vm:entry-point'): 백그라운드에서도 콜백 실행 보장",
+      "beginnerTip": "⚠️ 콜백 메서드는 반드시 static이어야 합니다. 인스턴스 메서드는 백그라운드에서 호출되지 않습니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "📱 기본 알림 표시",
+      "description": "다양한 스타일의 기본 알림을 표시합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/services/notification_examples.dart",
+        "content": "import 'package:awesome_notifications/awesome_notifications.dart';\nimport 'notification_service.dart';\n\nclass NotificationExamples {\n  // 기본 알림\n  static Future<void> showBasicNotification() async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: 1,\n        channelKey: NotificationService.basicChannelKey,\n        title: '안녕하세요! 👋',\n        body: '이것은 기본 알림입니다.',\n        // 알림 탭 시 전달할 데이터\n        payload: {'screen': '/home', 'id': '123'},\n      ),\n    );\n  }\n\n  // 큰 텍스트 알림\n  static Future<void> showBigTextNotification() async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: 2,\n        channelKey: NotificationService.basicChannelKey,\n        title: '긴 내용 알림',\n        body: '이것은 매우 긴 내용의 알림입니다. '\n            '알림을 확장하면 전체 내용을 볼 수 있습니다. '\n            '사용자에게 자세한 정보를 전달할 때 유용합니다.',\n        notificationLayout: NotificationLayout.BigText,\n      ),\n    );\n  }\n\n  // 이미지 알림\n  static Future<void> showImageNotification() async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: 3,\n        channelKey: NotificationService.basicChannelKey,\n        title: '새 상품 도착! 🎉',\n        body: '지금 확인해보세요',\n        notificationLayout: NotificationLayout.BigPicture,\n        // 네트워크 이미지\n        bigPicture: 'https://picsum.photos/400/200',\n        // 큰 아이콘\n        largeIcon: 'https://picsum.photos/100/100',\n      ),\n    );\n  }\n\n  // 인박스 스타일 (여러 줄)\n  static Future<void> showInboxNotification() async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: 4,\n        channelKey: NotificationService.chatChannelKey,\n        title: '새 메시지 3개',\n        body: '김철수: 안녕하세요\\n이영희: 회의 시간 변경\\n박지민: 확인했습니다',\n        notificationLayout: NotificationLayout.Inbox,\n        summary: '읽지 않은 메시지',\n      ),\n    );\n  }\n\n  // 프로그레스 바 알림\n  static Future<void> showProgressNotification(int progress) async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: 5,\n        channelKey: NotificationService.basicChannelKey,\n        title: '다운로드 중...',\n        body: '$progress% 완료',\n        notificationLayout: NotificationLayout.ProgressBar,\n        progress: progress.toDouble(),\n        locked: true,  // 스와이프로 닫기 방지\n      ),\n    );\n  }\n\n  // 메시징 스타일 (채팅)\n  static Future<void> showMessagingNotification() async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: 6,\n        channelKey: NotificationService.chatChannelKey,\n        title: '김철수',\n        body: '점심 먹으러 갈래요?',\n        notificationLayout: NotificationLayout.Messaging,\n        largeIcon: 'https://i.pravatar.cc/100',\n        summary: '채팅',\n        category: NotificationCategory.Message,\n      ),\n    );\n  }\n\n  // 알림 취소\n  static Future<void> cancelNotification(int id) async {\n    await AwesomeNotifications().cancel(id);\n  }\n\n  // 모든 알림 취소\n  static Future<void> cancelAllNotifications() async {\n    await AwesomeNotifications().cancelAll();\n  }\n}"
+      },
+      "explanation": "• NotificationLayout: 알림 스타일 (BigText, BigPicture, Inbox, ProgressBar 등)\n• bigPicture: 확장 시 표시할 큰 이미지\n• largeIcon: 알림 오른쪽의 둥근 아이콘\n• payload: 알림 탭 시 전달할 추가 데이터",
+      "beginnerTip": "💡 네트워크 이미지는 자동으로 다운로드됩니다. 로컬 이미지는 'asset://assets/image.png' 형식으로 지정하세요."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🔘 액션 버튼 알림",
+      "description": "사용자가 직접 상호작용할 수 있는 버튼이 포함된 알림을 만듭니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/services/action_notification.dart",
+        "content": "import 'package:awesome_notifications/awesome_notifications.dart';\nimport 'notification_service.dart';\n\nclass ActionNotificationExamples {\n  // 기본 액션 버튼\n  static Future<void> showWithActionButtons() async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: 10,\n        channelKey: NotificationService.basicChannelKey,\n        title: '새 친구 요청',\n        body: '김철수님이 친구 요청을 보냈습니다.',\n        largeIcon: 'https://i.pravatar.cc/100',\n      ),\n      actionButtons: [\n        NotificationActionButton(\n          key: 'ACCEPT',\n          label: '수락',\n          color: Colors.green,\n          autoDismissible: true,  // 버튼 탭 시 알림 자동 닫힘\n        ),\n        NotificationActionButton(\n          key: 'REJECT',\n          label: '거절',\n          color: Colors.red,\n          autoDismissible: true,\n          isDangerousOption: true,  // iOS에서 빨간색으로 표시\n        ),\n      ],\n    );\n  }\n\n  // 텍스트 입력 버튼 (답장)\n  static Future<void> showReplyNotification() async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: 11,\n        channelKey: NotificationService.chatChannelKey,\n        title: '김철수',\n        body: '지금 어디야?',\n        category: NotificationCategory.Message,\n      ),\n      actionButtons: [\n        NotificationActionButton(\n          key: 'REPLY',\n          label: '답장',\n          // 텍스트 입력 필드 표시\n          requireInputText: true,\n          autoDismissible: true,\n        ),\n        NotificationActionButton(\n          key: 'MARK_READ',\n          label: '읽음 표시',\n          autoDismissible: true,\n        ),\n      ],\n    );\n  }\n\n  // 미디어 컨트롤 (음악 플레이어)\n  static Future<void> showMediaControlNotification() async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: 12,\n        channelKey: NotificationService.basicChannelKey,\n        title: 'Now Playing',\n        body: 'Artist - Song Title',\n        notificationLayout: NotificationLayout.MediaPlayer,\n        largeIcon: 'https://picsum.photos/100/100',\n        locked: true,\n        category: NotificationCategory.Transport,\n      ),\n      actionButtons: [\n        NotificationActionButton(\n          key: 'PREV',\n          label: '⏮️',\n          showInCompactView: true,\n          enabled: true,\n        ),\n        NotificationActionButton(\n          key: 'PLAY_PAUSE',\n          label: '⏸️',\n          showInCompactView: true,\n        ),\n        NotificationActionButton(\n          key: 'NEXT',\n          label: '⏭️',\n          showInCompactView: true,\n        ),\n      ],\n    );\n  }\n\n  // 알람 스타일 (전체 화면)\n  static Future<void> showAlarmNotification() async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: 13,\n        channelKey: NotificationService.scheduledChannelKey,\n        title: '⏰ 알람',\n        body: '일어날 시간입니다!',\n        category: NotificationCategory.Alarm,\n        wakeUpScreen: true,  // 화면 켜기\n        fullScreenIntent: true,  // 전체 화면으로 표시\n        autoDismissible: false,\n        locked: true,\n      ),\n      actionButtons: [\n        NotificationActionButton(\n          key: 'SNOOZE',\n          label: '5분 후',\n        ),\n        NotificationActionButton(\n          key: 'DISMISS',\n          label: '해제',\n          isDangerousOption: true,\n        ),\n      ],\n    );\n  }\n}\n\n// 액션 처리 (notification_service.dart의 onActionReceived에서)\n@pragma('vm:entry-point')\nstatic Future<void> onActionReceived(ReceivedAction receivedAction) async {\n  final buttonKey = receivedAction.buttonKeyPressed;\n  final payload = receivedAction.payload;\n  final inputText = receivedAction.buttonKeyInput;  // 텍스트 입력값\n\n  switch (buttonKey) {\n    case 'ACCEPT':\n      print('친구 요청 수락');\n      // API 호출 등\n      break;\n    case 'REJECT':\n      print('친구 요청 거절');\n      break;\n    case 'REPLY':\n      print('답장 내용: $inputText');\n      // 메시지 전송 처리\n      break;\n    case 'PLAY_PAUSE':\n      print('재생/일시정지');\n      // 오디오 플레이어 제어\n      break;\n    case 'SNOOZE':\n      // 5분 후 다시 알람\n      await _scheduleSnooze();\n      break;\n    default:\n      // 알림 본체 탭 (버튼 아님)\n      if (payload?['screen'] != null) {\n        // 해당 화면으로 이동\n      }\n  }\n}"
+      },
+      "explanation": "• NotificationActionButton: 알림에 버튼 추가\n• requireInputText: 텍스트 입력 필드 표시 (답장 기능)\n• showInCompactView: 축소 상태에서도 버튼 표시\n• fullScreenIntent: 잠금 화면에서 전체 화면으로 표시",
+      "beginnerTip": "💡 buttonKeyInput으로 사용자가 입력한 텍스트를 받을 수 있습니다. 답장, 메모 등에 활용하세요."
+    },
+    {
+      "stepNumber": 5,
+      "title": "⏰ 예약 및 반복 알림",
+      "description": "특정 시간에 알림을 예약하고 주기적으로 반복되는 알림을 설정합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/services/scheduled_notification.dart",
+        "content": "import 'package:awesome_notifications/awesome_notifications.dart';\nimport 'notification_service.dart';\n\nclass ScheduledNotificationExamples {\n  // 특정 시간에 알림 예약\n  static Future<void> scheduleNotification({\n    required int id,\n    required String title,\n    required String body,\n    required DateTime scheduledDate,\n  }) async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: id,\n        channelKey: NotificationService.scheduledChannelKey,\n        title: title,\n        body: body,\n        category: NotificationCategory.Reminder,\n      ),\n      schedule: NotificationCalendar.fromDate(\n        date: scheduledDate,\n        preciseAlarm: true,  // 정확한 시간에 알림\n        allowWhileIdle: true,  // Doze 모드에서도 알림\n      ),\n    );\n  }\n\n  // 매일 특정 시간에 반복\n  static Future<void> scheduleDailyReminder({\n    required int id,\n    required String title,\n    required String body,\n    required int hour,\n    required int minute,\n  }) async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: id,\n        channelKey: NotificationService.scheduledChannelKey,\n        title: title,\n        body: body,\n      ),\n      schedule: NotificationCalendar(\n        hour: hour,\n        minute: minute,\n        second: 0,\n        repeats: true,  // 반복 활성화\n        preciseAlarm: true,\n      ),\n    );\n  }\n\n  // 매주 특정 요일에 반복\n  static Future<void> scheduleWeeklyReminder({\n    required int id,\n    required String title,\n    required int weekday,  // 1=월요일, 7=일요일\n    required int hour,\n    required int minute,\n  }) async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: id,\n        channelKey: NotificationService.scheduledChannelKey,\n        title: title,\n        body: '매주 알림',\n      ),\n      schedule: NotificationCalendar(\n        weekday: weekday,\n        hour: hour,\n        minute: minute,\n        second: 0,\n        repeats: true,\n      ),\n    );\n  }\n\n  // 일정 간격으로 반복 (예: 2시간마다)\n  static Future<void> scheduleIntervalNotification({\n    required int id,\n    required String title,\n    required Duration interval,\n  }) async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: id,\n        channelKey: NotificationService.scheduledChannelKey,\n        title: title,\n        body: '정기 알림',\n      ),\n      schedule: NotificationInterval(\n        interval: interval.inSeconds,\n        repeats: true,\n        preciseAlarm: true,\n      ),\n    );\n  }\n\n  // 특정 조건의 알림 (예: 매월 1일)\n  static Future<void> scheduleMonthlyNotification({\n    required int id,\n    required String title,\n    required int day,  // 1-31\n    required int hour,\n  }) async {\n    await AwesomeNotifications().createNotification(\n      content: NotificationContent(\n        id: id,\n        channelKey: NotificationService.scheduledChannelKey,\n        title: title,\n        body: '매월 알림',\n      ),\n      schedule: NotificationCalendar(\n        day: day,\n        hour: hour,\n        minute: 0,\n        second: 0,\n        repeats: true,\n      ),\n    );\n  }\n\n  // 예약된 알림 목록 조회\n  static Future<List<NotificationModel>> getScheduledNotifications() async {\n    return await AwesomeNotifications().listScheduledNotifications();\n  }\n\n  // 특정 예약 알림 취소\n  static Future<void> cancelScheduledNotification(int id) async {\n    await AwesomeNotifications().cancelSchedule(id);\n  }\n\n  // 모든 예약 알림 취소\n  static Future<void> cancelAllScheduledNotifications() async {\n    await AwesomeNotifications().cancelAllSchedules();\n  }\n}\n\n// 사용 예시\nvoid exampleUsage() async {\n  // 내일 오전 9시에 알림\n  await ScheduledNotificationExamples.scheduleNotification(\n    id: 100,\n    title: '내일 회의',\n    body: '오전 10시 팀 회의가 있습니다.',\n    scheduledDate: DateTime.now().add(const Duration(days: 1)).copyWith(\n      hour: 9,\n      minute: 0,\n    ),\n  );\n\n  // 매일 오후 8시 복약 알림\n  await ScheduledNotificationExamples.scheduleDailyReminder(\n    id: 101,\n    title: '💊 복약 시간',\n    body: '약 드실 시간입니다.',\n    hour: 20,\n    minute: 0,\n  );\n\n  // 매주 월요일 오전 9시 주간 리뷰\n  await ScheduledNotificationExamples.scheduleWeeklyReminder(\n    id: 102,\n    title: '📋 주간 리뷰',\n    weekday: 1,  // 월요일\n    hour: 9,\n    minute: 0,\n  );\n}"
+      },
+      "explanation": "• NotificationCalendar: 달력 기반 예약 (특정 날짜/시간)\n• NotificationInterval: 간격 기반 예약 (N초마다)\n• repeats: true로 설정하면 반복 알림\n• preciseAlarm: 정확한 시간에 알림 (배터리 최적화 무시)\n• allowWhileIdle: Doze 모드에서도 알림 표시",
+      "beginnerTip": "⚠️ Android에서 preciseAlarm을 사용하려면 SCHEDULE_EXACT_ALARM 권한이 필요합니다. Android 13+에서는 사용자가 설정에서 허용해야 합니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "method": "createNotification()",
+      "signature": "Future<bool> createNotification({required NotificationContent content, NotificationSchedule? schedule, List<NotificationActionButton>? actionButtons})",
+      "description": "알림을 생성하거나 예약합니다.",
+      "returnType": "Future<bool>",
+      "example": "await AwesomeNotifications().createNotification(content: ...);"
+    },
+    {
+      "method": "cancel()",
+      "signature": "Future<void> cancel(int id)",
+      "description": "특정 ID의 알림을 취소합니다.",
+      "returnType": "Future<void>",
+      "example": "await AwesomeNotifications().cancel(1);"
+    },
+    {
+      "method": "isNotificationAllowed()",
+      "signature": "Future<bool> isNotificationAllowed()",
+      "description": "알림 권한이 허용되었는지 확인합니다.",
+      "returnType": "Future<bool>",
+      "example": "final allowed = await AwesomeNotifications().isNotificationAllowed();"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "알림이 표시되지 않음",
+      "cause": "알림 권한이 없거나 채널이 비활성화됨",
+      "solution": "isNotificationAllowed()로 권한 확인 후, requestPermissionToSendNotifications()로 권한 요청. Android 설정에서 앱의 알림 채널이 활성화되어 있는지도 확인하세요."
+    },
+    {
+      "error": "예약 알림이 작동하지 않음",
+      "cause": "배터리 최적화로 인해 알림이 지연되거나 누락됨",
+      "solution": "preciseAlarm: true, allowWhileIdle: true 설정. 기기의 배터리 최적화 설정에서 앱을 제외하세요."
+    },
+    {
+      "error": "콜백이 호출되지 않음",
+      "cause": "콜백 메서드가 static이 아니거나 @pragma가 누락됨",
+      "solution": "콜백 메서드에 @pragma('vm:entry-point')를 추가하고 static으로 선언하세요."
+    },
+    {
+      "error": "iOS에서 사운드가 재생되지 않음",
+      "cause": "무음 모드이거나 알림 설정 문제",
+      "solution": "iOS 설정에서 앱의 알림 사운드가 활성화되어 있는지 확인하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "알림 ID 관리",
+      "description": "알림 ID를 상수나 체계적인 규칙으로 관리하세요.",
+      "code": "class NotificationIds {\n  // 범위로 구분\n  static const int chatBase = 1000;\n  static const int reminderBase = 2000;\n  static const int systemBase = 3000;\n  \n  // 사용\n  static int chatNotification(String oderId) {\n    return chatBase + oderId.hashCode.abs() % 1000;\n  }\n}"
+    },
+    {
+      "title": "채널별 중요도 설정",
+      "description": "알림 종류에 따라 적절한 중요도를 설정하세요.",
+      "code": "// 채팅: 최대 중요도 (소리, 팝업)\nimportance: NotificationImportance.Max\n\n// 마케팅: 낮은 중요도 (소리 없음)\nimportance: NotificationImportance.Low\n\n// 긴급 알림: 높은 중요도\nimportance: NotificationImportance.High"
+    },
+    {
+      "title": "권한 요청 타이밍",
+      "description": "앱 시작 직후가 아닌, 알림이 필요한 시점에 권한을 요청하세요.",
+      "code": "// 알림 설정 화면에서 요청\nonPressed: () async {\n  final allowed = await AwesomeNotifications().isNotificationAllowed();\n  if (!allowed) {\n    // 설명 다이얼로그 표시 후 권한 요청\n    showDialog(\n      context: context,\n      builder: (context) => AlertDialog(\n        title: Text('알림 권한'),\n        content: Text('중요한 알림을 받으시려면 권한이 필요합니다.'),\n        actions: [\n          TextButton(\n            onPressed: () {\n              Navigator.pop(context);\n              AwesomeNotifications().requestPermissionToSendNotifications();\n            },\n            child: Text('허용'),\n          ),\n        ],\n      ),\n    );\n  }\n}"
+    }
+  ],
+
+  "tips": [
+    "🔔 Android 13+에서는 POST_NOTIFICATIONS 권한을 런타임에 요청해야 합니다.",
+    "⏰ 예약 알림은 기기 재부팅 후에도 유지됩니다 (BOOT_COMPLETED 리시버 설정 시).",
+    "📱 iOS에서는 앱이 포그라운드일 때 알림이 기본적으로 표시되지 않습니다. 설정으로 변경 가능합니다.",
+    "🔋 너무 많은 예약 알림은 배터리를 소모합니다. 필요한 알림만 예약하세요."
+  ]
+}

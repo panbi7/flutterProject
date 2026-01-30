@@ -1,0 +1,143 @@
+{
+  "packageName": "google_maps_flutter",
+  "overview": {
+    "what": "google_maps_flutter는 Flutter 앱에 Google Maps를 통합할 수 있게 해주는 공식 플러그인입니다. 지도 표시, 마커, 폴리라인, 폴리곤 등 다양한 지도 기능을 제공합니다.",
+    "why": "위치 기반 서비스는 많은 앱에서 필수적입니다. Google Maps는 전 세계적으로 가장 널리 사용되는 지도 서비스로, 풍부한 기능과 정확한 데이터를 제공합니다.",
+    "when": "매장 위치 표시, 배달 추적, 경로 안내, 위치 선택, 지역 기반 검색 등 지도가 필요한 모든 경우에 사용합니다.",
+    "features": [
+      "Google Maps 지도 표시",
+      "마커 및 정보 창",
+      "폴리라인, 폴리곤, 원 그리기",
+      "지도 스타일 커스터마이징",
+      "카메라 애니메이션",
+      "현재 위치 표시",
+      "클러스터링 지원"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치 및 API 키 설정",
+      "description": "pubspec.yaml에 패키지를 추가하고 플랫폼별 API 키를 설정합니다.",
+      "code": "# pubspec.yaml\ndependencies:\n  flutter:\n    sdk: flutter\n  google_maps_flutter: ^2.6.1\n\n# Android: android/app/src/main/AndroidManifest.xml\n<manifest ...>\n  <application ...>\n    <meta-data\n      android:name=\"com.google.android.geo.API_KEY\"\n      android:value=\"YOUR_GOOGLE_MAPS_API_KEY\"/>\n  </application>\n</manifest>\n\n# iOS: ios/Runner/AppDelegate.swift\nimport UIKit\nimport Flutter\nimport GoogleMaps  // 추가\n\n@UIApplicationMain\n@objc class AppDelegate: FlutterAppDelegate {\n  override func application(\n    _ application: UIApplication,\n    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?\n  ) -> Bool {\n    GMSServices.provideAPIKey(\"YOUR_GOOGLE_MAPS_API_KEY\")  // 추가\n    GeneratedPluginRegistrant.register(with: self)\n    return super.application(application, didFinishLaunchingWithOptions: launchOptions)\n  }\n}",
+      "explanation": "Google Cloud Console에서 Maps SDK for Android와 Maps SDK for iOS를 활성화하고 API 키를 발급받으세요. 각 플랫폼에 API 키를 설정해야 합니다."
+    },
+    {
+      "title": "기본 지도 표시",
+      "description": "GoogleMap 위젯으로 기본 지도를 화면에 표시합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:google_maps_flutter/google_maps_flutter.dart';\n\nclass BasicMapScreen extends StatefulWidget {\n  const BasicMapScreen({super.key});\n\n  @override\n  State<BasicMapScreen> createState() => _BasicMapScreenState();\n}\n\nclass _BasicMapScreenState extends State<BasicMapScreen> {\n  GoogleMapController? _mapController;\n\n  // 서울 시청 좌표\n  static const _initialPosition = CameraPosition(\n    target: LatLng(37.5666805, 126.9784147),\n    zoom: 15,\n  );\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Google Maps')),\n      body: GoogleMap(\n        initialCameraPosition: _initialPosition,\n        onMapCreated: (controller) {\n          _mapController = controller;\n        },\n        // 지도 타입: normal, satellite, terrain, hybrid\n        mapType: MapType.normal,\n        // 현재 위치 버튼\n        myLocationButtonEnabled: true,\n        // 현재 위치 표시 (권한 필요)\n        myLocationEnabled: false,\n        // 줌 컨트롤\n        zoomControlsEnabled: true,\n        // 나침반\n        compassEnabled: true,\n      ),\n      floatingActionButton: FloatingActionButton(\n        onPressed: () {\n          // 초기 위치로 이동\n          _mapController?.animateCamera(\n            CameraUpdate.newCameraPosition(_initialPosition),\n          );\n        },\n        child: const Icon(Icons.center_focus_strong),\n      ),\n    );\n  }\n}",
+      "explanation": "GoogleMap 위젯은 initialCameraPosition으로 초기 위치를 설정하고, onMapCreated에서 컨트롤러를 받아 지도를 제어할 수 있습니다."
+    },
+    {
+      "title": "마커 추가하기",
+      "description": "지도에 마커를 추가하고 정보 창을 표시합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:google_maps_flutter/google_maps_flutter.dart';\n\nclass MarkerMapScreen extends StatefulWidget {\n  const MarkerMapScreen({super.key});\n\n  @override\n  State<MarkerMapScreen> createState() => _MarkerMapScreenState();\n}\n\nclass _MarkerMapScreenState extends State<MarkerMapScreen> {\n  final Set<Marker> _markers = {};\n\n  @override\n  void initState() {\n    super.initState();\n    _addMarkers();\n  }\n\n  void _addMarkers() {\n    setState(() {\n      _markers.addAll([\n        Marker(\n          markerId: const MarkerId('seoul_city_hall'),\n          position: const LatLng(37.5666805, 126.9784147),\n          infoWindow: const InfoWindow(\n            title: '서울시청',\n            snippet: '서울특별시 중구 세종대로 110',\n          ),\n          icon: BitmapDescriptor.defaultMarkerWithHue(\n            BitmapDescriptor.hueRed,\n          ),\n          onTap: () {\n            debugPrint('서울시청 마커 탭됨');\n          },\n        ),\n        Marker(\n          markerId: const MarkerId('gwanghwamun'),\n          position: const LatLng(37.5759, 126.9769),\n          infoWindow: const InfoWindow(\n            title: '광화문',\n            snippet: '조선시대 경복궁의 정문',\n          ),\n          icon: BitmapDescriptor.defaultMarkerWithHue(\n            BitmapDescriptor.hueBlue,\n          ),\n        ),\n        Marker(\n          markerId: const MarkerId('namsan_tower'),\n          position: const LatLng(37.5512, 126.9882),\n          infoWindow: const InfoWindow(\n            title: 'N서울타워',\n            snippet: '서울의 랜드마크',\n          ),\n          icon: BitmapDescriptor.defaultMarkerWithHue(\n            BitmapDescriptor.hueGreen,\n          ),\n        ),\n      ]);\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('마커')),\n      body: GoogleMap(\n        initialCameraPosition: const CameraPosition(\n          target: LatLng(37.5666805, 126.9784147),\n          zoom: 13,\n        ),\n        markers: _markers,\n        onTap: (position) {\n          // 지도 탭 시 새 마커 추가\n          final markerId = MarkerId('marker_${_markers.length}');\n          setState(() {\n            _markers.add(\n              Marker(\n                markerId: markerId,\n                position: position,\n                infoWindow: InfoWindow(\n                  title: '새 마커',\n                  snippet: '${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}',\n                ),\n              ),\n            );\n          });\n        },\n      ),\n    );\n  }\n}",
+      "explanation": "Marker는 Set으로 관리합니다. MarkerId로 각 마커를 식별하고, InfoWindow로 정보 창을 표시합니다. 마커 색상은 hue 값으로 변경할 수 있습니다."
+    },
+    {
+      "title": "폴리라인과 폴리곤 그리기",
+      "description": "지도에 경로(폴리라인)와 영역(폴리곤)을 그립니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:google_maps_flutter/google_maps_flutter.dart';\n\nclass ShapesMapScreen extends StatefulWidget {\n  const ShapesMapScreen({super.key});\n\n  @override\n  State<ShapesMapScreen> createState() => _ShapesMapScreenState();\n}\n\nclass _ShapesMapScreenState extends State<ShapesMapScreen> {\n  final Set<Polyline> _polylines = {};\n  final Set<Polygon> _polygons = {};\n  final Set<Circle> _circles = {};\n\n  @override\n  void initState() {\n    super.initState();\n    _addShapes();\n  }\n\n  void _addShapes() {\n    // 폴리라인 (경로)\n    _polylines.add(\n      Polyline(\n        polylineId: const PolylineId('route_1'),\n        color: Colors.blue,\n        width: 5,\n        points: const [\n          LatLng(37.5666805, 126.9784147), // 서울시청\n          LatLng(37.5759, 126.9769),       // 광화문\n          LatLng(37.5796, 126.9770),       // 경복궁\n        ],\n        patterns: [\n          PatternItem.dash(20),\n          PatternItem.gap(10),\n        ],\n      ),\n    );\n\n    // 폴리곤 (영역)\n    _polygons.add(\n      Polygon(\n        polygonId: const PolygonId('area_1'),\n        fillColor: Colors.green.withOpacity(0.3),\n        strokeColor: Colors.green,\n        strokeWidth: 2,\n        points: const [\n          LatLng(37.56, 126.97),\n          LatLng(37.56, 126.99),\n          LatLng(37.58, 126.99),\n          LatLng(37.58, 126.97),\n        ],\n      ),\n    );\n\n    // 원\n    _circles.add(\n      Circle(\n        circleId: const CircleId('circle_1'),\n        center: const LatLng(37.5512, 126.9882), // 남산타워\n        radius: 500, // 미터 단위\n        fillColor: Colors.red.withOpacity(0.2),\n        strokeColor: Colors.red,\n        strokeWidth: 2,\n      ),\n    );\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('도형 그리기')),\n      body: GoogleMap(\n        initialCameraPosition: const CameraPosition(\n          target: LatLng(37.5666805, 126.9784147),\n          zoom: 13,\n        ),\n        polylines: _polylines,\n        polygons: _polygons,\n        circles: _circles,\n      ),\n    );\n  }\n}",
+      "explanation": "Polyline은 경로나 선을, Polygon은 다각형 영역을, Circle은 원형 영역을 표시합니다. 색상, 두께, 패턴 등을 커스터마이징할 수 있습니다."
+    },
+    {
+      "title": "카메라 제어 및 이벤트 처리",
+      "description": "지도 카메라를 프로그래밍 방식으로 제어하고 다양한 이벤트를 처리합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:google_maps_flutter/google_maps_flutter.dart';\n\nclass CameraControlScreen extends StatefulWidget {\n  const CameraControlScreen({super.key});\n\n  @override\n  State<CameraControlScreen> createState() => _CameraControlScreenState();\n}\n\nclass _CameraControlScreenState extends State<CameraControlScreen> {\n  GoogleMapController? _mapController;\n  String _currentPosition = '';\n  double _currentZoom = 15;\n\n  final List<Map<String, dynamic>> _locations = [\n    {'name': '서울', 'lat': 37.5666805, 'lng': 126.9784147},\n    {'name': '부산', 'lat': 35.1796, 'lng': 129.0756},\n    {'name': '제주', 'lat': 33.4996, 'lng': 126.5312},\n    {'name': '경주', 'lat': 35.8562, 'lng': 129.2250},\n  ];\n\n  void _moveToLocation(double lat, double lng, {double zoom = 15}) {\n    _mapController?.animateCamera(\n      CameraUpdate.newCameraPosition(\n        CameraPosition(\n          target: LatLng(lat, lng),\n          zoom: zoom,\n          tilt: 45, // 기울기\n          bearing: 30, // 방향\n        ),\n      ),\n    );\n  }\n\n  void _zoomIn() {\n    _mapController?.animateCamera(CameraUpdate.zoomIn());\n  }\n\n  void _zoomOut() {\n    _mapController?.animateCamera(CameraUpdate.zoomOut());\n  }\n\n  void _fitBounds() {\n    // 모든 위치가 보이도록 줌 조절\n    final bounds = LatLngBounds(\n      southwest: const LatLng(33.0, 125.0),\n      northeast: const LatLng(38.0, 130.0),\n    );\n    _mapController?.animateCamera(\n      CameraUpdate.newLatLngBounds(bounds, 50),\n    );\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('카메라 제어')),\n      body: Column(\n        children: [\n          // 위치 선택 버튼\n          SizedBox(\n            height: 50,\n            child: ListView.builder(\n              scrollDirection: Axis.horizontal,\n              itemCount: _locations.length,\n              itemBuilder: (context, index) {\n                final loc = _locations[index];\n                return Padding(\n                  padding: const EdgeInsets.all(8),\n                  child: ElevatedButton(\n                    onPressed: () => _moveToLocation(loc['lat'], loc['lng']),\n                    child: Text(loc['name']),\n                  ),\n                );\n              },\n            ),\n          ),\n          // 지도\n          Expanded(\n            child: Stack(\n              children: [\n                GoogleMap(\n                  initialCameraPosition: const CameraPosition(\n                    target: LatLng(37.5666805, 126.9784147),\n                    zoom: 15,\n                  ),\n                  onMapCreated: (controller) {\n                    _mapController = controller;\n                  },\n                  onCameraMove: (position) {\n                    setState(() {\n                      _currentPosition =\n                          '${position.target.latitude.toStringAsFixed(4)}, '\n                          '${position.target.longitude.toStringAsFixed(4)}';\n                      _currentZoom = position.zoom;\n                    });\n                  },\n                  onCameraIdle: () {\n                    debugPrint('카메라 이동 완료');\n                  },\n                ),\n                // 현재 위치 정보 표시\n                Positioned(\n                  top: 10,\n                  left: 10,\n                  child: Container(\n                    padding: const EdgeInsets.all(8),\n                    decoration: BoxDecoration(\n                      color: Colors.white,\n                      borderRadius: BorderRadius.circular(8),\n                      boxShadow: [\n                        BoxShadow(\n                          color: Colors.black.withOpacity(0.2),\n                          blurRadius: 4,\n                        ),\n                      ],\n                    ),\n                    child: Text(\n                      '위치: $_currentPosition\\n줌: ${_currentZoom.toStringAsFixed(1)}',\n                      style: const TextStyle(fontSize: 12),\n                    ),\n                  ),\n                ),\n                // 줌 버튼\n                Positioned(\n                  right: 10,\n                  bottom: 100,\n                  child: Column(\n                    children: [\n                      FloatingActionButton.small(\n                        heroTag: 'zoom_in',\n                        onPressed: _zoomIn,\n                        child: const Icon(Icons.add),\n                      ),\n                      const SizedBox(height: 8),\n                      FloatingActionButton.small(\n                        heroTag: 'zoom_out',\n                        onPressed: _zoomOut,\n                        child: const Icon(Icons.remove),\n                      ),\n                      const SizedBox(height: 8),\n                      FloatingActionButton.small(\n                        heroTag: 'fit',\n                        onPressed: _fitBounds,\n                        child: const Icon(Icons.zoom_out_map),\n                      ),\n                    ],\n                  ),\n                ),\n              ],\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}",
+      "explanation": "GoogleMapController로 카메라를 제어합니다. CameraUpdate 클래스는 다양한 카메라 이동 방법을 제공합니다. onCameraMove, onCameraIdle 이벤트로 카메라 상태를 추적합니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "GoogleMapController",
+      "description": "지도의 카메라, 마커, 정보 창 등을 프로그래밍 방식으로 제어합니다. onMapCreated 콜백에서 컨트롤러를 받아 사용합니다."
+    },
+    {
+      "name": "CameraPosition / CameraUpdate",
+      "description": "CameraPosition은 지도의 현재 뷰(위치, 줌, 기울기, 방향)를 정의합니다. CameraUpdate는 카메라 이동 애니메이션을 제어합니다."
+    },
+    {
+      "name": "Marker, Polyline, Polygon",
+      "description": "지도 위에 표시되는 오버레이입니다. Marker는 점, Polyline은 선, Polygon은 다각형, Circle은 원을 표시합니다. 모두 Set으로 관리됩니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "GoogleMap",
+      "signature": "GoogleMap({required CameraPosition initialCameraPosition, ...})",
+      "description": "Google Maps를 표시하는 위젯입니다."
+    },
+    {
+      "name": "Marker",
+      "signature": "Marker({required MarkerId markerId, required LatLng position, ...})",
+      "description": "지도에 표시되는 마커입니다."
+    },
+    {
+      "name": "InfoWindow",
+      "signature": "InfoWindow({String? title, String? snippet, ...})",
+      "description": "마커를 탭했을 때 표시되는 정보 창입니다."
+    },
+    {
+      "name": "CameraUpdate",
+      "signature": "CameraUpdate.newCameraPosition() / newLatLng() / zoomIn() / ...",
+      "description": "카메라 이동을 위한 정적 메서드들을 제공합니다."
+    },
+    {
+      "name": "LatLng",
+      "signature": "LatLng(double latitude, double longitude)",
+      "description": "위도와 경도를 나타내는 좌표 클래스입니다."
+    },
+    {
+      "name": "LatLngBounds",
+      "signature": "LatLngBounds({required LatLng southwest, required LatLng northeast})",
+      "description": "사각형 영역을 정의하는 좌표 범위입니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "API key not found",
+      "cause": "API 키가 설정되지 않았거나 잘못됨",
+      "solution": "Google Cloud Console에서 API 키를 확인하고, AndroidManifest.xml과 AppDelegate.swift에 올바르게 설정하세요."
+    },
+    {
+      "error": "지도가 회색으로 표시됨",
+      "cause": "Maps SDK가 활성화되지 않음",
+      "solution": "Google Cloud Console에서 Maps SDK for Android/iOS를 활성화하세요."
+    },
+    {
+      "error": "마커가 표시되지 않음",
+      "cause": "setState 없이 마커를 추가했거나 중복된 MarkerId 사용",
+      "solution": "마커 추가 시 setState를 호출하고, 각 마커에 고유한 MarkerId를 사용하세요."
+    },
+    {
+      "error": "iOS에서 크래시 발생",
+      "cause": "AppDelegate에서 GMSServices.provideAPIKey 호출 누락",
+      "solution": "AppDelegate.swift에서 앱 시작 시 API 키를 제공하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "API 키 보호",
+      "description": "API 키를 소스 코드에 직접 넣지 말고 환경 변수나 별도 설정 파일로 관리하세요. .gitignore에 추가하여 노출을 방지하세요."
+    },
+    {
+      "title": "지도 스타일 커스터마이징",
+      "description": "Google Maps Styling Wizard에서 JSON 스타일을 생성하고 mapController.setMapStyle()로 적용하여 브랜드에 맞는 지도를 만드세요."
+    },
+    {
+      "title": "대량 마커 처리",
+      "description": "마커가 많을 때는 클러스터링을 사용하세요. google_maps_cluster_manager 패키지를 활용할 수 있습니다."
+    },
+    {
+      "title": "위치 권한 처리",
+      "description": "myLocationEnabled를 사용하려면 permission_handler 등으로 위치 권한을 먼저 요청하세요."
+    }
+  ],
+  "tips": [
+    "디버그 빌드에서는 API 키 제한을 일시적으로 해제하면 테스트가 편합니다",
+    "release 빌드에서는 반드시 API 키에 앱 패키지명/번들 ID 제한을 설정하세요",
+    "지도 로딩 중에는 로딩 인디케이터를 표시하면 UX가 좋아집니다",
+    "오프라인 지도가 필요하면 mapbox_gl 등 대안 패키지를 고려하세요",
+    "카메라 이동 애니메이션은 animateCamera가 moveCamera보다 부드럽습니다",
+    "geolocator 패키지와 함께 사용하면 현재 위치 기반 기능을 구현할 수 있습니다"
+  ]
+}

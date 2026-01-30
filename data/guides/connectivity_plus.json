@@ -1,0 +1,136 @@
+{
+  "packageName": "connectivity_plus",
+  "overview": {
+    "what": "connectivity_plus는 Flutter 앱에서 네트워크 연결 상태를 확인하고 변화를 감지할 수 있게 해주는 패키지입니다.",
+    "why": "오프라인 상태에서 네트워크 요청을 시도하면 사용자 경험이 나빠집니다. 연결 상태를 미리 확인하여 적절한 UI를 보여주고, 오프라인 기능을 제공할 수 있습니다.",
+    "when": "네트워크 요청 전 연결 확인, 오프라인/온라인 상태 표시, 네트워크 변경 시 자동 재연결, 오프라인 모드 지원 등에 사용합니다.",
+    "features": [
+      "현재 연결 상태 확인",
+      "연결 타입 감지 (WiFi, 모바일, 이더넷)",
+      "연결 상태 변화 스트림",
+      "크로스 플랫폼 지원",
+      "Multiple connectivity 지원"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치",
+      "description": "pubspec.yaml에 connectivity_plus 패키지를 추가합니다.",
+      "code": "dependencies:\n  flutter:\n    sdk: flutter\n  connectivity_plus: ^5.0.2",
+      "explanation": "connectivity_plus는 Flutter 팀의 plus 패키지 시리즈 중 하나입니다. 별도의 네이티브 설정은 필요 없습니다."
+    },
+    {
+      "title": "현재 연결 상태 확인",
+      "description": "Connectivity 인스턴스를 사용하여 현재 네트워크 연결 상태를 확인합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:connectivity_plus/connectivity_plus.dart';\n\nclass ConnectivityCheckExample extends StatefulWidget {\n  const ConnectivityCheckExample({super.key});\n\n  @override\n  State<ConnectivityCheckExample> createState() => _ConnectivityCheckExampleState();\n}\n\nclass _ConnectivityCheckExampleState extends State<ConnectivityCheckExample> {\n  List<ConnectivityResult> _connectionStatus = [ConnectivityResult.none];\n  final Connectivity _connectivity = Connectivity();\n\n  @override\n  void initState() {\n    super.initState();\n    _checkConnectivity();\n  }\n\n  Future<void> _checkConnectivity() async {\n    final result = await _connectivity.checkConnectivity();\n    setState(() {\n      _connectionStatus = result;\n    });\n  }\n\n  String _getStatusText() {\n    if (_connectionStatus.contains(ConnectivityResult.none)) {\n      return '오프라인';\n    }\n\n    final types = <String>[];\n    if (_connectionStatus.contains(ConnectivityResult.wifi)) {\n      types.add('WiFi');\n    }\n    if (_connectionStatus.contains(ConnectivityResult.mobile)) {\n      types.add('모바일 데이터');\n    }\n    if (_connectionStatus.contains(ConnectivityResult.ethernet)) {\n      types.add('이더넷');\n    }\n    if (_connectionStatus.contains(ConnectivityResult.vpn)) {\n      types.add('VPN');\n    }\n    if (_connectionStatus.contains(ConnectivityResult.bluetooth)) {\n      types.add('블루투스');\n    }\n    if (_connectionStatus.contains(ConnectivityResult.other)) {\n      types.add('기타');\n    }\n\n    return types.join(' + ');\n  }\n\n  IconData _getStatusIcon() {\n    if (_connectionStatus.contains(ConnectivityResult.none)) {\n      return Icons.signal_wifi_off;\n    }\n    if (_connectionStatus.contains(ConnectivityResult.wifi)) {\n      return Icons.wifi;\n    }\n    if (_connectionStatus.contains(ConnectivityResult.mobile)) {\n      return Icons.signal_cellular_alt;\n    }\n    return Icons.signal_wifi_statusbar_4_bar;\n  }\n\n  Color _getStatusColor() {\n    if (_connectionStatus.contains(ConnectivityResult.none)) {\n      return Colors.red;\n    }\n    return Colors.green;\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('연결 상태')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            Icon(\n              _getStatusIcon(),\n              size: 100,\n              color: _getStatusColor(),\n            ),\n            const SizedBox(height: 20),\n            Text(\n              _getStatusText(),\n              style: TextStyle(\n                fontSize: 24,\n                fontWeight: FontWeight.bold,\n                color: _getStatusColor(),\n              ),\n            ),\n            const SizedBox(height: 40),\n            ElevatedButton(\n              onPressed: _checkConnectivity,\n              child: const Text('다시 확인'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "checkConnectivity()는 현재 연결 상태를 List<ConnectivityResult>로 반환합니다. 여러 연결이 동시에 활성화될 수 있습니다 (예: WiFi + VPN)."
+    },
+    {
+      "title": "연결 상태 실시간 감지",
+      "description": "스트림을 구독하여 연결 상태 변화를 실시간으로 감지합니다.",
+      "code": "import 'dart:async';\nimport 'package:flutter/material.dart';\nimport 'package:connectivity_plus/connectivity_plus.dart';\n\nclass ConnectivityStreamExample extends StatefulWidget {\n  const ConnectivityStreamExample({super.key});\n\n  @override\n  State<ConnectivityStreamExample> createState() => _ConnectivityStreamExampleState();\n}\n\nclass _ConnectivityStreamExampleState extends State<ConnectivityStreamExample> {\n  final Connectivity _connectivity = Connectivity();\n  late StreamSubscription<List<ConnectivityResult>> _subscription;\n  List<ConnectivityResult> _connectionStatus = [];\n  final List<String> _history = [];\n\n  @override\n  void initState() {\n    super.initState();\n    _initConnectivity();\n    _subscribeToConnectivity();\n  }\n\n  Future<void> _initConnectivity() async {\n    final result = await _connectivity.checkConnectivity();\n    _updateStatus(result);\n  }\n\n  void _subscribeToConnectivity() {\n    _subscription = _connectivity.onConnectivityChanged.listen(\n      (result) {\n        _updateStatus(result);\n        _addToHistory(result);\n      },\n    );\n  }\n\n  void _updateStatus(List<ConnectivityResult> result) {\n    setState(() {\n      _connectionStatus = result;\n    });\n  }\n\n  void _addToHistory(List<ConnectivityResult> result) {\n    final time = DateTime.now().toString().substring(11, 19);\n    final status = result.map((r) => r.name).join(', ');\n    setState(() {\n      _history.insert(0, '[$time] $status');\n      if (_history.length > 10) _history.removeLast();\n    });\n  }\n\n  @override\n  void dispose() {\n    _subscription.cancel();\n    super.dispose();\n  }\n\n  bool get isOnline => !_connectionStatus.contains(ConnectivityResult.none) &&\n      _connectionStatus.isNotEmpty;\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('실시간 연결 감지'),\n        actions: [\n          Padding(\n            padding: const EdgeInsets.all(8),\n            child: Icon(\n              isOnline ? Icons.cloud_done : Icons.cloud_off,\n              color: isOnline ? Colors.green : Colors.red,\n            ),\n          ),\n        ],\n      ),\n      body: Column(\n        children: [\n          // 현재 상태\n          Container(\n            width: double.infinity,\n            padding: const EdgeInsets.all(16),\n            color: isOnline ? Colors.green[100] : Colors.red[100],\n            child: Row(\n              mainAxisAlignment: MainAxisAlignment.center,\n              children: [\n                Icon(\n                  isOnline ? Icons.wifi : Icons.wifi_off,\n                  color: isOnline ? Colors.green : Colors.red,\n                ),\n                const SizedBox(width: 8),\n                Text(\n                  isOnline\n                      ? '온라인 (${_connectionStatus.map((r) => r.name).join(\", \")})'\n                      : '오프라인',\n                  style: TextStyle(\n                    fontWeight: FontWeight.bold,\n                    color: isOnline ? Colors.green[800] : Colors.red[800],\n                  ),\n                ),\n              ],\n            ),\n          ),\n          // 변경 기록\n          Expanded(\n            child: ListView.builder(\n              itemCount: _history.length,\n              itemBuilder: (context, index) {\n                return ListTile(\n                  leading: const Icon(Icons.history),\n                  title: Text(_history[index]),\n                );\n              },\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}",
+      "explanation": "onConnectivityChanged 스트림을 구독하면 연결 상태가 변경될 때마다 알림을 받습니다. dispose에서 반드시 subscription을 cancel하세요."
+    },
+    {
+      "title": "네트워크 상태 서비스 클래스",
+      "description": "재사용 가능한 네트워크 상태 관리 서비스를 만듭니다.",
+      "code": "import 'dart:async';\nimport 'package:connectivity_plus/connectivity_plus.dart';\nimport 'package:flutter/foundation.dart';\n\nclass NetworkService {\n  static final NetworkService _instance = NetworkService._internal();\n  factory NetworkService() => _instance;\n  NetworkService._internal();\n\n  final Connectivity _connectivity = Connectivity();\n  StreamSubscription<List<ConnectivityResult>>? _subscription;\n\n  final _controller = StreamController<bool>.broadcast();\n  Stream<bool> get onlineStream => _controller.stream;\n\n  List<ConnectivityResult> _currentStatus = [];\n\n  bool get isOnline =>\n      _currentStatus.isNotEmpty &&\n      !_currentStatus.contains(ConnectivityResult.none);\n\n  bool get isWifi => _currentStatus.contains(ConnectivityResult.wifi);\n  bool get isMobile => _currentStatus.contains(ConnectivityResult.mobile);\n\n  Future<void> initialize() async {\n    _currentStatus = await _connectivity.checkConnectivity();\n    _subscription = _connectivity.onConnectivityChanged.listen(\n      (result) {\n        final wasOnline = isOnline;\n        _currentStatus = result;\n        final nowOnline = isOnline;\n\n        if (wasOnline != nowOnline) {\n          _controller.add(nowOnline);\n          debugPrint('Network status changed: ${nowOnline ? \"online\" : \"offline\"}');\n        }\n      },\n    );\n  }\n\n  Future<bool> checkConnection() async {\n    _currentStatus = await _connectivity.checkConnectivity();\n    return isOnline;\n  }\n\n  void dispose() {\n    _subscription?.cancel();\n    _controller.close();\n  }\n}\n\n// Provider와 함께 사용\nimport 'package:flutter/material.dart';\n\nclass NetworkAwareWidget extends StatelessWidget {\n  final Widget onlineChild;\n  final Widget offlineChild;\n\n  const NetworkAwareWidget({\n    super.key,\n    required this.onlineChild,\n    required this.offlineChild,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    return StreamBuilder<bool>(\n      stream: NetworkService().onlineStream,\n      initialData: NetworkService().isOnline,\n      builder: (context, snapshot) {\n        final isOnline = snapshot.data ?? false;\n        return isOnline ? onlineChild : offlineChild;\n      },\n    );\n  }\n}\n\n// 오프라인 배너\nclass OfflineBanner extends StatelessWidget {\n  const OfflineBanner({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return StreamBuilder<bool>(\n      stream: NetworkService().onlineStream,\n      initialData: NetworkService().isOnline,\n      builder: (context, snapshot) {\n        final isOnline = snapshot.data ?? true;\n\n        if (isOnline) return const SizedBox.shrink();\n\n        return Container(\n          width: double.infinity,\n          color: Colors.red,\n          padding: const EdgeInsets.symmetric(vertical: 8),\n          child: const Row(\n            mainAxisAlignment: MainAxisAlignment.center,\n            children: [\n              Icon(Icons.wifi_off, color: Colors.white, size: 16),\n              SizedBox(width: 8),\n              Text(\n                '오프라인 상태입니다',\n                style: TextStyle(color: Colors.white),\n              ),\n            ],\n          ),\n        );\n      },\n    );\n  }\n}",
+      "explanation": "싱글톤 서비스로 만들면 앱 전체에서 일관되게 네트워크 상태를 확인할 수 있습니다. StreamController.broadcast()로 여러 리스너를 지원합니다."
+    },
+    {
+      "title": "실제 앱에서의 활용",
+      "description": "네트워크 요청 전 확인, 오프라인 모드 등 실제 사용 패턴입니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:connectivity_plus/connectivity_plus.dart';\n\n// API 호출 전 연결 확인\nclass ApiService {\n  final Connectivity _connectivity = Connectivity();\n\n  Future<bool> _isConnected() async {\n    final result = await _connectivity.checkConnectivity();\n    return result.isNotEmpty && !result.contains(ConnectivityResult.none);\n  }\n\n  Future<Map<String, dynamic>> fetchData() async {\n    // 연결 확인\n    if (!await _isConnected()) {\n      throw NoInternetException('인터넷 연결을 확인해주세요.');\n    }\n\n    // API 호출\n    // final response = await http.get(...);\n    // return response.body;\n    return {'data': 'example'};\n  }\n}\n\nclass NoInternetException implements Exception {\n  final String message;\n  NoInternetException(this.message);\n}\n\n// 오프라인 지원 화면\nclass OfflineSupportScreen extends StatefulWidget {\n  const OfflineSupportScreen({super.key});\n\n  @override\n  State<OfflineSupportScreen> createState() => _OfflineSupportScreenState();\n}\n\nclass _OfflineSupportScreenState extends State<OfflineSupportScreen> {\n  final _connectivity = Connectivity();\n  bool _isOnline = true;\n  List<String> _items = [];\n  bool _isLoading = false;\n\n  @override\n  void initState() {\n    super.initState();\n    _checkAndLoad();\n    _connectivity.onConnectivityChanged.listen((result) {\n      final online = result.isNotEmpty &&\n          !result.contains(ConnectivityResult.none);\n      if (online != _isOnline) {\n        setState(() => _isOnline = online);\n        if (online && _items.isEmpty) {\n          _loadData();\n        }\n      }\n    });\n  }\n\n  Future<void> _checkAndLoad() async {\n    final result = await _connectivity.checkConnectivity();\n    _isOnline = result.isNotEmpty &&\n        !result.contains(ConnectivityResult.none);\n\n    if (_isOnline) {\n      await _loadData();\n    } else {\n      // 캐시된 데이터 로드\n      _loadCachedData();\n    }\n  }\n\n  Future<void> _loadData() async {\n    setState(() => _isLoading = true);\n    try {\n      // API 호출 시뮬레이션\n      await Future.delayed(const Duration(seconds: 1));\n      setState(() {\n        _items = List.generate(10, (i) => '온라인 아이템 ${i + 1}');\n      });\n      // 캐시에 저장\n      // await _saveToCache(_items);\n    } catch (e) {\n      _loadCachedData();\n    } finally {\n      setState(() => _isLoading = false);\n    }\n  }\n\n  void _loadCachedData() {\n    // 캐시에서 로드\n    setState(() {\n      _items = List.generate(5, (i) => '캐시된 아이템 ${i + 1}');\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('오프라인 지원'),\n        actions: [\n          Icon(\n            _isOnline ? Icons.cloud_done : Icons.cloud_off,\n            color: _isOnline ? Colors.green : Colors.grey,\n          ),\n          const SizedBox(width: 16),\n        ],\n      ),\n      body: Column(\n        children: [\n          // 오프라인 배너\n          if (!_isOnline)\n            Container(\n              width: double.infinity,\n              color: Colors.orange,\n              padding: const EdgeInsets.all(8),\n              child: const Row(\n                mainAxisAlignment: MainAxisAlignment.center,\n                children: [\n                  Icon(Icons.info, color: Colors.white, size: 16),\n                  SizedBox(width: 8),\n                  Text(\n                    '오프라인 모드 - 캐시된 데이터를 표시합니다',\n                    style: TextStyle(color: Colors.white),\n                  ),\n                ],\n              ),\n            ),\n          // 콘텐츠\n          Expanded(\n            child: _isLoading\n                ? const Center(child: CircularProgressIndicator())\n                : RefreshIndicator(\n                    onRefresh: _isOnline ? _loadData : () async {},\n                    child: ListView.builder(\n                      itemCount: _items.length,\n                      itemBuilder: (context, index) {\n                        return ListTile(\n                          leading: CircleAvatar(child: Text('${index + 1}')),\n                          title: Text(_items[index]),\n                          subtitle: Text(_isOnline ? '실시간' : '캐시'),\n                        );\n                      },\n                    ),\n                  ),\n          ),\n        ],\n      ),\n    );\n  }\n}",
+      "explanation": "API 호출 전 연결을 확인하고, 오프라인 시 캐시된 데이터를 표시합니다. 연결이 복구되면 자동으로 새 데이터를 로드합니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "ConnectivityResult",
+      "description": "연결 타입을 나타내는 enum입니다. wifi, mobile, ethernet, vpn, bluetooth, other, none이 있습니다. 여러 개가 동시에 활성화될 수 있습니다."
+    },
+    {
+      "name": "checkConnectivity()",
+      "description": "현재 연결 상태를 한 번 확인합니다. List<ConnectivityResult>를 반환하며, 비어있거나 none만 포함하면 오프라인입니다."
+    },
+    {
+      "name": "onConnectivityChanged",
+      "description": "연결 상태 변화를 스트림으로 제공합니다. 네트워크 타입이 변경되거나 연결/해제될 때 이벤트가 발생합니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "checkConnectivity",
+      "signature": "Future<List<ConnectivityResult>> checkConnectivity()",
+      "description": "현재 네트워크 연결 상태를 반환합니다."
+    },
+    {
+      "name": "onConnectivityChanged",
+      "signature": "Stream<List<ConnectivityResult>> get onConnectivityChanged",
+      "description": "연결 상태 변화를 스트림으로 제공합니다."
+    },
+    {
+      "name": "ConnectivityResult.wifi",
+      "signature": "enum value",
+      "description": "WiFi 연결을 나타냅니다."
+    },
+    {
+      "name": "ConnectivityResult.mobile",
+      "signature": "enum value",
+      "description": "모바일 데이터 연결을 나타냅니다."
+    },
+    {
+      "name": "ConnectivityResult.none",
+      "signature": "enum value",
+      "description": "네트워크 연결이 없음을 나타냅니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "연결됐는데 인터넷 안됨",
+      "cause": "connectivity_plus는 네트워크 연결만 확인, 인터넷 접근성은 확인 안함",
+      "solution": "실제 인터넷 접근을 확인하려면 특정 URL에 ping을 보내세요 (internet_connection_checker 패키지)."
+    },
+    {
+      "error": "스트림 구독 해제 안됨",
+      "cause": "dispose에서 subscription.cancel() 누락",
+      "solution": "StatefulWidget의 dispose에서 반드시 구독을 취소하세요."
+    },
+    {
+      "error": "상태 변경이 감지 안됨 (iOS)",
+      "cause": "iOS 시뮬레이터에서 네트워크 상태 변경 시뮬레이션 어려움",
+      "solution": "실제 기기에서 테스트하세요."
+    },
+    {
+      "error": "여러 결과가 반환됨",
+      "cause": "v5부터 List<ConnectivityResult> 반환 (동시 연결 지원)",
+      "solution": "contains()로 특정 타입을 확인하거나, isEmpty/none 체크로 오프라인 판단하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "실제 인터넷 접근 확인",
+      "description": "connectivity_plus는 연결만 확인합니다. 실제 인터넷 접근을 확인하려면 internet_connection_checker 패키지를 함께 사용하세요."
+    },
+    {
+      "title": "구독 정리",
+      "description": "onConnectivityChanged 구독은 반드시 dispose에서 cancel하여 메모리 누수를 방지하세요."
+    },
+    {
+      "title": "UI 피드백 제공",
+      "description": "오프라인 상태를 사용자에게 명확히 알려주세요. 배너, 아이콘, 스낵바 등을 활용합니다."
+    },
+    {
+      "title": "오프라인 기능 제공",
+      "description": "가능하면 캐싱을 활용하여 오프라인에서도 앱을 사용할 수 있게 하세요."
+    }
+  ],
+  "tips": [
+    "WiFi에 연결되어 있어도 인터넷이 안될 수 있습니다 (예: 캡티브 포털)",
+    "internet_connection_checker 패키지로 실제 인터넷 연결을 확인할 수 있습니다",
+    "네트워크 타입에 따라 다른 품질의 이미지를 로드하는 등 최적화에 활용하세요",
+    "VPN 연결도 감지됩니다 (ConnectivityResult.vpn)",
+    "에뮬레이터에서 네트워크 상태를 변경하여 테스트할 수 있습니다",
+    "dio나 http 패키지의 인터셉터에서 연결 상태를 확인하면 효율적입니다"
+  ]
+}

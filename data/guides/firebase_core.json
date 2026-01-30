@@ -1,0 +1,141 @@
+{
+  "packageName": "firebase_core",
+  "overview": {
+    "what": "firebase_core는 Flutter 앱에서 Firebase를 사용하기 위한 필수 기반 패키지입니다. 모든 Firebase 서비스를 사용하기 전에 초기화해야 합니다.",
+    "why": "Firebase의 모든 서비스(Auth, Firestore, Storage 등)는 firebase_core에 의존합니다. 앱 시작 시 Firebase를 초기화하면 다른 Firebase 서비스를 사용할 수 있습니다.",
+    "when": "Firebase Authentication, Cloud Firestore, Cloud Storage, Cloud Messaging 등 Firebase 서비스를 사용하는 모든 앱에서 필수로 사용합니다.",
+    "features": [
+      "Firebase 프로젝트 초기화",
+      "여러 Firebase 앱 지원",
+      "플랫폼별 자동 설정 (FlutterFire CLI)",
+      "Firebase 옵션 관리",
+      "에러 핸들링"
+    ]
+  },
+  "steps": [
+    {
+      "title": "FlutterFire CLI로 설정",
+      "description": "FlutterFire CLI를 사용하여 Firebase 프로젝트를 자동으로 설정합니다.",
+      "code": "# 1. FlutterFire CLI 설치\ndart pub global activate flutterfire_cli\n\n# 2. Firebase 프로젝트 설정 (프로젝트 루트에서 실행)\nflutterfire configure\n\n# 위 명령어가 자동으로:\n# - Firebase 프로젝트 선택/생성\n# - 플랫폼별 앱 등록 (Android, iOS, Web 등)\n# - google-services.json (Android) 다운로드 및 배치\n# - GoogleService-Info.plist (iOS) 다운로드 및 배치\n# - firebase_options.dart 파일 생성\n\n# pubspec.yaml\ndependencies:\n  flutter:\n    sdk: flutter\n  firebase_core: ^2.27.0",
+      "explanation": "FlutterFire CLI는 Firebase 설정을 자동화합니다. 수동으로 google-services.json이나 plist 파일을 다운로드하고 배치할 필요가 없습니다."
+    },
+    {
+      "title": "Firebase 초기화",
+      "description": "main.dart에서 Firebase를 초기화합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:firebase_core/firebase_core.dart';\nimport 'firebase_options.dart';\n\nvoid main() async {\n  // Flutter 바인딩 초기화 (비동기 작업 전 필수)\n  WidgetsFlutterBinding.ensureInitialized();\n\n  // Firebase 초기화\n  await Firebase.initializeApp(\n    options: DefaultFirebaseOptions.currentPlatform,\n  );\n\n  runApp(const MyApp());\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      title: 'Firebase App',\n      home: const HomeScreen(),\n    );\n  }\n}\n\nclass HomeScreen extends StatelessWidget {\n  const HomeScreen({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Firebase 앱')),\n      body: const Center(\n        child: Text('Firebase가 초기화되었습니다!'),\n      ),\n    );\n  }\n}",
+      "explanation": "WidgetsFlutterBinding.ensureInitialized()를 먼저 호출하고, Firebase.initializeApp()을 await로 기다립니다. DefaultFirebaseOptions.currentPlatform은 현재 플랫폼에 맞는 설정을 자동 선택합니다."
+    },
+    {
+      "title": "FutureBuilder로 초기화 처리",
+      "description": "FutureBuilder를 사용하여 초기화 상태에 따른 UI를 표시합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:firebase_core/firebase_core.dart';\nimport 'firebase_options.dart';\n\nvoid main() {\n  WidgetsFlutterBinding.ensureInitialized();\n  runApp(const MyApp());\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      title: 'Firebase App',\n      home: FutureBuilder(\n        future: Firebase.initializeApp(\n          options: DefaultFirebaseOptions.currentPlatform,\n        ),\n        builder: (context, snapshot) {\n          // 에러 발생\n          if (snapshot.hasError) {\n            return Scaffold(\n              body: Center(\n                child: Column(\n                  mainAxisAlignment: MainAxisAlignment.center,\n                  children: [\n                    const Icon(Icons.error, size: 64, color: Colors.red),\n                    const SizedBox(height: 16),\n                    Text(\n                      'Firebase 초기화 실패',\n                      style: Theme.of(context).textTheme.headlineSmall,\n                    ),\n                    const SizedBox(height: 8),\n                    Text('${snapshot.error}'),\n                  ],\n                ),\n              ),\n            );\n          }\n\n          // 로딩 중\n          if (snapshot.connectionState == ConnectionState.waiting) {\n            return const Scaffold(\n              body: Center(\n                child: Column(\n                  mainAxisAlignment: MainAxisAlignment.center,\n                  children: [\n                    CircularProgressIndicator(),\n                    SizedBox(height: 16),\n                    Text('앱 초기화 중...'),\n                  ],\n                ),\n              ),\n            );\n          }\n\n          // 초기화 완료\n          return const HomeScreen();\n        },\n      ),\n    );\n  }\n}\n\nclass HomeScreen extends StatelessWidget {\n  const HomeScreen({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('홈')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            const Icon(Icons.check_circle, size: 64, color: Colors.green),\n            const SizedBox(height: 16),\n            Text(\n              'Firebase 초기화 완료!',\n              style: Theme.of(context).textTheme.headlineSmall,\n            ),\n            const SizedBox(height: 8),\n            Text('앱 이름: ${Firebase.app().name}'),\n            Text('프로젝트 ID: ${Firebase.app().options.projectId}'),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "FutureBuilder를 사용하면 초기화 중 로딩 화면을 표시하고, 에러 발생 시 에러 화면을 표시할 수 있습니다."
+    },
+    {
+      "title": "여러 Firebase 앱 사용",
+      "description": "하나의 Flutter 앱에서 여러 Firebase 프로젝트를 사용합니다.",
+      "code": "import 'package:firebase_core/firebase_core.dart';\n\n// 기본 앱 초기화\nawait Firebase.initializeApp(\n  options: DefaultFirebaseOptions.currentPlatform,\n);\n\n// 보조 앱 초기화 (다른 Firebase 프로젝트)\nawait Firebase.initializeApp(\n  name: 'secondary',\n  options: const FirebaseOptions(\n    apiKey: 'YOUR_SECONDARY_API_KEY',\n    appId: 'YOUR_SECONDARY_APP_ID',\n    messagingSenderId: 'YOUR_SECONDARY_SENDER_ID',\n    projectId: 'your-secondary-project',\n    storageBucket: 'your-secondary-project.appspot.com',\n  ),\n);\n\n// 앱 사용\nfinal defaultApp = Firebase.app(); // 기본 앱\nfinal secondaryApp = Firebase.app('secondary'); // 보조 앱\n\n// 특정 앱으로 서비스 초기화\n// FirebaseAuth.instanceFor(app: secondaryApp);\n// FirebaseFirestore.instanceFor(app: secondaryApp);\n\n// 모든 앱 목록\nfinal apps = Firebase.apps;\nfor (final app in apps) {\n  print('App name: ${app.name}');\n  print('Project ID: ${app.options.projectId}');\n}",
+      "explanation": "name 파라미터로 앱을 구분하여 여러 Firebase 프로젝트를 동시에 사용할 수 있습니다. 각 서비스에서 instanceFor(app:)로 특정 앱을 지정합니다."
+    },
+    {
+      "title": "에러 처리 및 디버깅",
+      "description": "Firebase 초기화 관련 에러를 처리하고 디버깅합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:firebase_core/firebase_core.dart';\nimport 'firebase_options.dart';\n\nFuture<void> initializeFirebase() async {\n  try {\n    // 이미 초기화되었는지 확인\n    if (Firebase.apps.isEmpty) {\n      await Firebase.initializeApp(\n        options: DefaultFirebaseOptions.currentPlatform,\n      );\n      debugPrint('Firebase 초기화 성공');\n    } else {\n      debugPrint('Firebase 이미 초기화됨');\n    }\n\n    // 초기화 정보 출력\n    final app = Firebase.app();\n    debugPrint('App name: ${app.name}');\n    debugPrint('Project ID: ${app.options.projectId}');\n    debugPrint('API Key: ${app.options.apiKey.substring(0, 10)}...');\n    debugPrint('Storage Bucket: ${app.options.storageBucket}');\n  } on FirebaseException catch (e) {\n    debugPrint('FirebaseException: ${e.code} - ${e.message}');\n    rethrow;\n  } catch (e) {\n    debugPrint('Unknown error: $e');\n    rethrow;\n  }\n}\n\n// 앱 삭제 (테스트용)\nFuture<void> deleteFirebaseApp([String name = defaultFirebaseAppName]) async {\n  try {\n    await Firebase.app(name).delete();\n    debugPrint('Firebase 앱 삭제됨: $name');\n  } catch (e) {\n    debugPrint('앱 삭제 실패: $e');\n  }\n}\n\n// 초기화 상태 확인 위젯\nclass FirebaseStatusWidget extends StatelessWidget {\n  const FirebaseStatusWidget({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    final isInitialized = Firebase.apps.isNotEmpty;\n\n    return Card(\n      child: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            Row(\n              children: [\n                Icon(\n                  isInitialized ? Icons.check_circle : Icons.error,\n                  color: isInitialized ? Colors.green : Colors.red,\n                ),\n                const SizedBox(width: 8),\n                Text(\n                  isInitialized ? 'Firebase 연결됨' : 'Firebase 미연결',\n                  style: const TextStyle(fontWeight: FontWeight.bold),\n                ),\n              ],\n            ),\n            if (isInitialized) ...[\n              const Divider(),\n              Text('앱: ${Firebase.app().name}'),\n              Text('프로젝트: ${Firebase.app().options.projectId}'),\n            ],\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "Firebase.apps로 초기화된 앱 목록을 확인하고, FirebaseException으로 Firebase 관련 에러를 처리합니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "Firebase.initializeApp()",
+      "description": "Firebase 서비스를 사용하기 전에 반드시 호출해야 하는 초기화 메서드입니다. 비동기이므로 await가 필요하고, runApp() 전에 완료되어야 합니다."
+    },
+    {
+      "name": "FirebaseOptions",
+      "description": "Firebase 프로젝트의 설정 정보(API 키, 앱 ID, 프로젝트 ID 등)를 포함합니다. FlutterFire CLI가 firebase_options.dart에 자동 생성합니다."
+    },
+    {
+      "name": "Firebase.app()",
+      "description": "초기화된 FirebaseApp 인스턴스에 접근합니다. 이름을 지정하지 않으면 기본 앱을, 이름을 지정하면 해당 이름의 앱을 반환합니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "Firebase.initializeApp",
+      "signature": "static Future<FirebaseApp> initializeApp({String? name, FirebaseOptions? options})",
+      "description": "Firebase 앱을 초기화합니다. options는 플랫폼별 설정입니다."
+    },
+    {
+      "name": "Firebase.app",
+      "signature": "static FirebaseApp app([String name = defaultFirebaseAppName])",
+      "description": "초기화된 FirebaseApp 인스턴스를 반환합니다."
+    },
+    {
+      "name": "Firebase.apps",
+      "signature": "static List<FirebaseApp> get apps",
+      "description": "초기화된 모든 FirebaseApp 목록을 반환합니다."
+    },
+    {
+      "name": "FirebaseApp.name",
+      "signature": "String get name",
+      "description": "앱의 이름을 반환합니다. 기본값은 '[DEFAULT]'입니다."
+    },
+    {
+      "name": "FirebaseApp.options",
+      "signature": "FirebaseOptions get options",
+      "description": "앱의 FirebaseOptions를 반환합니다."
+    },
+    {
+      "name": "FirebaseApp.delete",
+      "signature": "Future<void> delete()",
+      "description": "앱을 삭제합니다. 주로 테스트에서 사용됩니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "No Firebase App '[DEFAULT]' has been created",
+      "cause": "Firebase.initializeApp()이 호출되지 않음",
+      "solution": "main()에서 await Firebase.initializeApp()을 runApp() 전에 호출하세요."
+    },
+    {
+      "error": "WidgetsFlutterBinding has not been initialized",
+      "cause": "비동기 작업 전에 바인딩이 초기화되지 않음",
+      "solution": "Firebase.initializeApp() 전에 WidgetsFlutterBinding.ensureInitialized()를 호출하세요."
+    },
+    {
+      "error": "Firebase app named '[DEFAULT]' already exists",
+      "cause": "Firebase가 이미 초기화됨",
+      "solution": "Firebase.apps.isEmpty를 확인하거나 initializeApp을 한 번만 호출하세요."
+    },
+    {
+      "error": "google-services.json / GoogleService-Info.plist not found",
+      "cause": "설정 파일이 올바른 위치에 없음",
+      "solution": "flutterfire configure를 다시 실행하거나 파일을 수동으로 배치하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "FlutterFire CLI 사용",
+      "description": "수동 설정 대신 flutterfire configure를 사용하면 플랫폼별 설정을 자동으로 처리합니다."
+    },
+    {
+      "title": "main에서 초기화",
+      "description": "Firebase 초기화는 main() 함수에서 runApp() 전에 완료하세요. FutureBuilder로 처리하면 초기화 상태 UI를 보여줄 수 있습니다."
+    },
+    {
+      "title": "에러 처리",
+      "description": "try-catch로 초기화 에러를 처리하고, 사용자에게 적절한 피드백을 제공하세요."
+    },
+    {
+      "title": "환경별 설정",
+      "description": "개발/스테이징/프로덕션 환경별로 다른 Firebase 프로젝트를 사용하려면 빌드 플레이버와 함께 사용하세요."
+    }
+  ],
+  "tips": [
+    "flutterfire configure는 프로젝트가 변경될 때마다 다시 실행하세요",
+    "Firebase 콘솔에서 SHA-1 인증서 지문을 추가해야 Google 로그인 등이 작동합니다",
+    "firebase_options.dart는 .gitignore에 추가하지 마세요 (민감 정보 없음)",
+    "Firebase Emulator Suite와 함께 사용하면 로컬 개발이 편리합니다",
+    "iOS 시뮬레이터에서는 일부 Firebase 기능이 제한될 수 있습니다",
+    "flutter clean 후 다시 빌드하면 많은 Firebase 관련 문제가 해결됩니다"
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "packageId": "permission_handler",
+  "title": "permission_handler 실전 마스터 가이드",
+  "generatedAt": "2026-01-27T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "11.3.1",
+  "packageLikes": 3845,
+
+  "overview": {
+    "what": "permission_handler는 Flutter 앱에서 다양한 권한(카메라, 위치, 마이크, 저장소 등)을 확인하고 요청하는 크로스 플랫폼 패키지입니다. Android와 iOS의 권한 시스템 차이를 추상화하여 일관된 API로 모든 권한을 관리할 수 있습니다.",
+    "why": "각 플랫폼별로 권한을 다르게 처리하면 코드가 복잡해지고 유지보수가 어렵습니다. permission_handler는 30개 이상의 권한을 단일 API로 관리하며, 권한 상태 확인, 요청, 설정 화면 이동 등 모든 기능을 제공합니다. Flutter 커뮤니티에서 가장 많이 사용되는 권한 관리 패키지입니다.",
+    "when": "1) 카메라, 갤러리, 마이크 등 하드웨어 접근 시, 2) 위치, 연락처, 캘린더 등 민감한 데이터 접근 시, 3) 알림, 블루투스, 전화 등 시스템 기능 사용 시, 4) 여러 권한을 한 번에 요청해야 할 때, 5) 권한 거부 시 설정 화면으로 안내할 때",
+    "features": [
+      "📋 30+ 권한 지원: 카메라, 위치, 마이크, 저장소, 알림 등",
+      "✅ 상태 확인: 권한 허용/거부/영구거부/제한 상태 확인",
+      "🔔 일괄 요청: 여러 권한을 한 번에 요청",
+      "⚙️ 설정 이동: 앱 설정 화면으로 사용자 안내",
+      "📱 크로스 플랫폼: Android, iOS, Windows, macOS 지원"
+    ]
+  },
+
+  "description": "카메라, 위치, 저장소 등 다양한 권한을 확인하고 요청하는 Flutter 권한 관리 패키지",
+  "difficulty": "중급 - 플랫폼별 설정 이해 필요",
+  "estimatedTime": "35분",
+  "prerequisites": [
+    "Flutter 기본 위젯과 비동기 프로그래밍",
+    "AndroidManifest.xml, Info.plist 편집 경험",
+    "권한 시스템의 기본 개념 (런타임 권한)"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "PermissionStatus",
+      "explanation": "권한의 현재 상태입니다. granted(허용), denied(거부), permanentlyDenied(영구거부), restricted(제한됨), limited(제한적 허용) 등이 있습니다.",
+      "analogy": "🚦 신호등처럼, 초록(granted), 빨강(denied), 검정(permanentlyDenied) 상태가 있습니다.",
+      "usage": "PermissionStatus status = await Permission.camera.status;"
+    },
+    {
+      "term": "Permission",
+      "explanation": "요청할 권한의 종류입니다. Permission.camera, Permission.location, Permission.microphone 등 30개 이상의 권한을 지원합니다.",
+      "analogy": "🔑 다양한 문을 열 수 있는 키 모음처럼, 각각 다른 기능에 접근할 수 있는 권한입니다.",
+      "usage": "await Permission.camera.request();"
+    },
+    {
+      "term": "ServiceStatus",
+      "explanation": "서비스의 활성화 상태입니다. 위치 서비스(GPS)나 블루투스처럼 권한과 별개로 기기에서 켜야 하는 서비스에 사용됩니다.",
+      "analogy": "🔌 플러그(권한)가 있어도 전원(서비스)이 꺼져있으면 작동하지 않는 것과 같습니다.",
+      "usage": "ServiceStatus status = await Permission.location.serviceStatus;"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치 및 플랫폼 설정",
+      "description": "permission_handler를 설치하고 사용할 권한에 맞는 플랫폼 설정을 합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  permission_handler: ^11.3.1"
+      },
+      "commands": ["flutter pub add permission_handler", "flutter pub get"],
+      "explanation": "permission_handler는 네이티브 코드를 포함하므로 사용할 권한마다 플랫폼 설정이 필요합니다.",
+      "platformSetup": {
+        "android": "android/app/src/main/AndroidManifest.xml에 필요한 권한 추가:\n<!-- 카메라 -->\n<uses-permission android:name=\"android.permission.CAMERA\"/>\n<!-- 위치 -->\n<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>\n<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>\n<!-- 마이크 -->\n<uses-permission android:name=\"android.permission.RECORD_AUDIO\"/>\n<!-- 저장소 (Android 12 이하) -->\n<uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\"/>\n<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>\n<!-- 알림 (Android 13+) -->\n<uses-permission android:name=\"android.permission.POST_NOTIFICATIONS\"/>",
+        "ios": "ios/Runner/Info.plist에 권한 설명 추가:\n<!-- 카메라 -->\n<key>NSCameraUsageDescription</key>\n<string>사진 촬영을 위해 카메라 접근이 필요합니다.</string>\n<!-- 사진 라이브러리 -->\n<key>NSPhotoLibraryUsageDescription</key>\n<string>사진 선택을 위해 사진 라이브러리 접근이 필요합니다.</string>\n<!-- 마이크 -->\n<key>NSMicrophoneUsageDescription</key>\n<string>음성 녹음을 위해 마이크 접근이 필요합니다.</string>\n<!-- 위치 -->\n<key>NSLocationWhenInUseUsageDescription</key>\n<string>현재 위치 확인을 위해 위치 접근이 필요합니다.</string>"
+      },
+      "beginnerTip": "⚠️ 사용하지 않는 권한은 AndroidManifest와 Info.plist에 추가하지 마세요. 앱 스토어 심사에서 거부될 수 있습니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 기본 사용법 - 권한 확인 및 요청",
+      "description": "단일 권한을 확인하고 요청하는 기본 패턴입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/permission_example.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:permission_handler/permission_handler.dart';\n\nclass PermissionExample extends StatefulWidget {\n  const PermissionExample({super.key});\n\n  @override\n  State<PermissionExample> createState() => _PermissionExampleState();\n}\n\nclass _PermissionExampleState extends State<PermissionExample> {\n  PermissionStatus _cameraStatus = PermissionStatus.denied;\n  PermissionStatus _locationStatus = PermissionStatus.denied;\n  PermissionStatus _microphoneStatus = PermissionStatus.denied;\n\n  @override\n  void initState() {\n    super.initState();\n    _checkPermissions();\n  }\n\n  /// 권한 상태 확인\n  Future<void> _checkPermissions() async {\n    final cameraStatus = await Permission.camera.status;\n    final locationStatus = await Permission.location.status;\n    final microphoneStatus = await Permission.microphone.status;\n\n    setState(() {\n      _cameraStatus = cameraStatus;\n      _locationStatus = locationStatus;\n      _microphoneStatus = microphoneStatus;\n    });\n  }\n\n  /// 카메라 권한 요청\n  Future<void> _requestCameraPermission() async {\n    // 이미 허용된 경우\n    if (await Permission.camera.isGranted) {\n      _showMessage('카메라 권한이 이미 허용되어 있습니다');\n      return;\n    }\n\n    // 권한 요청\n    final status = await Permission.camera.request();\n\n    setState(() {\n      _cameraStatus = status;\n    });\n\n    // 결과에 따른 처리\n    if (status.isGranted) {\n      _showMessage('카메라 권한이 허용되었습니다');\n      // 카메라 사용 로직 실행\n    } else if (status.isPermanentlyDenied) {\n      // 영구 거부 → 설정으로 이동 안내\n      _showSettingsDialog('카메라');\n    } else {\n      _showMessage('카메라 권한이 거부되었습니다');\n    }\n  }\n\n  /// 설정 화면 이동 다이얼로그\n  void _showSettingsDialog(String permissionName) {\n    showDialog(\n      context: context,\n      builder: (context) => AlertDialog(\n        title: const Text('권한 필요'),\n        content: Text(\n          '$permissionName 권한이 영구적으로 거부되었습니다.\\n'\n          '설정에서 권한을 허용해주세요.',\n        ),\n        actions: [\n          TextButton(\n            onPressed: () => Navigator.pop(context),\n            child: const Text('취소'),\n          ),\n          TextButton(\n            onPressed: () {\n              Navigator.pop(context);\n              openAppSettings();  // 앱 설정 화면 열기\n            },\n            child: const Text('설정 열기'),\n          ),\n        ],\n      ),\n    );\n  }\n\n  void _showMessage(String message) {\n    ScaffoldMessenger.of(context).showSnackBar(\n      SnackBar(content: Text(message)),\n    );\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('권한 관리')),\n      body: ListView(\n        padding: const EdgeInsets.all(16),\n        children: [\n          _PermissionTile(\n            icon: Icons.camera_alt,\n            title: '카메라',\n            status: _cameraStatus,\n            onRequest: _requestCameraPermission,\n          ),\n          _PermissionTile(\n            icon: Icons.location_on,\n            title: '위치',\n            status: _locationStatus,\n            onRequest: () async {\n              final status = await Permission.location.request();\n              setState(() => _locationStatus = status);\n            },\n          ),\n          _PermissionTile(\n            icon: Icons.mic,\n            title: '마이크',\n            status: _microphoneStatus,\n            onRequest: () async {\n              final status = await Permission.microphone.request();\n              setState(() => _microphoneStatus = status);\n            },\n          ),\n        ],\n      ),\n    );\n  }\n}\n\nclass _PermissionTile extends StatelessWidget {\n  final IconData icon;\n  final String title;\n  final PermissionStatus status;\n  final VoidCallback onRequest;\n\n  const _PermissionTile({\n    required this.icon,\n    required this.title,\n    required this.status,\n    required this.onRequest,\n  });\n\n  Color get _statusColor {\n    switch (status) {\n      case PermissionStatus.granted:\n      case PermissionStatus.limited:\n        return Colors.green;\n      case PermissionStatus.denied:\n        return Colors.orange;\n      case PermissionStatus.permanentlyDenied:\n      case PermissionStatus.restricted:\n        return Colors.red;\n      default:\n        return Colors.grey;\n    }\n  }\n\n  String get _statusText {\n    switch (status) {\n      case PermissionStatus.granted:\n        return '허용됨';\n      case PermissionStatus.limited:\n        return '제한적 허용';\n      case PermissionStatus.denied:\n        return '거부됨';\n      case PermissionStatus.permanentlyDenied:\n        return '영구 거부';\n      case PermissionStatus.restricted:\n        return '제한됨';\n      default:\n        return '알 수 없음';\n    }\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Card(\n      child: ListTile(\n        leading: Icon(icon, size: 32),\n        title: Text(title),\n        subtitle: Text(\n          _statusText,\n          style: TextStyle(color: _statusColor, fontWeight: FontWeight.bold),\n        ),\n        trailing: status.isGranted\n            ? const Icon(Icons.check_circle, color: Colors.green)\n            : ElevatedButton(\n                onPressed: onRequest,\n                child: const Text('요청'),\n              ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【PermissionStatus 상태】\n• granted: 권한 허용됨\n• denied: 권한 거부됨 (다시 요청 가능)\n• permanentlyDenied: 영구 거부됨 (설정에서만 변경)\n• restricted: iOS에서 부모 제어 등으로 제한됨\n• limited: iOS 14+ 사진 '선택한 사진만' 허용\n\n【유용한 확장 메서드】\n• status.isGranted: 허용 여부\n• status.isDenied: 거부 여부\n• status.isPermanentlyDenied: 영구 거부 여부",
+      "beginnerTip": "💡 permanentlyDenied 상태에서는 request()를 호출해도 다이얼로그가 표시되지 않습니다. openAppSettings()로 설정 화면을 열어야 합니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "📋 여러 권한 한 번에 요청",
+      "description": "앱 시작 시 필요한 여러 권한을 한 번에 확인하고 요청합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/multiple_permissions.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:permission_handler/permission_handler.dart';\n\nclass MultiplePermissionsExample extends StatefulWidget {\n  const MultiplePermissionsExample({super.key});\n\n  @override\n  State<MultiplePermissionsExample> createState() =>\n      _MultiplePermissionsExampleState();\n}\n\nclass _MultiplePermissionsExampleState\n    extends State<MultiplePermissionsExample> {\n  Map<Permission, PermissionStatus> _statuses = {};\n\n  // 앱에서 필요한 권한 목록\n  final List<Permission> _requiredPermissions = [\n    Permission.camera,\n    Permission.microphone,\n    Permission.location,\n    Permission.photos,  // 사진 라이브러리\n    Permission.notification,  // 알림\n  ];\n\n  @override\n  void initState() {\n    super.initState();\n    _checkAllPermissions();\n  }\n\n  /// 모든 권한 상태 확인\n  Future<void> _checkAllPermissions() async {\n    final statuses = await _requiredPermissions.request();\n    // 또는 상태만 확인: \n    // Map<Permission, PermissionStatus> statuses = {};\n    // for (var permission in _requiredPermissions) {\n    //   statuses[permission] = await permission.status;\n    // }\n\n    setState(() {\n      _statuses = statuses;\n    });\n  }\n\n  /// 모든 권한 한 번에 요청\n  Future<void> _requestAllPermissions() async {\n    // 여러 권한을 배열로 요청\n    final statuses = await _requiredPermissions.request();\n\n    setState(() {\n      _statuses = statuses;\n    });\n\n    // 결과 분석\n    final granted = statuses.values.where((s) => s.isGranted).length;\n    final denied = statuses.values.where((s) => s.isDenied).length;\n    final permanentlyDenied =\n        statuses.values.where((s) => s.isPermanentlyDenied).length;\n\n    String message = '$granted개 허용';\n    if (denied > 0) message += ', $denied개 거부';\n    if (permanentlyDenied > 0) message += ', $permanentlyDenied개 영구거부';\n\n    ScaffoldMessenger.of(context).showSnackBar(\n      SnackBar(content: Text(message)),\n    );\n  }\n\n  /// 필수 권한이 모두 허용되었는지 확인\n  bool get _allRequiredGranted {\n    return _statuses.values.every((status) => status.isGranted);\n  }\n\n  /// 영구 거부된 권한이 있는지 확인\n  bool get _hasPermanentlyDenied {\n    return _statuses.values.any((status) => status.isPermanentlyDenied);\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('권한 일괄 관리')),\n      body: Column(\n        children: [\n          // 상태 요약\n          Container(\n            width: double.infinity,\n            padding: const EdgeInsets.all(16),\n            color: _allRequiredGranted\n                ? Colors.green.shade100\n                : Colors.orange.shade100,\n            child: Column(\n              children: [\n                Icon(\n                  _allRequiredGranted ? Icons.check_circle : Icons.warning,\n                  size: 48,\n                  color: _allRequiredGranted ? Colors.green : Colors.orange,\n                ),\n                const SizedBox(height: 8),\n                Text(\n                  _allRequiredGranted\n                      ? '모든 권한이 허용되었습니다'\n                      : '일부 권한이 필요합니다',\n                  style: const TextStyle(\n                    fontSize: 16,\n                    fontWeight: FontWeight.bold,\n                  ),\n                ),\n              ],\n            ),\n          ),\n\n          // 권한 목록\n          Expanded(\n            child: ListView.builder(\n              itemCount: _requiredPermissions.length,\n              itemBuilder: (context, index) {\n                final permission = _requiredPermissions[index];\n                final status = _statuses[permission] ?? PermissionStatus.denied;\n\n                return ListTile(\n                  leading: _getPermissionIcon(permission),\n                  title: Text(_getPermissionName(permission)),\n                  trailing: _buildStatusChip(status),\n                  onTap: () async {\n                    if (status.isPermanentlyDenied) {\n                      await openAppSettings();\n                    } else if (!status.isGranted) {\n                      final newStatus = await permission.request();\n                      setState(() {\n                        _statuses[permission] = newStatus;\n                      });\n                    }\n                  },\n                );\n              },\n            ),\n          ),\n\n          // 하단 버튼\n          Padding(\n            padding: const EdgeInsets.all(16),\n            child: Column(\n              crossAxisAlignment: CrossAxisAlignment.stretch,\n              children: [\n                if (_hasPermanentlyDenied)\n                  OutlinedButton.icon(\n                    onPressed: () => openAppSettings(),\n                    icon: const Icon(Icons.settings),\n                    label: const Text('앱 설정 열기'),\n                  ),\n                const SizedBox(height: 8),\n                ElevatedButton(\n                  onPressed: _allRequiredGranted ? null : _requestAllPermissions,\n                  child: Text(\n                    _allRequiredGranted ? '모든 권한 허용됨' : '모든 권한 요청',\n                  ),\n                ),\n              ],\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n\n  Widget _getPermissionIcon(Permission permission) {\n    IconData icon;\n    switch (permission) {\n      case Permission.camera:\n        icon = Icons.camera_alt;\n        break;\n      case Permission.microphone:\n        icon = Icons.mic;\n        break;\n      case Permission.location:\n        icon = Icons.location_on;\n        break;\n      case Permission.photos:\n        icon = Icons.photo_library;\n        break;\n      case Permission.notification:\n        icon = Icons.notifications;\n        break;\n      default:\n        icon = Icons.security;\n    }\n    return Icon(icon);\n  }\n\n  String _getPermissionName(Permission permission) {\n    switch (permission) {\n      case Permission.camera:\n        return '카메라';\n      case Permission.microphone:\n        return '마이크';\n      case Permission.location:\n        return '위치';\n      case Permission.photos:\n        return '사진 라이브러리';\n      case Permission.notification:\n        return '알림';\n      default:\n        return permission.toString();\n    }\n  }\n\n  Widget _buildStatusChip(PermissionStatus status) {\n    Color color;\n    String text;\n\n    switch (status) {\n      case PermissionStatus.granted:\n        color = Colors.green;\n        text = '허용';\n        break;\n      case PermissionStatus.limited:\n        color = Colors.blue;\n        text = '제한적';\n        break;\n      case PermissionStatus.denied:\n        color = Colors.orange;\n        text = '거부';\n        break;\n      case PermissionStatus.permanentlyDenied:\n        color = Colors.red;\n        text = '영구거부';\n        break;\n      default:\n        color = Colors.grey;\n        text = '알 수 없음';\n    }\n\n    return Chip(\n      label: Text(text, style: const TextStyle(color: Colors.white, fontSize: 12)),\n      backgroundColor: color,\n      padding: EdgeInsets.zero,\n    );\n  }\n}"
+      },
+      "explanation": "【여러 권한 요청 방법】\n```dart\n// 방법 1: 리스트 확장 메서드\nfinal statuses = await [Permission.camera, Permission.location].request();\n\n// 방법 2: 개별 요청 루프\nfor (var permission in permissions) {\n  await permission.request();\n}\n```\n\n한 번에 요청하면 Android에서 권한 다이얼로그가 연속으로 표시됩니다.\niOS에서는 각 권한마다 별도 다이얼로그가 표시됩니다.",
+      "beginnerTip": "🎯 앱 시작 시 모든 권한을 요청하지 말고, 기능 사용 시점에 해당 권한만 요청하는 것이 UX에 좋습니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🛠️ 권한 서비스 클래스 만들기",
+      "description": "앱 전체에서 재사용할 수 있는 권한 관리 서비스입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/services/permission_service.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:permission_handler/permission_handler.dart';\n\n/// 권한 요청 결과\nenum PermissionResult {\n  granted,       // 허용됨\n  denied,        // 거부됨 (다시 요청 가능)\n  permanentlyDenied,  // 영구 거부 (설정으로 이동 필요)\n  restricted,    // 시스템 제한\n}\n\n/// 권한 관리 서비스\nclass PermissionService {\n  /// 단일 권한 요청 (설명 다이얼로그 포함)\n  static Future<PermissionResult> requestWithRationale({\n    required BuildContext context,\n    required Permission permission,\n    required String title,\n    required String message,\n  }) async {\n    // 1. 현재 상태 확인\n    var status = await permission.status;\n\n    // 이미 허용됨\n    if (status.isGranted) {\n      return PermissionResult.granted;\n    }\n\n    // 영구 거부됨\n    if (status.isPermanentlyDenied) {\n      final goToSettings = await _showSettingsDialog(\n        context: context,\n        title: title,\n        message: '$message\\n\\n권한이 영구적으로 거부되어 설정에서 직접 허용해야 합니다.',\n      );\n      if (goToSettings) {\n        await openAppSettings();\n      }\n      return PermissionResult.permanentlyDenied;\n    }\n\n    // 2. 권한 요청 전 설명 다이얼로그 (선택적)\n    if (status.isDenied) {\n      final shouldRequest = await _showRationaleDialog(\n        context: context,\n        title: title,\n        message: message,\n      );\n\n      if (!shouldRequest) {\n        return PermissionResult.denied;\n      }\n    }\n\n    // 3. 권한 요청\n    status = await permission.request();\n\n    // 4. 결과 반환\n    if (status.isGranted) {\n      return PermissionResult.granted;\n    } else if (status.isPermanentlyDenied) {\n      return PermissionResult.permanentlyDenied;\n    } else if (status.isRestricted) {\n      return PermissionResult.restricted;\n    } else {\n      return PermissionResult.denied;\n    }\n  }\n\n  /// 카메라 권한 요청\n  static Future<PermissionResult> requestCamera(BuildContext context) {\n    return requestWithRationale(\n      context: context,\n      permission: Permission.camera,\n      title: '카메라 권한',\n      message: '사진 촬영을 위해 카메라 접근 권한이 필요합니다.',\n    );\n  }\n\n  /// 위치 권한 요청\n  static Future<PermissionResult> requestLocation(BuildContext context) {\n    return requestWithRationale(\n      context: context,\n      permission: Permission.location,\n      title: '위치 권한',\n      message: '현재 위치를 확인하기 위해 위치 접근 권한이 필요합니다.',\n    );\n  }\n\n  /// 갤러리/사진 권한 요청\n  static Future<PermissionResult> requestPhotos(BuildContext context) {\n    return requestWithRationale(\n      context: context,\n      permission: Permission.photos,\n      title: '사진 라이브러리 권한',\n      message: '사진을 선택하기 위해 사진 라이브러리 접근 권한이 필요합니다.',\n    );\n  }\n\n  /// 마이크 권한 요청\n  static Future<PermissionResult> requestMicrophone(BuildContext context) {\n    return requestWithRationale(\n      context: context,\n      permission: Permission.microphone,\n      title: '마이크 권한',\n      message: '음성 녹음을 위해 마이크 접근 권한이 필요합니다.',\n    );\n  }\n\n  /// 알림 권한 요청\n  static Future<PermissionResult> requestNotification(BuildContext context) {\n    return requestWithRationale(\n      context: context,\n      permission: Permission.notification,\n      title: '알림 권한',\n      message: '중요한 알림을 받으시려면 알림 권한을 허용해주세요.',\n    );\n  }\n\n  /// 권한 설명 다이얼로그\n  static Future<bool> _showRationaleDialog({\n    required BuildContext context,\n    required String title,\n    required String message,\n  }) async {\n    return await showDialog<bool>(\n      context: context,\n      builder: (context) => AlertDialog(\n        title: Text(title),\n        content: Text(message),\n        actions: [\n          TextButton(\n            onPressed: () => Navigator.pop(context, false),\n            child: const Text('취소'),\n          ),\n          ElevatedButton(\n            onPressed: () => Navigator.pop(context, true),\n            child: const Text('권한 요청'),\n          ),\n        ],\n      ),\n    ) ?? false;\n  }\n\n  /// 설정 이동 다이얼로그\n  static Future<bool> _showSettingsDialog({\n    required BuildContext context,\n    required String title,\n    required String message,\n  }) async {\n    return await showDialog<bool>(\n      context: context,\n      builder: (context) => AlertDialog(\n        title: Text(title),\n        content: Text(message),\n        actions: [\n          TextButton(\n            onPressed: () => Navigator.pop(context, false),\n            child: const Text('취소'),\n          ),\n          ElevatedButton(\n            onPressed: () => Navigator.pop(context, true),\n            child: const Text('설정 열기'),\n          ),\n        ],\n      ),\n    ) ?? false;\n  }\n}"
+      },
+      "explanation": "【서비스 클래스의 장점】\n• 권한 요청 로직 재사용\n• 일관된 UX (설명 다이얼로그 → 권한 요청 → 결과 처리)\n• 영구 거부 상태 자동 처리\n• 각 권한별 맞춤 메시지\n\n【사용 예시】\n```dart\nfinal result = await PermissionService.requestCamera(context);\nif (result == PermissionResult.granted) {\n  // 카메라 사용\n}\n```",
+      "beginnerTip": "💡 권한 요청 전 왜 필요한지 설명하면 사용자가 허용할 확률이 높아집니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "📱 플랫폼별 특수 권한",
+      "description": "Android와 iOS에서 다르게 동작하는 특수 권한들을 처리합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/platform_permissions.dart",
+        "content": "import 'dart:io';\nimport 'package:flutter/material.dart';\nimport 'package:permission_handler/permission_handler.dart';\n\nclass PlatformPermissionsExample extends StatefulWidget {\n  const PlatformPermissionsExample({super.key});\n\n  @override\n  State<PlatformPermissionsExample> createState() =>\n      _PlatformPermissionsExampleState();\n}\n\nclass _PlatformPermissionsExampleState\n    extends State<PlatformPermissionsExample> {\n\n  /// 저장소 권한 (Android 버전별 다름)\n  Future<void> _requestStoragePermission() async {\n    PermissionStatus status;\n\n    if (Platform.isAndroid) {\n      // Android 13 (API 33) 이상: 세분화된 미디어 권한\n      // Android 12 이하: 일반 저장소 권한\n      final androidInfo = await Permission.storage.status;\n      \n      // Android 13+에서는 photos, videos, audio 개별 요청\n      if (await Permission.photos.status.isDenied) {\n        status = await Permission.photos.request();\n      }\n      \n      // 또는 manageExternalStorage (모든 파일 접근, Play Store 심사 엄격)\n      // status = await Permission.manageExternalStorage.request();\n    } else {\n      // iOS: 사진 라이브러리 권한\n      status = await Permission.photos.request();\n    }\n  }\n\n  /// 위치 권한 (whileInUse vs always)\n  Future<void> _requestLocationPermissions() async {\n    // 1. 먼저 '앱 사용 중' 권한 요청\n    var status = await Permission.locationWhenInUse.request();\n    \n    if (!status.isGranted) {\n      _showMessage('위치 권한이 거부되었습니다');\n      return;\n    }\n\n    // 2. '항상' 권한이 필요한 경우 (백그라운드 위치 추적)\n    // 주의: 먼저 whileInUse가 허용되어야 함\n    final alwaysStatus = await Permission.locationAlways.request();\n    \n    if (alwaysStatus.isGranted) {\n      _showMessage('백그라운드 위치 권한 허용됨');\n    } else {\n      _showMessage('앱 사용 중에만 위치 사용 가능');\n    }\n  }\n\n  /// 블루투스 권한 (Android 12+, iOS)\n  Future<void> _requestBluetoothPermissions() async {\n    if (Platform.isAndroid) {\n      // Android 12+에서 필요한 블루투스 권한들\n      final statuses = await [\n        Permission.bluetoothScan,\n        Permission.bluetoothConnect,\n        Permission.bluetoothAdvertise,\n      ].request();\n\n      final allGranted = statuses.values.every((s) => s.isGranted);\n      _showMessage(allGranted ? '블루투스 권한 허용됨' : '일부 권한 거부됨');\n    } else {\n      // iOS\n      final status = await Permission.bluetooth.request();\n      _showMessage(status.isGranted ? '블루투스 권한 허용됨' : '권한 거부됨');\n    }\n  }\n\n  /// 알림 권한 (Android 13+, iOS)\n  Future<void> _requestNotificationPermission() async {\n    // Android 13 (API 33) 이상에서만 런타임 권한 필요\n    // iOS에서는 항상 필요\n    final status = await Permission.notification.request();\n    \n    if (status.isGranted) {\n      _showMessage('알림 권한 허용됨');\n    } else if (status.isPermanentlyDenied) {\n      _showMessage('설정에서 알림을 허용해주세요');\n      await openAppSettings();\n    } else {\n      _showMessage('알림 권한 거부됨');\n    }\n  }\n\n  /// iOS 추적 투명성 (ATT)\n  Future<void> _requestTrackingPermission() async {\n    if (!Platform.isIOS) {\n      _showMessage('iOS 전용 기능입니다');\n      return;\n    }\n\n    // iOS 14.5+ App Tracking Transparency\n    final status = await Permission.appTrackingTransparency.request();\n    \n    if (status.isGranted) {\n      _showMessage('추적 허용됨');\n      // IDFA 사용 가능\n    } else {\n      _showMessage('추적 거부됨');\n      // 개인화 광고 비활성화\n    }\n  }\n\n  void _showMessage(String message) {\n    ScaffoldMessenger.of(context).showSnackBar(\n      SnackBar(content: Text(message)),\n    );\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('플랫폼별 권한')),\n      body: ListView(\n        padding: const EdgeInsets.all(16),\n        children: [\n          _buildSection('저장소/미디어', [\n            _buildButton('저장소 권한', _requestStoragePermission),\n          ]),\n          _buildSection('위치', [\n            _buildButton('위치 권한 (단계별)', _requestLocationPermissions),\n          ]),\n          _buildSection('블루투스', [\n            _buildButton('블루투스 권한', _requestBluetoothPermissions),\n          ]),\n          _buildSection('알림', [\n            _buildButton('알림 권한', _requestNotificationPermission),\n          ]),\n          if (Platform.isIOS)\n            _buildSection('iOS 전용', [\n              _buildButton('추적 투명성 (ATT)', _requestTrackingPermission),\n            ]),\n        ],\n      ),\n    );\n  }\n\n  Widget _buildSection(String title, List<Widget> children) {\n    return Column(\n      crossAxisAlignment: CrossAxisAlignment.start,\n      children: [\n        Padding(\n          padding: const EdgeInsets.symmetric(vertical: 8),\n          child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),\n        ),\n        ...children,\n        const SizedBox(height: 16),\n      ],\n    );\n  }\n\n  Widget _buildButton(String label, VoidCallback onPressed) {\n    return Padding(\n      padding: const EdgeInsets.only(bottom: 8),\n      child: ElevatedButton(\n        onPressed: onPressed,\n        child: Text(label),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【플랫폼별 주의사항】\n\n【Android】\n• 저장소: Android 13+는 photos/videos/audio 개별 권한\n• 위치: locationAlways는 먼저 locationWhenInUse가 허용되어야 함\n• 블루투스: Android 12+는 scan/connect/advertise 개별 권한\n• 알림: Android 13+부터 런타임 권한 필요\n\n【iOS】\n• ATT: iOS 14.5+ 앱 추적 투명성 (IDFA 사용 시 필수)\n• 위치: always 권한은 whileInUse 먼저 허용 후 요청\n• 사진: limited 상태 (선택한 사진만) 처리 필요",
+      "beginnerTip": "⚠️ Play Store와 App Store 심사에서 불필요한 권한 요청은 거부 사유가 됩니다. 꼭 필요한 권한만 요청하세요."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "Permission.xxx.status",
+      "description": "현재 권한 상태를 확인합니다.",
+      "parameters": "없음",
+      "returns": "Future<PermissionStatus>",
+      "example": "PermissionStatus status = await Permission.camera.status;"
+    },
+    {
+      "name": "Permission.xxx.request()",
+      "description": "권한을 요청합니다. 다이얼로그가 표시됩니다.",
+      "parameters": "없음",
+      "returns": "Future<PermissionStatus>",
+      "example": "PermissionStatus status = await Permission.camera.request();"
+    },
+    {
+      "name": "[permissions].request()",
+      "description": "여러 권한을 한 번에 요청합니다.",
+      "parameters": "없음",
+      "returns": "Future<Map<Permission, PermissionStatus>>",
+      "example": "final statuses = await [Permission.camera, Permission.location].request();"
+    },
+    {
+      "name": "openAppSettings()",
+      "description": "앱 설정 화면을 엽니다.",
+      "parameters": "없음",
+      "returns": "Future<bool>",
+      "example": "await openAppSettings();"
+    },
+    {
+      "name": "PermissionStatus 확장 메서드",
+      "description": "상태 확인을 위한 편의 메서드들",
+      "parameters": "없음",
+      "returns": "bool",
+      "example": "status.isGranted, status.isDenied, status.isPermanentlyDenied"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "권한 요청 다이얼로그가 표시되지 않음",
+      "cause": "AndroidManifest.xml이나 Info.plist에 권한이 등록되지 않았습니다.",
+      "solution": "사용할 권한을 플랫폼 설정 파일에 먼저 등록하세요.",
+      "prevention": "새 권한 사용 시 항상 플랫폼 설정 파일을 먼저 업데이트하세요."
+    },
+    {
+      "error": "iOS에서 권한 요청 후 앱이 종료됨",
+      "cause": "Info.plist에 UsageDescription이 없습니다. iOS에서 필수입니다.",
+      "solution": "NSCameraUsageDescription 등 해당 권한의 설명 문자열을 추가하세요.",
+      "prevention": "iOS 권한은 반드시 사용 이유 설명을 Info.plist에 추가해야 합니다."
+    },
+    {
+      "error": "permanentlyDenied에서 request() 호출해도 아무 일도 안 일어남",
+      "cause": "영구 거부 상태에서는 시스템이 권한 다이얼로그를 표시하지 않습니다.",
+      "solution": "openAppSettings()로 설정 화면을 열어 사용자가 직접 변경하도록 안내하세요.",
+      "prevention": "request() 전에 isPermanentlyDenied를 확인하고 분기 처리하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "필요한 시점에 권한 요청",
+      "description": "앱 시작 시 모든 권한을 요청하지 말고, 기능 사용 직전에 요청하세요.",
+      "doThis": "// 카메라 버튼 클릭 시\nonCameraPressed() async {\n  final status = await Permission.camera.request();\n  if (status.isGranted) openCamera();\n}",
+      "dontDoThis": "// 앱 시작 시 모든 권한 요청\nmain() async {\n  await [camera, location, mic, storage].request();\n}"
+    },
+    {
+      "title": "권한 요청 전 설명 제공",
+      "description": "왜 권한이 필요한지 먼저 설명하면 허용률이 높아집니다.",
+      "doThis": "showDialog('정확한 배송을 위해 위치 정보가 필요합니다')\n.then(() => Permission.location.request())",
+      "dontDoThis": "설명 없이 바로 Permission.location.request()"
+    },
+    {
+      "title": "거부 상태 우아하게 처리",
+      "description": "권한이 거부되어도 앱이 작동해야 합니다. 대체 기능을 제공하세요.",
+      "doThis": "// 위치 권한 거부 시\n'현재 위치 대신 주소를 직접 입력해주세요' 표시",
+      "dontDoThis": "권한 거부 시 앱 강제 종료 또는 계속 권한 요청"
+    }
+  ],
+
+  "tips": [
+    "💡 openAppSettings()는 앱 설정을, openLocationSettings()는 기기 위치 설정을 엽니다",
+    "🔧 serviceStatus로 GPS나 블루투스 같은 시스템 서비스가 켜져있는지 확인하세요",
+    "📱 Android 12+에서 블루투스는 BLUETOOTH_SCAN, BLUETOOTH_CONNECT 등 세분화됨",
+    "⚠️ 위치 'always' 권한은 먼저 'whenInUse'가 허용되어야 요청 가능합니다",
+    "🎯 앱 스토어 심사에서 불필요한 권한은 거부 사유가 되므로 꼭 필요한 것만 요청하세요"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "geolocator",
+      "description": "위치 서비스 패키지. 내부적으로 위치 권한도 확인"
+    },
+    {
+      "name": "image_picker",
+      "description": "이미지 선택 패키지. 카메라/갤러리 권한 내부 처리"
+    },
+    {
+      "name": "flutter_local_notifications",
+      "description": "로컬 알림 패키지. 알림 권한 요청 포함"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/permission_handler"},
+    {"title": "GitHub 저장소", "url": "https://github.com/Baseflow/flutter-permission-handler"},
+    {"title": "Android 권한 가이드", "url": "https://developer.android.com/guide/topics/permissions/overview"},
+    {"title": "iOS 권한 가이드", "url": "https://developer.apple.com/documentation/uikit/protecting_the_user_s_privacy"}
+  ]
+}

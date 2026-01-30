@@ -1,0 +1,147 @@
+{
+  "packageName": "webview_flutter",
+  "overview": {
+    "what": "webview_flutter는 Flutter 앱 내에서 웹 콘텐츠를 표시할 수 있게 해주는 공식 플러그인입니다. 웹 페이지를 네이티브 앱 안에 임베드할 수 있습니다.",
+    "why": "기존 웹 콘텐츠를 앱에 통합하거나, 복잡한 HTML 콘텐츠를 표시하거나, 외부 웹 서비스를 앱 내에서 제공할 때 필요합니다.",
+    "when": "약관/개인정보처리방침 표시, 외부 결제 페이지, 블로그/뉴스 콘텐츠, 웹 기반 대시보드 통합 등에 사용합니다.",
+    "features": [
+      "웹 페이지 로드 및 표시",
+      "JavaScript 실행 및 통신",
+      "네비게이션 제어",
+      "쿠키 관리",
+      "파일 업로드 지원",
+      "커스텀 User-Agent 설정"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치 및 설정",
+      "description": "pubspec.yaml에 패키지를 추가하고 플랫폼별 설정을 합니다.",
+      "code": "# pubspec.yaml\ndependencies:\n  flutter:\n    sdk: flutter\n  webview_flutter: ^4.7.0\n\n# Android: android/app/src/main/AndroidManifest.xml\n# 인터넷 권한 추가 (보통 이미 있음)\n<uses-permission android:name=\"android.permission.INTERNET\"/>\n\n# android/app/build.gradle - minSdkVersion 19 이상 필요\nandroid {\n    defaultConfig {\n        minSdkVersion 19\n    }\n}\n\n# iOS: ios/Runner/Info.plist - 필요시 추가\n<key>NSAppTransportSecurity</key>\n<dict>\n    <key>NSAllowsArbitraryLoads</key>\n    <true/>\n</dict>",
+      "explanation": "Android는 minSdkVersion 19 이상이 필요합니다. iOS에서 HTTP 사이트를 로드하려면 ATS 설정이 필요할 수 있습니다."
+    },
+    {
+      "title": "기본 WebView 표시",
+      "description": "WebViewController를 사용하여 기본적인 웹뷰를 구현합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:webview_flutter/webview_flutter.dart';\n\nclass BasicWebViewScreen extends StatefulWidget {\n  const BasicWebViewScreen({super.key});\n\n  @override\n  State<BasicWebViewScreen> createState() => _BasicWebViewScreenState();\n}\n\nclass _BasicWebViewScreenState extends State<BasicWebViewScreen> {\n  late final WebViewController _controller;\n  bool _isLoading = true;\n  int _loadingProgress = 0;\n\n  @override\n  void initState() {\n    super.initState();\n    _controller = WebViewController()\n      ..setJavaScriptMode(JavaScriptMode.unrestricted)\n      ..setBackgroundColor(Colors.white)\n      ..setNavigationDelegate(\n        NavigationDelegate(\n          onProgress: (progress) {\n            setState(() => _loadingProgress = progress);\n          },\n          onPageStarted: (url) {\n            setState(() => _isLoading = true);\n          },\n          onPageFinished: (url) {\n            setState(() => _isLoading = false);\n          },\n          onWebResourceError: (error) {\n            debugPrint('WebView error: ${error.description}');\n          },\n        ),\n      )\n      ..loadRequest(Uri.parse('https://flutter.dev'));\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('WebView'),\n        bottom: _isLoading\n            ? PreferredSize(\n                preferredSize: const Size.fromHeight(2),\n                child: LinearProgressIndicator(\n                  value: _loadingProgress / 100,\n                ),\n              )\n            : null,\n      ),\n      body: WebViewWidget(controller: _controller),\n    );\n  }\n}",
+      "explanation": "WebViewController로 웹뷰를 설정하고, WebViewWidget으로 화면에 표시합니다. NavigationDelegate로 로딩 상태를 추적합니다."
+    },
+    {
+      "title": "네비게이션 제어",
+      "description": "뒤로가기, 앞으로가기, 새로고침 등 네비게이션을 제어합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:webview_flutter/webview_flutter.dart';\n\nclass NavigationWebViewScreen extends StatefulWidget {\n  const NavigationWebViewScreen({super.key});\n\n  @override\n  State<NavigationWebViewScreen> createState() => _NavigationWebViewScreenState();\n}\n\nclass _NavigationWebViewScreenState extends State<NavigationWebViewScreen> {\n  late final WebViewController _controller;\n  String _currentUrl = '';\n  bool _canGoBack = false;\n  bool _canGoForward = false;\n\n  @override\n  void initState() {\n    super.initState();\n    _controller = WebViewController()\n      ..setJavaScriptMode(JavaScriptMode.unrestricted)\n      ..setNavigationDelegate(\n        NavigationDelegate(\n          onPageFinished: (url) async {\n            _currentUrl = url;\n            _canGoBack = await _controller.canGoBack();\n            _canGoForward = await _controller.canGoForward();\n            setState(() {});\n          },\n          onNavigationRequest: (request) {\n            // 특정 URL 차단\n            if (request.url.contains('ads')) {\n              return NavigationDecision.prevent;\n            }\n            // 외부 앱으로 열기 (예: tel:, mailto:)\n            if (!request.url.startsWith('http')) {\n              // url_launcher로 처리\n              return NavigationDecision.prevent;\n            }\n            return NavigationDecision.navigate;\n          },\n        ),\n      )\n      ..loadRequest(Uri.parse('https://flutter.dev'));\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: Text(\n          _currentUrl.isEmpty ? 'WebView' : Uri.parse(_currentUrl).host,\n          style: const TextStyle(fontSize: 14),\n        ),\n        actions: [\n          IconButton(\n            icon: const Icon(Icons.refresh),\n            onPressed: () => _controller.reload(),\n          ),\n        ],\n      ),\n      body: Column(\n        children: [\n          Expanded(\n            child: WebViewWidget(controller: _controller),\n          ),\n          // 네비게이션 바\n          Container(\n            color: Colors.grey[200],\n            child: SafeArea(\n              child: Row(\n                mainAxisAlignment: MainAxisAlignment.spaceEvenly,\n                children: [\n                  IconButton(\n                    icon: const Icon(Icons.arrow_back),\n                    onPressed: _canGoBack\n                        ? () => _controller.goBack()\n                        : null,\n                  ),\n                  IconButton(\n                    icon: const Icon(Icons.arrow_forward),\n                    onPressed: _canGoForward\n                        ? () => _controller.goForward()\n                        : null,\n                  ),\n                  IconButton(\n                    icon: const Icon(Icons.home),\n                    onPressed: () {\n                      _controller.loadRequest(\n                        Uri.parse('https://flutter.dev'),\n                      );\n                    },\n                  ),\n                  IconButton(\n                    icon: const Icon(Icons.share),\n                    onPressed: () {\n                      // share_plus로 URL 공유\n                    },\n                  ),\n                ],\n              ),\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}",
+      "explanation": "canGoBack(), canGoForward()로 네비게이션 가능 여부를 확인하고, goBack(), goForward(), reload()로 제어합니다. onNavigationRequest로 특정 URL을 필터링할 수 있습니다."
+    },
+    {
+      "title": "JavaScript 통신",
+      "description": "Flutter와 JavaScript 간의 양방향 통신을 구현합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:webview_flutter/webview_flutter.dart';\n\nclass JavaScriptWebViewScreen extends StatefulWidget {\n  const JavaScriptWebViewScreen({super.key});\n\n  @override\n  State<JavaScriptWebViewScreen> createState() => _JavaScriptWebViewScreenState();\n}\n\nclass _JavaScriptWebViewScreenState extends State<JavaScriptWebViewScreen> {\n  late final WebViewController _controller;\n  String _result = '';\n\n  @override\n  void initState() {\n    super.initState();\n    _controller = WebViewController()\n      ..setJavaScriptMode(JavaScriptMode.unrestricted)\n      // JavaScript에서 Flutter로 메시지 보내기\n      ..addJavaScriptChannel(\n        'FlutterChannel',\n        onMessageReceived: (message) {\n          setState(() => _result = message.message);\n          ScaffoldMessenger.of(context).showSnackBar(\n            SnackBar(content: Text('JS에서 받음: ${message.message}')),\n          );\n        },\n      )\n      ..loadHtmlString(_htmlContent);\n  }\n\n  // Flutter에서 JavaScript 실행\n  Future<void> _callJavaScript() async {\n    final result = await _controller.runJavaScriptReturningResult(\n      'document.getElementById(\"result\").innerText',\n    );\n    setState(() => _result = result.toString());\n  }\n\n  // JavaScript 함수 호출\n  Future<void> _invokeJsFunction() async {\n    await _controller.runJavaScript(\n      'showAlert(\"Flutter에서 호출됨!\")',\n    );\n  }\n\n  // DOM 조작\n  Future<void> _changeDomColor() async {\n    await _controller.runJavaScript(\n      'document.body.style.backgroundColor = \"#f0f0f0\"',\n    );\n  }\n\n  static const String _htmlContent = '''\n<!DOCTYPE html>\n<html>\n<head>\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <style>\n    body { font-family: sans-serif; padding: 20px; }\n    button { padding: 10px 20px; margin: 10px 0; font-size: 16px; }\n    #result { padding: 20px; background: #eee; margin: 20px 0; }\n  </style>\n</head>\n<body>\n  <h2>JavaScript 통신 테스트</h2>\n  \n  <button onclick=\"sendToFlutter()\">Flutter로 메시지 보내기</button>\n  \n  <div id=\"result\">결과가 여기에 표시됩니다</div>\n  \n  <button onclick=\"updateResult()\">결과 업데이트</button>\n  \n  <script>\n    var counter = 0;\n    \n    function sendToFlutter() {\n      FlutterChannel.postMessage('Hello from JavaScript! Count: ' + (++counter));\n    }\n    \n    function updateResult() {\n      document.getElementById('result').innerText = 'Updated: ' + new Date().toLocaleTimeString();\n    }\n    \n    function showAlert(message) {\n      document.getElementById('result').innerText = message;\n    }\n  </script>\n</body>\n</html>\n''';\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('JavaScript 통신')),\n      body: Column(\n        children: [\n          Expanded(\n            child: WebViewWidget(controller: _controller),\n          ),\n          Container(\n            padding: const EdgeInsets.all(16),\n            color: Colors.grey[100],\n            child: Column(\n              crossAxisAlignment: CrossAxisAlignment.stretch,\n              children: [\n                Text('Flutter에서 받은 결과: $_result'),\n                const SizedBox(height: 12),\n                Row(\n                  children: [\n                    Expanded(\n                      child: ElevatedButton(\n                        onPressed: _callJavaScript,\n                        child: const Text('JS 결과 읽기'),\n                      ),\n                    ),\n                    const SizedBox(width: 8),\n                    Expanded(\n                      child: ElevatedButton(\n                        onPressed: _invokeJsFunction,\n                        child: const Text('JS 함수 호출'),\n                      ),\n                    ),\n                  ],\n                ),\n                const SizedBox(height: 8),\n                ElevatedButton(\n                  onPressed: _changeDomColor,\n                  child: const Text('배경색 변경'),\n                ),\n              ],\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}",
+      "explanation": "addJavaScriptChannel로 JS→Flutter 통신 채널을 만들고, runJavaScript로 Flutter→JS 코드를 실행합니다. runJavaScriptReturningResult는 결과값을 반환받습니다."
+    },
+    {
+      "title": "실제 활용 예제",
+      "description": "약관 동의 화면, 외부 결제 페이지 등 실제 사용 패턴입니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:webview_flutter/webview_flutter.dart';\n\n// 약관 동의 화면\nclass TermsWebViewScreen extends StatefulWidget {\n  final String title;\n  final String url;\n\n  const TermsWebViewScreen({\n    super.key,\n    required this.title,\n    required this.url,\n  });\n\n  @override\n  State<TermsWebViewScreen> createState() => _TermsWebViewScreenState();\n}\n\nclass _TermsWebViewScreenState extends State<TermsWebViewScreen> {\n  late final WebViewController _controller;\n  bool _isLoading = true;\n  bool _hasScrolledToBottom = false;\n\n  @override\n  void initState() {\n    super.initState();\n    _controller = WebViewController()\n      ..setJavaScriptMode(JavaScriptMode.unrestricted)\n      ..addJavaScriptChannel(\n        'ScrollChannel',\n        onMessageReceived: (message) {\n          if (message.message == 'bottom') {\n            setState(() => _hasScrolledToBottom = true);\n          }\n        },\n      )\n      ..setNavigationDelegate(\n        NavigationDelegate(\n          onPageFinished: (_) {\n            setState(() => _isLoading = false);\n            // 스크롤 감지 스크립트 주입\n            _controller.runJavaScript('''\n              window.addEventListener('scroll', function() {\n                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {\n                  ScrollChannel.postMessage('bottom');\n                }\n              });\n            ''');\n          },\n        ),\n      )\n      ..loadRequest(Uri.parse(widget.url));\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: Text(widget.title)),\n      body: Stack(\n        children: [\n          WebViewWidget(controller: _controller),\n          if (_isLoading)\n            const Center(child: CircularProgressIndicator()),\n        ],\n      ),\n      bottomNavigationBar: SafeArea(\n        child: Padding(\n          padding: const EdgeInsets.all(16),\n          child: ElevatedButton(\n            onPressed: _hasScrolledToBottom\n                ? () => Navigator.pop(context, true)\n                : null,\n            child: Text(\n              _hasScrolledToBottom ? '동의하고 계속하기' : '끝까지 스크롤해주세요',\n            ),\n          ),\n        ),\n      ),\n    );\n  }\n}\n\n// 결제 웹뷰 (결과 URL 감지)\nclass PaymentWebViewScreen extends StatefulWidget {\n  final String paymentUrl;\n  final String successUrl;\n  final String failUrl;\n\n  const PaymentWebViewScreen({\n    super.key,\n    required this.paymentUrl,\n    required this.successUrl,\n    required this.failUrl,\n  });\n\n  @override\n  State<PaymentWebViewScreen> createState() => _PaymentWebViewScreenState();\n}\n\nclass _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {\n  late final WebViewController _controller;\n\n  @override\n  void initState() {\n    super.initState();\n    _controller = WebViewController()\n      ..setJavaScriptMode(JavaScriptMode.unrestricted)\n      ..setNavigationDelegate(\n        NavigationDelegate(\n          onNavigationRequest: (request) {\n            final url = request.url;\n            \n            // 결제 성공\n            if (url.startsWith(widget.successUrl)) {\n              Navigator.pop(context, {'success': true, 'url': url});\n              return NavigationDecision.prevent;\n            }\n            \n            // 결제 실패\n            if (url.startsWith(widget.failUrl)) {\n              Navigator.pop(context, {'success': false, 'url': url});\n              return NavigationDecision.prevent;\n            }\n            \n            return NavigationDecision.navigate;\n          },\n        ),\n      )\n      ..loadRequest(Uri.parse(widget.paymentUrl));\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('결제'),\n        leading: IconButton(\n          icon: const Icon(Icons.close),\n          onPressed: () => Navigator.pop(context, {'success': false}),\n        ),\n      ),\n      body: WebViewWidget(controller: _controller),\n    );\n  }\n}\n\n// HTML 문자열 렌더링\nclass HtmlContentScreen extends StatefulWidget {\n  final String htmlContent;\n\n  const HtmlContentScreen({super.key, required this.htmlContent});\n\n  @override\n  State<HtmlContentScreen> createState() => _HtmlContentScreenState();\n}\n\nclass _HtmlContentScreenState extends State<HtmlContentScreen> {\n  late final WebViewController _controller;\n\n  @override\n  void initState() {\n    super.initState();\n    \n    final styledHtml = '''\n<!DOCTYPE html>\n<html>\n<head>\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <style>\n    body {\n      font-family: -apple-system, BlinkMacSystemFont, sans-serif;\n      padding: 16px;\n      line-height: 1.6;\n      color: #333;\n    }\n    img { max-width: 100%; height: auto; }\n    a { color: #007AFF; }\n  </style>\n</head>\n<body>\n${widget.htmlContent}\n</body>\n</html>\n''';\n\n    _controller = WebViewController()\n      ..setJavaScriptMode(JavaScriptMode.unrestricted)\n      ..setBackgroundColor(Colors.white)\n      ..loadHtmlString(styledHtml);\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('콘텐츠')),\n      body: WebViewWidget(controller: _controller),\n    );\n  }\n}",
+      "explanation": "약관 화면에서는 스크롤 완료를 감지하고, 결제 화면에서는 결과 URL을 감지하여 처리합니다. loadHtmlString으로 HTML 문자열을 직접 렌더링할 수 있습니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "WebViewController",
+      "description": "웹뷰의 모든 동작을 제어하는 컨트롤러입니다. URL 로드, JavaScript 실행, 네비게이션 등을 관리합니다. 위젯과 분리되어 있어 재사용이 용이합니다."
+    },
+    {
+      "name": "NavigationDelegate",
+      "description": "페이지 로딩 상태, 네비게이션 요청, 에러 등의 이벤트를 처리합니다. onNavigationRequest에서 특정 URL을 차단하거나 외부 앱으로 열 수 있습니다."
+    },
+    {
+      "name": "JavaScriptChannel",
+      "description": "JavaScript에서 Flutter로 메시지를 보내는 통신 채널입니다. JS에서 ChannelName.postMessage()를 호출하면 Flutter의 onMessageReceived가 실행됩니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "WebViewWidget",
+      "signature": "WebViewWidget({required WebViewController controller})",
+      "description": "웹뷰를 화면에 표시하는 위젯입니다."
+    },
+    {
+      "name": "WebViewController",
+      "signature": "WebViewController()",
+      "description": "웹뷰를 제어하는 컨트롤러입니다."
+    },
+    {
+      "name": "loadRequest",
+      "signature": "Future<void> loadRequest(Uri uri)",
+      "description": "URL을 로드합니다."
+    },
+    {
+      "name": "loadHtmlString",
+      "signature": "Future<void> loadHtmlString(String html)",
+      "description": "HTML 문자열을 직접 로드합니다."
+    },
+    {
+      "name": "runJavaScript",
+      "signature": "Future<void> runJavaScript(String javaScript)",
+      "description": "JavaScript 코드를 실행합니다."
+    },
+    {
+      "name": "runJavaScriptReturningResult",
+      "signature": "Future<Object> runJavaScriptReturningResult(String javaScript)",
+      "description": "JavaScript 코드를 실행하고 결과를 반환받습니다."
+    },
+    {
+      "name": "addJavaScriptChannel",
+      "signature": "Future<void> addJavaScriptChannel(String name, {required void Function(JavaScriptMessage) onMessageReceived})",
+      "description": "JS→Flutter 통신 채널을 추가합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "net::ERR_CLEARTEXT_NOT_PERMITTED",
+      "cause": "Android에서 HTTP(비 HTTPS) 사이트를 로드하려 함",
+      "solution": "AndroidManifest.xml에 android:usesCleartextTraffic=\"true\"를 추가하거나 HTTPS URL을 사용하세요."
+    },
+    {
+      "error": "JavaScript가 실행되지 않음",
+      "cause": "JavaScriptMode가 disabled로 설정됨",
+      "solution": "setJavaScriptMode(JavaScriptMode.unrestricted)를 설정하세요."
+    },
+    {
+      "error": "JavaScriptChannel이 동작하지 않음",
+      "cause": "채널 이름이 JavaScript와 Flutter에서 다름",
+      "solution": "addJavaScriptChannel의 이름과 JS에서 호출하는 이름이 정확히 일치하는지 확인하세요."
+    },
+    {
+      "error": "화면이 흰색으로만 표시됨",
+      "cause": "URL 로드 실패 또는 네트워크 문제",
+      "solution": "onWebResourceError에서 에러를 확인하고, 네트워크 권한과 URL이 올바른지 확인하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "로딩 상태 표시",
+      "description": "onProgress나 onPageStarted/onPageFinished를 활용하여 사용자에게 로딩 상태를 표시하세요."
+    },
+    {
+      "title": "뒤로가기 처리",
+      "description": "WillPopScope(또는 PopScope)로 시스템 뒤로가기 버튼을 가로채서 웹뷰 히스토리를 먼저 확인하세요."
+    },
+    {
+      "title": "보안 고려",
+      "description": "신뢰할 수 없는 URL을 로드할 때는 JavaScript를 비활성화하거나 onNavigationRequest로 URL을 필터링하세요."
+    },
+    {
+      "title": "메모리 관리",
+      "description": "웹뷰는 메모리를 많이 사용합니다. 필요 없을 때는 화면을 닫아 메모리를 해제하세요."
+    }
+  ],
+  "tips": [
+    "flutter_inappwebview 패키지는 더 많은 기능을 제공하는 대안입니다",
+    "쿠키 관리가 필요하면 WebViewCookieManager를 사용하세요",
+    "파일 업로드를 지원하려면 추가 설정이 필요할 수 있습니다",
+    "User-Agent를 변경하려면 setUserAgent()를 사용하세요",
+    "디버깅 시 Chrome DevTools와 연결할 수 있습니다 (Android)",
+    "PDF 표시는 웹뷰보다 flutter_pdfview 같은 전용 패키지가 더 적합합니다"
+  ]
+}

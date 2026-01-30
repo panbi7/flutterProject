@@ -1,0 +1,143 @@
+{
+  "packageName": "device_preview",
+  "overview": {
+    "what": "device_preview는 Flutter 앱을 다양한 기기 화면 크기, 테마, 로케일 등으로 실시간 미리보기할 수 있는 개발 도구입니다.",
+    "why": "다양한 기기에서 앱이 어떻게 보이는지 확인하려면 각 기기에서 테스트해야 합니다. device_preview를 사용하면 하나의 기기에서 여러 기기 환경을 시뮬레이션할 수 있습니다.",
+    "when": "반응형 UI 개발, 다양한 화면 크기 테스트, 다크 모드 테스트, 다국어 지원 테스트 시 사용합니다.",
+    "features": [
+      "다양한 기기 프리셋 (iPhone, Android, iPad 등)",
+      "다크/라이트 테마 전환",
+      "로케일 변경",
+      "텍스트 크기 조절",
+      "접근성 설정 테스트",
+      "스크린샷 캡처",
+      "기기 프레임 표시"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치",
+      "description": "pubspec.yaml에 device_preview 패키지를 추가합니다.",
+      "code": "dependencies:\n  flutter:\n    sdk: flutter\n\ndev_dependencies:\n  device_preview: ^1.1.0",
+      "explanation": "device_preview는 개발용 도구이므로 dev_dependencies에 추가하는 것이 권장됩니다. 프로덕션 빌드에서 제외하기 쉽습니다."
+    },
+    {
+      "title": "기본 설정",
+      "description": "MaterialApp을 DevicePreview로 감싸서 활성화합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:device_preview/device_preview.dart';\n\nvoid main() {\n  runApp(\n    DevicePreview(\n      // 프로덕션에서 비활성화\n      enabled: !kReleaseMode, // import 'package:flutter/foundation.dart';\n      builder: (context) => const MyApp(),\n    ),\n  );\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      // DevicePreview 설정 적용\n      useInheritedMediaQuery: true,\n      locale: DevicePreview.locale(context),\n      builder: DevicePreview.appBuilder,\n      theme: ThemeData.light(),\n      darkTheme: ThemeData.dark(),\n      // DevicePreview의 테마 설정 적용\n      themeMode: ThemeMode.system,\n      home: const HomeScreen(),\n    );\n  }\n}",
+      "explanation": "DevicePreview로 앱을 감싸고, MaterialApp에 locale과 builder를 설정합니다. useInheritedMediaQuery: true는 미디어 쿼리가 올바르게 작동하도록 합니다."
+    },
+    {
+      "title": "기기 선택 및 설정",
+      "description": "사이드 패널에서 기기와 설정을 변경하는 방법입니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:device_preview/device_preview.dart';\n\n// 특정 기기만 표시\nvoid main() {\n  runApp(\n    DevicePreview(\n      enabled: true,\n      // 표시할 기기 목록 제한\n      devices: [\n        ...Devices.ios.all,      // 모든 iOS 기기\n        ...Devices.android.all,  // 모든 Android 기기\n        Devices.ios.iPhone13,    // 특정 기기\n        Devices.ios.iPhone13ProMax,\n        Devices.ios.iPadPro11Inches,\n        Devices.android.samsungGalaxyS20,\n      ],\n      // 기본 선택 기기\n      defaultDevice: Devices.ios.iPhone13,\n      builder: (context) => const MyApp(),\n    ),\n  );\n}\n\n// 사용 가능한 기기 프리셋 예시\n// Devices.ios: iPhone SE, iPhone 13 시리즈, iPad 시리즈\n// Devices.android: Pixel, Samsung Galaxy 시리즈, 소형/중형/대형 폰\n// Devices.macOS, Devices.windows, Devices.linux: 데스크톱\n// Devices.freeform: 사용자 정의 크기",
+      "explanation": "devices 속성으로 표시할 기기를 제한할 수 있습니다. 앱 좌측 패널에서 기기, 테마, 로케일 등을 변경할 수 있습니다."
+    },
+    {
+      "title": "저장 및 로드 기능",
+      "description": "선택한 설정을 저장하고 다음 세션에서 불러옵니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:device_preview/device_preview.dart';\nimport 'package:shared_preferences/shared_preferences.dart';\n\nvoid main() async {\n  WidgetsFlutterBinding.ensureInitialized();\n\n  runApp(\n    DevicePreview(\n      enabled: true,\n      // 설정을 SharedPreferences에 저장\n      storage: DevicePreviewStorage.preferences(),\n      builder: (context) => const MyApp(),\n    ),\n  );\n}\n\n// 또는 메모리에만 저장 (앱 재시작 시 초기화)\nvoid mainWithMemoryStorage() {\n  runApp(\n    DevicePreview(\n      enabled: true,\n      storage: DevicePreviewStorage.none(),\n      builder: (context) => const MyApp(),\n    ),\n  );\n}",
+      "explanation": "DevicePreviewStorage.preferences()를 사용하면 선택한 기기와 설정이 SharedPreferences에 저장되어 다음 실행 시에도 유지됩니다."
+    },
+    {
+      "title": "실제 반응형 UI 테스트",
+      "description": "device_preview를 활용하여 반응형 레이아웃을 테스트합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:device_preview/device_preview.dart';\n\nvoid main() {\n  runApp(\n    DevicePreview(\n      enabled: true,\n      tools: const [\n        // 사용할 도구 선택\n        ...DevicePreview.defaultTools,\n      ],\n      builder: (context) => const MyApp(),\n    ),\n  );\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      useInheritedMediaQuery: true,\n      locale: DevicePreview.locale(context),\n      builder: DevicePreview.appBuilder,\n      theme: ThemeData.light(),\n      darkTheme: ThemeData.dark(),\n      home: const ResponsiveHomeScreen(),\n    );\n  }\n}\n\nclass ResponsiveHomeScreen extends StatelessWidget {\n  const ResponsiveHomeScreen({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('반응형 테스트')),\n      body: LayoutBuilder(\n        builder: (context, constraints) {\n          // 화면 너비에 따른 레이아웃 분기\n          if (constraints.maxWidth > 1200) {\n            return const _DesktopLayout();\n          } else if (constraints.maxWidth > 600) {\n            return const _TabletLayout();\n          } else {\n            return const _MobileLayout();\n          }\n        },\n      ),\n    );\n  }\n}\n\nclass _MobileLayout extends StatelessWidget {\n  const _MobileLayout();\n\n  @override\n  Widget build(BuildContext context) {\n    return ListView(\n      padding: const EdgeInsets.all(16),\n      children: [\n        _buildInfoCard(context, 'Mobile Layout'),\n        const SizedBox(height: 16),\n        ...List.generate(\n          5,\n          (index) => _buildListItem(context, index),\n        ),\n      ],\n    );\n  }\n}\n\nclass _TabletLayout extends StatelessWidget {\n  const _TabletLayout();\n\n  @override\n  Widget build(BuildContext context) {\n    return Row(\n      children: [\n        NavigationRail(\n          selectedIndex: 0,\n          destinations: const [\n            NavigationRailDestination(\n              icon: Icon(Icons.home),\n              label: Text('홈'),\n            ),\n            NavigationRailDestination(\n              icon: Icon(Icons.settings),\n              label: Text('설정'),\n            ),\n          ],\n        ),\n        Expanded(\n          child: GridView.builder(\n            padding: const EdgeInsets.all(16),\n            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(\n              crossAxisCount: 2,\n              mainAxisSpacing: 16,\n              crossAxisSpacing: 16,\n            ),\n            itemCount: 6,\n            itemBuilder: (context, index) => _buildGridItem(context, index),\n          ),\n        ),\n      ],\n    );\n  }\n}\n\nclass _DesktopLayout extends StatelessWidget {\n  const _DesktopLayout();\n\n  @override\n  Widget build(BuildContext context) {\n    return Row(\n      children: [\n        SizedBox(\n          width: 250,\n          child: ListView(\n            padding: const EdgeInsets.all(16),\n            children: [\n              _buildInfoCard(context, 'Desktop Layout'),\n              const SizedBox(height: 16),\n              ...List.generate(\n                5,\n                (index) => ListTile(title: Text('메뉴 $index')),\n              ),\n            ],\n          ),\n        ),\n        const VerticalDivider(),\n        Expanded(\n          child: GridView.builder(\n            padding: const EdgeInsets.all(16),\n            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(\n              crossAxisCount: 3,\n              mainAxisSpacing: 16,\n              crossAxisSpacing: 16,\n            ),\n            itemCount: 9,\n            itemBuilder: (context, index) => _buildGridItem(context, index),\n          ),\n        ),\n      ],\n    );\n  }\n}\n\nWidget _buildInfoCard(BuildContext context, String title) {\n  final size = MediaQuery.of(context).size;\n  return Card(\n    child: Padding(\n      padding: const EdgeInsets.all(16),\n      child: Column(\n        crossAxisAlignment: CrossAxisAlignment.start,\n        children: [\n          Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),\n          const SizedBox(height: 8),\n          Text('화면 크기: ${size.width.toInt()} x ${size.height.toInt()}'),\n          Text('기기 픽셀 비율: ${MediaQuery.of(context).devicePixelRatio}'),\n        ],\n      ),\n    ),\n  );\n}\n\nWidget _buildListItem(BuildContext context, int index) {\n  return Card(\n    child: ListTile(\n      leading: CircleAvatar(child: Text('$index')),\n      title: Text('아이템 $index'),\n      subtitle: const Text('설명 텍스트'),\n    ),\n  );\n}\n\nWidget _buildGridItem(BuildContext context, int index) {\n  return Card(\n    child: Center(\n      child: Text('그리드 $index', style: const TextStyle(fontSize: 18)),\n    ),\n  );\n}",
+      "explanation": "device_preview로 기기를 변경하면서 반응형 레이아웃이 올바르게 작동하는지 실시간으로 확인할 수 있습니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "DevicePreview 위젯",
+      "description": "앱을 감싸서 기기 시뮬레이션 기능을 제공합니다. 좌측 패널에서 기기, 테마, 로케일 등을 변경할 수 있습니다."
+    },
+    {
+      "name": "MediaQuery 재정의",
+      "description": "선택한 기기의 화면 크기, 픽셀 비율 등이 MediaQuery를 통해 앱에 전달됩니다. useInheritedMediaQuery: true가 필요합니다."
+    },
+    {
+      "name": "기기 프리셋",
+      "description": "Devices 클래스에서 다양한 실제 기기의 화면 크기와 특성이 프리셋으로 제공됩니다. iOS, Android, Desktop 기기가 포함됩니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "DevicePreview",
+      "signature": "DevicePreview({required Widget Function(BuildContext) builder, bool enabled, ...})",
+      "description": "앱을 감싸서 기기 미리보기 기능을 활성화합니다."
+    },
+    {
+      "name": "enabled",
+      "signature": "bool enabled = true",
+      "description": "미리보기 활성화 여부입니다. 프로덕션에서는 false로 설정하세요."
+    },
+    {
+      "name": "devices",
+      "signature": "List<DeviceInfo> devices",
+      "description": "표시할 기기 목록을 지정합니다. 기본값은 모든 기기입니다."
+    },
+    {
+      "name": "storage",
+      "signature": "DevicePreviewStorage storage",
+      "description": "설정 저장 방식을 지정합니다. preferences(), none() 등이 있습니다."
+    },
+    {
+      "name": "DevicePreview.locale(context)",
+      "signature": "Locale? locale",
+      "description": "선택된 로케일을 반환합니다. MaterialApp의 locale에 사용합니다."
+    },
+    {
+      "name": "DevicePreview.appBuilder",
+      "signature": "Widget Function(BuildContext, Widget?)",
+      "description": "MaterialApp의 builder에 사용하여 기기 설정을 적용합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "MediaQuery가 잘못된 값을 반환",
+      "cause": "useInheritedMediaQuery: true가 설정되지 않음",
+      "solution": "MaterialApp에 useInheritedMediaQuery: true를 추가하세요."
+    },
+    {
+      "error": "테마가 변경되지 않음",
+      "cause": "MaterialApp에 darkTheme가 설정되지 않음",
+      "solution": "theme와 darkTheme 모두 설정하고 themeMode를 system으로 두세요."
+    },
+    {
+      "error": "로케일이 변경되지 않음",
+      "cause": "MaterialApp의 locale에 DevicePreview.locale을 연결하지 않음",
+      "solution": "locale: DevicePreview.locale(context)를 MaterialApp에 추가하세요."
+    },
+    {
+      "error": "프로덕션 빌드에서 표시됨",
+      "cause": "enabled가 항상 true로 설정됨",
+      "solution": "enabled: !kReleaseMode로 릴리즈 빌드에서 비활성화하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "프로덕션에서 비활성화",
+      "description": "enabled: !kReleaseMode를 사용하여 릴리즈 빌드에서 자동으로 비활성화되도록 하세요."
+    },
+    {
+      "title": "필요한 기기만 표시",
+      "description": "devices 속성으로 테스트에 필요한 기기만 표시하면 선택이 더 쉬워집니다."
+    },
+    {
+      "title": "설정 저장 활용",
+      "description": "DevicePreviewStorage.preferences()를 사용하면 매번 기기를 다시 선택할 필요가 없습니다."
+    },
+    {
+      "title": "반응형 브레이크포인트 테스트",
+      "description": "다양한 화면 크기의 기기를 선택하면서 반응형 레이아웃의 브레이크포인트가 올바르게 작동하는지 확인하세요."
+    }
+  ],
+  "tips": [
+    "키보드 단축키로 빠르게 기기를 전환할 수 있습니다",
+    "스크린샷 기능으로 다양한 기기에서의 앱 화면을 캡처할 수 있습니다",
+    "접근성 설정(텍스트 크기 등)도 테스트할 수 있습니다",
+    "웹 빌드에서도 사용 가능합니다",
+    "Golden 테스트와 함께 사용하면 여러 기기의 스냅샷을 자동화할 수 있습니다",
+    "dev_dependencies에 추가하면 프로덕션 빌드 크기에 영향을 주지 않습니다"
+  ]
+}

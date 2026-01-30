@@ -1,0 +1,156 @@
+{
+  "packageName": "flutter_screenutil",
+  "overview": {
+    "what": "flutter_screenutil은 Flutter에서 반응형 UI를 쉽게 구현할 수 있게 해주는 화면 적응 패키지입니다. 디자인 시안의 크기를 기준으로 다양한 화면 크기에 자동 적응합니다.",
+    "why": "피그마나 스케치에서 디자인된 고정 크기를 그대로 코드에 적용하면 다른 화면 크기에서 레이아웃이 깨집니다. flutter_screenutil은 디자인 크기를 실제 화면 크기에 비례하여 자동 변환합니다.",
+    "when": "다양한 화면 크기와 해상도를 지원해야 하는 앱, 디자인 시안을 픽셀 단위로 구현해야 할 때, 태블릿과 폰을 모두 지원해야 할 때 사용합니다.",
+    "features": [
+      "디자인 기준 크기 설정",
+      "너비/높이 비례 크기 변환",
+      "폰트 크기 자동 조절",
+      "SafeArea 고려한 계산",
+      "화면 방향 대응",
+      "간편한 확장 메서드 제공"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치",
+      "description": "pubspec.yaml에 flutter_screenutil 패키지를 추가합니다.",
+      "code": "dependencies:\n  flutter:\n    sdk: flutter\n  flutter_screenutil: ^5.9.0",
+      "explanation": "순수 Dart 패키지로 별도의 네이티브 설정이 필요 없습니다."
+    },
+    {
+      "title": "ScreenUtilInit 설정",
+      "description": "앱 시작 시 ScreenUtilInit으로 디자인 기준 크기를 설정합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_screenutil/flutter_screenutil.dart';\n\nvoid main() {\n  runApp(const MyApp());\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return ScreenUtilInit(\n      // 디자인 시안의 기준 크기 (일반적으로 iPhone 기준)\n      designSize: const Size(375, 812), // iPhone X 기준\n      // 최소 텍스트 크기 비율 (너무 작아지는 것 방지)\n      minTextAdapt: true,\n      // 화면 분할 시에도 적용\n      splitScreenMode: true,\n      builder: (context, child) {\n        return MaterialApp(\n          debugShowCheckedModeBanner: false,\n          title: 'ScreenUtil Demo',\n          theme: ThemeData(\n            primarySwatch: Colors.blue,\n            // 테마에서도 screenutil 사용 가능\n            textTheme: TextTheme(\n              bodyLarge: TextStyle(fontSize: 16.sp),\n              bodyMedium: TextStyle(fontSize: 14.sp),\n              titleLarge: TextStyle(fontSize: 20.sp),\n            ),\n          ),\n          home: child,\n        );\n      },\n      child: const HomeScreen(),\n    );\n  }\n}",
+      "explanation": "designSize는 디자인 시안의 크기입니다. 일반적으로 375x812(iPhone X) 또는 360x690(Android)을 사용합니다. 모든 크기 값은 이 기준에 맞춰 변환됩니다."
+    },
+    {
+      "title": "기본 크기 변환 사용",
+      "description": ".w, .h, .r, .sp 확장 메서드로 크기를 변환합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_screenutil/flutter_screenutil.dart';\n\nclass HomeScreen extends StatelessWidget {\n  const HomeScreen({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: Text(\n          '홈 화면',\n          style: TextStyle(fontSize: 18.sp), // 폰트 크기\n        ),\n      ),\n      body: Padding(\n        padding: EdgeInsets.all(16.w), // 너비 기준 패딩\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            // 너비 기준 크기 (.w)\n            Container(\n              width: 200.w, // 디자인에서 200px → 화면 비율에 맞게 변환\n              height: 100.h, // 높이 기준 크기 (.h)\n              color: Colors.blue,\n              child: Center(\n                child: Text(\n                  '200.w x 100.h',\n                  style: TextStyle(\n                    color: Colors.white,\n                    fontSize: 14.sp,\n                  ),\n                ),\n              ),\n            ),\n            SizedBox(height: 20.h),\n\n            // 반지름/정사각형용 (.r) - 작은 쪽 기준\n            Container(\n              width: 100.r,\n              height: 100.r,\n              decoration: BoxDecoration(\n                color: Colors.green,\n                borderRadius: BorderRadius.circular(16.r),\n              ),\n              child: Center(\n                child: Text(\n                  '100.r',\n                  style: TextStyle(\n                    color: Colors.white,\n                    fontSize: 14.sp,\n                  ),\n                ),\n              ),\n            ),\n            SizedBox(height: 20.h),\n\n            // 폰트 크기 (.sp)\n            Text(\n              '12.sp 텍스트',\n              style: TextStyle(fontSize: 12.sp),\n            ),\n            Text(\n              '16.sp 텍스트',\n              style: TextStyle(fontSize: 16.sp),\n            ),\n            Text(\n              '24.sp 텍스트',\n              style: TextStyle(fontSize: 24.sp),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": ".w는 너비 기준, .h는 높이 기준으로 크기를 변환합니다. .r은 너비와 높이 중 작은 값 기준(정사각형/원형에 적합), .sp는 폰트 전용입니다."
+    },
+    {
+      "title": "화면 정보 활용",
+      "description": "ScreenUtil 클래스로 현재 화면의 다양한 정보에 접근합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_screenutil/flutter_screenutil.dart';\n\nclass ScreenInfoExample extends StatelessWidget {\n  const ScreenInfoExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: Text('화면 정보', style: TextStyle(fontSize: 18.sp))),\n      body: Padding(\n        padding: EdgeInsets.all(16.w),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            _infoRow('화면 너비', '${ScreenUtil().screenWidth.toStringAsFixed(1)}px'),\n            _infoRow('화면 높이', '${ScreenUtil().screenHeight.toStringAsFixed(1)}px'),\n            _infoRow('상태바 높이', '${ScreenUtil().statusBarHeight.toStringAsFixed(1)}px'),\n            _infoRow('하단 SafeArea', '${ScreenUtil().bottomBarHeight.toStringAsFixed(1)}px'),\n            _infoRow('픽셀 비율', '${ScreenUtil().pixelRatio?.toStringAsFixed(2)}'),\n            _infoRow('가로 모드', '${ScreenUtil().orientation == Orientation.landscape}'),\n            _infoRow('너비 배율', '${ScreenUtil().scaleWidth.toStringAsFixed(3)}'),\n            _infoRow('높이 배율', '${ScreenUtil().scaleHeight.toStringAsFixed(3)}'),\n            SizedBox(height: 20.h),\n            // 조건부 레이아웃\n            Text(\n              ScreenUtil().screenWidth > 600 ? '태블릿 레이아웃' : '폰 레이아웃',\n              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n\n  Widget _infoRow(String label, String value) {\n    return Padding(\n      padding: EdgeInsets.symmetric(vertical: 4.h),\n      child: Row(\n        mainAxisAlignment: MainAxisAlignment.spaceBetween,\n        children: [\n          Text(label, style: TextStyle(fontSize: 14.sp)),\n          Text(value, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),\n        ],\n      ),\n    );\n  }\n}",
+      "explanation": "ScreenUtil()을 통해 실제 화면 크기, SafeArea 높이, 픽셀 비율 등 다양한 정보에 접근할 수 있습니다."
+    },
+    {
+      "title": "실제 앱 레이아웃 예제",
+      "description": "카드 리스트와 버튼이 있는 실제 앱 화면을 반응형으로 구현합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_screenutil/flutter_screenutil.dart';\n\nclass ProductListScreen extends StatelessWidget {\n  const ProductListScreen({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: Text('상품 목록', style: TextStyle(fontSize: 18.sp)),\n        actions: [\n          IconButton(\n            icon: Icon(Icons.search, size: 24.sp),\n            onPressed: () {},\n          ),\n          IconButton(\n            icon: Icon(Icons.shopping_cart, size: 24.sp),\n            onPressed: () {},\n          ),\n        ],\n      ),\n      body: Column(\n        children: [\n          // 검색바\n          Container(\n            margin: EdgeInsets.all(16.w),\n            padding: EdgeInsets.symmetric(horizontal: 16.w),\n            height: 48.h,\n            decoration: BoxDecoration(\n              color: Colors.grey[100],\n              borderRadius: BorderRadius.circular(8.r),\n            ),\n            child: Row(\n              children: [\n                Icon(Icons.search, color: Colors.grey, size: 20.sp),\n                SizedBox(width: 8.w),\n                Expanded(\n                  child: TextField(\n                    decoration: InputDecoration(\n                      hintText: '상품 검색',\n                      hintStyle: TextStyle(fontSize: 14.sp),\n                      border: InputBorder.none,\n                    ),\n                    style: TextStyle(fontSize: 14.sp),\n                  ),\n                ),\n              ],\n            ),\n          ),\n          // 상품 그리드\n          Expanded(\n            child: GridView.builder(\n              padding: EdgeInsets.symmetric(horizontal: 16.w),\n              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(\n                crossAxisCount: 2,\n                mainAxisSpacing: 16.h,\n                crossAxisSpacing: 16.w,\n                childAspectRatio: 0.7,\n              ),\n              itemCount: 10,\n              itemBuilder: (context, index) => _ProductCard(index: index),\n            ),\n          ),\n        ],\n      ),\n      bottomNavigationBar: Container(\n        padding: EdgeInsets.all(16.w),\n        decoration: BoxDecoration(\n          color: Colors.white,\n          boxShadow: [\n            BoxShadow(\n              color: Colors.black.withOpacity(0.1),\n              blurRadius: 10.r,\n              offset: Offset(0, -5.h),\n            ),\n          ],\n        ),\n        child: SafeArea(\n          child: SizedBox(\n            height: 48.h,\n            child: ElevatedButton(\n              onPressed: () {},\n              style: ElevatedButton.styleFrom(\n                backgroundColor: Colors.blue,\n                shape: RoundedRectangleBorder(\n                  borderRadius: BorderRadius.circular(8.r),\n                ),\n              ),\n              child: Text(\n                '전체 상품 보기',\n                style: TextStyle(fontSize: 16.sp, color: Colors.white),\n              ),\n            ),\n          ),\n        ),\n      ),\n    );\n  }\n}\n\nclass _ProductCard extends StatelessWidget {\n  final int index;\n\n  const _ProductCard({required this.index});\n\n  @override\n  Widget build(BuildContext context) {\n    return Container(\n      decoration: BoxDecoration(\n        color: Colors.white,\n        borderRadius: BorderRadius.circular(12.r),\n        boxShadow: [\n          BoxShadow(\n            color: Colors.black.withOpacity(0.05),\n            blurRadius: 10.r,\n            offset: Offset(0, 4.h),\n          ),\n        ],\n      ),\n      child: Column(\n        crossAxisAlignment: CrossAxisAlignment.start,\n        children: [\n          // 이미지 영역\n          Expanded(\n            flex: 3,\n            child: Container(\n              decoration: BoxDecoration(\n                color: Colors.grey[200],\n                borderRadius: BorderRadius.vertical(\n                  top: Radius.circular(12.r),\n                ),\n              ),\n              child: Center(\n                child: Icon(\n                  Icons.image,\n                  size: 48.sp,\n                  color: Colors.grey[400],\n                ),\n              ),\n            ),\n          ),\n          // 정보 영역\n          Expanded(\n            flex: 2,\n            child: Padding(\n              padding: EdgeInsets.all(8.w),\n              child: Column(\n                crossAxisAlignment: CrossAxisAlignment.start,\n                children: [\n                  Text(\n                    '상품 ${index + 1}',\n                    style: TextStyle(\n                      fontSize: 14.sp,\n                      fontWeight: FontWeight.bold,\n                    ),\n                    maxLines: 1,\n                    overflow: TextOverflow.ellipsis,\n                  ),\n                  SizedBox(height: 4.h),\n                  Text(\n                    '상품 설명이 들어갑니다',\n                    style: TextStyle(\n                      fontSize: 12.sp,\n                      color: Colors.grey[600],\n                    ),\n                    maxLines: 1,\n                    overflow: TextOverflow.ellipsis,\n                  ),\n                  const Spacer(),\n                  Text(\n                    '₩${(index + 1) * 10000}',\n                    style: TextStyle(\n                      fontSize: 16.sp,\n                      fontWeight: FontWeight.bold,\n                      color: Colors.blue,\n                    ),\n                  ),\n                ],\n              ),\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}",
+      "explanation": "실제 앱에서 모든 크기 값에 .w, .h, .sp, .r을 적용하여 다양한 화면 크기에서 일관된 비율을 유지합니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "디자인 기준 크기 (designSize)",
+      "description": "디자인 시안의 기준 해상도입니다. 모든 크기 값은 이 기준에 대한 비율로 계산됩니다. 일반적으로 375x812(iPhone X) 또는 360x690(표준 Android)을 사용합니다."
+    },
+    {
+      "name": "확장 메서드",
+      "description": ".w(너비 기준), .h(높이 기준), .r(작은 쪽 기준), .sp(폰트)의 4가지 확장 메서드가 있습니다. 상황에 맞는 메서드를 선택해야 합니다."
+    },
+    {
+      "name": "스케일 계산",
+      "description": "실제화면너비 / 디자인너비 = 스케일비율. 이 비율을 곱해 실제 크기를 계산합니다. 예: 200.w → 200 * (실제너비/375)"
+    }
+  ],
+  "apiReference": [
+    {
+      "name": ".w 확장",
+      "signature": "num.w → double",
+      "description": "너비 기준으로 크기를 변환합니다. 수평 방향 크기(너비, 수평 패딩/마진)에 사용합니다."
+    },
+    {
+      "name": ".h 확장",
+      "signature": "num.h → double",
+      "description": "높이 기준으로 크기를 변환합니다. 수직 방향 크기(높이, 수직 패딩/마진)에 사용합니다."
+    },
+    {
+      "name": ".r 확장",
+      "signature": "num.r → double",
+      "description": "너비와 높이 중 작은 값 기준으로 변환합니다. 정사각형, 원, borderRadius에 적합합니다."
+    },
+    {
+      "name": ".sp 확장",
+      "signature": "num.sp → double",
+      "description": "폰트 크기 전용 변환입니다. minTextAdapt 옵션의 영향을 받습니다."
+    },
+    {
+      "name": "ScreenUtil().screenWidth",
+      "signature": "double",
+      "description": "현재 화면의 실제 너비(픽셀)를 반환합니다."
+    },
+    {
+      "name": "ScreenUtil().screenHeight",
+      "signature": "double",
+      "description": "현재 화면의 실제 높이(픽셀)를 반환합니다."
+    },
+    {
+      "name": "ScreenUtil().statusBarHeight",
+      "signature": "double",
+      "description": "상태바 높이를 반환합니다."
+    },
+    {
+      "name": "ScreenUtil().bottomBarHeight",
+      "signature": "double",
+      "description": "하단 SafeArea 높이(홈 인디케이터 등)를 반환합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "ScreenUtil not initialized",
+      "cause": "ScreenUtilInit 위젯을 설정하기 전에 .w, .h 등을 사용",
+      "solution": "MaterialApp을 ScreenUtilInit으로 감싸고, builder 내부에서 모든 UI를 구성하세요."
+    },
+    {
+      "error": "크기가 이상하게 변환됨",
+      "cause": "designSize가 디자인 시안과 맞지 않음",
+      "solution": "디자이너에게 정확한 시안 크기를 확인하고 designSize를 맞추세요."
+    },
+    {
+      "error": "가로 모드에서 레이아웃이 깨짐",
+      "cause": "가로/세로 모드 전환 시 크기 재계산 필요",
+      "solution": "orientation을 확인하여 분기 처리하거나 splitScreenMode: true를 설정하세요."
+    },
+    {
+      "error": "텍스트가 너무 작아짐",
+      "cause": "작은 화면에서 sp 값이 많이 줄어듦",
+      "solution": "minTextAdapt: true를 설정하거나 최소 폰트 크기를 직접 지정하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "일관된 사용",
+      "description": "프로젝트 전체에서 모든 크기 값에 일관되게 screenutil을 적용하세요. 일부만 적용하면 화면 크기에 따라 비율이 맞지 않습니다."
+    },
+    {
+      "title": "적절한 확장 메서드 선택",
+      "description": "가로 크기는 .w, 세로 크기는 .h, 정사각형/원형은 .r, 폰트는 .sp를 사용하세요. 잘못된 메서드를 사용하면 비율이 왜곡됩니다."
+    },
+    {
+      "title": "정확한 designSize 설정",
+      "description": "디자인 시안의 실제 크기를 정확히 확인하여 designSize를 설정하세요. 잘못된 값은 모든 레이아웃에 영향을 미칩니다."
+    },
+    {
+      "title": "테마와 통합",
+      "description": "TextTheme 등 테마에서도 .sp를 사용하면 앱 전체의 폰트 크기가 일관되게 반응합니다."
+    },
+    {
+      "title": "최대/최소 제한 고려",
+      "description": "매우 큰 화면이나 작은 화면에서 크기가 극단적으로 변하지 않도록 clamp 등으로 제한을 두는 것이 좋습니다."
+    }
+  ],
+  "tips": [
+    "iPad나 태블릿에서는 .w 대신 고정 크기나 MediaQuery를 함께 사용하는 것이 좋을 수 있습니다",
+    "ScreenUtilInit의 child에 홈 화면을 넣으면 첫 빌드 시 깜빡임을 줄일 수 있습니다",
+    ".sw와 .sh로 화면 비율(0.5.sw = 화면 너비의 50%)도 사용할 수 있습니다",
+    "EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h)처럼 수평/수직을 다르게 적용하세요",
+    "GridView의 childAspectRatio는 screenutil 없이 고정 비율을 사용하는 것이 좋습니다",
+    "responsive_framework 등 다른 반응형 패키지와 함께 사용하면 더 세밀한 제어가 가능합니다"
+  ]
+}

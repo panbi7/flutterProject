@@ -1,0 +1,151 @@
+{
+  "packageName": "auto_size_text",
+  "overview": {
+    "what": "auto_size_text는 주어진 영역에 맞게 텍스트 크기를 자동으로 조절해주는 Flutter 패키지입니다.",
+    "why": "다양한 화면 크기와 텍스트 길이에 대응하기 위해 텍스트 크기를 수동으로 조절하는 것은 번거롭습니다. auto_size_text는 이를 자동화하여 반응형 텍스트 UI를 쉽게 구현할 수 있게 합니다.",
+    "when": "다양한 길이의 텍스트가 제한된 공간에 표시될 때, 반응형 레이아웃에서 텍스트 크기를 유동적으로 조절해야 할 때 사용합니다.",
+    "features": [
+      "텍스트 크기 자동 조절",
+      "최소/최대 크기 제한 설정",
+      "오버플로우 처리 옵션",
+      "줄 수 제한 지원",
+      "그룹화로 여러 텍스트 동기화",
+      "RichText 스타일 지원"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치",
+      "description": "pubspec.yaml에 auto_size_text 패키지를 추가합니다.",
+      "code": "dependencies:\n  flutter:\n    sdk: flutter\n  auto_size_text: ^3.0.0",
+      "explanation": "순수 Dart 패키지로 별도의 네이티브 설정이 필요 없습니다."
+    },
+    {
+      "title": "기본 사용법",
+      "description": "AutoSizeText 위젯의 기본적인 사용 방법입니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:auto_size_text/auto_size_text.dart';\n\nclass BasicAutoSizeExample extends StatelessWidget {\n  const BasicAutoSizeExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          children: [\n            // 기본 AutoSizeText\n            Container(\n              width: 200,\n              height: 50,\n              color: Colors.grey[200],\n              child: const AutoSizeText(\n                '이 텍스트는 컨테이너 크기에 맞게 자동으로 조절됩니다',\n                style: TextStyle(fontSize: 30),\n                maxLines: 1,\n              ),\n            ),\n            const SizedBox(height: 20),\n\n            // 최소 크기 설정\n            Container(\n              width: 200,\n              height: 50,\n              color: Colors.blue[100],\n              child: const AutoSizeText(\n                '최소 크기가 12로 제한된 텍스트입니다',\n                style: TextStyle(fontSize: 30),\n                minFontSize: 12,\n                maxLines: 2,\n                overflow: TextOverflow.ellipsis,\n              ),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "AutoSizeText는 Text 위젯과 비슷하게 사용하되, 부모 위젯의 크기에 맞게 폰트 크기가 자동 조절됩니다. maxLines로 줄 수를 제한할 수 있습니다."
+    },
+    {
+      "title": "크기 제한 및 스텝 설정",
+      "description": "minFontSize, maxFontSize, stepGranularity를 활용한 세밀한 제어 방법입니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:auto_size_text/auto_size_text.dart';\n\nclass SizeControlExample extends StatelessWidget {\n  const SizeControlExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      children: [\n        // minFontSize: 최소 크기 제한\n        Container(\n          width: 150,\n          height: 40,\n          color: Colors.amber[100],\n          child: const AutoSizeText(\n            '최소 10px까지만 줄어듭니다',\n            style: TextStyle(fontSize: 24),\n            minFontSize: 10,\n            maxLines: 1,\n            overflow: TextOverflow.ellipsis,\n          ),\n        ),\n        const SizedBox(height: 16),\n\n        // maxFontSize: 최대 크기 제한\n        Container(\n          width: 300,\n          height: 100,\n          color: Colors.green[100],\n          child: const AutoSizeText(\n            '짧음',\n            style: TextStyle(fontSize: 100),\n            maxFontSize: 40, // 아무리 공간이 넓어도 40px 이하\n          ),\n        ),\n        const SizedBox(height: 16),\n\n        // stepGranularity: 크기 조절 단위\n        Container(\n          width: 200,\n          height: 50,\n          color: Colors.purple[100],\n          child: const AutoSizeText(\n            '2px 단위로 크기가 조절됩니다',\n            style: TextStyle(fontSize: 30),\n            stepGranularity: 2, // 28, 26, 24... 순으로 줄어듦\n            minFontSize: 10,\n          ),\n        ),\n        const SizedBox(height: 16),\n\n        // presetFontSizes: 미리 정의된 크기만 사용\n        Container(\n          width: 200,\n          height: 50,\n          color: Colors.orange[100],\n          child: const AutoSizeText(\n            '24, 18, 14, 10 중에서만 선택됩니다',\n            presetFontSizes: [24, 18, 14, 10],\n          ),\n        ),\n      ],\n    );\n  }\n}",
+      "explanation": "minFontSize로 가독성을 보장하고, stepGranularity나 presetFontSizes로 특정 크기만 사용하도록 제한할 수 있습니다."
+    },
+    {
+      "title": "그룹으로 텍스트 동기화",
+      "description": "AutoSizeGroup을 사용하여 여러 텍스트의 크기를 동일하게 맞춥니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:auto_size_text/auto_size_text.dart';\n\nclass GroupExample extends StatelessWidget {\n  const GroupExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // 같은 그룹의 텍스트는 모두 같은 크기로 표시됨\n    final AutoSizeGroup priceGroup = AutoSizeGroup();\n\n    return Row(\n      children: [\n        // 가격 카드 1\n        Expanded(\n          child: Card(\n            child: Padding(\n              padding: const EdgeInsets.all(16),\n              child: Column(\n                children: [\n                  const Text('기본'),\n                  AutoSizeText(\n                    '₩9,900',\n                    group: priceGroup,\n                    style: const TextStyle(\n                      fontSize: 36,\n                      fontWeight: FontWeight.bold,\n                    ),\n                    maxLines: 1,\n                  ),\n                ],\n              ),\n            ),\n          ),\n        ),\n        // 가격 카드 2\n        Expanded(\n          child: Card(\n            child: Padding(\n              padding: const EdgeInsets.all(16),\n              child: Column(\n                children: [\n                  const Text('프로'),\n                  AutoSizeText(\n                    '₩29,900',\n                    group: priceGroup,\n                    style: const TextStyle(\n                      fontSize: 36,\n                      fontWeight: FontWeight.bold,\n                    ),\n                    maxLines: 1,\n                  ),\n                ],\n              ),\n            ),\n          ),\n        ),\n        // 가격 카드 3\n        Expanded(\n          child: Card(\n            child: Padding(\n              padding: const EdgeInsets.all(16),\n              child: Column(\n                children: [\n                  const Text('엔터프라이즈'),\n                  AutoSizeText(\n                    '₩199,900',\n                    group: priceGroup,\n                    style: const TextStyle(\n                      fontSize: 36,\n                      fontWeight: FontWeight.bold,\n                    ),\n                    maxLines: 1,\n                  ),\n                ],\n              ),\n            ),\n          ),\n        ),\n      ],\n    );\n  }\n}\n\n// 메뉴 버튼 그룹 예제\nclass MenuButtonGroup extends StatelessWidget {\n  const MenuButtonGroup({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    final menuGroup = AutoSizeGroup();\n    final menus = ['홈', '설정', '프로필', '알림 센터'];\n\n    return Row(\n      children: menus.map((menu) {\n        return Expanded(\n          child: Padding(\n            padding: const EdgeInsets.symmetric(horizontal: 4),\n            child: ElevatedButton(\n              onPressed: () {},\n              child: AutoSizeText(\n                menu,\n                group: menuGroup,\n                maxLines: 1,\n                style: const TextStyle(fontSize: 16),\n              ),\n            ),\n          ),\n        );\n      }).toList(),\n    );\n  }\n}",
+      "explanation": "AutoSizeGroup을 사용하면 그룹 내 가장 작은 텍스트 크기에 맞춰 모든 텍스트가 동일한 크기로 표시됩니다. 가격표나 메뉴 버튼 등에 유용합니다."
+    },
+    {
+      "title": "RichText 스타일 적용",
+      "description": "AutoSizeText.rich를 사용하여 다양한 스타일을 적용합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:auto_size_text/auto_size_text.dart';\n\nclass RichTextExample extends StatelessWidget {\n  const RichTextExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      children: [\n        // Rich text 기본\n        Container(\n          width: 250,\n          height: 60,\n          color: Colors.grey[200],\n          child: AutoSizeText.rich(\n            TextSpan(\n              children: [\n                const TextSpan(\n                  text: '할인가: ',\n                  style: TextStyle(color: Colors.black),\n                ),\n                TextSpan(\n                  text: '₩15,000',\n                  style: TextStyle(\n                    color: Colors.red[700],\n                    fontWeight: FontWeight.bold,\n                  ),\n                ),\n                const TextSpan(\n                  text: ' (30% 할인)',\n                  style: TextStyle(\n                    color: Colors.grey,\n                    fontSize: 14,\n                  ),\n                ),\n              ],\n            ),\n            style: const TextStyle(fontSize: 24),\n            maxLines: 1,\n          ),\n        ),\n        const SizedBox(height: 20),\n\n        // 태그와 함께 사용\n        Container(\n          width: 200,\n          height: 40,\n          color: Colors.blue[50],\n          child: AutoSizeText.rich(\n            TextSpan(\n              children: [\n                WidgetSpan(\n                  child: Container(\n                    padding: const EdgeInsets.symmetric(\n                      horizontal: 6,\n                      vertical: 2,\n                    ),\n                    margin: const EdgeInsets.only(right: 8),\n                    decoration: BoxDecoration(\n                      color: Colors.blue,\n                      borderRadius: BorderRadius.circular(4),\n                    ),\n                    child: const Text(\n                      'NEW',\n                      style: TextStyle(\n                        color: Colors.white,\n                        fontSize: 10,\n                      ),\n                    ),\n                  ),\n                ),\n                const TextSpan(text: '신상품이 입고되었습니다'),\n              ],\n            ),\n            style: const TextStyle(fontSize: 18),\n            maxLines: 1,\n          ),\n        ),\n      ],\n    );\n  }\n}\n\n// 실제 사용 예: 상품 카드\nclass ProductCard extends StatelessWidget {\n  final String name;\n  final int price;\n  final int? discountPrice;\n  final String? badge;\n\n  const ProductCard({\n    super.key,\n    required this.name,\n    required this.price,\n    this.discountPrice,\n    this.badge,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    return Card(\n      child: Padding(\n        padding: const EdgeInsets.all(12),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            // 상품명 (자동 크기 조절)\n            SizedBox(\n              height: 48,\n              child: AutoSizeText(\n                name,\n                style: const TextStyle(\n                  fontSize: 18,\n                  fontWeight: FontWeight.bold,\n                ),\n                maxLines: 2,\n                minFontSize: 14,\n              ),\n            ),\n            const SizedBox(height: 8),\n            // 가격 정보\n            AutoSizeText.rich(\n              TextSpan(\n                children: [\n                  if (badge != null)\n                    WidgetSpan(\n                      child: Container(\n                        padding: const EdgeInsets.symmetric(\n                          horizontal: 4,\n                          vertical: 2,\n                        ),\n                        margin: const EdgeInsets.only(right: 6),\n                        decoration: BoxDecoration(\n                          color: Colors.red,\n                          borderRadius: BorderRadius.circular(2),\n                        ),\n                        child: Text(\n                          badge!,\n                          style: const TextStyle(\n                            color: Colors.white,\n                            fontSize: 10,\n                          ),\n                        ),\n                      ),\n                    ),\n                  if (discountPrice != null) ...[\n                    TextSpan(\n                      text: '₩${price.toString().replaceAllMapped(\n                        RegExp(r'(\\d)(?=(\\d{3})+(?!\\d))'),\n                        (m) => '${m[1]},',\n                      )} ',\n                      style: const TextStyle(\n                        color: Colors.grey,\n                        decoration: TextDecoration.lineThrough,\n                        fontSize: 14,\n                      ),\n                    ),\n                    TextSpan(\n                      text: '₩${discountPrice.toString().replaceAllMapped(\n                        RegExp(r'(\\d)(?=(\\d{3})+(?!\\d))'),\n                        (m) => '${m[1]},',\n                      )}',\n                      style: const TextStyle(\n                        color: Colors.red,\n                        fontWeight: FontWeight.bold,\n                      ),\n                    ),\n                  ] else\n                    TextSpan(\n                      text: '₩${price.toString().replaceAllMapped(\n                        RegExp(r'(\\d)(?=(\\d{3})+(?!\\d))'),\n                        (m) => '${m[1]},',\n                      )}',\n                      style: const TextStyle(fontWeight: FontWeight.bold),\n                    ),\n                ],\n              ),\n              style: const TextStyle(fontSize: 16),\n              maxLines: 1,\n              minFontSize: 12,\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "AutoSizeText.rich를 사용하면 TextSpan과 WidgetSpan을 조합한 복잡한 스타일도 자동 크기 조절이 적용됩니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "자동 크기 조절 원리",
+      "description": "AutoSizeText는 주어진 공간에 텍스트가 맞을 때까지 폰트 크기를 점진적으로 줄입니다. style의 fontSize부터 시작해서 minFontSize까지 줄어들 수 있습니다."
+    },
+    {
+      "name": "AutoSizeGroup",
+      "description": "여러 AutoSizeText 위젯을 그룹화하여 모두 같은 폰트 크기를 사용하도록 합니다. 그룹 내 가장 작은 크기에 맞춰 모든 텍스트가 조절됩니다."
+    },
+    {
+      "name": "presetFontSizes vs stepGranularity",
+      "description": "presetFontSizes는 사용할 크기를 명시적으로 지정하고, stepGranularity는 크기를 줄이는 단위를 지정합니다. 디자인 시스템에 맞는 방식을 선택하세요."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "AutoSizeText",
+      "signature": "AutoSizeText(String data, {TextStyle? style, double minFontSize, double maxFontSize, ...})",
+      "description": "자동 크기 조절 텍스트 위젯을 생성합니다. Text 위젯과 유사한 API를 제공합니다."
+    },
+    {
+      "name": "minFontSize",
+      "signature": "double minFontSize = 12",
+      "description": "텍스트의 최소 폰트 크기입니다. 이보다 작아지지 않습니다."
+    },
+    {
+      "name": "maxFontSize",
+      "signature": "double maxFontSize = double.infinity",
+      "description": "텍스트의 최대 폰트 크기입니다. style의 fontSize보다 커지지 않습니다."
+    },
+    {
+      "name": "stepGranularity",
+      "signature": "double stepGranularity = 1",
+      "description": "폰트 크기를 줄이는 단위입니다. 2로 설정하면 24→22→20 순으로 줄어듭니다."
+    },
+    {
+      "name": "presetFontSizes",
+      "signature": "List<double>? presetFontSizes",
+      "description": "사용할 폰트 크기 목록을 지정합니다. 설정하면 minFontSize, maxFontSize, stepGranularity는 무시됩니다."
+    },
+    {
+      "name": "group",
+      "signature": "AutoSizeGroup? group",
+      "description": "텍스트를 그룹화하여 동일한 크기로 표시되도록 합니다."
+    },
+    {
+      "name": "AutoSizeText.rich",
+      "signature": "AutoSizeText.rich(TextSpan textSpan, {...})",
+      "description": "RichText 스타일의 자동 크기 조절 텍스트를 생성합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "텍스트 크기가 조절되지 않음",
+      "cause": "부모 위젯에 크기 제약이 없음 (예: Column 안에서 제약 없이 사용)",
+      "solution": "AutoSizeText는 제한된 공간이 있어야 동작합니다. SizedBox, Container 등으로 크기를 제한하세요."
+    },
+    {
+      "error": "텍스트가 너무 작아짐",
+      "cause": "minFontSize가 설정되지 않아 기본값(12)까지 줄어듦",
+      "solution": "minFontSize를 적절한 값(예: 14 이상)으로 설정하여 가독성을 보장하세요."
+    },
+    {
+      "error": "그룹 내 텍스트 크기가 동기화되지 않음",
+      "cause": "각 텍스트에 다른 AutoSizeGroup 인스턴스를 사용함",
+      "solution": "같은 AutoSizeGroup 인스턴스를 모든 관련 텍스트에 전달해야 합니다."
+    },
+    {
+      "error": "presetFontSizes가 동작하지 않음",
+      "cause": "minFontSize나 maxFontSize와 함께 사용",
+      "solution": "presetFontSizes를 사용하면 다른 크기 관련 속성은 무시됩니다. presetFontSizes만 사용하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "적절한 minFontSize 설정",
+      "description": "minFontSize를 너무 작게 설정하면 텍스트가 읽기 어려워집니다. 일반적으로 12-14px 이상을 권장합니다."
+    },
+    {
+      "title": "maxLines와 함께 사용",
+      "description": "maxLines를 설정하지 않으면 텍스트가 여러 줄로 늘어날 수 있습니다. 대부분의 경우 maxLines를 명시적으로 설정하세요."
+    },
+    {
+      "title": "overflow 처리",
+      "description": "minFontSize에 도달해도 텍스트가 맞지 않을 수 있습니다. overflow: TextOverflow.ellipsis를 설정하여 말줄임 처리하세요."
+    },
+    {
+      "title": "디자인 시스템과 통합",
+      "description": "presetFontSizes를 사용하여 디자인 시스템에서 정의한 타이포그래피 스케일만 사용하도록 제한하세요."
+    },
+    {
+      "title": "성능 고려",
+      "description": "매우 긴 텍스트나 많은 AutoSizeText 위젯을 사용하면 레이아웃 계산 비용이 증가합니다. 필요한 곳에만 사용하세요."
+    }
+  ],
+  "tips": [
+    "AutoSizeText는 Text의 드롭인 대체제로 사용할 수 있습니다",
+    "그룹을 사용할 때는 위젯이 빌드될 때마다 새 그룹을 만들지 않도록 주의하세요",
+    "stepGranularity를 높이면 레이아웃 계산 횟수가 줄어 성능이 향상됩니다",
+    "wrapWords: false로 설정하면 단어 중간에서 줄바꿈되지 않습니다",
+    "semanticsLabel을 설정하여 접근성을 개선할 수 있습니다",
+    "FittedBox와 유사하지만 AutoSizeText는 텍스트 전용이며 더 세밀한 제어가 가능합니다"
+  ]
+}

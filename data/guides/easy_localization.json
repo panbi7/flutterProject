@@ -1,0 +1,217 @@
+{
+  "packageId": "easy_localization",
+  "title": "easy_localization 실전 마스터 가이드",
+  "generatedAt": "2026-01-28T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "3.0.7",
+  "packageLikes": 3200,
+
+  "overview": {
+    "what": "easy_localization은 Flutter 앱의 다국어 지원(i18n)을 쉽게 구현할 수 있는 패키지입니다. JSON, CSV, YAML 등 다양한 포맷의 번역 파일을 지원하며, 코드 생성 없이 런타임에 언어를 변경할 수 있습니다. 복수형, 성별, 중첩 키 등 고급 번역 기능도 제공합니다.",
+    "why": "Flutter 기본 intl 패키지는 설정이 복잡하고 arb 파일 작성이 번거롭지만, easy_localization은 직관적인 JSON 파일로 번역을 관리할 수 있습니다. 'tr()' 확장 메서드 하나로 모든 텍스트를 번역할 수 있어 코드가 깔끔해지고, Hot Reload도 지원하여 개발 생산성이 높습니다.",
+    "when": "1) 다국어 지원이 필요한 글로벌 앱 개발 시, 2) 사용자가 앱 내에서 언어를 변경할 수 있어야 할 때, 3) 번역 팀과 JSON 파일로 협업해야 할 때, 4) 복수형이나 매개변수가 있는 복잡한 번역이 필요할 때, 5) 기존 intl 설정이 너무 복잡하게 느껴질 때",
+    "features": [
+      "🌍 다양한 포맷 지원: JSON, CSV, YAML, XML 번역 파일 지원",
+      "🔄 런타임 언어 변경: 앱 재시작 없이 즉시 언어 전환",
+      "📝 복수형/성별 지원: plural(), gender() 함수로 문법에 맞는 번역",
+      "🎯 간단한 API: 'text'.tr() 한 줄로 번역 적용",
+      "💾 언어 설정 자동 저장: SharedPreferences로 선택 언어 유지"
+    ]
+  },
+
+  "description": "JSON/YAML 기반의 간편한 Flutter 다국어 지원 패키지",
+  "difficulty": "초중급 - 기본 설정 이해 필요",
+  "estimatedTime": "45분",
+  "prerequisites": [
+    "Flutter 기본 위젯 이해",
+    "JSON 파일 구조 이해",
+    "BuildContext 개념 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "tr() 확장 메서드",
+      "explanation": "문자열에 .tr()을 붙이면 현재 로케일에 맞는 번역 텍스트를 반환합니다. context 없이도 사용 가능합니다.",
+      "analogy": "📖 번역기에 원문을 넣으면 현재 설정된 언어로 번역해주는 것과 같습니다.",
+      "usage": "Text('hello'.tr())  // hello 키에 해당하는 번역 출력"
+    },
+    {
+      "term": "Locale",
+      "explanation": "언어와 국가를 나타내는 객체입니다. 예: Locale('ko', 'KR')은 한국어(대한민국)를 의미합니다.",
+      "analogy": "🏳️ 국기와 같아서, 어떤 나라/언어의 규칙을 따를지 알려줍니다.",
+      "usage": "context.setLocale(Locale('en', 'US'));  // 영어로 변경"
+    },
+    {
+      "term": "번역 키(Translation Key)",
+      "explanation": "번역 파일에서 텍스트를 찾기 위한 고유 식별자입니다. 점(.) 표기법으로 중첩 구조를 표현합니다.",
+      "analogy": "🗃️ 서랍장의 라벨처럼, 어떤 번역을 가져올지 지정합니다.",
+      "usage": "'common.buttons.submit'.tr()  // 중첩된 키 접근"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치 및 번역 파일 생성",
+      "description": "패키지를 설치하고 언어별 JSON 번역 파일을 생성합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  easy_localization: ^3.0.7\n\nflutter:\n  assets:\n    - assets/translations/"
+      },
+      "commands": ["flutter pub add easy_localization", "mkdir -p assets/translations"],
+      "explanation": "assets/translations 폴더에 언어별 JSON 파일을 생성합니다.",
+      "subSteps": [
+        {
+          "title": "한국어 번역 파일 생성",
+          "code": {
+            "language": "json",
+            "filename": "assets/translations/ko-KR.json",
+            "content": "{\n  \"app_title\": \"내 앱\",\n  \"welcome\": \"환영합니다, {name}님!\",\n  \"items_count\": {\n    \"zero\": \"항목이 없습니다\",\n    \"one\": \"1개의 항목\",\n    \"other\": \"{count}개의 항목\"\n  },\n  \"buttons\": {\n    \"submit\": \"제출\",\n    \"cancel\": \"취소\"\n  }\n}"
+          }
+        },
+        {
+          "title": "영어 번역 파일 생성",
+          "code": {
+            "language": "json",
+            "filename": "assets/translations/en-US.json",
+            "content": "{\n  \"app_title\": \"My App\",\n  \"welcome\": \"Welcome, {name}!\",\n  \"items_count\": {\n    \"zero\": \"No items\",\n    \"one\": \"1 item\",\n    \"other\": \"{count} items\"\n  },\n  \"buttons\": {\n    \"submit\": \"Submit\",\n    \"cancel\": \"Cancel\"\n  }\n}"
+          }
+        }
+      ],
+      "beginnerTip": "💡 파일명은 반드시 'ko-KR.json' 형식(언어-국가)으로 지정하세요. 소문자 'ko_KR'은 인식되지 않을 수 있습니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "🚀 앱 초기화 설정",
+      "description": "main.dart에서 easy_localization을 초기화하고 MaterialApp에 연결합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:easy_localization/easy_localization.dart';\n\nvoid main() async {\n  WidgetsFlutterBinding.ensureInitialized();\n  \n  // easy_localization 초기화\n  await EasyLocalization.ensureInitialized();\n  \n  runApp(\n    EasyLocalization(\n      // 지원하는 언어 목록\n      supportedLocales: const [\n        Locale('ko', 'KR'),\n        Locale('en', 'US'),\n      ],\n      // 번역 파일 경로\n      path: 'assets/translations',\n      // 기본 언어 (지원 언어에 없을 때)\n      fallbackLocale: const Locale('en', 'US'),\n      // 시스템 언어 사용\n      useOnlyLangCode: false,\n      child: const MyApp(),\n    ),\n  );\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      title: 'app_title'.tr(),\n      // 필수: locale 설정\n      locale: context.locale,\n      // 필수: localizationsDelegates 설정\n      localizationsDelegates: context.localizationDelegates,\n      // 필수: supportedLocales 설정\n      supportedLocales: context.supportedLocales,\n      home: const HomePage(),\n    );\n  }\n}"
+      },
+      "explanation": "1. ensureInitialized()로 패키지를 초기화합니다.\n2. EasyLocalization 위젯으로 앱을 감쌉니다.\n3. MaterialApp에 locale, localizationsDelegates, supportedLocales를 연결합니다.",
+      "beginnerTip": "⚠️ MaterialApp의 3가지 속성(locale, localizationsDelegates, supportedLocales)을 모두 설정하지 않으면 번역이 작동하지 않습니다!"
+    },
+    {
+      "stepNumber": 3,
+      "title": "📝 번역 텍스트 사용하기",
+      "description": "다양한 방식으로 번역 텍스트를 화면에 표시합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/pages/home_page.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:easy_localization/easy_localization.dart';\n\nclass HomePage extends StatelessWidget {\n  const HomePage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        // 기본 번역\n        title: Text('app_title'.tr()),\n      ),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            // 매개변수가 있는 번역\n            Text(\n              'welcome'.tr(args: ['홍길동']),\n              style: const TextStyle(fontSize: 20),\n            ),\n            const SizedBox(height: 16),\n            \n            // 복수형 번역 (0개)\n            Text('items_count'.plural(0)),\n            \n            // 복수형 번역 (1개)\n            Text('items_count'.plural(1)),\n            \n            // 복수형 번역 (5개)\n            Text('items_count'.plural(5)),\n            \n            const SizedBox(height: 16),\n            \n            // 중첩된 키 사용\n            Row(\n              children: [\n                ElevatedButton(\n                  onPressed: () {},\n                  child: Text('buttons.submit'.tr()),\n                ),\n                const SizedBox(width: 8),\n                TextButton(\n                  onPressed: () {},\n                  child: Text('buttons.cancel'.tr()),\n                ),\n              ],\n            ),\n            \n            const SizedBox(height: 24),\n            \n            // 현재 언어 표시\n            Text('현재 언어: ${context.locale.languageCode}'),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "• 'key'.tr(): 기본 번역\n• 'key'.tr(args: ['값']): {name} 같은 플레이스홀더에 값 전달\n• 'key'.plural(count): 개수에 따른 복수형 처리\n• context.locale: 현재 설정된 로케일 확인",
+      "beginnerTip": "💡 JSON에서 중첩된 키는 점(.)으로 구분합니다: 'buttons.submit'.tr()"
+    },
+    {
+      "stepNumber": 4,
+      "title": "🔄 언어 변경 기능 구현",
+      "description": "사용자가 앱 내에서 언어를 변경할 수 있는 기능을 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/widgets/language_selector.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:easy_localization/easy_localization.dart';\n\nclass LanguageSelector extends StatelessWidget {\n  const LanguageSelector({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      children: [\n        // 현재 언어 표시\n        ListTile(\n          leading: const Icon(Icons.language),\n          title: const Text('언어 설정'),\n          subtitle: Text(_getLanguageName(context.locale)),\n        ),\n        \n        const Divider(),\n        \n        // 언어 선택 라디오 버튼\n        ...context.supportedLocales.map((locale) {\n          return RadioListTile<Locale>(\n            title: Text(_getLanguageName(locale)),\n            subtitle: Text(locale.toString()),\n            value: locale,\n            groupValue: context.locale,\n            onChanged: (Locale? value) {\n              if (value != null) {\n                // 언어 변경 - 자동으로 저장됨\n                context.setLocale(value);\n              }\n            },\n          );\n        }),\n        \n        const SizedBox(height: 16),\n        \n        // 시스템 언어로 초기화\n        TextButton.icon(\n          onPressed: () {\n            context.resetLocale();\n          },\n          icon: const Icon(Icons.refresh),\n          label: const Text('시스템 언어로 초기화'),\n        ),\n      ],\n    );\n  }\n\n  String _getLanguageName(Locale locale) {\n    switch (locale.languageCode) {\n      case 'ko':\n        return '한국어';\n      case 'en':\n        return 'English';\n      case 'ja':\n        return '日本語';\n      case 'zh':\n        return '中文';\n      default:\n        return locale.languageCode;\n    }\n  }\n}\n\n// 다이얼로그로 언어 선택\nvoid showLanguageDialog(BuildContext context) {\n  showDialog(\n    context: context,\n    builder: (context) => AlertDialog(\n      title: const Text('언어 선택'),\n      content: SizedBox(\n        width: double.maxFinite,\n        child: ListView.builder(\n          shrinkWrap: true,\n          itemCount: context.supportedLocales.length,\n          itemBuilder: (context, index) {\n            final locale = context.supportedLocales[index];\n            final isSelected = locale == context.locale;\n            \n            return ListTile(\n              title: Text(\n                _getLanguageNameStatic(locale),\n                style: TextStyle(\n                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,\n                ),\n              ),\n              trailing: isSelected ? const Icon(Icons.check) : null,\n              onTap: () {\n                context.setLocale(locale);\n                Navigator.pop(context);\n              },\n            );\n          },\n        ),\n      ),\n    ),\n  );\n}\n\nString _getLanguageNameStatic(Locale locale) {\n  switch (locale.languageCode) {\n    case 'ko': return '한국어';\n    case 'en': return 'English';\n    default: return locale.languageCode;\n  }\n}"
+      },
+      "explanation": "• context.setLocale(locale): 언어 변경 (자동 저장)\n• context.resetLocale(): 시스템 언어로 초기화\n• context.supportedLocales: 지원하는 언어 목록\n• context.locale: 현재 설정된 언어",
+      "beginnerTip": "💡 언어 변경 시 화면이 자동으로 다시 빌드되어 모든 번역이 업데이트됩니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🎯 고급 기능 - 네임드 파라미터와 성별 처리",
+      "description": "복잡한 번역 시나리오를 처리하는 고급 기능을 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/advanced_translations.dart",
+        "content": "import 'package:easy_localization/easy_localization.dart';\n\n// JSON 파일에 추가할 번역들:\n// {\n//   \"greeting\": \"{name}님, {time}에 오신 것을 환영합니다!\",\n//   \"profile\": {\n//     \"male\": \"{name}님의 프로필입니다. 그는 {age}살입니다.\",\n//     \"female\": \"{name}님의 프로필입니다. 그녀는 {age}살입니다.\",\n//     \"other\": \"{name}님의 프로필입니다. {age}살입니다.\"\n//   },\n//   \"notification\": {\n//     \"zero\": \"새 알림이 없습니다\",\n//     \"one\": \"새 알림 1개가 있습니다\",\n//     \"two\": \"새 알림 2개가 있습니다\",\n//     \"few\": \"새 알림 {count}개가 있습니다\",\n//     \"many\": \"새 알림 {count}개가 있습니다\",\n//     \"other\": \"새 알림 {count}개가 있습니다\"\n//   }\n// }\n\nclass AdvancedTranslations {\n  // 네임드 파라미터 사용\n  static String getGreeting(String name, String time) {\n    return 'greeting'.tr(\n      namedArgs: {\n        'name': name,\n        'time': time,\n      },\n    );\n  }\n  // 결과: \"홍길동님, 오전 10시에 오신 것을 환영합니다!\"\n\n  // 성별 처리\n  static String getProfile(String name, int age, String gender) {\n    return 'profile'.tr(\n      gender: gender,  // 'male', 'female', 'other'\n      namedArgs: {\n        'name': name,\n        'age': age.toString(),\n      },\n    );\n  }\n  // 결과: \"홍길동님의 프로필입니다. 그는 25살입니다.\"\n\n  // 복수형 + 네임드 파라미터 조합\n  static String getNotificationCount(int count) {\n    return 'notification'.plural(\n      count,\n      namedArgs: {'count': count.toString()},\n    );\n  }\n  // 결과 (count=5): \"새 알림 5개가 있습니다\"\n}\n\n// 위젯에서 사용 예시\nimport 'package:flutter/material.dart';\n\nclass AdvancedExample extends StatelessWidget {\n  const AdvancedExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      children: [\n        // 네임드 파라미터\n        Text(AdvancedTranslations.getGreeting('김철수', '오후 3시')),\n        \n        // 성별 처리\n        Text(AdvancedTranslations.getProfile('이영희', 28, 'female')),\n        \n        // 복수형\n        Text(AdvancedTranslations.getNotificationCount(42)),\n        \n        // 직접 사용도 가능\n        Text('greeting'.tr(namedArgs: {'name': '박지민', 'time': '저녁'})),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "• namedArgs: {key: value} 형태로 여러 매개변수 전달\n• gender: 'male', 'female', 'other' 중 하나로 성별에 따른 번역\n• plural() + namedArgs: 복수형과 매개변수를 함께 사용",
+      "beginnerTip": "💡 복수형 규칙은 언어마다 다릅니다. 한국어는 주로 'other'만 사용하지만, 영어는 'one'과 'other', 러시아어는 더 복잡한 규칙을 따릅니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "method": "tr()",
+      "signature": "String tr({List<String>? args, Map<String, String>? namedArgs, String? gender})",
+      "description": "번역 키에 해당하는 텍스트를 반환합니다.",
+      "parameters": [
+        {"name": "args", "type": "List<String>?", "description": "위치 기반 매개변수 리스트"},
+        {"name": "namedArgs", "type": "Map<String, String>?", "description": "이름 기반 매개변수 맵"},
+        {"name": "gender", "type": "String?", "description": "성별 (male, female, other)"}
+      ],
+      "returnType": "String",
+      "example": "'welcome'.tr(namedArgs: {'name': '홍길동'})"
+    },
+    {
+      "method": "plural()",
+      "signature": "String plural(num value, {List<String>? args, Map<String, String>? namedArgs})",
+      "description": "숫자에 따른 복수형 번역을 반환합니다.",
+      "parameters": [
+        {"name": "value", "type": "num", "description": "복수형 판단 기준 숫자"},
+        {"name": "namedArgs", "type": "Map<String, String>?", "description": "추가 매개변수"}
+      ],
+      "returnType": "String",
+      "example": "'items_count'.plural(5)"
+    },
+    {
+      "method": "context.setLocale()",
+      "signature": "void setLocale(Locale locale)",
+      "description": "앱의 언어를 변경합니다. 변경 사항이 자동으로 저장됩니다.",
+      "parameters": [
+        {"name": "locale", "type": "Locale", "description": "변경할 로케일"}
+      ],
+      "returnType": "void",
+      "example": "context.setLocale(Locale('en', 'US'))"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "Easy localization not initialized",
+      "cause": "EasyLocalization.ensureInitialized()를 호출하지 않음",
+      "solution": "main() 함수에서 runApp() 전에 await EasyLocalization.ensureInitialized()를 호출하세요."
+    },
+    {
+      "error": "번역이 적용되지 않고 키 이름이 그대로 표시됨",
+      "cause": "MaterialApp에 localizationsDelegates 설정 누락",
+      "solution": "MaterialApp에 locale, localizationsDelegates, supportedLocales 세 가지를 모두 설정하세요."
+    },
+    {
+      "error": "Translation file not found",
+      "cause": "번역 파일 경로가 잘못되었거나 pubspec.yaml에 assets 등록 안 됨",
+      "solution": "1. pubspec.yaml에 assets/translations/ 경로 추가\n2. 파일명이 'ko-KR.json' 형식인지 확인\n3. flutter clean 후 다시 빌드"
+    },
+    {
+      "error": "setState() or markNeedsBuild() called during build",
+      "cause": "build 메서드 내에서 setLocale() 호출",
+      "solution": "setLocale()은 버튼 콜백 등 사용자 인터랙션에서만 호출하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "번역 키 네이밍 규칙 정하기",
+      "description": "일관된 키 네이밍으로 유지보수성을 높이세요.",
+      "code": "// 좋은 예: 기능.컴포넌트.역할\n\"auth.login.title\": \"로그인\"\n\"auth.login.button\": \"로그인하기\"\n\"auth.register.title\": \"회원가입\"\n\n// 나쁜 예: 일관성 없는 네이밍\n\"loginTitle\": \"로그인\"\n\"btn_login\": \"로그인하기\"\n\"register-title\": \"회원가입\""
+    },
+    {
+      "title": "번역 키 상수화",
+      "description": "오타 방지를 위해 번역 키를 상수로 관리하세요.",
+      "code": "abstract class LocaleKeys {\n  static const appTitle = 'app_title';\n  static const welcomeMessage = 'welcome';\n  static const buttonsSubmit = 'buttons.submit';\n  static const buttonsCancel = 'buttons.cancel';\n}\n\n// 사용\nText(LocaleKeys.appTitle.tr())"
+    },
+    {
+      "title": "fallback 언어 설정",
+      "description": "번역이 없는 키에 대비해 항상 fallback 언어를 설정하세요.",
+      "code": "EasyLocalization(\n  supportedLocales: [Locale('ko'), Locale('en'), Locale('ja')],\n  fallbackLocale: Locale('en'),  // 번역 없으면 영어 표시\n  path: 'assets/translations',\n  child: MyApp(),\n)"
+    }
+  ],
+
+  "tips": [
+    "🔥 개발 중에는 saveMissingKeysToDisk: true 옵션으로 누락된 키를 자동 수집할 수 있습니다.",
+    "📱 context 없이 번역하려면 'key'.tr() 대신 LocaleKeys.key.tr()처럼 사용하세요.",
+    "🔄 Hot Reload 시 번역이 바로 반영되지 않으면 Hot Restart(R)를 사용하세요.",
+    "📂 번역 파일이 커지면 기능별로 분리하고 CodegenLoader를 사용하세요."
+  ]
+}

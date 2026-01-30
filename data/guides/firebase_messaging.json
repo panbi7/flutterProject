@@ -1,0 +1,142 @@
+{
+  "packageName": "firebase_messaging",
+  "overview": {
+    "what": "firebase_messaging은 Firebase Cloud Messaging(FCM)을 Flutter 앱에 통합하여 푸시 알림을 주고받을 수 있게 해주는 패키지입니다.",
+    "why": "푸시 알림은 사용자 재참여, 실시간 업데이트, 마케팅 등에 필수적입니다. FCM은 무료이며 신뢰성 높은 푸시 알림 인프라를 제공합니다.",
+    "when": "알림 메시지 전송, 실시간 채팅 알림, 주문 상태 업데이트, 마케팅 알림, 앱 내 메시지 등에 사용합니다.",
+    "features": [
+      "포그라운드/백그라운드 메시지 수신",
+      "알림 메시지 자동 표시",
+      "데이터 메시지 처리",
+      "토픽 구독",
+      "FCM 토큰 관리",
+      "로컬 알림 연동"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치 및 설정",
+      "description": "Firebase 프로젝트 설정 후 패키지를 추가합니다.",
+      "code": "# 1. FlutterFire CLI로 Firebase 설정\nflutterfire configure\n\n# pubspec.yaml\ndependencies:\n  flutter:\n    sdk: flutter\n  firebase_core: ^2.27.0\n  firebase_messaging: ^14.7.0\n\n# Android: android/app/build.gradle\nandroid {\n    defaultConfig {\n        minSdkVersion 19\n    }\n}\n\n# iOS: ios/Runner/Info.plist\n<key>UIBackgroundModes</key>\n<array>\n  <string>fetch</string>\n  <string>remote-notification</string>\n</array>\n\n# iOS: Xcode에서 Push Notifications capability 추가\n# Apple Developer에서 APNs 인증 키 생성 후 Firebase 콘솔에 업로드",
+      "explanation": "Android는 별도 설정 없이 작동합니다. iOS는 Xcode에서 Push Notifications capability를 추가하고, Apple Developer에서 APNs 키를 Firebase에 등록해야 합니다."
+    },
+    {
+      "title": "FCM 초기화 및 토큰 관리",
+      "description": "앱 시작 시 FCM을 초기화하고 토큰을 가져옵니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:firebase_core/firebase_core.dart';\nimport 'package:firebase_messaging/firebase_messaging.dart';\nimport 'firebase_options.dart';\n\nvoid main() async {\n  WidgetsFlutterBinding.ensureInitialized();\n  await Firebase.initializeApp(\n    options: DefaultFirebaseOptions.currentPlatform,\n  );\n  \n  // FCM 설정\n  await setupFCM();\n  \n  runApp(const MyApp());\n}\n\nFuture<void> setupFCM() async {\n  final messaging = FirebaseMessaging.instance;\n\n  // 권한 요청 (iOS)\n  final settings = await messaging.requestPermission(\n    alert: true,\n    badge: true,\n    sound: true,\n    provisional: false,\n    announcement: false,\n    carPlay: false,\n    criticalAlert: false,\n  );\n\n  debugPrint('권한 상태: ${settings.authorizationStatus}');\n\n  if (settings.authorizationStatus == AuthorizationStatus.authorized) {\n    // FCM 토큰 가져오기\n    final token = await messaging.getToken();\n    debugPrint('FCM Token: $token');\n    // 서버에 토큰 전송\n    // await sendTokenToServer(token);\n\n    // 토큰 갱신 리스너\n    messaging.onTokenRefresh.listen((newToken) {\n      debugPrint('New FCM Token: $newToken');\n      // 서버에 새 토큰 전송\n      // sendTokenToServer(newToken);\n    });\n  }\n}\n\n// 토큰 관리 서비스\nclass FCMTokenService {\n  final FirebaseMessaging _messaging = FirebaseMessaging.instance;\n\n  // 토큰 가져오기\n  Future<String?> getToken() async {\n    return await _messaging.getToken();\n  }\n\n  // 토큰 삭제 (로그아웃 시)\n  Future<void> deleteToken() async {\n    await _messaging.deleteToken();\n  }\n\n  // 토큰 갱신 스트림\n  Stream<String> get onTokenRefresh => _messaging.onTokenRefresh;\n\n  // APNs 토큰 (iOS)\n  Future<String?> getAPNsToken() async {\n    return await _messaging.getAPNSToken();\n  }\n}",
+      "explanation": "iOS에서는 requestPermission()으로 알림 권한을 요청해야 합니다. getToken()으로 FCM 토큰을 가져와 서버에 저장하면 해당 기기로 알림을 보낼 수 있습니다."
+    },
+    {
+      "title": "메시지 수신 처리",
+      "description": "포그라운드, 백그라운드, 종료 상태에서 메시지를 처리합니다.",
+      "code": "import 'package:firebase_messaging/firebase_messaging.dart';\nimport 'package:flutter/material.dart';\n\n// 백그라운드 메시지 핸들러 (최상위 함수여야 함)\n@pragma('vm:entry-point')\nFuture<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {\n  // Firebase 초기화 필요할 수 있음\n  // await Firebase.initializeApp();\n  \n  debugPrint('백그라운드 메시지: ${message.messageId}');\n  debugPrint('제목: ${message.notification?.title}');\n  debugPrint('내용: ${message.notification?.body}');\n  debugPrint('데이터: ${message.data}');\n}\n\nvoid main() async {\n  WidgetsFlutterBinding.ensureInitialized();\n  await Firebase.initializeApp();\n\n  // 백그라운드 핸들러 등록 (main 최상단에서)\n  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);\n\n  runApp(const MyApp());\n}\n\nclass NotificationService {\n  final FirebaseMessaging _messaging = FirebaseMessaging.instance;\n\n  void initialize(BuildContext context) {\n    // 1. 포그라운드 메시지 처리\n    FirebaseMessaging.onMessage.listen((message) {\n      debugPrint('포그라운드 메시지 수신!');\n      debugPrint('제목: ${message.notification?.title}');\n      debugPrint('내용: ${message.notification?.body}');\n\n      // 커스텀 알림 표시 (flutter_local_notifications 사용)\n      _showLocalNotification(message);\n\n      // 또는 인앱 알림 표시\n      _showInAppNotification(context, message);\n    });\n\n    // 2. 알림 탭으로 앱 열었을 때 (백그라운드 → 포그라운드)\n    FirebaseMessaging.onMessageOpenedApp.listen((message) {\n      debugPrint('알림 탭으로 앱 열림!');\n      _handleNotificationTap(context, message);\n    });\n\n    // 3. 앱 종료 상태에서 알림 탭으로 열었을 때\n    _checkInitialMessage(context);\n  }\n\n  Future<void> _checkInitialMessage(BuildContext context) async {\n    final message = await _messaging.getInitialMessage();\n    if (message != null) {\n      debugPrint('앱 종료 상태에서 알림으로 열림!');\n      _handleNotificationTap(context, message);\n    }\n  }\n\n  void _showLocalNotification(RemoteMessage message) {\n    // flutter_local_notifications 사용\n    // localNotificationsPlugin.show(...);\n  }\n\n  void _showInAppNotification(BuildContext context, RemoteMessage message) {\n    ScaffoldMessenger.of(context).showSnackBar(\n      SnackBar(\n        content: Column(\n          mainAxisSize: MainAxisSize.min,\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            Text(\n              message.notification?.title ?? '알림',\n              style: const TextStyle(fontWeight: FontWeight.bold),\n            ),\n            Text(message.notification?.body ?? ''),\n          ],\n        ),\n        action: SnackBarAction(\n          label: '보기',\n          onPressed: () => _handleNotificationTap(context, message),\n        ),\n        duration: const Duration(seconds: 5),\n      ),\n    );\n  }\n\n  void _handleNotificationTap(BuildContext context, RemoteMessage message) {\n    final data = message.data;\n    \n    // 데이터에 따라 적절한 화면으로 이동\n    if (data.containsKey('type')) {\n      switch (data['type']) {\n        case 'chat':\n          // Navigator.pushNamed(context, '/chat', arguments: data['chatId']);\n          break;\n        case 'order':\n          // Navigator.pushNamed(context, '/order', arguments: data['orderId']);\n          break;\n        default:\n          // Navigator.pushNamed(context, '/notifications');\n          break;\n      }\n    }\n  }\n}",
+      "explanation": "onMessage는 포그라운드, onMessageOpenedApp은 백그라운드에서 알림 탭, getInitialMessage는 앱 종료 상태에서 알림 탭을 처리합니다. 백그라운드 핸들러는 최상위 함수여야 합니다."
+    },
+    {
+      "title": "토픽 구독",
+      "description": "토픽을 구독하여 특정 그룹에 알림을 보냅니다.",
+      "code": "import 'package:firebase_messaging/firebase_messaging.dart';\n\nclass TopicService {\n  final FirebaseMessaging _messaging = FirebaseMessaging.instance;\n\n  // 토픽 구독\n  Future<void> subscribeToTopic(String topic) async {\n    await _messaging.subscribeToTopic(topic);\n    debugPrint('$topic 토픽 구독됨');\n  }\n\n  // 토픽 구독 해제\n  Future<void> unsubscribeFromTopic(String topic) async {\n    await _messaging.unsubscribeFromTopic(topic);\n    debugPrint('$topic 토픽 구독 해제됨');\n  }\n}\n\n// 사용 예시\nclass NotificationSettingsScreen extends StatefulWidget {\n  const NotificationSettingsScreen({super.key});\n\n  @override\n  State<NotificationSettingsScreen> createState() => _NotificationSettingsScreenState();\n}\n\nclass _NotificationSettingsScreenState extends State<NotificationSettingsScreen> {\n  final _topicService = TopicService();\n\n  bool _promotionEnabled = true;\n  bool _newsEnabled = true;\n  bool _updateEnabled = true;\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('알림 설정')),\n      body: ListView(\n        children: [\n          SwitchListTile(\n            title: const Text('프로모션 알림'),\n            subtitle: const Text('할인, 이벤트 정보'),\n            value: _promotionEnabled,\n            onChanged: (value) async {\n              setState(() => _promotionEnabled = value);\n              if (value) {\n                await _topicService.subscribeToTopic('promotions');\n              } else {\n                await _topicService.unsubscribeFromTopic('promotions');\n              }\n            },\n          ),\n          SwitchListTile(\n            title: const Text('뉴스 알림'),\n            subtitle: const Text('새로운 소식, 공지사항'),\n            value: _newsEnabled,\n            onChanged: (value) async {\n              setState(() => _newsEnabled = value);\n              if (value) {\n                await _topicService.subscribeToTopic('news');\n              } else {\n                await _topicService.unsubscribeFromTopic('news');\n              }\n            },\n          ),\n          SwitchListTile(\n            title: const Text('업데이트 알림'),\n            subtitle: const Text('앱 업데이트, 새 기능'),\n            value: _updateEnabled,\n            onChanged: (value) async {\n              setState(() => _updateEnabled = value);\n              if (value) {\n                await _topicService.subscribeToTopic('updates');\n              } else {\n                await _topicService.unsubscribeFromTopic('updates');\n              }\n            },\n          ),\n        ],\n      ),\n    );\n  }\n}",
+      "explanation": "subscribeToTopic()으로 토픽을 구독하면 해당 토픽으로 전송된 알림을 받습니다. 사용자별 알림 설정에 유용합니다."
+    },
+    {
+      "title": "flutter_local_notifications 연동",
+      "description": "포그라운드에서 알림을 표시하기 위해 local_notifications와 연동합니다.",
+      "code": "# pubspec.yaml에 추가\ndependencies:\n  flutter_local_notifications: ^16.3.0\n\nimport 'package:firebase_messaging/firebase_messaging.dart';\nimport 'package:flutter_local_notifications/flutter_local_notifications.dart';\n\nclass PushNotificationService {\n  final FirebaseMessaging _messaging = FirebaseMessaging.instance;\n  final FlutterLocalNotificationsPlugin _localNotifications =\n      FlutterLocalNotificationsPlugin();\n\n  Future<void> initialize() async {\n    // 로컬 알림 초기화\n    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');\n    const iosSettings = DarwinInitializationSettings(\n      requestAlertPermission: false,\n      requestBadgePermission: false,\n      requestSoundPermission: false,\n    );\n    const initSettings = InitializationSettings(\n      android: androidSettings,\n      iOS: iosSettings,\n    );\n\n    await _localNotifications.initialize(\n      initSettings,\n      onDidReceiveNotificationResponse: _onNotificationTap,\n    );\n\n    // Android 알림 채널 생성\n    const channel = AndroidNotificationChannel(\n      'high_importance_channel',\n      'High Importance Notifications',\n      description: 'This channel is used for important notifications.',\n      importance: Importance.high,\n    );\n\n    await _localNotifications\n        .resolvePlatformSpecificImplementation<\n            AndroidFlutterLocalNotificationsPlugin>()\n        ?.createNotificationChannel(channel);\n\n    // 포그라운드 메시지 리스너\n    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);\n  }\n\n  void _handleForegroundMessage(RemoteMessage message) {\n    final notification = message.notification;\n    final android = message.notification?.android;\n\n    if (notification != null) {\n      _localNotifications.show(\n        notification.hashCode,\n        notification.title,\n        notification.body,\n        NotificationDetails(\n          android: AndroidNotificationDetails(\n            'high_importance_channel',\n            'High Importance Notifications',\n            channelDescription: 'Important notifications',\n            icon: android?.smallIcon ?? '@mipmap/ic_launcher',\n            importance: Importance.high,\n            priority: Priority.high,\n          ),\n          iOS: const DarwinNotificationDetails(\n            presentAlert: true,\n            presentBadge: true,\n            presentSound: true,\n          ),\n        ),\n        payload: message.data.toString(),\n      );\n    }\n  }\n\n  void _onNotificationTap(NotificationResponse response) {\n    final payload = response.payload;\n    debugPrint('알림 탭: $payload');\n    // 데이터 파싱 후 적절한 화면으로 이동\n  }\n}",
+      "explanation": "FCM은 포그라운드에서 알림을 자동 표시하지 않습니다. flutter_local_notifications를 사용하여 직접 알림을 표시해야 합니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "FCM 토큰",
+      "description": "각 앱 인스턴스를 식별하는 고유 토큰입니다. 이 토큰으로 특정 기기에 알림을 보낼 수 있습니다. 토큰은 변경될 수 있으므로 onTokenRefresh를 구독하세요."
+    },
+    {
+      "name": "메시지 타입",
+      "description": "알림 메시지(notification)는 시스템이 자동 표시하고, 데이터 메시지(data)는 앱이 직접 처리합니다. 둘을 함께 보낼 수도 있습니다."
+    },
+    {
+      "name": "앱 상태별 처리",
+      "description": "포그라운드(onMessage), 백그라운드(onBackgroundMessage), 알림 탭(onMessageOpenedApp, getInitialMessage) 각각 다르게 처리해야 합니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "requestPermission",
+      "signature": "Future<NotificationSettings> requestPermission({...})",
+      "description": "iOS에서 알림 권한을 요청합니다."
+    },
+    {
+      "name": "getToken",
+      "signature": "Future<String?> getToken({String? vapidKey})",
+      "description": "현재 기기의 FCM 토큰을 반환합니다."
+    },
+    {
+      "name": "onMessage",
+      "signature": "Stream<RemoteMessage> get onMessage",
+      "description": "포그라운드에서 수신한 메시지 스트림입니다."
+    },
+    {
+      "name": "onMessageOpenedApp",
+      "signature": "Stream<RemoteMessage> get onMessageOpenedApp",
+      "description": "알림 탭으로 앱을 열었을 때의 메시지 스트림입니다."
+    },
+    {
+      "name": "getInitialMessage",
+      "signature": "Future<RemoteMessage?> getInitialMessage()",
+      "description": "앱 종료 상태에서 알림으로 열었을 때의 메시지입니다."
+    },
+    {
+      "name": "subscribeToTopic",
+      "signature": "Future<void> subscribeToTopic(String topic)",
+      "description": "토픽을 구독합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "iOS에서 알림이 안옴",
+      "cause": "APNs 설정 누락 또는 권한 거부",
+      "solution": "Apple Developer에서 APNs 키를 생성하여 Firebase에 업로드하고, Xcode에서 Push Notifications capability를 추가하세요."
+    },
+    {
+      "error": "백그라운드 핸들러가 실행 안됨",
+      "cause": "핸들러가 최상위 함수가 아님",
+      "solution": "onBackgroundMessage 핸들러는 클래스 밖의 최상위 함수여야 하고, @pragma('vm:entry-point') 어노테이션을 추가하세요."
+    },
+    {
+      "error": "포그라운드에서 알림이 안보임",
+      "cause": "FCM은 포그라운드에서 알림을 자동 표시하지 않음",
+      "solution": "flutter_local_notifications를 사용하여 직접 알림을 표시하세요."
+    },
+    {
+      "error": "토큰이 null",
+      "cause": "권한 거부 또는 네트워크 문제",
+      "solution": "권한 상태를 확인하고, 네트워크 연결을 확인하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "토큰 서버 저장",
+      "description": "FCM 토큰을 서버에 저장하고 onTokenRefresh로 갱신하세요. 로그아웃 시 deleteToken()을 호출하세요."
+    },
+    {
+      "title": "알림 데이터 활용",
+      "description": "data 필드에 type, id 등을 포함하여 알림 탭 시 적절한 화면으로 이동하세요."
+    },
+    {
+      "title": "권한 요청 타이밍",
+      "description": "iOS에서 권한 요청은 적절한 맥락에서 하세요 (예: 온보딩, 첫 메시지 전)."
+    },
+    {
+      "title": "채널 관리 (Android)",
+      "description": "알림 종류별로 다른 채널을 사용하면 사용자가 세밀하게 알림을 제어할 수 있습니다."
+    }
+  ],
+  "tips": [
+    "Firebase 콘솔에서 테스트 알림을 보낼 수 있습니다",
+    "iOS 시뮬레이터에서는 푸시 알림이 작동하지 않습니다 (실제 기기 필요)",
+    "data 전용 메시지는 앱이 백그라운드/종료 상태에서도 핸들러가 실행됩니다",
+    "토픽 이름은 영문, 숫자, 언더스코어만 사용 가능합니다",
+    "Android 13+에서는 POST_NOTIFICATIONS 권한 요청이 필요합니다",
+    "awesome_notifications 패키지는 더 많은 기능을 제공하는 대안입니다"
+  ]
+}

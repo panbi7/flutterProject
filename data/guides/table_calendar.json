@@ -1,0 +1,184 @@
+{
+  "packageId": "table_calendar",
+  "title": "table_calendar 실전 마스터 가이드",
+  "generatedAt": "2026-01-28T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "3.1.2",
+  "packageLikes": 2200,
+
+  "overview": {
+    "what": "table_calendar는 Flutter에서 고도로 커스터마이징 가능한 캘린더 위젯을 제공하는 패키지입니다. 월간/주간/2주간 보기, 이벤트 마커, 다중 선택, 범위 선택 등 다양한 기능을 지원합니다. 로케일 지원으로 다국어 앱에도 적합합니다.",
+    "why": "Flutter 기본 위젯으로 캘린더를 구현하려면 복잡한 날짜 계산과 그리드 레이아웃이 필요하지만, table_calendar는 이를 모두 추상화하여 간단한 API로 제공합니다. 특히 이벤트 표시, 날짜 범위 선택, 스와이프 제스처 등 실제 앱에 필요한 기능이 모두 내장되어 있습니다.",
+    "when": "1) 일정/이벤트 앱을 개발할 때, 2) 예약 시스템에서 날짜 선택이 필요할 때, 3) 출석/습관 트래커를 만들 때, 4) 기간 선택(체크인-체크아웃)이 필요할 때, 5) 월간 리포트나 통계를 표시할 때",
+    "features": [
+      "📅 다양한 보기: 월간, 2주간, 주간 형식 지원",
+      "🎯 이벤트 마커: 날짜별 이벤트 표시 및 커스터마이징",
+      "📆 범위 선택: 시작~종료 날짜 범위 선택",
+      "🌍 다국어: intl 패키지 연동으로 로케일 지원",
+      "🎨 완전한 커스터마이징: 모든 UI 요소 스타일 변경 가능"
+    ]
+  },
+
+  "description": "고도로 커스터마이징 가능한 Flutter 캘린더 위젯",
+  "difficulty": "초중급 - 기본 사용은 쉬우나 고급 커스터마이징에 이해 필요",
+  "estimatedTime": "45분",
+  "prerequisites": [
+    "Flutter 기본 위젯 이해",
+    "DateTime 클래스 사용법",
+    "Map/List 자료구조 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "CalendarFormat",
+      "explanation": "캘린더의 표시 형식입니다. month(월간), twoWeeks(2주간), week(주간) 중 선택합니다.",
+      "analogy": "📆 탁상 달력, 주간 플래너, 월간 플래너 중 어떤 형식으로 볼지 선택하는 것과 같습니다.",
+      "usage": "calendarFormat: CalendarFormat.month"
+    },
+    {
+      "term": "focusedDay",
+      "explanation": "현재 보이는 월/주의 기준이 되는 날짜입니다. 이 날짜를 기준으로 캘린더가 렌더링됩니다.",
+      "analogy": "🔍 확대경의 중심처럼, 캘린더가 어느 시점을 보여줄지 결정합니다.",
+      "usage": "focusedDay: DateTime.now()"
+    },
+    {
+      "term": "selectedDay",
+      "explanation": "사용자가 선택한 날짜입니다. 시각적으로 하이라이트되며, 이벤트 목록 표시 등에 사용됩니다.",
+      "analogy": "✅ 체크 표시처럼, 사용자가 클릭/탭하여 선택한 날짜입니다.",
+      "usage": "selectedDayPredicate: (day) => isSameDay(_selectedDay, day)"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치 및 로케일 설정",
+      "description": "table_calendar를 설치하고 한국어 로케일을 설정합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  table_calendar: ^3.1.2\n  intl: ^0.19.0  # 로케일 지원용"
+      },
+      "commands": ["flutter pub add table_calendar intl"],
+      "subSteps": [
+        {
+          "title": "로케일 초기화 (main.dart)",
+          "code": {
+            "language": "dart",
+            "filename": "lib/main.dart",
+            "content": "import 'package:flutter/material.dart';\nimport 'package:intl/date_symbol_data_local.dart';\n\nvoid main() async {\n  WidgetsFlutterBinding.ensureInitialized();\n  \n  // 한국어 로케일 초기화\n  await initializeDateFormatting('ko_KR', null);\n  \n  runApp(const MyApp());\n}"
+          }
+        }
+      ],
+      "explanation": "intl 패키지의 initializeDateFormatting()으로 한국어 날짜 형식을 사용할 수 있습니다.",
+      "beginnerTip": "💡 로케일 초기화를 하지 않으면 한국어 요일/월 이름이 표시되지 않습니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📅 기본 캘린더 표시",
+      "description": "가장 기본적인 캘린더를 화면에 표시합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/screens/basic_calendar.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:table_calendar/table_calendar.dart';\n\nclass BasicCalendarScreen extends StatefulWidget {\n  const BasicCalendarScreen({super.key});\n\n  @override\n  State<BasicCalendarScreen> createState() => _BasicCalendarScreenState();\n}\n\nclass _BasicCalendarScreenState extends State<BasicCalendarScreen> {\n  // 현재 표시 중인 날짜\n  DateTime _focusedDay = DateTime.now();\n  \n  // 선택된 날짜\n  DateTime? _selectedDay;\n  \n  // 캘린더 형식 (월간, 2주간, 주간)\n  CalendarFormat _calendarFormat = CalendarFormat.month;\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('캘린더')),\n      body: Column(\n        children: [\n          TableCalendar(\n            // 로케일 설정 (한국어)\n            locale: 'ko_KR',\n            \n            // 첫 번째 요일 (0=일요일, 1=월요일)\n            startingDayOfWeek: StartingDayOfWeek.sunday,\n            \n            // 표시 가능한 날짜 범위\n            firstDay: DateTime.utc(2020, 1, 1),\n            lastDay: DateTime.utc(2030, 12, 31),\n            \n            // 현재 포커스된 날짜 (이 날짜의 월/주가 표시됨)\n            focusedDay: _focusedDay,\n            \n            // 캘린더 형식\n            calendarFormat: _calendarFormat,\n            \n            // 선택된 날짜인지 판단\n            selectedDayPredicate: (day) {\n              return isSameDay(_selectedDay, day);\n            },\n            \n            // 날짜 선택 시 콜백\n            onDaySelected: (selectedDay, focusedDay) {\n              setState(() {\n                _selectedDay = selectedDay;\n                _focusedDay = focusedDay;\n              });\n              print('선택된 날짜: $selectedDay');\n            },\n            \n            // 형식 변경 버튼 클릭 시\n            onFormatChanged: (format) {\n              setState(() {\n                _calendarFormat = format;\n              });\n            },\n            \n            // 페이지 변경 시 (월 이동)\n            onPageChanged: (focusedDay) {\n              _focusedDay = focusedDay;\n            },\n          ),\n          \n          const SizedBox(height: 16),\n          \n          // 선택된 날짜 표시\n          if (_selectedDay != null)\n            Text(\n              '선택: ${_selectedDay!.year}년 ${_selectedDay!.month}월 ${_selectedDay!.day}일',\n              style: const TextStyle(fontSize: 18),\n            ),\n        ],\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "• focusedDay: 현재 보이는 달의 기준 날짜\n• selectedDayPredicate: 어떤 날짜가 선택 상태인지 판단하는 함수\n• onDaySelected: 날짜 탭 시 콜백 (selectedDay와 focusedDay 둘 다 업데이트)\n• isSameDay(): 두 DateTime이 같은 날인지 비교하는 유틸리티 함수",
+      "beginnerTip": "⚠️ onDaySelected에서 focusedDay도 함께 업데이트해야 다음 달 날짜 선택 시 캘린더가 해당 월로 이동합니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🎯 이벤트 표시하기",
+      "description": "날짜별 이벤트를 캘린더에 마커로 표시합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/screens/event_calendar.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:table_calendar/table_calendar.dart';\n\n// 이벤트 모델\nclass Event {\n  final String title;\n  final Color color;\n\n  Event(this.title, {this.color = Colors.blue});\n}\n\nclass EventCalendarScreen extends StatefulWidget {\n  const EventCalendarScreen({super.key});\n\n  @override\n  State<EventCalendarScreen> createState() => _EventCalendarScreenState();\n}\n\nclass _EventCalendarScreenState extends State<EventCalendarScreen> {\n  DateTime _focusedDay = DateTime.now();\n  DateTime? _selectedDay;\n  \n  // 날짜별 이벤트 맵 (날짜를 키로, 이벤트 리스트를 값으로)\n  final Map<DateTime, List<Event>> _events = {\n    // 시간 정보 제거 (날짜만 비교하기 위해)\n    DateTime.utc(2026, 1, 28): [\n      Event('회의', color: Colors.red),\n      Event('점심 약속', color: Colors.green),\n    ],\n    DateTime.utc(2026, 1, 30): [\n      Event('프로젝트 마감', color: Colors.orange),\n    ],\n    DateTime.utc(2026, 2, 1): [\n      Event('새해 첫 출근'),\n    ],\n  };\n\n  // 특정 날짜의 이벤트 가져오기\n  List<Event> _getEventsForDay(DateTime day) {\n    // 시간 정보를 제거하고 UTC로 통일하여 비교\n    final normalized = DateTime.utc(day.year, day.month, day.day);\n    return _events[normalized] ?? [];\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('이벤트 캘린더')),\n      body: Column(\n        children: [\n          TableCalendar<Event>(\n            locale: 'ko_KR',\n            firstDay: DateTime.utc(2020, 1, 1),\n            lastDay: DateTime.utc(2030, 12, 31),\n            focusedDay: _focusedDay,\n            \n            // 이벤트 로더 - 각 날짜별 이벤트 반환\n            eventLoader: _getEventsForDay,\n            \n            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),\n            \n            onDaySelected: (selectedDay, focusedDay) {\n              setState(() {\n                _selectedDay = selectedDay;\n                _focusedDay = focusedDay;\n              });\n            },\n            \n            // 이벤트 마커 빌더 (커스텀 마커)\n            calendarBuilders: CalendarBuilders(\n              // 기본 마커를 커스텀 마커로 대체\n              markerBuilder: (context, date, events) {\n                if (events.isEmpty) return null;\n                \n                return Positioned(\n                  bottom: 1,\n                  child: Row(\n                    mainAxisSize: MainAxisSize.min,\n                    children: events.take(3).map((event) {\n                      return Container(\n                        width: 6,\n                        height: 6,\n                        margin: const EdgeInsets.symmetric(horizontal: 1),\n                        decoration: BoxDecoration(\n                          color: event.color,\n                          shape: BoxShape.circle,\n                        ),\n                      );\n                    }).toList(),\n                  ),\n                );\n              },\n            ),\n          ),\n          \n          const SizedBox(height: 8),\n          \n          // 선택된 날짜의 이벤트 목록\n          Expanded(\n            child: _selectedDay != null\n                ? _buildEventList(_getEventsForDay(_selectedDay!))\n                : const Center(child: Text('날짜를 선택하세요')),\n          ),\n        ],\n      ),\n      floatingActionButton: FloatingActionButton(\n        onPressed: () => _addEvent(context),\n        child: const Icon(Icons.add),\n      ),\n    );\n  }\n\n  Widget _buildEventList(List<Event> events) {\n    if (events.isEmpty) {\n      return const Center(child: Text('이벤트가 없습니다'));\n    }\n\n    return ListView.builder(\n      itemCount: events.length,\n      itemBuilder: (context, index) {\n        final event = events[index];\n        return ListTile(\n          leading: CircleAvatar(\n            backgroundColor: event.color,\n            radius: 8,\n          ),\n          title: Text(event.title),\n        );\n      },\n    );\n  }\n\n  void _addEvent(BuildContext context) {\n    if (_selectedDay == null) {\n      ScaffoldMessenger.of(context).showSnackBar(\n        const SnackBar(content: Text('먼저 날짜를 선택하세요')),\n      );\n      return;\n    }\n\n    showDialog(\n      context: context,\n      builder: (context) {\n        String title = '';\n        return AlertDialog(\n          title: const Text('이벤트 추가'),\n          content: TextField(\n            autofocus: true,\n            decoration: const InputDecoration(hintText: '이벤트 제목'),\n            onChanged: (value) => title = value,\n          ),\n          actions: [\n            TextButton(\n              onPressed: () => Navigator.pop(context),\n              child: const Text('취소'),\n            ),\n            TextButton(\n              onPressed: () {\n                if (title.isNotEmpty) {\n                  setState(() {\n                    final key = DateTime.utc(\n                      _selectedDay!.year,\n                      _selectedDay!.month,\n                      _selectedDay!.day,\n                    );\n                    _events[key] = [...?_events[key], Event(title)];\n                  });\n                  Navigator.pop(context);\n                }\n              },\n              child: const Text('추가'),\n            ),\n          ],\n        );\n      },\n    );\n  }\n}"
+      },
+      "explanation": "• eventLoader: 각 날짜의 이벤트를 반환하는 함수\n• calendarBuilders.markerBuilder: 이벤트 마커 커스터마이징\n• DateTime.utc(): 시간대 문제 방지를 위해 UTC 사용\n• events.take(3): 마커가 너무 많아지지 않도록 제한",
+      "beginnerTip": "⚠️ DateTime 비교 시 시간 정보 때문에 같은 날이 다르게 인식될 수 있습니다. DateTime.utc()로 정규화하세요."
+    },
+    {
+      "stepNumber": 4,
+      "title": "📆 범위 선택 (체크인-체크아웃)",
+      "description": "시작일과 종료일을 선택하는 범위 선택 기능을 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/screens/range_calendar.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:table_calendar/table_calendar.dart';\n\nclass RangeCalendarScreen extends StatefulWidget {\n  const RangeCalendarScreen({super.key});\n\n  @override\n  State<RangeCalendarScreen> createState() => _RangeCalendarScreenState();\n}\n\nclass _RangeCalendarScreenState extends State<RangeCalendarScreen> {\n  DateTime _focusedDay = DateTime.now();\n  \n  // 범위 선택 모드\n  RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOn;\n  \n  // 범위 시작일과 종료일\n  DateTime? _rangeStart;\n  DateTime? _rangeEnd;\n  \n  // 단일 선택 (범위 모드가 아닐 때)\n  DateTime? _selectedDay;\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('날짜 범위 선택'),\n        actions: [\n          // 범위 선택 모드 토글\n          IconButton(\n            icon: Icon(\n              _rangeSelectionMode == RangeSelectionMode.toggledOn\n                  ? Icons.date_range\n                  : Icons.calendar_today,\n            ),\n            onPressed: () {\n              setState(() {\n                if (_rangeSelectionMode == RangeSelectionMode.toggledOn) {\n                  _rangeSelectionMode = RangeSelectionMode.toggledOff;\n                } else {\n                  _rangeSelectionMode = RangeSelectionMode.toggledOn;\n                }\n                // 모드 변경 시 초기화\n                _selectedDay = null;\n                _rangeStart = null;\n                _rangeEnd = null;\n              });\n            },\n          ),\n        ],\n      ),\n      body: Column(\n        children: [\n          TableCalendar(\n            locale: 'ko_KR',\n            firstDay: DateTime.now(),  // 오늘부터 선택 가능\n            lastDay: DateTime.now().add(const Duration(days: 365)),\n            focusedDay: _focusedDay,\n            \n            // 범위 선택 모드\n            rangeSelectionMode: _rangeSelectionMode,\n            \n            // 범위 시작/종료일\n            rangeStartDay: _rangeStart,\n            rangeEndDay: _rangeEnd,\n            \n            // 단일 선택 날짜\n            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),\n            \n            // 범위 선택 콜백\n            onRangeSelected: (start, end, focusedDay) {\n              setState(() {\n                _selectedDay = null;\n                _rangeStart = start;\n                _rangeEnd = end;\n                _focusedDay = focusedDay;\n              });\n            },\n            \n            // 단일 날짜 선택 콜백\n            onDaySelected: (selectedDay, focusedDay) {\n              if (_rangeSelectionMode == RangeSelectionMode.toggledOff) {\n                setState(() {\n                  _selectedDay = selectedDay;\n                  _focusedDay = focusedDay;\n                  _rangeStart = null;\n                  _rangeEnd = null;\n                });\n              }\n            },\n            \n            // 오늘 이전 날짜 비활성화\n            enabledDayPredicate: (day) {\n              return !day.isBefore(DateTime.now().subtract(const Duration(days: 1)));\n            },\n            \n            // 스타일 커스터마이징\n            calendarStyle: CalendarStyle(\n              // 범위 선택 스타일\n              rangeStartDecoration: const BoxDecoration(\n                color: Colors.blue,\n                shape: BoxShape.circle,\n              ),\n              rangeEndDecoration: const BoxDecoration(\n                color: Colors.blue,\n                shape: BoxShape.circle,\n              ),\n              rangeHighlightColor: Colors.blue.withOpacity(0.2),\n              \n              // 비활성 날짜 스타일\n              disabledTextStyle: TextStyle(\n                color: Colors.grey.shade400,\n              ),\n            ),\n          ),\n          \n          const SizedBox(height: 24),\n          \n          // 선택 결과 표시\n          Padding(\n            padding: const EdgeInsets.all(16),\n            child: _buildSelectionResult(),\n          ),\n          \n          // 확인 버튼\n          if (_rangeStart != null && _rangeEnd != null)\n            Padding(\n              padding: const EdgeInsets.all(16),\n              child: ElevatedButton(\n                onPressed: () {\n                  // 선택 완료 처리\n                  ScaffoldMessenger.of(context).showSnackBar(\n                    SnackBar(\n                      content: Text(\n                        '${_rangeStart!.month}/${_rangeStart!.day} ~ '\n                        '${_rangeEnd!.month}/${_rangeEnd!.day} 선택됨',\n                      ),\n                    ),\n                  );\n                },\n                child: const Text('예약하기'),\n              ),\n            ),\n        ],\n      ),\n    );\n  }\n\n  Widget _buildSelectionResult() {\n    if (_rangeStart == null) {\n      return const Text('체크인 날짜를 선택하세요');\n    }\n    \n    if (_rangeEnd == null) {\n      return Text('체크인: ${_formatDate(_rangeStart!)}\\n체크아웃 날짜를 선택하세요');\n    }\n    \n    final nights = _rangeEnd!.difference(_rangeStart!).inDays;\n    return Column(\n      children: [\n        Text('체크인: ${_formatDate(_rangeStart!)}'),\n        Text('체크아웃: ${_formatDate(_rangeEnd!)}'),\n        const SizedBox(height: 8),\n        Text(\n          '$nights박',\n          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),\n        ),\n      ],\n    );\n  }\n\n  String _formatDate(DateTime date) {\n    return '${date.year}년 ${date.month}월 ${date.day}일';\n  }\n}"
+      },
+      "explanation": "• rangeSelectionMode: 범위 선택 활성화\n• rangeStartDay, rangeEndDay: 선택된 범위의 시작/종료일\n• onRangeSelected: 범위 선택 시 콜백\n• enabledDayPredicate: 선택 가능한 날짜 제한\n• rangeHighlightColor: 범위 내 날짜 배경색",
+      "beginnerTip": "💡 범위 선택 시 첫 번째 탭은 시작일, 두 번째 탭은 종료일이 됩니다. 시작일 다시 탭하면 초기화됩니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🎨 스타일 커스터마이징",
+      "description": "캘린더의 모든 UI 요소를 커스터마이징합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/screens/styled_calendar.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:table_calendar/table_calendar.dart';\n\nclass StyledCalendarScreen extends StatefulWidget {\n  const StyledCalendarScreen({super.key});\n\n  @override\n  State<StyledCalendarScreen> createState() => _StyledCalendarScreenState();\n}\n\nclass _StyledCalendarScreenState extends State<StyledCalendarScreen> {\n  DateTime _focusedDay = DateTime.now();\n  DateTime? _selectedDay;\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      backgroundColor: Colors.grey[100],\n      appBar: AppBar(title: const Text('커스텀 캘린더')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Card(\n          elevation: 4,\n          shape: RoundedRectangleBorder(\n            borderRadius: BorderRadius.circular(16),\n          ),\n          child: Padding(\n            padding: const EdgeInsets.all(8),\n            child: TableCalendar(\n              locale: 'ko_KR',\n              firstDay: DateTime.utc(2020, 1, 1),\n              lastDay: DateTime.utc(2030, 12, 31),\n              focusedDay: _focusedDay,\n              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),\n              onDaySelected: (selectedDay, focusedDay) {\n                setState(() {\n                  _selectedDay = selectedDay;\n                  _focusedDay = focusedDay;\n                });\n              },\n              \n              // 헤더 스타일\n              headerStyle: HeaderStyle(\n                // 형식 변경 버튼 숨기기\n                formatButtonVisible: false,\n                // 제목 중앙 정렬\n                titleCentered: true,\n                // 제목 스타일\n                titleTextStyle: const TextStyle(\n                  fontSize: 18,\n                  fontWeight: FontWeight.bold,\n                ),\n                // 화살표 아이콘\n                leftChevronIcon: const Icon(Icons.chevron_left, color: Colors.blue),\n                rightChevronIcon: const Icon(Icons.chevron_right, color: Colors.blue),\n              ),\n              \n              // 요일 헤더 스타일\n              daysOfWeekStyle: DaysOfWeekStyle(\n                weekdayStyle: TextStyle(color: Colors.grey[600]),\n                weekendStyle: const TextStyle(color: Colors.red),\n              ),\n              \n              // 날짜 셀 스타일\n              calendarStyle: CalendarStyle(\n                // 오늘 날짜\n                todayDecoration: BoxDecoration(\n                  color: Colors.blue.withOpacity(0.3),\n                  shape: BoxShape.circle,\n                ),\n                todayTextStyle: const TextStyle(\n                  color: Colors.blue,\n                  fontWeight: FontWeight.bold,\n                ),\n                \n                // 선택된 날짜\n                selectedDecoration: const BoxDecoration(\n                  color: Colors.blue,\n                  shape: BoxShape.circle,\n                ),\n                selectedTextStyle: const TextStyle(\n                  color: Colors.white,\n                  fontWeight: FontWeight.bold,\n                ),\n                \n                // 일반 날짜\n                defaultTextStyle: const TextStyle(color: Colors.black87),\n                \n                // 주말\n                weekendTextStyle: const TextStyle(color: Colors.red),\n                \n                // 다른 달의 날짜\n                outsideTextStyle: TextStyle(color: Colors.grey[400]),\n                outsideDaysVisible: true,\n                \n                // 셀 마진\n                cellMargin: const EdgeInsets.all(4),\n              ),\n              \n              // 커스텀 빌더\n              calendarBuilders: CalendarBuilders(\n                // 오늘 날짜 커스텀\n                todayBuilder: (context, date, _) {\n                  return Container(\n                    margin: const EdgeInsets.all(4),\n                    decoration: BoxDecoration(\n                      border: Border.all(color: Colors.blue, width: 2),\n                      borderRadius: BorderRadius.circular(8),\n                    ),\n                    child: Center(\n                      child: Text(\n                        '${date.day}',\n                        style: const TextStyle(\n                          color: Colors.blue,\n                          fontWeight: FontWeight.bold,\n                        ),\n                      ),\n                    ),\n                  );\n                },\n                \n                // 선택된 날짜 커스텀\n                selectedBuilder: (context, date, _) {\n                  return Container(\n                    margin: const EdgeInsets.all(4),\n                    decoration: BoxDecoration(\n                      gradient: const LinearGradient(\n                        colors: [Colors.blue, Colors.purple],\n                      ),\n                      borderRadius: BorderRadius.circular(8),\n                    ),\n                    child: Center(\n                      child: Text(\n                        '${date.day}',\n                        style: const TextStyle(\n                          color: Colors.white,\n                          fontWeight: FontWeight.bold,\n                        ),\n                      ),\n                    ),\n                  );\n                },\n                \n                // 헤더 제목 커스텀\n                headerTitleBuilder: (context, date) {\n                  return Center(\n                    child: Text(\n                      '${date.year}년 ${date.month}월',\n                      style: const TextStyle(\n                        fontSize: 20,\n                        fontWeight: FontWeight.bold,\n                      ),\n                    ),\n                  );\n                },\n              ),\n            ),\n          ),\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "• headerStyle: 헤더(월 표시, 화살표) 스타일\n• daysOfWeekStyle: 요일 헤더 스타일\n• calendarStyle: 날짜 셀 스타일\n• calendarBuilders: 완전히 커스텀한 위젯으로 대체\n• outsideDaysVisible: 이전/다음 달 날짜 표시 여부",
+      "beginnerTip": "💡 calendarBuilders로 특정 날짜만 완전히 다른 위젯으로 표시할 수 있습니다. null을 반환하면 기본 스타일이 적용됩니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "method": "TableCalendar",
+      "signature": "TableCalendar({required firstDay, required lastDay, required focusedDay, ...})",
+      "description": "캘린더 위젯을 생성합니다.",
+      "example": "TableCalendar(firstDay: DateTime.utc(2020,1,1), lastDay: DateTime.utc(2030,12,31), focusedDay: DateTime.now())"
+    },
+    {
+      "method": "isSameDay()",
+      "signature": "bool isSameDay(DateTime? a, DateTime? b)",
+      "description": "두 날짜가 같은 날인지 비교합니다 (시간 무시).",
+      "example": "isSameDay(_selectedDay, day)"
+    },
+    {
+      "method": "eventLoader",
+      "signature": "List<T> Function(DateTime day)",
+      "description": "각 날짜의 이벤트 목록을 반환하는 함수입니다.",
+      "example": "eventLoader: (day) => _events[day] ?? []"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "Locale data has not been initialized",
+      "cause": "로케일 초기화를 하지 않음",
+      "solution": "main()에서 await initializeDateFormatting('ko_KR', null)을 호출하세요."
+    },
+    {
+      "error": "이벤트가 표시되지 않음",
+      "cause": "DateTime 키 비교 시 시간 정보가 다름",
+      "solution": "Map 키로 사용하는 DateTime을 DateTime.utc(year, month, day)로 정규화하세요."
+    },
+    {
+      "error": "날짜 선택 후 월이 바뀌지 않음",
+      "cause": "onDaySelected에서 focusedDay를 업데이트하지 않음",
+      "solution": "onDaySelected 콜백에서 _focusedDay = focusedDay도 함께 업데이트하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "DateTime 정규화 함수 사용",
+      "description": "이벤트 맵의 키로 사용할 DateTime을 일관되게 정규화하세요.",
+      "code": "DateTime normalizeDate(DateTime date) {\n  return DateTime.utc(date.year, date.month, date.day);\n}\n\n// 사용\nfinal events = {\n  normalizeDate(DateTime.now()): [Event('오늘 일정')],\n};\n\nList<Event> getEventsForDay(DateTime day) {\n  return events[normalizeDate(day)] ?? [];\n}"
+    },
+    {
+      "title": "캘린더 상태 분리",
+      "description": "캘린더 상태를 별도 클래스로 관리하세요.",
+      "code": "class CalendarState {\n  DateTime focusedDay = DateTime.now();\n  DateTime? selectedDay;\n  DateTime? rangeStart;\n  DateTime? rangeEnd;\n  CalendarFormat format = CalendarFormat.month;\n  \n  void selectDay(DateTime selected, DateTime focused) {\n    selectedDay = selected;\n    focusedDay = focused;\n  }\n}"
+    }
+  ],
+
+  "tips": [
+    "📅 월간 보기에서 6주가 항상 표시됩니다. sixWeekMonthsEnforced: false로 변경 가능합니다.",
+    "🔄 스와이프로 월 이동 시 onPageChanged가 호출됩니다. 여기서 데이터를 미리 로드할 수 있습니다.",
+    "📱 TableCalendar는 화면 너비에 맞게 자동으로 크기가 조절됩니다. 고정 높이가 필요하면 SizedBox로 감싸세요.",
+    "🎨 shouldFillViewport: true로 설정하면 캘린더가 가능한 공간을 모두 채웁니다."
+  ]
+}

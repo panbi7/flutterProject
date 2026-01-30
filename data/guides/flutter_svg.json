@@ -1,0 +1,235 @@
+{
+  "packageId": "flutter_svg",
+  "title": "flutter_svg 실전 마스터 가이드",
+  "generatedAt": "2026-01-27T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "2.0.10+1",
+  "packageLikes": 3678,
+
+  "overview": {
+    "what": "flutter_svg는 Flutter에서 SVG(Scalable Vector Graphics) 파일을 렌더링하는 패키지입니다. SVG 파일을 assets에서 로드하거나 네트워크에서 다운로드하여 어떤 크기로든 선명하게 표시할 수 있습니다. 벡터 이미지이므로 화면 크기나 해상도에 관계없이 항상 깔끔합니다.",
+    "why": "PNG나 JPG 같은 래스터 이미지는 확대하면 픽셀이 보이고, 여러 해상도(1x, 2x, 3x)를 준비해야 합니다. SVG는 벡터 이미지이므로 하나의 파일로 모든 해상도에서 완벽한 품질을 제공합니다. 아이콘, 로고, 일러스트레이션에 특히 적합합니다.",
+    "when": "1) 앱 로고나 브랜드 아이콘 표시 시, 2) 커스텀 아이콘 세트 사용 시, 3) 일러스트레이션이나 그래픽 요소 표시 시, 4) 다크모드에서 색상 변경이 필요한 이미지, 5) 애니메이션 없이 고품질 벡터 이미지가 필요할 때",
+    "features": [
+      "🎨 벡터 렌더링: 어떤 크기로든 선명한 품질",
+      "🌈 색상 변경: colorFilter로 SVG 색상 동적 변경",
+      "📦 다양한 소스: asset, network, string, file 지원",
+      "⚡ 캐싱: 네트워크 SVG 자동 캐싱",
+      "🔧 테마 통합: Theme 색상과 쉽게 연동"
+    ]
+  },
+
+  "description": "SVG 벡터 이미지를 선명하게 렌더링하는 Flutter 패키지",
+  "difficulty": "초급 - Image 위젯과 유사하게 사용",
+  "estimatedTime": "20분",
+  "prerequisites": [
+    "Flutter 기본 위젯 사용법",
+    "pubspec.yaml의 assets 설정 방법",
+    "SVG 파일 형식의 기본 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "SVG (Scalable Vector Graphics)",
+      "explanation": "수학적 공식으로 정의된 벡터 이미지 형식입니다. 점, 선, 곡선, 도형으로 구성되어 있어 확대해도 픽셀이 보이지 않습니다. XML 기반 텍스트 파일입니다.",
+      "analogy": "📐 설계도처럼, 실제 크기와 관계없이 비율과 형태가 정확하게 유지됩니다.",
+      "usage": "SvgPicture.asset('assets/icons/logo.svg')"
+    },
+    {
+      "term": "ColorFilter",
+      "explanation": "SVG 이미지의 색상을 동적으로 변경하는 필터입니다. 다크모드 대응이나 선택 상태 표시에 유용합니다.",
+      "analogy": "🎭 색안경처럼, SVG 위에 색상 필터를 씌워 전체 색상을 변경합니다.",
+      "usage": "SvgPicture.asset('icon.svg', colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn))"
+    },
+    {
+      "term": "SvgPicture",
+      "explanation": "SVG를 렌더링하는 메인 위젯입니다. asset, network, string, file 등 다양한 생성자를 제공합니다.",
+      "analogy": "🖼️ Image 위젯의 SVG 버전으로, 동일한 패턴으로 사용합니다.",
+      "usage": "SvgPicture.asset(), SvgPicture.network(), SvgPicture.string()"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치 및 asset 설정",
+      "description": "flutter_svg를 설치하고 SVG 파일을 프로젝트에 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  flutter_svg: ^2.0.10+1\n\nflutter:\n  assets:\n    - assets/icons/\n    - assets/images/"
+      },
+      "commands": ["flutter pub add flutter_svg", "flutter pub get"],
+      "explanation": "SVG 파일을 assets 폴더에 넣고 pubspec.yaml에 등록합니다. 폴더 전체를 등록하거나 개별 파일을 등록할 수 있습니다.",
+      "platformSetup": {
+        "android": "추가 설정 불필요",
+        "ios": "추가 설정 불필요"
+      },
+      "beginnerTip": "💡 SVG 파일은 assets/icons/ 또는 assets/svg/ 폴더에 모아두면 관리하기 좋습니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 기본 사용법",
+      "description": "다양한 소스에서 SVG를 로드하고 표시하는 기본 예제입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/svg_basic.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter_svg/flutter_svg.dart';\n\nclass SvgBasicExample extends StatelessWidget {\n  const SvgBasicExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('SVG 기본')),\n      body: SingleChildScrollView(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            // 1. Asset에서 SVG 로드\n            const Text('1. Asset SVG', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            SvgPicture.asset(\n              'assets/icons/flutter_logo.svg',\n              width: 100,\n              height: 100,\n            ),\n\n            const SizedBox(height: 24),\n\n            // 2. 네트워크에서 SVG 로드\n            const Text('2. Network SVG', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            SvgPicture.network(\n              'https://www.svgrepo.com/show/452130/flutter.svg',\n              width: 100,\n              height: 100,\n              placeholderBuilder: (context) => const CircularProgressIndicator(),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 3. 문자열에서 SVG 생성\n            const Text('3. String SVG', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            SvgPicture.string(\n              '''<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">\n                <circle cx=\"50\" cy=\"50\" r=\"40\" fill=\"#2196F3\"/>\n                <text x=\"50\" y=\"55\" text-anchor=\"middle\" fill=\"white\" font-size=\"20\">SVG</text>\n              </svg>''',\n              width: 100,\n              height: 100,\n            ),\n\n            const SizedBox(height: 24),\n\n            // 4. 크기 조절\n            const Text('4. 크기 조절', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            Row(\n              children: [\n                SvgPicture.asset('assets/icons/flutter_logo.svg', width: 30),\n                const SizedBox(width: 8),\n                SvgPicture.asset('assets/icons/flutter_logo.svg', width: 50),\n                const SizedBox(width: 8),\n                SvgPicture.asset('assets/icons/flutter_logo.svg', width: 80),\n              ],\n            ),\n\n            const SizedBox(height: 24),\n\n            // 5. fit 옵션\n            const Text('5. BoxFit 옵션', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            Row(\n              children: [\n                _buildFitExample('contain', BoxFit.contain),\n                const SizedBox(width: 8),\n                _buildFitExample('cover', BoxFit.cover),\n                const SizedBox(width: 8),\n                _buildFitExample('fill', BoxFit.fill),\n              ],\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n\n  Widget _buildFitExample(String label, BoxFit fit) {\n    return Column(\n      children: [\n        Container(\n          width: 80,\n          height: 60,\n          decoration: BoxDecoration(\n            border: Border.all(color: Colors.grey),\n          ),\n          child: SvgPicture.asset(\n            'assets/icons/flutter_logo.svg',\n            fit: fit,\n          ),\n        ),\n        Text(label, style: const TextStyle(fontSize: 12)),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "【SvgPicture 생성자들】\n• SvgPicture.asset(): 로컬 asset 파일\n• SvgPicture.network(): 네트워크 URL\n• SvgPicture.string(): SVG XML 문자열\n• SvgPicture.file(): 파일 시스템의 File 객체\n• SvgPicture.memory(): Uint8List 바이트 데이터\n\n【주요 파라미터】\n• width/height: 렌더링 크기\n• fit: BoxFit (contain, cover, fill 등)\n• placeholderBuilder: 로딩 중 표시할 위젯",
+      "beginnerTip": "💡 width나 height 중 하나만 지정하면 비율이 유지됩니다. 둘 다 지정하면 fit에 따라 동작이 달라집니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🌈 색상 변경 (ColorFilter)",
+      "description": "SVG의 색상을 동적으로 변경하는 방법입니다. 다크모드나 선택 상태에 유용합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/svg_color.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter_svg/flutter_svg.dart';\n\nclass SvgColorExample extends StatefulWidget {\n  const SvgColorExample({super.key});\n\n  @override\n  State<SvgColorExample> createState() => _SvgColorExampleState();\n}\n\nclass _SvgColorExampleState extends State<SvgColorExample> {\n  Color _selectedColor = Colors.blue;\n\n  final List<Color> _colors = [\n    Colors.blue,\n    Colors.red,\n    Colors.green,\n    Colors.orange,\n    Colors.purple,\n    Colors.teal,\n  ];\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('SVG 색상 변경')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          children: [\n            // 색상이 변경된 SVG\n            SvgPicture.asset(\n              'assets/icons/flutter_logo.svg',\n              width: 150,\n              height: 150,\n              colorFilter: ColorFilter.mode(\n                _selectedColor,\n                BlendMode.srcIn,  // 가장 많이 사용되는 모드\n              ),\n            ),\n\n            const SizedBox(height: 32),\n\n            // 색상 선택 버튼들\n            const Text('색상 선택:', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 16),\n            Wrap(\n              spacing: 12,\n              children: _colors.map((color) {\n                final isSelected = color == _selectedColor;\n                return GestureDetector(\n                  onTap: () => setState(() => _selectedColor = color),\n                  child: Container(\n                    width: 48,\n                    height: 48,\n                    decoration: BoxDecoration(\n                      color: color,\n                      shape: BoxShape.circle,\n                      border: Border.all(\n                        color: isSelected ? Colors.black : Colors.transparent,\n                        width: 3,\n                      ),\n                    ),\n                    child: isSelected\n                        ? const Icon(Icons.check, color: Colors.white)\n                        : null,\n                  ),\n                );\n              }).toList(),\n            ),\n\n            const SizedBox(height: 32),\n            const Divider(),\n            const SizedBox(height: 16),\n\n            // 다크모드 대응 예제\n            const Text('다크모드 대응', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 16),\n            Row(\n              mainAxisAlignment: MainAxisAlignment.spaceEvenly,\n              children: [\n                _buildThemeIcon(false),\n                _buildThemeIcon(true),\n              ],\n            ),\n\n            const SizedBox(height: 32),\n            const Divider(),\n            const SizedBox(height: 16),\n\n            // 선택 상태 아이콘 예제\n            const Text('선택 상태 표시', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 16),\n            _buildSelectableIcons(),\n          ],\n        ),\n      ),\n    );\n  }\n\n  Widget _buildThemeIcon(bool isDark) {\n    return Container(\n      padding: const EdgeInsets.all(16),\n      decoration: BoxDecoration(\n        color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,\n        borderRadius: BorderRadius.circular(12),\n      ),\n      child: Column(\n        children: [\n          SvgPicture.asset(\n            'assets/icons/flutter_logo.svg',\n            width: 60,\n            colorFilter: ColorFilter.mode(\n              isDark ? Colors.white : Colors.black,\n              BlendMode.srcIn,\n            ),\n          ),\n          const SizedBox(height: 8),\n          Text(\n            isDark ? 'Dark' : 'Light',\n            style: TextStyle(\n              color: isDark ? Colors.white : Colors.black,\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n\n  int _selectedIndex = 0;\n\n  Widget _buildSelectableIcons() {\n    final icons = ['home', 'search', 'favorite', 'settings'];\n    \n    return Row(\n      mainAxisAlignment: MainAxisAlignment.spaceEvenly,\n      children: List.generate(icons.length, (index) {\n        final isSelected = index == _selectedIndex;\n        return GestureDetector(\n          onTap: () => setState(() => _selectedIndex = index),\n          child: Column(\n            children: [\n              SvgPicture.asset(\n                'assets/icons/${icons[index]}.svg',\n                width: 32,\n                colorFilter: ColorFilter.mode(\n                  isSelected ? Colors.blue : Colors.grey,\n                  BlendMode.srcIn,\n                ),\n              ),\n              const SizedBox(height: 4),\n              Text(\n                icons[index],\n                style: TextStyle(\n                  color: isSelected ? Colors.blue : Colors.grey,\n                  fontSize: 12,\n                ),\n              ),\n            ],\n          ),\n        );\n      }),\n    );\n  }\n}"
+      },
+      "explanation": "【ColorFilter.mode의 BlendMode】\n• srcIn: 가장 많이 사용. SVG의 색상을 지정 색상으로 대체\n• srcATop: SVG의 투명 영역은 유지하고 불투명 영역만 색상 적용\n• multiply: 색상을 곱해서 어둡게\n• colorBurn: 더 강한 어둡게 효과\n\n【활용 패턴】\n• 다크모드: 조건에 따라 흰색/검정 적용\n• 선택 상태: 선택됨=Primary Color, 미선택=Grey\n• 상태 표시: 활성=Green, 비활성=Red",
+      "beginnerTip": "🎨 colorFilter는 단색 아이콘에 가장 효과적입니다. 다중 색상 SVG에는 원본 색상이 손실될 수 있습니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🛠️ 커스텀 아이콘 시스템 만들기",
+      "description": "앱 전체에서 일관되게 사용할 수 있는 SVG 아이콘 시스템을 구축합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/svg_icon_system.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter_svg/flutter_svg.dart';\n\n/// 앱 아이콘 경로 상수\nclass AppIcons {\n  static const String _basePath = 'assets/icons';\n  \n  // 네비게이션 아이콘\n  static const String home = '$_basePath/home.svg';\n  static const String search = '$_basePath/search.svg';\n  static const String favorite = '$_basePath/favorite.svg';\n  static const String profile = '$_basePath/profile.svg';\n  \n  // 액션 아이콘\n  static const String add = '$_basePath/add.svg';\n  static const String edit = '$_basePath/edit.svg';\n  static const String delete = '$_basePath/delete.svg';\n  static const String share = '$_basePath/share.svg';\n  \n  // 상태 아이콘\n  static const String success = '$_basePath/success.svg';\n  static const String error = '$_basePath/error.svg';\n  static const String warning = '$_basePath/warning.svg';\n  static const String info = '$_basePath/info.svg';\n  \n  // 브랜드 로고\n  static const String logo = '$_basePath/logo.svg';\n  static const String logoFull = '$_basePath/logo_full.svg';\n}\n\n/// 재사용 가능한 SVG 아이콘 위젯\nclass SvgIcon extends StatelessWidget {\n  final String assetPath;\n  final double? size;\n  final Color? color;\n  final BoxFit fit;\n\n  const SvgIcon(\n    this.assetPath, {\n    super.key,\n    this.size,\n    this.color,\n    this.fit = BoxFit.contain,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    // 기본 색상: 테마의 아이콘 색상\n    final effectiveColor = color ?? IconTheme.of(context).color;\n\n    return SvgPicture.asset(\n      assetPath,\n      width: size,\n      height: size,\n      fit: fit,\n      colorFilter: effectiveColor != null\n          ? ColorFilter.mode(effectiveColor, BlendMode.srcIn)\n          : null,\n    );\n  }\n}\n\n/// 테마 인식 SVG 아이콘 (다크모드 자동 대응)\nclass ThemeSvgIcon extends StatelessWidget {\n  final String assetPath;\n  final double? size;\n  final Color? lightColor;\n  final Color? darkColor;\n\n  const ThemeSvgIcon(\n    this.assetPath, {\n    super.key,\n    this.size,\n    this.lightColor,\n    this.darkColor,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    final isDark = Theme.of(context).brightness == Brightness.dark;\n    final color = isDark \n        ? (darkColor ?? Colors.white)\n        : (lightColor ?? Colors.black);\n\n    return SvgPicture.asset(\n      assetPath,\n      width: size,\n      height: size,\n      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),\n    );\n  }\n}\n\n/// 아이콘 버튼 위젯\nclass SvgIconButton extends StatelessWidget {\n  final String assetPath;\n  final double size;\n  final Color? color;\n  final VoidCallback onPressed;\n  final String? tooltip;\n\n  const SvgIconButton({\n    super.key,\n    required this.assetPath,\n    this.size = 24,\n    this.color,\n    required this.onPressed,\n    this.tooltip,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    final button = IconButton(\n      onPressed: onPressed,\n      icon: SvgIcon(assetPath, size: size, color: color),\n    );\n\n    if (tooltip != null) {\n      return Tooltip(\n        message: tooltip!,\n        child: button,\n      );\n    }\n\n    return button;\n  }\n}\n\n// 사용 예시\nclass IconSystemExample extends StatelessWidget {\n  const IconSystemExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('아이콘 시스템'),\n        actions: [\n          SvgIconButton(\n            assetPath: AppIcons.search,\n            onPressed: () {},\n            tooltip: '검색',\n          ),\n          SvgIconButton(\n            assetPath: AppIcons.share,\n            onPressed: () {},\n            tooltip: '공유',\n          ),\n        ],\n      ),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            // SvgIcon 기본 사용\n            const Row(\n              children: [\n                SvgIcon(AppIcons.home, size: 32),\n                SizedBox(width: 16),\n                SvgIcon(AppIcons.search, size: 32, color: Colors.blue),\n                SizedBox(width: 16),\n                SvgIcon(AppIcons.favorite, size: 32, color: Colors.red),\n              ],\n            ),\n\n            const SizedBox(height: 32),\n\n            // ThemeSvgIcon (다크모드 자동 대응)\n            const ThemeSvgIcon(AppIcons.logo, size: 80),\n\n            const SizedBox(height: 32),\n\n            // 상태 아이콘\n            const Row(\n              children: [\n                SvgIcon(AppIcons.success, size: 32, color: Colors.green),\n                SizedBox(width: 16),\n                SvgIcon(AppIcons.error, size: 32, color: Colors.red),\n                SizedBox(width: 16),\n                SvgIcon(AppIcons.warning, size: 32, color: Colors.orange),\n                SizedBox(width: 16),\n                SvgIcon(AppIcons.info, size: 32, color: Colors.blue),\n              ],\n            ),\n          ],\n        ),\n      ),\n      bottomNavigationBar: BottomNavigationBar(\n        items: const [\n          BottomNavigationBarItem(\n            icon: SvgIcon(AppIcons.home, size: 24),\n            activeIcon: SvgIcon(AppIcons.home, size: 24, color: Colors.blue),\n            label: '홈',\n          ),\n          BottomNavigationBarItem(\n            icon: SvgIcon(AppIcons.search, size: 24),\n            activeIcon: SvgIcon(AppIcons.search, size: 24, color: Colors.blue),\n            label: '검색',\n          ),\n          BottomNavigationBarItem(\n            icon: SvgIcon(AppIcons.profile, size: 24),\n            activeIcon: SvgIcon(AppIcons.profile, size: 24, color: Colors.blue),\n            label: '프로필',\n          ),\n        ],\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【아이콘 시스템 구성】\n• AppIcons: 아이콘 경로를 상수로 관리\n• SvgIcon: 테마 색상을 자동으로 적용하는 기본 위젯\n• ThemeSvgIcon: 다크모드를 자동 감지하여 색상 변경\n• SvgIconButton: IconButton과 통합된 버튼 위젯\n\n【장점】\n• 경로 상수화로 오타 방지\n• 테마와 자동 연동\n• 앱 전체에서 일관된 스타일\n• 쉬운 유지보수",
+      "beginnerTip": "📁 아이콘 SVG 파일은 Figma, Sketch에서 export하거나 flaticon.com, svgrepo.com에서 다운로드할 수 있습니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "⚡ 성능 최적화 및 캐싱",
+      "description": "SVG 로딩 성능을 최적화하고 효율적으로 캐싱합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/svg_optimization.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter/services.dart';\nimport 'package:flutter_svg/flutter_svg.dart';\n\n/// SVG 프리캐싱 서비스\nclass SvgCacheService {\n  static final SvgCacheService _instance = SvgCacheService._internal();\n  factory SvgCacheService() => _instance;\n  SvgCacheService._internal();\n\n  /// 자주 사용하는 SVG 프리로드\n  Future<void> preloadSvgs(List<String> assetPaths) async {\n    for (final path in assetPaths) {\n      // SVG 로더를 사용하여 프리캐시\n      final loader = SvgAssetLoader(path);\n      await svg.cache.putIfAbsent(\n        loader.cacheKey(null),\n        () => loader.loadBytes(null),\n      );\n    }\n  }\n\n  /// 캐시 클리어\n  void clearCache() {\n    svg.cache.clear();\n  }\n}\n\n/// 최적화된 SVG 이미지 위젯\nclass OptimizedSvgPicture extends StatelessWidget {\n  final String assetPath;\n  final double? width;\n  final double? height;\n  final Color? color;\n  final BoxFit fit;\n\n  const OptimizedSvgPicture({\n    super.key,\n    required this.assetPath,\n    this.width,\n    this.height,\n    this.color,\n    this.fit = BoxFit.contain,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    return SvgPicture.asset(\n      assetPath,\n      width: width,\n      height: height,\n      fit: fit,\n      colorFilter: color != null\n          ? ColorFilter.mode(color!, BlendMode.srcIn)\n          : null,\n      // 성능 최적화 옵션\n      placeholderBuilder: (context) => SizedBox(\n        width: width,\n        height: height,\n      ),\n    );\n  }\n}\n\n/// 앱 시작 시 SVG 프리로드 예제\nclass SvgOptimizationExample extends StatefulWidget {\n  const SvgOptimizationExample({super.key});\n\n  @override\n  State<SvgOptimizationExample> createState() => _SvgOptimizationExampleState();\n}\n\nclass _SvgOptimizationExampleState extends State<SvgOptimizationExample> {\n  bool _isLoading = true;\n\n  @override\n  void initState() {\n    super.initState();\n    _preloadSvgs();\n  }\n\n  Future<void> _preloadSvgs() async {\n    // 자주 사용하는 SVG 미리 로드\n    await SvgCacheService().preloadSvgs([\n      'assets/icons/home.svg',\n      'assets/icons/search.svg',\n      'assets/icons/favorite.svg',\n      'assets/icons/profile.svg',\n      'assets/icons/logo.svg',\n    ]);\n\n    if (mounted) {\n      setState(() {\n        _isLoading = false;\n      });\n    }\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    if (_isLoading) {\n      return const Scaffold(\n        body: Center(child: CircularProgressIndicator()),\n      );\n    }\n\n    return Scaffold(\n      appBar: AppBar(title: const Text('최적화된 SVG')),\n      body: ListView(\n        padding: const EdgeInsets.all(16),\n        children: [\n          const Text('프리로드된 SVG는 즉시 표시됩니다', \n              style: TextStyle(fontWeight: FontWeight.bold)),\n          const SizedBox(height: 16),\n          \n          // 그리드로 많은 아이콘 표시\n          GridView.builder(\n            shrinkWrap: true,\n            physics: const NeverScrollableScrollPhysics(),\n            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(\n              crossAxisCount: 4,\n              mainAxisSpacing: 16,\n              crossAxisSpacing: 16,\n            ),\n            itemCount: 20,\n            itemBuilder: (context, index) {\n              final icons = ['home', 'search', 'favorite', 'profile', 'logo'];\n              final iconName = icons[index % icons.length];\n              return Column(\n                children: [\n                  OptimizedSvgPicture(\n                    assetPath: 'assets/icons/$iconName.svg',\n                    width: 40,\n                    height: 40,\n                    color: Colors.primaries[index % Colors.primaries.length],\n                  ),\n                  const SizedBox(height: 4),\n                  Text(iconName, style: const TextStyle(fontSize: 10)),\n                ],\n              );\n            },\n          ),\n\n          const SizedBox(height: 32),\n          \n          ElevatedButton(\n            onPressed: () {\n              SvgCacheService().clearCache();\n              ScaffoldMessenger.of(context).showSnackBar(\n                const SnackBar(content: Text('SVG 캐시가 삭제되었습니다')),\n              );\n            },\n            child: const Text('캐시 클리어'),\n          ),\n        ],\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【성능 최적화 기법】\n\n1. **프리캐싱**\n   - 앱 시작 시 자주 사용하는 SVG를 미리 로드\n   - 스플래시 화면에서 로드하면 사용자가 기다림을 느끼지 못함\n\n2. **캐시 관리**\n   - svg.cache는 자동으로 SVG를 캐싱\n   - 메모리가 부족하면 clearCache()로 정리\n\n3. **크기 지정**\n   - width/height를 명시하면 레이아웃 계산이 빨라짐\n   - placeholderBuilder로 레이아웃 점프 방지\n\n4. **불필요한 리빌드 방지**\n   - const 생성자 사용\n   - key 적절히 지정",
+      "beginnerTip": "⚡ 많은 SVG를 표시하는 화면(아이콘 그리드 등)에서는 프리캐싱이 특히 효과적입니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "SvgPicture.asset()",
+      "description": "로컬 asset에서 SVG를 로드합니다.",
+      "parameters": "String assetName, double? width, double? height, BoxFit fit, ColorFilter? colorFilter, ...",
+      "returns": "Widget",
+      "example": "SvgPicture.asset('assets/icon.svg', width: 50)"
+    },
+    {
+      "name": "SvgPicture.network()",
+      "description": "네트워크 URL에서 SVG를 로드합니다.",
+      "parameters": "String url, Map<String, String>? headers, Widget Function(BuildContext)? placeholderBuilder, ...",
+      "returns": "Widget",
+      "example": "SvgPicture.network('https://example.com/icon.svg')"
+    },
+    {
+      "name": "SvgPicture.string()",
+      "description": "SVG XML 문자열에서 이미지를 생성합니다.",
+      "parameters": "String bytes, double? width, double? height, ...",
+      "returns": "Widget",
+      "example": "SvgPicture.string('<svg>...</svg>')"
+    },
+    {
+      "name": "ColorFilter.mode()",
+      "description": "SVG 색상을 변경하는 필터를 생성합니다.",
+      "parameters": "Color color, BlendMode blendMode",
+      "returns": "ColorFilter",
+      "example": "ColorFilter.mode(Colors.red, BlendMode.srcIn)"
+    },
+    {
+      "name": "svg.cache",
+      "description": "SVG 캐시 관리 객체입니다.",
+      "parameters": "N/A",
+      "returns": "Cache",
+      "example": "svg.cache.clear()"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "Unable to load asset: assets/icons/icon.svg",
+      "cause": "pubspec.yaml에 asset이 등록되지 않았거나 경로가 틀렸습니다.",
+      "solution": "1. pubspec.yaml의 assets 섹션에 경로 추가\n2. flutter pub get 실행\n3. 파일 경로와 이름 대소문자 확인",
+      "prevention": "asset 추가 후 항상 flutter pub get을 실행하세요."
+    },
+    {
+      "error": "SVG가 빈 화면으로 표시됨",
+      "cause": "SVG 파일에 viewBox가 없거나, width/height가 0입니다.",
+      "solution": "SVG 파일을 열어 viewBox 속성이 있는지 확인하고, SvgPicture에 width/height를 명시적으로 지정하세요.",
+      "prevention": "SVG export 시 viewBox가 포함되도록 설정하세요."
+    },
+    {
+      "error": "colorFilter가 적용되지 않음",
+      "cause": "SVG 파일 내부에 fill이나 stroke 색상이 하드코딩되어 있습니다.",
+      "solution": "SVG 파일을 편집하여 fill=\"currentColor\"로 변경하거나, 색상 속성을 제거하세요.",
+      "prevention": "아이콘 SVG는 단색으로 export하고 fill=\"currentColor\"를 사용하세요."
+    },
+    {
+      "error": "일부 SVG 요소가 렌더링되지 않음",
+      "cause": "flutter_svg가 지원하지 않는 SVG 기능(필터, 마스크 등)을 사용했습니다.",
+      "solution": "SVG를 단순화하거나, 지원되지 않는 요소를 래스터 이미지로 대체하세요.",
+      "prevention": "복잡한 SVG는 미리 테스트하고, 필요시 단순화하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "아이콘은 단색 SVG 사용",
+      "description": "아이콘 SVG는 단색으로 만들어 colorFilter로 색상을 변경하세요.",
+      "doThis": "fill=\"currentColor\" 또는 색상 속성 제거\n→ colorFilter로 동적 색상 적용",
+      "dontDoThis": "SVG 내부에 여러 색상 하드코딩"
+    },
+    {
+      "title": "viewBox 포함",
+      "description": "SVG 파일에 viewBox가 있어야 올바른 크기로 렌더링됩니다.",
+      "doThis": "<svg viewBox=\"0 0 24 24\" ...>",
+      "dontDoThis": "<svg width=\"24\" height=\"24\" ...> (viewBox 없음)"
+    },
+    {
+      "title": "경로 상수화",
+      "description": "SVG 경로를 상수 클래스로 관리하면 오타를 방지하고 자동완성을 활용할 수 있습니다.",
+      "doThis": "class AppIcons {\n  static const home = 'assets/icons/home.svg';\n}\nSvgPicture.asset(AppIcons.home)",
+      "dontDoThis": "SvgPicture.asset('assets/icons/home.svg') // 문자열 직접 사용"
+    }
+  ],
+
+  "tips": [
+    "💡 fill=\"currentColor\"로 SVG를 만들면 colorFilter로 색상 변경이 쉬워집니다",
+    "🎨 복잡한 일러스트레이션은 SVG보다 PNG가 더 나을 수 있습니다 (렌더링 성능)",
+    "📦 자주 사용하는 SVG는 앱 시작 시 프리캐싱하면 성능이 향상됩니다",
+    "🔧 SVG 파일 최적화는 SVGO (svgomg.net)를 사용하면 파일 크기를 크게 줄일 수 있습니다",
+    "📱 아이콘 SVG는 24x24 또는 48x48 viewBox로 통일하면 관리가 편합니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "flutter_svg_provider",
+      "description": "ImageProvider로 SVG 사용. BoxDecoration 등에 유용"
+    },
+    {
+      "name": "vector_graphics",
+      "description": "컴파일 타임 SVG 최적화. 더 빠른 렌더링"
+    },
+    {
+      "name": "jovial_svg",
+      "description": "더 많은 SVG 기능 지원 (그라데이션, 필터 등)"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/flutter_svg"},
+    {"title": "GitHub 저장소", "url": "https://github.com/dnfield/flutter_svg"},
+    {"title": "SVG 스펙", "url": "https://www.w3.org/Graphics/SVG/"},
+    {"title": "SVGO 온라인 최적화", "url": "https://jakearchibald.github.io/svgomg/"}
+  ]
+}

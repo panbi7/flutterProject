@@ -1,0 +1,235 @@
+{
+  "packageId": "google_fonts",
+  "title": "google_fonts 실전 마스터 가이드",
+  "generatedAt": "2026-01-27T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "6.2.1",
+  "packageLikes": 4892,
+
+  "overview": {
+    "what": "google_fonts는 Google Fonts에서 제공하는 1,000개 이상의 무료 폰트를 Flutter 앱에서 쉽게 사용할 수 있게 해주는 패키지입니다. 폰트를 수동으로 다운로드하거나 pubspec.yaml에 등록할 필요 없이, 코드에서 바로 폰트를 적용할 수 있습니다. 런타임에 폰트를 다운로드하거나 빌드 시 번들링하는 두 가지 방식을 지원합니다.",
+    "why": "Flutter에서 커스텀 폰트를 사용하려면 폰트 파일을 다운로드하고, pubspec.yaml에 등록하고, FontFamily를 지정해야 합니다. google_fonts는 이 과정을 한 줄의 코드로 대체합니다. 또한 폰트 스타일(weight, italic)별로 최적화된 파일만 다운로드하여 앱 크기를 줄입니다.",
+    "when": "1) Google Fonts의 폰트를 앱에 적용할 때, 2) 다양한 폰트 스타일을 테스트할 때, 3) 브랜드 일관성을 위해 앱 전체에 동일 폰트를 적용할 때, 4) 한글 폰트 (Noto Sans KR 등)를 사용할 때, 5) 앱 테마에 커스텀 폰트를 설정할 때",
+    "features": [
+      "🔤 1,000+ 폰트: Google Fonts 전체 라이브러리 접근",
+      "⚡ 자동 캐싱: 다운로드한 폰트를 자동으로 캐시",
+      "📦 번들링 지원: 빌드 시 폰트 포함으로 오프라인 지원",
+      "🎨 TextStyle 통합: 기존 TextStyle과 완벽 호환",
+      "🌏 다국어 폰트: Noto Sans 계열로 한글, 일본어 등 지원"
+    ]
+  },
+
+  "description": "Google Fonts의 1,000개 이상 무료 폰트를 Flutter에서 쉽게 사용하는 패키지",
+  "difficulty": "초급 - 한 줄의 코드로 바로 사용 가능",
+  "estimatedTime": "20분",
+  "prerequisites": [
+    "Flutter TextStyle 기본 사용법",
+    "Theme와 ThemeData 개념 이해",
+    "pubspec.yaml 파일 구조 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "동적 폰트 로딩",
+      "explanation": "기본적으로 google_fonts는 런타임에 필요한 폰트를 Google Fonts API에서 다운로드합니다. 다운로드한 폰트는 캐시되어 재사용됩니다. 네트워크 연결이 필요하지만 앱 크기가 작습니다.",
+      "analogy": "📥 스트리밍 서비스처럼, 필요할 때 폰트를 다운받아 사용하고 로컬에 저장해둡니다.",
+      "usage": "GoogleFonts.notoSansKr()  // 자동으로 다운로드 및 캐싱"
+    },
+    {
+      "term": "폰트 번들링",
+      "explanation": "프로덕션 앱에서는 폰트를 앱에 미리 포함(번들링)할 수 있습니다. assets 폴더에 폰트 파일을 넣고 pubspec.yaml에 등록하면 오프라인에서도 작동합니다.",
+      "analogy": "📦 출장 갈 때 필요한 물건을 가방에 미리 챙기는 것처럼, 폰트를 앱에 포함시킵니다.",
+      "usage": "google_fonts 패키지의 번들링 가이드에 따라 assets/fonts에 폰트 파일 추가"
+    },
+    {
+      "term": "TextStyle 병합",
+      "explanation": "GoogleFonts.xxx()는 TextStyle을 반환합니다. 기존 TextStyle의 속성(color, fontSize 등)을 유지하면서 폰트만 변경할 수 있습니다.",
+      "analogy": "🎨 물감을 섞는 것처럼, 기존 스타일에 폰트 정보만 추가합니다.",
+      "usage": "GoogleFonts.notoSansKr(textStyle: existingStyle)"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "google_fonts 패키지를 프로젝트에 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  google_fonts: ^6.2.1"
+      },
+      "commands": ["flutter pub add google_fonts", "flutter pub get"],
+      "explanation": "google_fonts는 순수 Dart 패키지입니다. 네이티브 설정은 필요 없으며 바로 사용할 수 있습니다.",
+      "platformSetup": {
+        "android": "인터넷 권한 필요 (AndroidManifest에 기본 포함)",
+        "ios": "Info.plist에 NSAppTransportSecurity 설정이 필요할 수 있음 (HTTPS 사용 시 불필요)"
+      },
+      "beginnerTip": "💡 동적 로딩 시 첫 폰트 로드에 약간의 시간이 걸릴 수 있습니다. 스플래시 화면에서 미리 로드하면 좋습니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 기본 사용법",
+      "description": "Text 위젯에 Google Fonts를 적용하는 가장 간단한 방법입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/basic_example.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:google_fonts/google_fonts.dart';\n\nclass BasicGoogleFontsExample extends StatelessWidget {\n  const BasicGoogleFontsExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Google Fonts 기본')),\n      body: SingleChildScrollView(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            // 1. 가장 기본적인 사용법\n            Text(\n              '안녕하세요, Google Fonts!',\n              style: GoogleFonts.notoSansKr(\n                fontSize: 24,\n                fontWeight: FontWeight.bold,\n              ),\n            ),\n\n            const SizedBox(height: 16),\n\n            // 2. 다양한 weight 사용\n            Text(\n              'Light (300)',\n              style: GoogleFonts.notoSansKr(\n                fontSize: 18,\n                fontWeight: FontWeight.w300,\n              ),\n            ),\n            Text(\n              'Regular (400)',\n              style: GoogleFonts.notoSansKr(\n                fontSize: 18,\n                fontWeight: FontWeight.w400,\n              ),\n            ),\n            Text(\n              'Medium (500)',\n              style: GoogleFonts.notoSansKr(\n                fontSize: 18,\n                fontWeight: FontWeight.w500,\n              ),\n            ),\n            Text(\n              'Bold (700)',\n              style: GoogleFonts.notoSansKr(\n                fontSize: 18,\n                fontWeight: FontWeight.w700,\n              ),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 3. 기존 TextStyle에 폰트 적용\n            Text(\n              '기존 스타일 유지하면서 폰트만 변경',\n              style: GoogleFonts.notoSansKr(\n                textStyle: const TextStyle(\n                  color: Colors.blue,\n                  fontSize: 20,\n                  decoration: TextDecoration.underline,\n                ),\n              ),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 4. 여러 폰트 비교\n            const Text('폰트 비교:', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            Text(\n              'Noto Sans KR (한글 기본)',\n              style: GoogleFonts.notoSansKr(fontSize: 16),\n            ),\n            Text(\n              'Noto Serif KR (명조체)',\n              style: GoogleFonts.notoSerifKr(fontSize: 16),\n            ),\n            Text(\n              'Gothic A1 (고딕)',\n              style: GoogleFonts.gothicA1(fontSize: 16),\n            ),\n            Text(\n              'Jua (주아)',\n              style: GoogleFonts.jua(fontSize: 16),\n            ),\n            Text(\n              'Nanum Gothic (나눔고딕)',\n              style: GoogleFonts.nanumGothic(fontSize: 16),\n            ),\n            Text(\n              'Nanum Myeongjo (나눔명조)',\n              style: GoogleFonts.nanumMyeongjo(fontSize: 16),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 5. 영문 폰트\n            const Text('인기 영문 폰트:', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            Text(\n              'Roboto - The quick brown fox',\n              style: GoogleFonts.roboto(fontSize: 16),\n            ),\n            Text(\n              'Open Sans - The quick brown fox',\n              style: GoogleFonts.openSans(fontSize: 16),\n            ),\n            Text(\n              'Lato - The quick brown fox',\n              style: GoogleFonts.lato(fontSize: 16),\n            ),\n            Text(\n              'Montserrat - The quick brown fox',\n              style: GoogleFonts.montserrat(fontSize: 16),\n            ),\n            Text(\n              'Poppins - The quick brown fox',\n              style: GoogleFonts.poppins(fontSize: 16),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【GoogleFonts.xxx() 주요 파라미터】\n• fontSize: 폰트 크기\n• fontWeight: 굵기 (w100~w900, bold, normal)\n• fontStyle: FontStyle.italic 등\n• textStyle: 기존 TextStyle 병합\n• color: 텍스트 색상\n• letterSpacing: 자간\n• height: 줄 높이 배수\n\n폰트 이름은 카멜케이스로 변환됩니다: 'Noto Sans KR' → notoSansKr",
+      "beginnerTip": "💡 GoogleFonts 클래스의 메서드명은 fonts.google.com에서 폰트 이름을 확인하고 카멜케이스로 변환하면 됩니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🎨 앱 전체 테마에 폰트 적용",
+      "description": "ThemeData에 Google Fonts를 적용하여 앱 전체에서 일관된 폰트를 사용합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:google_fonts/google_fonts.dart';\n\nvoid main() {\n  runApp(const MyApp());\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      title: 'Google Fonts 테마',\n      theme: _buildTheme(Brightness.light),\n      darkTheme: _buildTheme(Brightness.dark),\n      home: const HomePage(),\n    );\n  }\n\n  ThemeData _buildTheme(Brightness brightness) {\n    final baseTheme = brightness == Brightness.light\n        ? ThemeData.light(useMaterial3: true)\n        : ThemeData.dark(useMaterial3: true);\n\n    return baseTheme.copyWith(\n      // 전체 텍스트 테마에 Google Fonts 적용\n      textTheme: GoogleFonts.notoSansKrTextTheme(baseTheme.textTheme),\n      \n      // AppBar 텍스트도 변경\n      appBarTheme: baseTheme.appBarTheme.copyWith(\n        titleTextStyle: GoogleFonts.notoSansKr(\n          fontSize: 20,\n          fontWeight: FontWeight.w600,\n          color: brightness == Brightness.light ? Colors.black : Colors.white,\n        ),\n      ),\n    );\n  }\n}\n\nclass HomePage extends StatelessWidget {\n  const HomePage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    final textTheme = Theme.of(context).textTheme;\n\n    return Scaffold(\n      appBar: AppBar(title: const Text('폰트 테마 예제')),\n      body: SingleChildScrollView(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            // 테마의 텍스트 스타일 사용 (자동으로 Google Fonts 적용)\n            Text('Display Large', style: textTheme.displayLarge),\n            Text('Display Medium', style: textTheme.displayMedium),\n            Text('Display Small', style: textTheme.displaySmall),\n            const Divider(),\n            Text('Headline Large', style: textTheme.headlineLarge),\n            Text('Headline Medium', style: textTheme.headlineMedium),\n            Text('Headline Small', style: textTheme.headlineSmall),\n            const Divider(),\n            Text('Title Large', style: textTheme.titleLarge),\n            Text('Title Medium', style: textTheme.titleMedium),\n            Text('Title Small', style: textTheme.titleSmall),\n            const Divider(),\n            Text('Body Large', style: textTheme.bodyLarge),\n            Text('Body Medium', style: textTheme.bodyMedium),\n            Text('Body Small', style: textTheme.bodySmall),\n            const Divider(),\n            Text('Label Large', style: textTheme.labelLarge),\n            Text('Label Medium', style: textTheme.labelMedium),\n            Text('Label Small', style: textTheme.labelSmall),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【GoogleFonts.xxxTextTheme() 메서드】\n모든 폰트에 대해 xxxTextTheme() 메서드가 제공됩니다:\n• GoogleFonts.notoSansKrTextTheme(baseTextTheme)\n• GoogleFonts.robotoTextTheme(baseTextTheme)\n\n기존 TextTheme의 크기/색상 등을 유지하면서 폰트만 변경합니다.\n\n이렇게 설정하면 앱의 모든 Text 위젯에 자동으로 Noto Sans KR이 적용됩니다.",
+      "beginnerTip": "⚠️ 테마 설정 시 baseTheme.textTheme을 전달해야 기존 크기와 색상이 유지됩니다. 빈 TextTheme()을 전달하면 기본값으로 리셋됩니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "📦 폰트 번들링 (오프라인 지원)",
+      "description": "프로덕션 앱에서 네트워크 없이 폰트를 사용하기 위해 앱에 폰트를 포함시킵니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/font_bundling.dart",
+        "content": "// 1. 폰트 파일 다운로드\n// fonts.google.com에서 폰트를 다운로드합니다.\n// 예: Noto Sans KR의 모든 weight 파일 다운로드\n\n// 2. 폰트 파일 배치\n// assets/fonts/ 폴더에 폰트 파일 복사:\n// - NotoSansKR-Light.ttf\n// - NotoSansKR-Regular.ttf\n// - NotoSansKR-Medium.ttf\n// - NotoSansKR-Bold.ttf\n// - NotoSansKR-Black.ttf\n\n// 3. pubspec.yaml 설정\n/*\nflutter:\n  assets:\n    - assets/fonts/\n\n  fonts:\n    - family: NotoSansKR\n      fonts:\n        - asset: assets/fonts/NotoSansKR-Light.ttf\n          weight: 300\n        - asset: assets/fonts/NotoSansKR-Regular.ttf\n          weight: 400\n        - asset: assets/fonts/NotoSansKR-Medium.ttf\n          weight: 500\n        - asset: assets/fonts/NotoSansKR-Bold.ttf\n          weight: 700\n        - asset: assets/fonts/NotoSansKR-Black.ttf\n          weight: 900\n*/\n\n// 4. 앱에서 번들링된 폰트 사용 설정\nimport 'package:flutter/material.dart';\nimport 'package:google_fonts/google_fonts.dart';\n\nvoid main() {\n  // HTTP 폰트 로딩 비활성화 (오프라인 전용)\n  GoogleFonts.config.allowRuntimeFetching = false;\n  \n  runApp(const MyApp());\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      theme: ThemeData(\n        textTheme: GoogleFonts.notoSansKrTextTheme(),\n      ),\n      home: const HomePage(),\n    );\n  }\n}\n\n// 번들링 여부와 관계없이 동일한 코드로 사용\nclass HomePage extends StatelessWidget {\n  const HomePage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      body: Center(\n        child: Text(\n          '번들링된 폰트',\n          style: GoogleFonts.notoSansKr(\n            fontSize: 24,\n            fontWeight: FontWeight.bold,\n          ),\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【폰트 번들링 단계】\n1. fonts.google.com에서 폰트 다운로드\n2. assets/fonts/ 폴더에 .ttf 파일 복사\n3. pubspec.yaml에 폰트 등록\n4. GoogleFonts.config.allowRuntimeFetching = false 설정\n\n【번들링의 장점】\n• 오프라인에서도 폰트 사용 가능\n• 첫 로딩 시 네트워크 지연 없음\n• 일관된 사용자 경험\n\n【단점】\n• 앱 크기 증가 (폰트당 수백KB~수MB)",
+      "beginnerTip": "💡 allowRuntimeFetching = false를 설정하면 번들링되지 않은 폰트 사용 시 에러가 발생합니다. 개발 중에는 true로 두세요."
+    },
+    {
+      "stepNumber": 5,
+      "title": "⚡ 폰트 프리로딩 및 최적화",
+      "description": "앱 시작 시 폰트를 미리 로드하여 사용자 경험을 개선합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/font_preloading.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:google_fonts/google_fonts.dart';\n\nvoid main() async {\n  WidgetsFlutterBinding.ensureInitialized();\n  \n  // 앱 시작 전에 자주 사용하는 폰트 프리로드\n  await _preloadFonts();\n  \n  runApp(const MyApp());\n}\n\n/// 자주 사용하는 폰트를 미리 로드\nFuture<void> _preloadFonts() async {\n  // Noto Sans KR의 다양한 weight 프리로드\n  await GoogleFonts.pendingFonts([\n    GoogleFonts.notoSansKr(fontWeight: FontWeight.w300),\n    GoogleFonts.notoSansKr(fontWeight: FontWeight.w400),\n    GoogleFonts.notoSansKr(fontWeight: FontWeight.w500),\n    GoogleFonts.notoSansKr(fontWeight: FontWeight.w700),\n  ]);\n  \n  // 다른 폰트도 필요시 추가\n  // await GoogleFonts.pendingFonts([\n  //   GoogleFonts.roboto(),\n  //   GoogleFonts.poppins(),\n  // ]);\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      theme: ThemeData(\n        textTheme: GoogleFonts.notoSansKrTextTheme(),\n      ),\n      home: const HomePage(),\n    );\n  }\n}\n\nclass HomePage extends StatelessWidget {\n  const HomePage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('폰트 프리로딩')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            // 폰트가 이미 로드되어 있어 즉시 표시됨\n            Text(\n              '프리로드된 폰트는 즉시 표시됩니다',\n              style: GoogleFonts.notoSansKr(\n                fontSize: 20,\n                fontWeight: FontWeight.bold,\n              ),\n            ),\n            const SizedBox(height: 16),\n            Text(\n              '네트워크 지연 없이 바로 렌더링됩니다.',\n              style: GoogleFonts.notoSansKr(fontSize: 16),\n            ),\n            const SizedBox(height: 32),\n            \n            // 폰트 로딩 상태 확인\n            FutureBuilder(\n              future: GoogleFonts.pendingFonts([\n                GoogleFonts.jua(),  // 프리로드하지 않은 폰트\n              ]),\n              builder: (context, snapshot) {\n                if (snapshot.connectionState == ConnectionState.waiting) {\n                  return const CircularProgressIndicator();\n                }\n                return Text(\n                  '동적으로 로드된 폰트',\n                  style: GoogleFonts.jua(fontSize: 24),\n                );\n              },\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【GoogleFonts.pendingFonts()】\n지정된 폰트 스타일들의 다운로드가 완료될 때까지 기다립니다.\n• main()에서 호출하면 앱 시작 전에 폰트 로드 완료\n• FutureBuilder와 함께 사용하면 로딩 상태 표시 가능\n\n【최적화 팁】\n• 자주 사용하는 weight만 프리로드 (모든 weight 불필요)\n• 스플래시 화면에서 프리로드하면 사용자가 기다림을 느끼지 못함\n• 네이티브 스플래시(flutter_native_splash)와 함께 사용 권장",
+      "beginnerTip": "⚡ 모든 폰트를 프리로드하면 앱 시작이 느려집니다. 첫 화면에서 보이는 폰트만 프리로드하세요."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "GoogleFonts.xxx()",
+      "description": "특정 폰트의 TextStyle을 반환합니다. xxx는 폰트 이름의 카멜케이스입니다.",
+      "parameters": "fontSize, fontWeight, fontStyle, color, textStyle, letterSpacing, ...",
+      "returns": "TextStyle",
+      "example": "GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.bold)"
+    },
+    {
+      "name": "GoogleFonts.xxxTextTheme()",
+      "description": "지정된 폰트가 적용된 전체 TextTheme을 반환합니다.",
+      "parameters": "TextTheme? textTheme (선택, 기존 테마 병합용)",
+      "returns": "TextTheme",
+      "example": "GoogleFonts.notoSansKrTextTheme(Theme.of(context).textTheme)"
+    },
+    {
+      "name": "GoogleFonts.pendingFonts()",
+      "description": "지정된 폰트 스타일들의 다운로드 완료를 기다립니다.",
+      "parameters": "List<TextStyle> styles",
+      "returns": "Future<void>",
+      "example": "await GoogleFonts.pendingFonts([GoogleFonts.roboto()])"
+    },
+    {
+      "name": "GoogleFonts.config.allowRuntimeFetching",
+      "description": "런타임 폰트 다운로드 허용 여부. false면 번들링된 폰트만 사용.",
+      "parameters": "bool (기본값: true)",
+      "returns": "설정값",
+      "example": "GoogleFonts.config.allowRuntimeFetching = false;"
+    },
+    {
+      "name": "GoogleFonts.getFont()",
+      "description": "폰트 이름 문자열로 TextStyle을 가져옵니다. 동적 폰트 선택에 유용.",
+      "parameters": "String fontFamily, + TextStyle 속성들",
+      "returns": "TextStyle",
+      "example": "GoogleFonts.getFont('Noto Sans KR', fontSize: 16)"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "폰트가 기본 폰트로 표시됨 (로드 실패)",
+      "cause": "네트워크 연결 문제이거나, 잘못된 폰트 이름을 사용했습니다.",
+      "solution": "1. 폰트 이름 확인 (카멜케이스 변환 규칙 준수)\n2. 네트워크 연결 확인\n3. fonts.google.com에서 폰트 존재 여부 확인",
+      "prevention": "개발 중에 폰트가 제대로 로드되는지 확인하고, 프로덕션에서는 번들링을 고려하세요."
+    },
+    {
+      "error": "앱 시작 시 폰트가 깜빡임 (FOUT)",
+      "cause": "폰트 다운로드 중에 기본 폰트로 먼저 렌더링되고, 다운로드 완료 후 교체됩니다.",
+      "solution": "GoogleFonts.pendingFonts()로 앱 시작 전에 폰트를 프리로드하세요.",
+      "prevention": "스플래시 화면에서 폰트를 프리로드하거나, 폰트를 번들링하세요."
+    },
+    {
+      "error": "allowRuntimeFetching = false인데 폰트가 없음",
+      "cause": "번들링 설정 없이 런타임 로딩을 비활성화했습니다.",
+      "solution": "pubspec.yaml에 폰트를 등록하거나, allowRuntimeFetching을 true로 설정하세요.",
+      "prevention": "프로덕션 빌드 전에 사용하는 모든 폰트가 번들링되었는지 확인하세요."
+    },
+    {
+      "error": "한글이 깨져서 표시됨",
+      "cause": "사용한 폰트가 한글을 지원하지 않습니다.",
+      "solution": "한글 지원 폰트를 사용하세요: Noto Sans KR, Nanum Gothic 등",
+      "prevention": "한글 앱에서는 Noto Sans KR 등 CJK 폰트를 기본으로 사용하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "프로덕션에서 폰트 번들링",
+      "description": "앱 스토어 배포 시에는 폰트를 번들링하여 오프라인 지원과 일관된 경험을 제공하세요.",
+      "doThis": "GoogleFonts.config.allowRuntimeFetching = false;\n// + pubspec.yaml에 폰트 등록",
+      "dontDoThis": "프로덕션에서 런타임 폰트 다운로드 의존"
+    },
+    {
+      "title": "필요한 weight만 사용",
+      "description": "폰트의 모든 weight를 사용하지 말고, 실제로 필요한 것만 사용/번들링하세요.",
+      "doThis": "// 필요한 weight만\nw400 (Regular), w700 (Bold) 두 가지만 사용",
+      "dontDoThis": "// 모든 weight 번들링\nw100, w200, w300, w400, w500, w600, w700, w800, w900"
+    },
+    {
+      "title": "테마 레벨에서 폰트 설정",
+      "description": "개별 Text 위젯이 아닌 ThemeData에서 폰트를 설정하면 일관성을 유지하기 쉽습니다.",
+      "doThis": "ThemeData(textTheme: GoogleFonts.notoSansKrTextTheme())",
+      "dontDoThis": "// 모든 Text에 개별 설정\nText('...', style: GoogleFonts.notoSansKr())"
+    }
+  ],
+
+  "tips": [
+    "💡 폰트 이름을 모르겠다면 fonts.google.com에서 검색하고 카멜케이스로 변환하세요",
+    "🌏 한글 앱에서는 Noto Sans KR을 기본으로, 강조할 때 Jua나 Black Han Sans 등을 사용하세요",
+    "⚡ 스플래시 화면에서 GoogleFonts.pendingFonts()로 프리로드하면 깜빡임을 방지할 수 있습니다",
+    "📦 앱 크기가 중요하다면 Variable Font(.ttf 하나로 모든 weight)를 사용하세요",
+    "🔧 GoogleFonts.asMap()으로 사용 가능한 모든 폰트 목록을 확인할 수 있습니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "flutter_native_splash",
+      "description": "네이티브 스플래시 화면. 폰트 프리로드와 함께 사용하면 좋음"
+    },
+    {
+      "name": "auto_size_text",
+      "description": "텍스트 크기를 자동 조절. Google Fonts와 함께 사용 가능"
+    },
+    {
+      "name": "flutter_screenutil",
+      "description": "반응형 폰트 크기 설정. Google Fonts와 함께 사용 가능"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/google_fonts"},
+    {"title": "GitHub 저장소", "url": "https://github.com/material-foundation/flutter-packages/tree/main/packages/google_fonts"},
+    {"title": "Google Fonts", "url": "https://fonts.google.com/"},
+    {"title": "폰트 번들링 가이드", "url": "https://pub.dev/packages/google_fonts#bundling-fonts-when-releasing"}
+  ]
+}

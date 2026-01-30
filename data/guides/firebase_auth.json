@@ -1,0 +1,143 @@
+{
+  "packageName": "firebase_auth",
+  "overview": {
+    "what": "firebase_auth는 Firebase Authentication을 Flutter 앱에 통합하는 공식 플러그인입니다. 이메일/비밀번호, 소셜 로그인, 전화번호 인증 등 다양한 인증 방식을 제공합니다.",
+    "why": "인증 시스템을 직접 구축하는 것은 복잡하고 보안 위험이 있습니다. Firebase Auth는 검증된 인증 인프라를 제공하고, 토큰 관리, 세션 처리 등을 자동으로 해줍니다.",
+    "when": "사용자 회원가입/로그인이 필요한 모든 앱, 소셜 로그인(Google, Apple, Facebook 등) 구현, 전화번호 인증이 필요할 때 사용합니다.",
+    "features": [
+      "이메일/비밀번호 인증",
+      "Google, Apple, Facebook 소셜 로그인",
+      "전화번호 SMS 인증",
+      "익명 인증",
+      "이메일 링크 인증",
+      "다중 인증(MFA) 지원",
+      "실시간 인증 상태 스트림"
+    ]
+  },
+  "steps": [
+    {
+      "title": "Firebase 프로젝트 설정",
+      "description": "Firebase 콘솔에서 프로젝트를 생성하고 FlutterFire CLI로 설정합니다.",
+      "code": "# FlutterFire CLI 설치\ndart pub global activate flutterfire_cli\n\n# Firebase 프로젝트 설정 (자동으로 설정 파일 생성)\nflutterfire configure\n\n# pubspec.yaml\ndependencies:\n  flutter:\n    sdk: flutter\n  firebase_core: ^2.27.0\n  firebase_auth: ^4.17.0\n\n# main.dart에서 Firebase 초기화\nimport 'package:firebase_core/firebase_core.dart';\nimport 'firebase_options.dart';\n\nvoid main() async {\n  WidgetsFlutterBinding.ensureInitialized();\n  await Firebase.initializeApp(\n    options: DefaultFirebaseOptions.currentPlatform,\n  );\n  runApp(const MyApp());\n}",
+      "explanation": "FlutterFire CLI가 google-services.json (Android)와 GoogleService-Info.plist (iOS) 설정을 자동으로 처리합니다. Firebase 콘솔에서 Authentication을 활성화하세요."
+    },
+    {
+      "title": "이메일/비밀번호 인증",
+      "description": "가장 기본적인 이메일/비밀번호 회원가입과 로그인을 구현합니다.",
+      "code": "import 'package:firebase_auth/firebase_auth.dart';\n\nclass EmailAuthService {\n  final FirebaseAuth _auth = FirebaseAuth.instance;\n\n  // 현재 사용자\n  User? get currentUser => _auth.currentUser;\n\n  // 인증 상태 스트림\n  Stream<User?> get authStateChanges => _auth.authStateChanges();\n\n  // 회원가입\n  Future<UserCredential> signUp({\n    required String email,\n    required String password,\n  }) async {\n    try {\n      final credential = await _auth.createUserWithEmailAndPassword(\n        email: email,\n        password: password,\n      );\n      \n      // 이메일 인증 메일 발송\n      await credential.user?.sendEmailVerification();\n      \n      return credential;\n    } on FirebaseAuthException catch (e) {\n      throw _handleAuthException(e);\n    }\n  }\n\n  // 로그인\n  Future<UserCredential> signIn({\n    required String email,\n    required String password,\n  }) async {\n    try {\n      return await _auth.signInWithEmailAndPassword(\n        email: email,\n        password: password,\n      );\n    } on FirebaseAuthException catch (e) {\n      throw _handleAuthException(e);\n    }\n  }\n\n  // 로그아웃\n  Future<void> signOut() async {\n    await _auth.signOut();\n  }\n\n  // 비밀번호 재설정 이메일 발송\n  Future<void> sendPasswordResetEmail(String email) async {\n    try {\n      await _auth.sendPasswordResetEmail(email: email);\n    } on FirebaseAuthException catch (e) {\n      throw _handleAuthException(e);\n    }\n  }\n\n  // 이메일 인증 확인\n  Future<bool> isEmailVerified() async {\n    await _auth.currentUser?.reload();\n    return _auth.currentUser?.emailVerified ?? false;\n  }\n\n  // 에러 처리\n  String _handleAuthException(FirebaseAuthException e) {\n    switch (e.code) {\n      case 'email-already-in-use':\n        return '이미 사용 중인 이메일입니다.';\n      case 'invalid-email':\n        return '유효하지 않은 이메일 형식입니다.';\n      case 'weak-password':\n        return '비밀번호가 너무 약합니다.';\n      case 'user-not-found':\n        return '등록되지 않은 이메일입니다.';\n      case 'wrong-password':\n        return '비밀번호가 일치하지 않습니다.';\n      case 'user-disabled':\n        return '비활성화된 계정입니다.';\n      case 'too-many-requests':\n        return '너무 많은 시도입니다. 잠시 후 다시 시도하세요.';\n      default:\n        return '인증 오류가 발생했습니다: ${e.message}';\n    }\n  }\n}",
+      "explanation": "createUserWithEmailAndPassword로 회원가입, signInWithEmailAndPassword로 로그인합니다. FirebaseAuthException으로 에러를 처리하고 사용자 친화적인 메시지를 제공합니다."
+    },
+    {
+      "title": "Google 로그인",
+      "description": "Google 소셜 로그인을 구현합니다.",
+      "code": "# pubspec.yaml에 추가\ndependencies:\n  google_sign_in: ^6.2.1\n\n# iOS: ios/Runner/Info.plist에 URL scheme 추가 (Firebase 콘솔에서 확인)\n<key>CFBundleURLTypes</key>\n<array>\n  <dict>\n    <key>CFBundleURLSchemes</key>\n    <array>\n      <string>com.googleusercontent.apps.YOUR_CLIENT_ID</string>\n    </array>\n  </dict>\n</array>\n\nimport 'package:firebase_auth/firebase_auth.dart';\nimport 'package:google_sign_in/google_sign_in.dart';\n\nclass GoogleAuthService {\n  final FirebaseAuth _auth = FirebaseAuth.instance;\n  final GoogleSignIn _googleSignIn = GoogleSignIn();\n\n  // Google 로그인\n  Future<UserCredential?> signInWithGoogle() async {\n    try {\n      // Google 로그인 플로우\n      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();\n      \n      if (googleUser == null) {\n        // 사용자가 로그인 취소\n        return null;\n      }\n\n      // 인증 정보 가져오기\n      final GoogleSignInAuthentication googleAuth = \n          await googleUser.authentication;\n\n      // Firebase credential 생성\n      final credential = GoogleAuthProvider.credential(\n        accessToken: googleAuth.accessToken,\n        idToken: googleAuth.idToken,\n      );\n\n      // Firebase에 로그인\n      return await _auth.signInWithCredential(credential);\n    } on FirebaseAuthException catch (e) {\n      throw 'Firebase 인증 오류: ${e.message}';\n    } catch (e) {\n      throw 'Google 로그인 오류: $e';\n    }\n  }\n\n  // Google 로그아웃\n  Future<void> signOut() async {\n    await _googleSignIn.signOut();\n    await _auth.signOut();\n  }\n}\n\n// Apple 로그인 (iOS)\n# pubspec.yaml\ndependencies:\n  sign_in_with_apple: ^5.0.0\n\nimport 'package:sign_in_with_apple/sign_in_with_apple.dart';\n\nclass AppleAuthService {\n  final FirebaseAuth _auth = FirebaseAuth.instance;\n\n  Future<UserCredential> signInWithApple() async {\n    // Apple 인증 요청\n    final appleCredential = await SignInWithApple.getAppleIDCredential(\n      scopes: [\n        AppleIDAuthorizationScopes.email,\n        AppleIDAuthorizationScopes.fullName,\n      ],\n    );\n\n    // Firebase credential 생성\n    final oauthCredential = OAuthProvider('apple.com').credential(\n      idToken: appleCredential.identityToken,\n      accessToken: appleCredential.authorizationCode,\n    );\n\n    // Firebase에 로그인\n    return await _auth.signInWithCredential(oauthCredential);\n  }\n}",
+      "explanation": "Google 로그인은 google_sign_in 패키지를 사용합니다. Apple 로그인은 sign_in_with_apple 패키지를 사용합니다. Firebase 콘솔에서 각 제공자를 활성화해야 합니다."
+    },
+    {
+      "title": "전화번호 인증",
+      "description": "SMS를 통한 전화번호 인증을 구현합니다.",
+      "code": "import 'package:firebase_auth/firebase_auth.dart';\n\nclass PhoneAuthService {\n  final FirebaseAuth _auth = FirebaseAuth.instance;\n  String? _verificationId;\n\n  // 인증번호 발송\n  Future<void> sendVerificationCode({\n    required String phoneNumber,\n    required Function(String) onCodeSent,\n    required Function(String) onError,\n    required Function(UserCredential) onAutoVerified,\n  }) async {\n    await _auth.verifyPhoneNumber(\n      phoneNumber: phoneNumber, // +821012345678 형식\n      timeout: const Duration(seconds: 60),\n      \n      // 인증번호 발송됨\n      codeSent: (verificationId, resendToken) {\n        _verificationId = verificationId;\n        onCodeSent('인증번호가 발송되었습니다.');\n      },\n      \n      // 자동 인증 완료 (Android)\n      verificationCompleted: (credential) async {\n        final userCredential = await _auth.signInWithCredential(credential);\n        onAutoVerified(userCredential);\n      },\n      \n      // 인증 실패\n      verificationFailed: (exception) {\n        String message;\n        switch (exception.code) {\n          case 'invalid-phone-number':\n            message = '유효하지 않은 전화번호입니다.';\n            break;\n          case 'too-many-requests':\n            message = '너무 많은 요청입니다. 잠시 후 다시 시도하세요.';\n            break;\n          default:\n            message = exception.message ?? '인증 오류가 발생했습니다.';\n        }\n        onError(message);\n      },\n      \n      // 자동 인증 타임아웃\n      codeAutoRetrievalTimeout: (verificationId) {\n        _verificationId = verificationId;\n      },\n    );\n  }\n\n  // 인증번호 확인\n  Future<UserCredential> verifyCode(String smsCode) async {\n    if (_verificationId == null) {\n      throw '인증을 먼저 요청해주세요.';\n    }\n\n    final credential = PhoneAuthProvider.credential(\n      verificationId: _verificationId!,\n      smsCode: smsCode,\n    );\n\n    return await _auth.signInWithCredential(credential);\n  }\n\n  // 기존 계정에 전화번호 연결\n  Future<void> linkPhoneNumber(String smsCode) async {\n    if (_verificationId == null || _auth.currentUser == null) {\n      throw '인증 정보가 없습니다.';\n    }\n\n    final credential = PhoneAuthProvider.credential(\n      verificationId: _verificationId!,\n      smsCode: smsCode,\n    );\n\n    await _auth.currentUser!.linkWithCredential(credential);\n  }\n}",
+      "explanation": "verifyPhoneNumber로 SMS를 발송하고, 사용자가 입력한 코드를 PhoneAuthProvider.credential로 검증합니다. Android에서는 자동 인증이 가능합니다."
+    },
+    {
+      "title": "인증 상태 관리 및 UI 통합",
+      "description": "StreamBuilder로 인증 상태를 실시간으로 감지하고 UI에 반영합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:firebase_auth/firebase_auth.dart';\n\n// 인증 래퍼\nclass AuthWrapper extends StatelessWidget {\n  const AuthWrapper({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return StreamBuilder<User?>(\n      stream: FirebaseAuth.instance.authStateChanges(),\n      builder: (context, snapshot) {\n        // 로딩 중\n        if (snapshot.connectionState == ConnectionState.waiting) {\n          return const Scaffold(\n            body: Center(child: CircularProgressIndicator()),\n          );\n        }\n\n        // 로그인됨\n        if (snapshot.hasData) {\n          return HomeScreen(user: snapshot.data!);\n        }\n\n        // 로그인 안됨\n        return const LoginScreen();\n      },\n    );\n  }\n}\n\n// 로그인 화면\nclass LoginScreen extends StatefulWidget {\n  const LoginScreen({super.key});\n\n  @override\n  State<LoginScreen> createState() => _LoginScreenState();\n}\n\nclass _LoginScreenState extends State<LoginScreen> {\n  final _auth = FirebaseAuth.instance;\n  final _emailController = TextEditingController();\n  final _passwordController = TextEditingController();\n  bool _isLoading = false;\n  bool _isLogin = true; // true: 로그인, false: 회원가입\n\n  Future<void> _submit() async {\n    final email = _emailController.text.trim();\n    final password = _passwordController.text.trim();\n\n    if (email.isEmpty || password.isEmpty) {\n      _showError('이메일과 비밀번호를 입력하세요.');\n      return;\n    }\n\n    setState(() => _isLoading = true);\n\n    try {\n      if (_isLogin) {\n        await _auth.signInWithEmailAndPassword(\n          email: email,\n          password: password,\n        );\n      } else {\n        await _auth.createUserWithEmailAndPassword(\n          email: email,\n          password: password,\n        );\n      }\n    } on FirebaseAuthException catch (e) {\n      _showError(_getErrorMessage(e.code));\n    } finally {\n      setState(() => _isLoading = false);\n    }\n  }\n\n  String _getErrorMessage(String code) {\n    switch (code) {\n      case 'email-already-in-use':\n        return '이미 사용 중인 이메일입니다.';\n      case 'invalid-email':\n        return '유효하지 않은 이메일입니다.';\n      case 'weak-password':\n        return '비밀번호가 너무 약합니다.';\n      case 'user-not-found':\n        return '등록되지 않은 이메일입니다.';\n      case 'wrong-password':\n        return '비밀번호가 일치하지 않습니다.';\n      default:\n        return '오류가 발생했습니다.';\n    }\n  }\n\n  void _showError(String message) {\n    ScaffoldMessenger.of(context).showSnackBar(\n      SnackBar(content: Text(message), backgroundColor: Colors.red),\n    );\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: Text(_isLogin ? '로그인' : '회원가입')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            TextField(\n              controller: _emailController,\n              decoration: const InputDecoration(\n                labelText: '이메일',\n                prefixIcon: Icon(Icons.email),\n              ),\n              keyboardType: TextInputType.emailAddress,\n            ),\n            const SizedBox(height: 16),\n            TextField(\n              controller: _passwordController,\n              decoration: const InputDecoration(\n                labelText: '비밀번호',\n                prefixIcon: Icon(Icons.lock),\n              ),\n              obscureText: true,\n            ),\n            const SizedBox(height: 24),\n            SizedBox(\n              width: double.infinity,\n              height: 48,\n              child: ElevatedButton(\n                onPressed: _isLoading ? null : _submit,\n                child: _isLoading\n                    ? const CircularProgressIndicator(color: Colors.white)\n                    : Text(_isLogin ? '로그인' : '회원가입'),\n              ),\n            ),\n            const SizedBox(height: 16),\n            TextButton(\n              onPressed: () => setState(() => _isLogin = !_isLogin),\n              child: Text(_isLogin ? '계정이 없으신가요? 회원가입' : '이미 계정이 있으신가요? 로그인'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\n// 홈 화면\nclass HomeScreen extends StatelessWidget {\n  final User user;\n\n  const HomeScreen({super.key, required this.user});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('홈'),\n        actions: [\n          IconButton(\n            icon: const Icon(Icons.logout),\n            onPressed: () => FirebaseAuth.instance.signOut(),\n          ),\n        ],\n      ),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            CircleAvatar(\n              radius: 50,\n              backgroundImage: user.photoURL != null\n                  ? NetworkImage(user.photoURL!)\n                  : null,\n              child: user.photoURL == null\n                  ? const Icon(Icons.person, size: 50)\n                  : null,\n            ),\n            const SizedBox(height: 16),\n            Text(\n              user.displayName ?? user.email ?? 'Unknown',\n              style: const TextStyle(fontSize: 24),\n            ),\n            const SizedBox(height: 8),\n            Text(user.email ?? ''),\n            if (!user.emailVerified) ...[\n              const SizedBox(height: 16),\n              ElevatedButton(\n                onPressed: () => user.sendEmailVerification(),\n                child: const Text('이메일 인증하기'),\n              ),\n            ],\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "authStateChanges() 스트림으로 인증 상태를 실시간 감지합니다. 로그인/로그아웃 시 자동으로 UI가 업데이트됩니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "FirebaseAuth.instance",
+      "description": "Firebase Authentication의 싱글톤 인스턴스입니다. 모든 인증 작업은 이 인스턴스를 통해 수행됩니다."
+    },
+    {
+      "name": "authStateChanges()",
+      "description": "사용자의 인증 상태 변화를 실시간으로 스트림으로 제공합니다. StreamBuilder와 함께 사용하여 인증 상태에 따른 UI 전환을 구현합니다."
+    },
+    {
+      "name": "User / UserCredential",
+      "description": "User는 현재 로그인된 사용자 정보, UserCredential은 인증 결과입니다. uid, email, displayName, photoURL 등의 정보에 접근할 수 있습니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "createUserWithEmailAndPassword",
+      "signature": "Future<UserCredential> createUserWithEmailAndPassword({required String email, required String password})",
+      "description": "이메일과 비밀번호로 새 계정을 생성합니다."
+    },
+    {
+      "name": "signInWithEmailAndPassword",
+      "signature": "Future<UserCredential> signInWithEmailAndPassword({required String email, required String password})",
+      "description": "이메일과 비밀번호로 로그인합니다."
+    },
+    {
+      "name": "signInWithCredential",
+      "signature": "Future<UserCredential> signInWithCredential(AuthCredential credential)",
+      "description": "소셜 로그인 등의 자격 증명으로 로그인합니다."
+    },
+    {
+      "name": "signOut",
+      "signature": "Future<void> signOut()",
+      "description": "현재 사용자를 로그아웃합니다."
+    },
+    {
+      "name": "sendPasswordResetEmail",
+      "signature": "Future<void> sendPasswordResetEmail({required String email})",
+      "description": "비밀번호 재설정 이메일을 발송합니다."
+    },
+    {
+      "name": "authStateChanges",
+      "signature": "Stream<User?> authStateChanges()",
+      "description": "인증 상태 변화를 스트림으로 제공합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "FirebaseException: No Firebase App",
+      "cause": "Firebase.initializeApp()이 호출되지 않음",
+      "solution": "main() 함수에서 Firebase.initializeApp()을 await와 함께 호출하세요."
+    },
+    {
+      "error": "email-already-in-use",
+      "cause": "이미 등록된 이메일로 회원가입 시도",
+      "solution": "사용자에게 로그인을 유도하거나 비밀번호 재설정을 안내하세요."
+    },
+    {
+      "error": "operation-not-allowed",
+      "cause": "Firebase 콘솔에서 해당 인증 방식이 활성화되지 않음",
+      "solution": "Firebase 콘솔 > Authentication > Sign-in method에서 해당 제공자를 활성화하세요."
+    },
+    {
+      "error": "Google 로그인 실패 (iOS)",
+      "cause": "URL scheme이 설정되지 않음",
+      "solution": "Info.plist에 CFBundleURLSchemes를 추가하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "에러 메시지 사용자 친화적으로",
+      "description": "FirebaseAuthException의 code를 확인하여 사용자가 이해할 수 있는 한국어 메시지로 변환하세요."
+    },
+    {
+      "title": "이메일 인증 구현",
+      "description": "회원가입 후 sendEmailVerification()을 호출하고, emailVerified를 확인하여 인증된 사용자만 특정 기능을 사용하도록 하세요."
+    },
+    {
+      "title": "토큰 갱신 처리",
+      "description": "Firebase Auth는 토큰 갱신을 자동으로 처리합니다. API 호출 시 user.getIdToken()으로 항상 유효한 토큰을 가져오세요."
+    },
+    {
+      "title": "여러 인증 방식 연결",
+      "description": "linkWithCredential()로 하나의 계정에 여러 인증 방식(이메일, Google, Apple)을 연결할 수 있습니다."
+    }
+  ],
+  "tips": [
+    "Firebase 콘솔에서 각 인증 제공자를 먼저 활성화해야 합니다",
+    "Google 로그인에는 SHA-1 인증서 지문이 필요합니다 (Android)",
+    "Apple 로그인은 iOS 13+ 앱에서 필수입니다 (App Store 정책)",
+    "user.getIdToken(true)로 강제로 토큰을 갱신할 수 있습니다",
+    "Firebase Emulator를 사용하면 로컬에서 인증을 테스트할 수 있습니다",
+    "Security Rules에서 request.auth를 사용하여 인증된 사용자만 데이터에 접근하도록 설정하세요"
+  ]
+}

@@ -1,0 +1,228 @@
+{
+  "packageId": "animated_text_kit",
+  "title": "animated_text_kit 실전 마스터 가이드",
+  "generatedAt": "2026-01-27T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "4.2.2",
+  "packageLikes": 3245,
+
+  "overview": {
+    "what": "animated_text_kit는 Flutter에서 텍스트 애니메이션을 쉽게 구현할 수 있는 패키지입니다. 타이핑 효과, 페이드 인/아웃, 회전, 웨이브, 깜빡임 등 다양한 미리 정의된 텍스트 애니메이션을 제공합니다. 복잡한 AnimationController 없이 한 줄의 코드로 인상적인 텍스트 효과를 만들 수 있습니다.",
+    "why": "텍스트 애니메이션은 앱의 첫인상과 사용자 경험에 큰 영향을 줍니다. 직접 구현하려면 AnimationController, Tween, AnimatedBuilder 등 많은 코드가 필요하지만, animated_text_kit은 간단한 위젯으로 전문적인 효과를 제공합니다. 특히 온보딩, 스플래시, 로딩 화면에 효과적입니다.",
+    "when": "1) 스플래시/온보딩 화면의 타이틀 애니메이션, 2) AI 챗봇의 타이핑 효과, 3) 로딩 중 메시지 표시, 4) 동적인 인사 문구/슬로건 표시, 5) 주목을 끄는 텍스트 강조",
+    "features": [
+      "⌨️ Typewriter: 타자기 효과 (한 글자씩)",
+      "✨ Fade: 페이드 인/아웃 전환",
+      "🔄 Rotate: 회전하며 텍스트 변경",
+      "🌊 Wavy: 물결치듯 움직이는 효과",
+      "💡 Flicker: 깜빡이는 네온사인 효과"
+    ]
+  },
+
+  "description": "타이핑, 페이드, 회전 등 다양한 텍스트 애니메이션을 제공하는 Flutter 패키지",
+  "difficulty": "초급 - 한 줄로 애니메이션 적용 가능",
+  "estimatedTime": "20분",
+  "prerequisites": [
+    "Flutter 기본 위젯 사용법",
+    "TextStyle 속성 이해",
+    "애니메이션 기본 개념 (duration, curve)"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "AnimatedTextKit",
+      "explanation": "텍스트 애니메이션의 컨테이너 위젯입니다. animatedTexts 목록을 받아 순차적으로 또는 반복적으로 애니메이션을 실행합니다.",
+      "analogy": "🎬 영화 자막처럼, 텍스트가 순서대로 나타났다 사라지며 전환됩니다.",
+      "usage": "AnimatedTextKit(animatedTexts: [TypewriterAnimatedText('Hello')])"
+    },
+    {
+      "term": "AnimatedText",
+      "explanation": "개별 텍스트 애니메이션 효과입니다. TypewriterAnimatedText, FadeAnimatedText, RotateAnimatedText 등이 있습니다.",
+      "analogy": "🎨 그림 필터처럼, 같은 텍스트에 다른 효과를 적용합니다.",
+      "usage": "TypewriterAnimatedText('텍스트', speed: Duration(milliseconds: 100))"
+    },
+    {
+      "term": "repeatForever",
+      "explanation": "애니메이션을 무한 반복할지 여부입니다. false면 모든 텍스트를 한 번만 표시하고 마지막에서 멈춥니다.",
+      "analogy": "🔁 무한 재생 버튼처럼, 끝나면 처음부터 다시 시작합니다.",
+      "usage": "AnimatedTextKit(repeatForever: true, animatedTexts: [...])"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "animated_text_kit 패키지를 프로젝트에 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  animated_text_kit: ^4.2.2"
+      },
+      "commands": ["flutter pub add animated_text_kit", "flutter pub get"],
+      "explanation": "animated_text_kit은 순수 Dart 패키지로 네이티브 설정이 필요 없습니다.",
+      "platformSetup": {
+        "android": "추가 설정 불필요",
+        "ios": "추가 설정 불필요"
+      },
+      "beginnerTip": "💡 이 패키지는 Flutter의 기본 애니메이션 API를 사용하여 구현되어 있어 성능이 좋습니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "⌨️ Typewriter 효과 (타이핑)",
+      "description": "가장 많이 사용되는 타이핑 효과입니다. 텍스트가 한 글자씩 나타납니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/typewriter_example.dart",
+        "content": "import 'package:animated_text_kit/animated_text_kit.dart';\nimport 'package:flutter/material.dart';\n\nclass TypewriterExample extends StatelessWidget {\n  const TypewriterExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      backgroundColor: Colors.black,\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            // 1. 기본 Typewriter 효과\n            AnimatedTextKit(\n              animatedTexts: [\n                TypewriterAnimatedText(\n                  '안녕하세요!',\n                  textStyle: const TextStyle(\n                    fontSize: 32,\n                    fontWeight: FontWeight.bold,\n                    color: Colors.white,\n                  ),\n                  speed: const Duration(milliseconds: 100),\n                ),\n              ],\n              totalRepeatCount: 1,  // 한 번만 실행\n            ),\n\n            const SizedBox(height: 40),\n\n            // 2. 여러 텍스트 순환\n            DefaultTextStyle(\n              style: const TextStyle(\n                fontSize: 24,\n                color: Colors.cyan,\n                fontFamily: 'monospace',\n              ),\n              child: AnimatedTextKit(\n                animatedTexts: [\n                  TypewriterAnimatedText('Flutter가 좋아요'),\n                  TypewriterAnimatedText('개발이 즐거워요'),\n                  TypewriterAnimatedText('앱을 만들어요'),\n                ],\n                repeatForever: true,  // 무한 반복\n                pause: const Duration(milliseconds: 1000),  // 텍스트 간 대기\n              ),\n            ),\n\n            const SizedBox(height: 40),\n\n            // 3. 타이핑 + 커서\n            Row(\n              mainAxisAlignment: MainAxisAlignment.center,\n              children: [\n                const Text('> ', style: TextStyle(color: Colors.green, fontSize: 20)),\n                AnimatedTextKit(\n                  animatedTexts: [\n                    TypewriterAnimatedText(\n                      'npm install flutter',\n                      textStyle: const TextStyle(\n                        fontSize: 20,\n                        color: Colors.green,\n                        fontFamily: 'monospace',\n                      ),\n                      speed: const Duration(milliseconds: 50),\n                      cursor: '|',  // 커서 문자\n                    ),\n                  ],\n                  totalRepeatCount: 1,\n                  displayFullTextOnTap: true,  // 탭하면 전체 텍스트 표시\n                ),\n              ],\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【TypewriterAnimatedText 주요 옵션】\n• speed: 글자 간 타이핑 속도 (Duration)\n• cursor: 커서 문자 (기본값 '_')\n• textStyle: 텍스트 스타일\n\n【AnimatedTextKit 주요 옵션】\n• repeatForever: 무한 반복 여부\n• totalRepeatCount: 반복 횟수\n• pause: 각 텍스트 표시 후 대기 시간\n• displayFullTextOnTap: 탭 시 전체 텍스트 즉시 표시",
+      "beginnerTip": "⌨️ AI 챗봇이나 터미널 느낌을 낼 때 Typewriter 효과가 매우 효과적입니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "✨ 다양한 애니메이션 효과",
+      "description": "Fade, Rotate, Scale, Wavy 등 다양한 텍스트 애니메이션입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/various_effects.dart",
+        "content": "import 'package:animated_text_kit/animated_text_kit.dart';\nimport 'package:flutter/material.dart';\n\nclass VariousEffectsExample extends StatelessWidget {\n  const VariousEffectsExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('다양한 효과')),\n      body: SingleChildScrollView(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            // 1. Fade 효과 (페이드 인/아웃)\n            _buildSection(\n              'Fade 효과',\n              AnimatedTextKit(\n                animatedTexts: [\n                  FadeAnimatedText(\n                    '페이드 인',\n                    textStyle: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),\n                    duration: const Duration(milliseconds: 2000),\n                  ),\n                  FadeAnimatedText(\n                    '페이드 아웃',\n                    textStyle: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),\n                  ),\n                ],\n                repeatForever: true,\n              ),\n            ),\n\n            // 2. Rotate 효과 (회전)\n            _buildSection(\n              'Rotate 효과',\n              AnimatedTextKit(\n                animatedTexts: [\n                  RotateAnimatedText(\n                    '회전!',\n                    textStyle: const TextStyle(fontSize: 28, color: Colors.purple),\n                    rotateOut: true,\n                  ),\n                  RotateAnimatedText(\n                    'AWESOME',\n                    textStyle: const TextStyle(fontSize: 28, color: Colors.blue),\n                  ),\n                  RotateAnimatedText(\n                    'FLUTTER',\n                    textStyle: const TextStyle(fontSize: 28, color: Colors.green),\n                  ),\n                ],\n                repeatForever: true,\n              ),\n            ),\n\n            // 3. Scale 효과 (확대/축소)\n            _buildSection(\n              'Scale 효과',\n              AnimatedTextKit(\n                animatedTexts: [\n                  ScaleAnimatedText(\n                    '확대!',\n                    textStyle: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),\n                    scalingFactor: 0.2,  // 시작 크기 비율\n                  ),\n                  ScaleAnimatedText(\n                    '축소!',\n                    textStyle: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),\n                  ),\n                ],\n                repeatForever: true,\n              ),\n            ),\n\n            // 4. Wavy 효과 (물결)\n            _buildSection(\n              'Wavy 효과',\n              AnimatedTextKit(\n                animatedTexts: [\n                  WavyAnimatedText(\n                    'Hello World',\n                    textStyle: const TextStyle(\n                      fontSize: 28,\n                      fontWeight: FontWeight.bold,\n                      color: Colors.teal,\n                    ),\n                    speed: const Duration(milliseconds: 200),\n                  ),\n                ],\n                repeatForever: true,\n                isRepeatingAnimation: true,\n              ),\n            ),\n\n            // 5. Colorize 효과 (색상 변화)\n            _buildSection(\n              'Colorize 효과',\n              AnimatedTextKit(\n                animatedTexts: [\n                  ColorizeAnimatedText(\n                    'Colorize',\n                    textStyle: const TextStyle(\n                      fontSize: 36,\n                      fontWeight: FontWeight.bold,\n                    ),\n                    colors: [\n                      Colors.purple,\n                      Colors.blue,\n                      Colors.yellow,\n                      Colors.red,\n                    ],\n                    speed: const Duration(milliseconds: 500),\n                  ),\n                ],\n                repeatForever: true,\n                isRepeatingAnimation: true,\n              ),\n            ),\n\n            // 6. Flicker 효과 (깜빡임)\n            _buildSection(\n              'Flicker 효과',\n              Container(\n                color: Colors.black,\n                padding: const EdgeInsets.all(16),\n                child: AnimatedTextKit(\n                  animatedTexts: [\n                    FlickerAnimatedText(\n                      'NEON',\n                      textStyle: const TextStyle(\n                        fontSize: 40,\n                        color: Colors.pink,\n                        fontWeight: FontWeight.bold,\n                        shadows: [\n                          Shadow(color: Colors.pink, blurRadius: 20),\n                          Shadow(color: Colors.pink, blurRadius: 40),\n                        ],\n                      ),\n                      speed: const Duration(milliseconds: 3000),\n                    ),\n                  ],\n                  repeatForever: true,\n                ),\n              ),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n\n  Widget _buildSection(String title, Widget animation) {\n    return Column(\n      crossAxisAlignment: CrossAxisAlignment.start,\n      children: [\n        Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey)),\n        const SizedBox(height: 8),\n        SizedBox(height: 80, child: Center(child: animation)),\n        const Divider(),\n        const SizedBox(height: 16),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "【애니메이션 종류】\n• FadeAnimatedText: 페이드 인/아웃\n• RotateAnimatedText: Y축 중심 회전\n• ScaleAnimatedText: 확대/축소\n• WavyAnimatedText: 각 글자가 물결치듯 움직임\n• ColorizeAnimatedText: 색상이 그라데이션처럼 변화\n• FlickerAnimatedText: 깜빡이는 네온 효과\n\n각 효과마다 고유한 파라미터가 있으니 필요에 따라 커스터마이징하세요.",
+      "beginnerTip": "🌊 Wavy 효과는 각 글자가 개별적으로 움직이고, Colorize는 전체가 색상 변화합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🎯 실전 활용 - 온보딩/스플래시",
+      "description": "실제 앱의 온보딩이나 스플래시 화면에 텍스트 애니메이션을 적용합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/splash_screen.dart",
+        "content": "import 'package:animated_text_kit/animated_text_kit.dart';\nimport 'package:flutter/material.dart';\n\nclass AnimatedSplashScreen extends StatefulWidget {\n  const AnimatedSplashScreen({super.key});\n\n  @override\n  State<AnimatedSplashScreen> createState() => _AnimatedSplashScreenState();\n}\n\nclass _AnimatedSplashScreenState extends State<AnimatedSplashScreen> {\n  @override\n  void initState() {\n    super.initState();\n    // 애니메이션 완료 후 메인 화면으로 이동\n    Future.delayed(const Duration(seconds: 4), () {\n      if (mounted) {\n        Navigator.pushReplacementNamed(context, '/home');\n      }\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      backgroundColor: Colors.indigo.shade900,\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            // 로고 애니메이션 (Scale)\n            AnimatedTextKit(\n              animatedTexts: [\n                ScaleAnimatedText(\n                  '🚀',\n                  textStyle: const TextStyle(fontSize: 80),\n                  scalingFactor: 0.5,\n                  duration: const Duration(milliseconds: 1500),\n                ),\n              ],\n              totalRepeatCount: 1,\n            ),\n\n            const SizedBox(height: 20),\n\n            // 앱 이름 (Typewriter)\n            AnimatedTextKit(\n              animatedTexts: [\n                TypewriterAnimatedText(\n                  'My Awesome App',\n                  textStyle: const TextStyle(\n                    fontSize: 32,\n                    fontWeight: FontWeight.bold,\n                    color: Colors.white,\n                  ),\n                  speed: const Duration(milliseconds: 100),\n                ),\n              ],\n              totalRepeatCount: 1,\n            ),\n\n            const SizedBox(height: 10),\n\n            // 슬로건 (Fade)\n            AnimatedTextKit(\n              animatedTexts: [\n                FadeAnimatedText(\n                  '더 나은 내일을 위해',\n                  textStyle: TextStyle(\n                    fontSize: 16,\n                    color: Colors.white.withOpacity(0.7),\n                  ),\n                  duration: const Duration(milliseconds: 2000),\n                ),\n              ],\n              totalRepeatCount: 1,\n            ),\n\n            const SizedBox(height: 40),\n\n            // 로딩 인디케이터\n            const CircularProgressIndicator(\n              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\n// AI 챗봇 스타일 타이핑 효과\nclass ChatTypingEffect extends StatelessWidget {\n  final String message;\n  final VoidCallback onFinished;\n\n  const ChatTypingEffect({\n    super.key,\n    required this.message,\n    required this.onFinished,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    return AnimatedTextKit(\n      animatedTexts: [\n        TypewriterAnimatedText(\n          message,\n          textStyle: const TextStyle(\n            fontSize: 16,\n            color: Colors.black87,\n          ),\n          speed: const Duration(milliseconds: 30),\n        ),\n      ],\n      totalRepeatCount: 1,\n      onFinished: onFinished,\n      displayFullTextOnTap: true,\n    );\n  }\n}\n\n// 동적 인사 메시지\nclass DynamicGreeting extends StatelessWidget {\n  const DynamicGreeting({super.key});\n\n  String _getGreeting() {\n    final hour = DateTime.now().hour;\n    if (hour < 12) return '좋은 아침이에요';\n    if (hour < 18) return '좋은 오후예요';\n    return '좋은 저녁이에요';\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return AnimatedTextKit(\n      animatedTexts: [\n        TypewriterAnimatedText(\n          _getGreeting(),\n          textStyle: const TextStyle(\n            fontSize: 28,\n            fontWeight: FontWeight.bold,\n          ),\n          speed: const Duration(milliseconds: 80),\n        ),\n      ],\n      totalRepeatCount: 1,\n    );\n  }\n}\n\n// 키워드 강조 애니메이션\nclass HighlightKeywords extends StatelessWidget {\n  const HighlightKeywords({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Row(\n      mainAxisAlignment: MainAxisAlignment.center,\n      children: [\n        const Text(\n          '우리는 ',\n          style: TextStyle(fontSize: 24),\n        ),\n        SizedBox(\n          width: 150,\n          child: AnimatedTextKit(\n            animatedTexts: [\n              RotateAnimatedText(\n                '혁신적',\n                textStyle: const TextStyle(\n                  fontSize: 24,\n                  fontWeight: FontWeight.bold,\n                  color: Colors.blue,\n                ),\n              ),\n              RotateAnimatedText(\n                '창의적',\n                textStyle: const TextStyle(\n                  fontSize: 24,\n                  fontWeight: FontWeight.bold,\n                  color: Colors.green,\n                ),\n              ),\n              RotateAnimatedText(\n                '열정적',\n                textStyle: const TextStyle(\n                  fontSize: 24,\n                  fontWeight: FontWeight.bold,\n                  color: Colors.orange,\n                ),\n              ),\n            ],\n            repeatForever: true,\n            pause: const Duration(milliseconds: 500),\n          ),\n        ),\n        const Text(\n          '입니다',\n          style: TextStyle(fontSize: 24),\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "【실전 활용 패턴】\n\n1. **스플래시 화면**\n   - 로고, 앱 이름, 슬로건 순차 애니메이션\n   - Future.delayed로 메인 화면 전환\n\n2. **AI 챗봇 타이핑**\n   - TypewriterAnimatedText로 실시간 타이핑 효과\n   - onFinished 콜백으로 완료 감지\n\n3. **동적 인사**\n   - 시간대별 다른 메시지 표시\n\n4. **키워드 강조**\n   - 문장 중간에 변화하는 키워드\n   - Row로 정적 텍스트와 애니메이션 조합",
+      "beginnerTip": "🎯 displayFullTextOnTap: true로 설정하면 사용자가 탭하여 애니메이션을 건너뛸 수 있습니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "⚙️ 콜백과 고급 제어",
+      "description": "애니메이션 완료 감지, 일시정지, 재시작 등 고급 제어 기능입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/advanced_control.dart",
+        "content": "import 'package:animated_text_kit/animated_text_kit.dart';\nimport 'package:flutter/material.dart';\n\nclass AdvancedControlExample extends StatefulWidget {\n  const AdvancedControlExample({super.key});\n\n  @override\n  State<AdvancedControlExample> createState() => _AdvancedControlExampleState();\n}\n\nclass _AdvancedControlExampleState extends State<AdvancedControlExample> {\n  String _currentText = '';\n  int _animationIndex = 0;\n  bool _isFinished = false;\n  Key _animationKey = UniqueKey();  // 재시작용 키\n\n  final List<String> _texts = [\n    '첫 번째 메시지입니다.',\n    '두 번째 메시지입니다.',\n    '세 번째 메시지입니다.',\n    '마지막 메시지입니다!',\n  ];\n\n  void _restartAnimation() {\n    setState(() {\n      _animationKey = UniqueKey();\n      _animationIndex = 0;\n      _isFinished = false;\n      _currentText = '';\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('고급 제어')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            // 상태 표시\n            Card(\n              child: Padding(\n                padding: const EdgeInsets.all(16),\n                child: Column(\n                  crossAxisAlignment: CrossAxisAlignment.start,\n                  children: [\n                    Text('현재 인덱스: $_animationIndex / ${_texts.length - 1}'),\n                    Text('현재 텍스트: $_currentText'),\n                    Text('완료 여부: ${_isFinished ? \"완료\" : \"진행 중\"}'),\n                  ],\n                ),\n              ),\n            ),\n\n            const SizedBox(height: 32),\n\n            // 애니메이션 영역\n            Container(\n              height: 100,\n              padding: const EdgeInsets.all(16),\n              decoration: BoxDecoration(\n                color: Colors.grey.shade100,\n                borderRadius: BorderRadius.circular(12),\n              ),\n              child: Center(\n                child: AnimatedTextKit(\n                  key: _animationKey,  // 키 변경으로 재시작\n                  animatedTexts: _texts.map((text) {\n                    return TypewriterAnimatedText(\n                      text,\n                      textStyle: const TextStyle(\n                        fontSize: 20,\n                        fontWeight: FontWeight.bold,\n                      ),\n                      speed: const Duration(milliseconds: 50),\n                    );\n                  }).toList(),\n                  \n                  // 각 텍스트 시작 시 콜백\n                  onNext: (index, isLast) {\n                    setState(() {\n                      _animationIndex = index;\n                      _currentText = _texts[index];\n                    });\n                  },\n                  \n                  // 전체 애니메이션 완료 시 콜백\n                  onFinished: () {\n                    setState(() {\n                      _isFinished = true;\n                    });\n                  },\n                  \n                  // 각 텍스트 완료 시 콜백 (탭 포함)\n                  onNextBeforePause: (index, isLast) {\n                    debugPrint('텍스트 $index 표시 완료, 마지막: $isLast');\n                  },\n                  \n                  // 탭 시 전체 텍스트 표시\n                  displayFullTextOnTap: true,\n                  \n                  // 탭 콜백\n                  onTap: () {\n                    debugPrint('애니메이션 탭됨!');\n                  },\n                  \n                  // 한 번만 실행 (마지막 텍스트에서 멈춤)\n                  totalRepeatCount: 1,\n                  \n                  // 텍스트 간 대기 시간\n                  pause: const Duration(milliseconds: 1000),\n                  \n                  // 마지막 텍스트 표시 유지\n                  stopPauseOnTap: true,\n                ),\n              ),\n            ),\n\n            const SizedBox(height: 32),\n\n            // 컨트롤 버튼\n            Row(\n              mainAxisAlignment: MainAxisAlignment.center,\n              children: [\n                ElevatedButton.icon(\n                  onPressed: _restartAnimation,\n                  icon: const Icon(Icons.replay),\n                  label: const Text('재시작'),\n                ),\n              ],\n            ),\n\n            const SizedBox(height: 32),\n            const Divider(),\n            const SizedBox(height: 16),\n\n            // 조건부 애니메이션 예제\n            const Text('조건부 애니메이션', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 16),\n            _ConditionalAnimation(),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\n// 조건에 따라 다른 애니메이션 표시\nclass _ConditionalAnimation extends StatefulWidget {\n  @override\n  State<_ConditionalAnimation> createState() => _ConditionalAnimationState();\n}\n\nclass _ConditionalAnimationState extends State<_ConditionalAnimation> {\n  bool _isLoading = true;\n  bool _hasError = false;\n\n  void _toggleState() {\n    setState(() {\n      if (_isLoading) {\n        _isLoading = false;\n        _hasError = false;\n      } else if (!_hasError) {\n        _hasError = true;\n      } else {\n        _isLoading = true;\n        _hasError = false;\n      }\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      children: [\n        Container(\n          height: 60,\n          padding: const EdgeInsets.all(16),\n          decoration: BoxDecoration(\n            color: _hasError ? Colors.red.shade50 : Colors.grey.shade100,\n            borderRadius: BorderRadius.circular(8),\n          ),\n          child: Center(\n            child: _buildAnimation(),\n          ),\n        ),\n        const SizedBox(height: 16),\n        ElevatedButton(\n          onPressed: _toggleState,\n          child: const Text('상태 변경'),\n        ),\n      ],\n    );\n  }\n\n  Widget _buildAnimation() {\n    if (_isLoading) {\n      return AnimatedTextKit(\n        animatedTexts: [\n          WavyAnimatedText(\n            '로딩 중...',\n            textStyle: const TextStyle(fontSize: 18),\n          ),\n        ],\n        repeatForever: true,\n      );\n    }\n\n    if (_hasError) {\n      return AnimatedTextKit(\n        animatedTexts: [\n          FlickerAnimatedText(\n            '오류 발생!',\n            textStyle: const TextStyle(\n              fontSize: 18,\n              color: Colors.red,\n              fontWeight: FontWeight.bold,\n            ),\n          ),\n        ],\n        repeatForever: true,\n      );\n    }\n\n    return AnimatedTextKit(\n      animatedTexts: [\n        FadeAnimatedText(\n          '성공!',\n          textStyle: const TextStyle(\n            fontSize: 18,\n            color: Colors.green,\n            fontWeight: FontWeight.bold,\n          ),\n        ),\n      ],\n      totalRepeatCount: 1,\n    );\n  }\n}"
+      },
+      "explanation": "【주요 콜백】\n• onNext(index, isLast): 새 텍스트 시작 시\n• onNextBeforePause(index, isLast): 텍스트 표시 완료 후 대기 전\n• onFinished(): 모든 애니메이션 완료 시\n• onTap(): 위젯 탭 시\n\n【제어 옵션】\n• key 변경: 애니메이션 재시작\n• displayFullTextOnTap: 탭으로 건너뛰기\n• stopPauseOnTap: 탭 시 대기 중단\n• pause: 텍스트 간 대기 시간",
+      "beginnerTip": "🔄 AnimatedTextKit의 key를 변경하면 위젯이 재생성되어 애니메이션이 처음부터 다시 시작됩니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "AnimatedTextKit",
+      "description": "텍스트 애니메이션을 표시하는 메인 위젯입니다.",
+      "parameters": "animatedTexts, repeatForever, totalRepeatCount, pause, onFinished, onNext, ...",
+      "returns": "Widget",
+      "example": "AnimatedTextKit(animatedTexts: [TypewriterAnimatedText('Hello')])"
+    },
+    {
+      "name": "TypewriterAnimatedText",
+      "description": "타이핑 효과 애니메이션입니다.",
+      "parameters": "text, textStyle, speed, cursor",
+      "returns": "AnimatedText",
+      "example": "TypewriterAnimatedText('텍스트', speed: Duration(milliseconds: 100))"
+    },
+    {
+      "name": "FadeAnimatedText",
+      "description": "페이드 인/아웃 효과 애니메이션입니다.",
+      "parameters": "text, textStyle, duration, fadeInEnd, fadeOutBegin",
+      "returns": "AnimatedText",
+      "example": "FadeAnimatedText('텍스트', duration: Duration(seconds: 2))"
+    },
+    {
+      "name": "WavyAnimatedText",
+      "description": "물결 효과 애니메이션입니다.",
+      "parameters": "text, textStyle, speed",
+      "returns": "AnimatedText",
+      "example": "WavyAnimatedText('Hello', speed: Duration(milliseconds: 200))"
+    },
+    {
+      "name": "ColorizeAnimatedText",
+      "description": "색상 변화 애니메이션입니다.",
+      "parameters": "text, textStyle, colors, speed",
+      "returns": "AnimatedText",
+      "example": "ColorizeAnimatedText('Rainbow', colors: [Colors.red, Colors.blue])"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "텍스트가 잘려서 표시됨",
+      "cause": "AnimatedTextKit의 부모 위젯 크기가 텍스트보다 작습니다.",
+      "solution": "SizedBox나 Container로 충분한 공간을 확보하거나, Expanded/Flexible을 사용하세요.",
+      "prevention": "텍스트 길이를 고려한 레이아웃을 설계하세요."
+    },
+    {
+      "error": "애니메이션이 재시작되지 않음",
+      "cause": "같은 key로 위젯이 재사용되고 있습니다.",
+      "solution": "setState에서 UniqueKey()를 새로 할당하여 위젯을 재생성하세요.",
+      "prevention": "재시작이 필요한 애니메이션에는 key를 관리하세요."
+    },
+    {
+      "error": "DefaultTextStyle이 적용되지 않음",
+      "cause": "AnimatedText 내부에서 textStyle을 지정하면 DefaultTextStyle이 무시됩니다.",
+      "solution": "AnimatedText에 textStyle을 지정하지 않거나, 명시적으로 스타일을 전달하세요.",
+      "prevention": "스타일 적용 방식을 일관되게 유지하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "적절한 속도 설정",
+      "description": "너무 빠르거나 느린 애니메이션은 사용자 경험을 해칩니다.",
+      "doThis": "Typewriter: 50-100ms/글자\nFade: 1-2초\n사용자가 읽을 수 있는 속도",
+      "dontDoThis": "10ms/글자 (너무 빠름)\n5초 페이드 (너무 느림)"
+    },
+    {
+      "title": "건너뛰기 옵션 제공",
+      "description": "긴 애니메이션에는 탭으로 건너뛸 수 있는 옵션을 제공하세요.",
+      "doThis": "displayFullTextOnTap: true 설정",
+      "dontDoThis": "긴 타이핑 애니메이션을 강제로 끝까지 시청"
+    },
+    {
+      "title": "접근성 고려",
+      "description": "스크린 리더 사용자를 위해 Semantics를 추가하세요.",
+      "doThis": "Semantics(label: '전체 텍스트 내용', child: AnimatedTextKit(...))",
+      "dontDoThis": "접근성 레이블 없이 애니메이션만 표시"
+    }
+  ],
+
+  "tips": [
+    "💡 DefaultTextStyle으로 감싸면 모든 AnimatedText에 기본 스타일을 적용할 수 있습니다",
+    "⌨️ AI 챗봇 느낌을 내려면 Typewriter + 짧은 speed (30-50ms)를 사용하세요",
+    "🎨 Colorize 효과는 colors 배열에 최소 2개 이상의 색상이 필요합니다",
+    "🔄 repeatForever: false + totalRepeatCount: 1로 한 번만 실행하고 마지막에서 멈출 수 있습니다",
+    "✨ Flicker 효과에 TextStyle의 shadows를 추가하면 네온사인 느낌이 강해집니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "flutter_animate",
+      "description": "더 다양한 위젯 애니메이션. 텍스트 외 모든 위젯에 적용 가능"
+    },
+    {
+      "name": "shimmer",
+      "description": "Shimmer 로딩 효과. 텍스트와 스켈레톤 UI에 적합"
+    },
+    {
+      "name": "lottie",
+      "description": "After Effects 애니메이션. 복잡한 벡터 애니메이션에 적합"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/animated_text_kit"},
+    {"title": "GitHub 저장소", "url": "https://github.com/aagarwal1012/Animated-Text-Kit"},
+    {"title": "Flutter 애니메이션 가이드", "url": "https://docs.flutter.dev/ui/animations"}
+  ]
+}

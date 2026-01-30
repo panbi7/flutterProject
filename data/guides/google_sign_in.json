@@ -1,0 +1,221 @@
+{
+  "packageId": "google_sign_in",
+  "title": "google_sign_in 실전 마스터 가이드",
+  "generatedAt": "2026-01-28T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "6.2.2",
+  "packageLikes": 3600,
+
+  "overview": {
+    "what": "google_sign_in은 Flutter 앱에서 Google 계정으로 로그인할 수 있게 해주는 공식 플러그인입니다. 사용자의 Google 프로필 정보(이름, 이메일, 프로필 사진)를 가져올 수 있으며, Firebase Auth와 연동하여 백엔드 인증을 구현할 수 있습니다.",
+    "why": "직접 OAuth 2.0을 구현하면 토큰 관리, 리프레시 로직, 플랫폼별 처리가 복잡하지만, google_sign_in은 이를 추상화하여 간단한 API로 제공합니다. Google의 공식 SDK를 래핑하여 보안과 안정성이 검증되었고, 대부분의 사용자가 이미 Google 계정을 가지고 있어 회원가입 허들을 낮출 수 있습니다.",
+    "when": "1) 소셜 로그인으로 회원가입을 간소화할 때, 2) Google Calendar, Drive 등 Google API에 접근해야 할 때, 3) Firebase Auth와 함께 사용자 인증을 구현할 때, 4) 이메일/비밀번호 없이 빠른 로그인이 필요할 때, 5) 기존 Google 계정 사용자를 타겟으로 할 때",
+    "features": [
+      "🔐 간편 로그인: 버튼 하나로 Google 계정 인증",
+      "👤 프로필 정보: 이름, 이메일, 프로필 사진 자동 획득",
+      "🔑 OAuth 토큰: accessToken으로 Google API 접근 가능",
+      "🔄 자동 로그인: 이전 로그인 세션 자동 복원",
+      "📱 전 플랫폼: Android, iOS, Web 모두 지원"
+    ]
+  },
+
+  "description": "Flutter용 Google 계정 로그인 공식 플러그인",
+  "difficulty": "중급 - 플랫폼별 설정 필요",
+  "estimatedTime": "45분",
+  "prerequisites": [
+    "Google Cloud Console 프로젝트 생성",
+    "OAuth 2.0 클라이언트 ID 발급",
+    "SHA-1 인증서 지문 (Android)"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "GoogleSignIn",
+      "explanation": "Google 로그인 기능의 메인 클래스입니다. 로그인, 로그아웃, 현재 사용자 확인 등의 메서드를 제공합니다.",
+      "analogy": "🚪 호텔 프런트 데스크처럼, 체크인(로그인), 체크아웃(로그아웃), 예약 확인(현재 사용자)을 처리합니다.",
+      "usage": "final googleSignIn = GoogleSignIn(scopes: ['email']);"
+    },
+    {
+      "term": "GoogleSignInAccount",
+      "explanation": "로그인된 Google 사용자의 정보를 담고 있는 객체입니다. 이름, 이메일, 프로필 사진 URL 등을 포함합니다.",
+      "analogy": "🪪 신분증처럼, 로그인한 사용자가 누구인지 알려주는 정보를 담고 있습니다.",
+      "usage": "account.displayName, account.email, account.photoUrl"
+    },
+    {
+      "term": "Scopes",
+      "explanation": "앱이 접근하려는 Google 서비스의 범위입니다. 예를 들어 'email'은 이메일 읽기, 'https://www.googleapis.com/auth/calendar'는 캘린더 접근 권한입니다.",
+      "analogy": "📋 출입 허가증의 권한 목록처럼, 어떤 정보/기능에 접근할 수 있는지 정의합니다.",
+      "usage": "GoogleSignIn(scopes: ['email', 'https://www.googleapis.com/auth/calendar'])"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 Google Cloud Console 설정",
+      "description": "Google Cloud Console에서 OAuth 클라이언트 ID를 생성합니다.",
+      "code": {
+        "language": "text",
+        "filename": "설정 절차",
+        "content": "1. Google Cloud Console (console.cloud.google.com) 접속\n2. 새 프로젝트 생성 또는 기존 프로젝트 선택\n3. API 및 서비스 > OAuth 동의 화면 설정\n   - 앱 이름, 사용자 지원 이메일 입력\n   - 범위 추가: email, profile, openid\n4. 사용자 인증 정보 > OAuth 클라이언트 ID 만들기\n\n[Android 클라이언트 ID]\n- 애플리케이션 유형: Android\n- 패키지 이름: com.example.myapp (android/app/build.gradle의 applicationId)\n- SHA-1 인증서 지문: 아래 명령어로 확인\n\n[iOS 클라이언트 ID]\n- 애플리케이션 유형: iOS\n- 번들 ID: com.example.myapp (ios/Runner.xcodeproj에서 확인)"
+      },
+      "commands": [
+        "# 디버그 SHA-1 확인 (Mac/Linux)",
+        "keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android",
+        "",
+        "# 디버그 SHA-1 확인 (Windows)",
+        "keytool -list -v -keystore %USERPROFILE%\\.android\\debug.keystore -alias androiddebugkey -storepass android"
+      ],
+      "beginnerTip": "💡 디버그용과 릴리즈용 SHA-1이 다릅니다. 릴리즈 빌드에서는 릴리즈 키스토어의 SHA-1을 등록해야 합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📦 패키지 설치 및 플랫폼 설정",
+      "description": "google_sign_in 패키지를 설치하고 플랫폼별 설정을 합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  google_sign_in: ^6.2.2"
+      },
+      "commands": ["flutter pub add google_sign_in"],
+      "platformSetup": {
+        "android": "android/app/build.gradle에서 minSdkVersion 21 이상 확인. SHA-1이 등록된 google-services.json 사용 시 자동 설정됨.",
+        "ios": "Info.plist에 URL Scheme 추가 필요"
+      },
+      "subSteps": [
+        {
+          "title": "iOS 설정 (ios/Runner/Info.plist)",
+          "code": {
+            "language": "xml",
+            "filename": "ios/Runner/Info.plist",
+            "content": "<dict>\n  <!-- Google Sign-In URL Scheme -->\n  <key>CFBundleURLTypes</key>\n  <array>\n    <dict>\n      <key>CFBundleTypeRole</key>\n      <string>Editor</string>\n      <key>CFBundleURLSchemes</key>\n      <array>\n        <!-- Google Cloud Console에서 iOS 클라이언트 ID의 REVERSED_CLIENT_ID 값 -->\n        <string>com.googleusercontent.apps.YOUR_CLIENT_ID</string>\n      </array>\n    </dict>\n  </array>\n</dict>"
+          }
+        },
+        {
+          "title": "iOS Client ID 설정",
+          "code": {
+            "language": "dart",
+            "filename": "lib/main.dart",
+            "content": "// iOS에서는 clientId를 명시적으로 지정해야 함\nfinal GoogleSignIn _googleSignIn = GoogleSignIn(\n  // Google Cloud Console의 iOS 클라이언트 ID\n  clientId: 'YOUR_IOS_CLIENT_ID.apps.googleusercontent.com',\n  scopes: ['email', 'profile'],\n);"
+          }
+        }
+      ],
+      "beginnerTip": "⚠️ iOS에서 REVERSED_CLIENT_ID는 클라이언트 ID를 점(.)으로 구분하여 역순으로 배열한 것입니다. 예: com.googleusercontent.apps.123456789"
+    },
+    {
+      "stepNumber": 3,
+      "title": "🔐 기본 로그인 구현",
+      "description": "Google 로그인/로그아웃 기본 기능을 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/services/google_auth_service.dart",
+        "content": "import 'package:google_sign_in/google_sign_in.dart';\n\nclass GoogleAuthService {\n  // GoogleSignIn 인스턴스 (싱글톤으로 사용 권장)\n  static final GoogleSignIn _googleSignIn = GoogleSignIn(\n    scopes: [\n      'email',\n      'profile',\n    ],\n  );\n\n  // 현재 로그인된 사용자\n  static GoogleSignInAccount? get currentUser => _googleSignIn.currentUser;\n\n  // 로그인 상태 스트림\n  static Stream<GoogleSignInAccount?> get onCurrentUserChanged {\n    return _googleSignIn.onCurrentUserChanged;\n  }\n\n  // 로그인\n  static Future<GoogleSignInAccount?> signIn() async {\n    try {\n      final account = await _googleSignIn.signIn();\n      if (account != null) {\n        print('로그인 성공: ${account.displayName}');\n        print('이메일: ${account.email}');\n        print('프로필 사진: ${account.photoUrl}');\n      }\n      return account;\n    } catch (error) {\n      print('로그인 실패: $error');\n      return null;\n    }\n  }\n\n  // 자동 로그인 (이전 세션 복원)\n  static Future<GoogleSignInAccount?> signInSilently() async {\n    try {\n      return await _googleSignIn.signInSilently();\n    } catch (error) {\n      print('자동 로그인 실패: $error');\n      return null;\n    }\n  }\n\n  // 로그아웃\n  static Future<void> signOut() async {\n    await _googleSignIn.signOut();\n    print('로그아웃 완료');\n  }\n\n  // 연결 해제 (앱 권한 완전 제거)\n  static Future<void> disconnect() async {\n    await _googleSignIn.disconnect();\n    print('Google 계정 연결 해제');\n  }\n\n  // 액세스 토큰 획득 (Google API 호출용)\n  static Future<String?> getAccessToken() async {\n    final account = _googleSignIn.currentUser;\n    if (account == null) return null;\n    \n    final auth = await account.authentication;\n    return auth.accessToken;\n  }\n\n  // ID 토큰 획득 (백엔드 인증용)\n  static Future<String?> getIdToken() async {\n    final account = _googleSignIn.currentUser;\n    if (account == null) return null;\n    \n    final auth = await account.authentication;\n    return auth.idToken;\n  }\n}"
+      },
+      "explanation": "• signIn(): 로그인 UI 표시 후 사용자 계정 반환\n• signInSilently(): UI 없이 이전 세션 복원 시도\n• signOut(): 로그아웃 (다음에 다시 로그인 가능)\n• disconnect(): 앱 권한 완전 제거 (다음에 다시 권한 요청됨)\n• authentication: accessToken, idToken 획득",
+      "beginnerTip": "💡 signInSilently()를 앱 시작 시 호출하면 사용자가 로그인 버튼을 누르지 않아도 자동으로 이전 세션을 복원합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🎨 로그인 UI 구현",
+      "description": "Google 로그인 버튼과 사용자 정보를 표시하는 화면을 만듭니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/screens/login_screen.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:google_sign_in/google_sign_in.dart';\nimport '../services/google_auth_service.dart';\n\nclass LoginScreen extends StatefulWidget {\n  const LoginScreen({super.key});\n\n  @override\n  State<LoginScreen> createState() => _LoginScreenState();\n}\n\nclass _LoginScreenState extends State<LoginScreen> {\n  GoogleSignInAccount? _currentUser;\n  bool _isLoading = false;\n\n  @override\n  void initState() {\n    super.initState();\n    // 로그인 상태 변경 리스너\n    GoogleAuthService.onCurrentUserChanged.listen((account) {\n      setState(() => _currentUser = account);\n    });\n    // 앱 시작 시 자동 로그인 시도\n    _tryAutoSignIn();\n  }\n\n  Future<void> _tryAutoSignIn() async {\n    setState(() => _isLoading = true);\n    final account = await GoogleAuthService.signInSilently();\n    setState(() {\n      _currentUser = account;\n      _isLoading = false;\n    });\n  }\n\n  Future<void> _handleSignIn() async {\n    setState(() => _isLoading = true);\n    final account = await GoogleAuthService.signIn();\n    setState(() {\n      _currentUser = account;\n      _isLoading = false;\n    });\n  }\n\n  Future<void> _handleSignOut() async {\n    await GoogleAuthService.signOut();\n    setState(() => _currentUser = null);\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Google 로그인')),\n      body: Center(\n        child: _isLoading\n            ? const CircularProgressIndicator()\n            : _currentUser != null\n                ? _buildUserInfo()\n                : _buildSignInButton(),\n      ),\n    );\n  }\n\n  Widget _buildSignInButton() {\n    return Column(\n      mainAxisAlignment: MainAxisAlignment.center,\n      children: [\n        const Text(\n          'Google 계정으로 로그인하세요',\n          style: TextStyle(fontSize: 18),\n        ),\n        const SizedBox(height: 24),\n        // 기본 스타일 버튼\n        ElevatedButton.icon(\n          onPressed: _handleSignIn,\n          icon: Image.network(\n            'https://developers.google.com/identity/images/g-logo.png',\n            height: 24,\n          ),\n          label: const Text('Google로 로그인'),\n          style: ElevatedButton.styleFrom(\n            backgroundColor: Colors.white,\n            foregroundColor: Colors.black87,\n            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),\n          ),\n        ),\n        const SizedBox(height: 16),\n        // 커스텀 스타일 버튼\n        _buildGoogleSignInButton(),\n      ],\n    );\n  }\n\n  Widget _buildGoogleSignInButton() {\n    return InkWell(\n      onTap: _handleSignIn,\n      child: Container(\n        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),\n        decoration: BoxDecoration(\n          border: Border.all(color: Colors.grey.shade300),\n          borderRadius: BorderRadius.circular(4),\n        ),\n        child: Row(\n          mainAxisSize: MainAxisSize.min,\n          children: [\n            Image.network(\n              'https://developers.google.com/identity/images/g-logo.png',\n              height: 20,\n            ),\n            const SizedBox(width: 12),\n            const Text(\n              'Sign in with Google',\n              style: TextStyle(\n                fontSize: 14,\n                fontWeight: FontWeight.w500,\n                color: Colors.black54,\n              ),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n\n  Widget _buildUserInfo() {\n    return Column(\n      mainAxisAlignment: MainAxisAlignment.center,\n      children: [\n        // 프로필 사진\n        if (_currentUser!.photoUrl != null)\n          CircleAvatar(\n            radius: 50,\n            backgroundImage: NetworkImage(_currentUser!.photoUrl!),\n          )\n        else\n          CircleAvatar(\n            radius: 50,\n            child: Text(\n              _currentUser!.displayName?[0] ?? '?',\n              style: const TextStyle(fontSize: 32),\n            ),\n          ),\n        const SizedBox(height: 16),\n        \n        // 사용자 이름\n        Text(\n          _currentUser!.displayName ?? '이름 없음',\n          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),\n        ),\n        const SizedBox(height: 8),\n        \n        // 이메일\n        Text(\n          _currentUser!.email,\n          style: TextStyle(fontSize: 16, color: Colors.grey[600]),\n        ),\n        const SizedBox(height: 24),\n        \n        // 로그아웃 버튼\n        ElevatedButton(\n          onPressed: _handleSignOut,\n          child: const Text('로그아웃'),\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "• onCurrentUserChanged: 로그인 상태 변경 시 Stream으로 알림\n• signInSilently(): 앱 시작 시 자동 로그인 시도\n• displayName, email, photoUrl: 사용자 기본 정보\n• Google 브랜드 가이드라인에 맞는 로그인 버튼 스타일 적용",
+      "beginnerTip": "💡 Google 로그인 버튼은 브랜드 가이드라인을 따라야 합니다. 공식 로고를 사용하고, 버튼 텍스트는 'Sign in with Google' 형식을 권장합니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🔥 Firebase Auth 연동",
+      "description": "Google 로그인을 Firebase Authentication과 연동합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/services/firebase_google_auth.dart",
+        "content": "import 'package:firebase_auth/firebase_auth.dart';\nimport 'package:google_sign_in/google_sign_in.dart';\n\nclass FirebaseGoogleAuth {\n  static final FirebaseAuth _auth = FirebaseAuth.instance;\n  static final GoogleSignIn _googleSignIn = GoogleSignIn();\n\n  // 현재 Firebase 사용자\n  static User? get currentUser => _auth.currentUser;\n\n  // 인증 상태 스트림\n  static Stream<User?> get authStateChanges => _auth.authStateChanges();\n\n  // Google 로그인 + Firebase 연동\n  static Future<UserCredential?> signInWithGoogle() async {\n    try {\n      // 1. Google 로그인\n      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();\n      if (googleUser == null) {\n        // 사용자가 로그인 취소\n        return null;\n      }\n\n      // 2. 인증 정보 획득\n      final GoogleSignInAuthentication googleAuth = \n          await googleUser.authentication;\n\n      // 3. Firebase 자격 증명 생성\n      final AuthCredential credential = GoogleAuthProvider.credential(\n        accessToken: googleAuth.accessToken,\n        idToken: googleAuth.idToken,\n      );\n\n      // 4. Firebase에 로그인\n      final UserCredential userCredential = \n          await _auth.signInWithCredential(credential);\n\n      print('Firebase 로그인 성공: ${userCredential.user?.email}');\n      return userCredential;\n    } on FirebaseAuthException catch (e) {\n      print('Firebase 인증 오류: ${e.code} - ${e.message}');\n      return null;\n    } catch (e) {\n      print('로그인 오류: $e');\n      return null;\n    }\n  }\n\n  // 로그아웃\n  static Future<void> signOut() async {\n    await Future.wait([\n      _auth.signOut(),\n      _googleSignIn.signOut(),\n    ]);\n  }\n\n  // 계정 삭제\n  static Future<void> deleteAccount() async {\n    final user = _auth.currentUser;\n    if (user != null) {\n      // 재인증 필요할 수 있음\n      await user.delete();\n      await _googleSignIn.disconnect();\n    }\n  }\n\n  // 다른 제공자와 계정 연결\n  static Future<UserCredential?> linkWithGoogle() async {\n    final googleUser = await _googleSignIn.signIn();\n    if (googleUser == null) return null;\n\n    final googleAuth = await googleUser.authentication;\n    final credential = GoogleAuthProvider.credential(\n      accessToken: googleAuth.accessToken,\n      idToken: googleAuth.idToken,\n    );\n\n    return await _auth.currentUser?.linkWithCredential(credential);\n  }\n}\n\n// 사용 예시 위젯\nimport 'package:flutter/material.dart';\n\nclass FirebaseGoogleLoginScreen extends StatelessWidget {\n  const FirebaseGoogleLoginScreen({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return StreamBuilder<User?>(\n      stream: FirebaseGoogleAuth.authStateChanges,\n      builder: (context, snapshot) {\n        if (snapshot.connectionState == ConnectionState.waiting) {\n          return const Center(child: CircularProgressIndicator());\n        }\n\n        final user = snapshot.data;\n        \n        if (user != null) {\n          // 로그인된 상태\n          return Scaffold(\n            body: Center(\n              child: Column(\n                mainAxisAlignment: MainAxisAlignment.center,\n                children: [\n                  Text('환영합니다, ${user.displayName}!'),\n                  Text('UID: ${user.uid}'),\n                  const SizedBox(height: 16),\n                  ElevatedButton(\n                    onPressed: FirebaseGoogleAuth.signOut,\n                    child: const Text('로그아웃'),\n                  ),\n                ],\n              ),\n            ),\n          );\n        }\n\n        // 로그아웃된 상태\n        return Scaffold(\n          body: Center(\n            child: ElevatedButton(\n              onPressed: FirebaseGoogleAuth.signInWithGoogle,\n              child: const Text('Google로 로그인'),\n            ),\n          ),\n        );\n      },\n    );\n  }\n}"
+      },
+      "explanation": "• GoogleAuthProvider.credential(): Google 토큰으로 Firebase 자격 증명 생성\n• signInWithCredential(): Firebase에 해당 자격 증명으로 로그인\n• authStateChanges: Firebase 인증 상태 실시간 스트림\n• linkWithCredential(): 기존 계정에 Google 연결",
+      "beginnerTip": "💡 Firebase를 사용하면 사용자 정보가 Firebase Console에서 관리되고, 다른 소셜 로그인과 통합하기 쉽습니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "method": "signIn()",
+      "signature": "Future<GoogleSignInAccount?> signIn()",
+      "description": "Google 로그인 UI를 표시하고 사용자가 로그인하면 계정 정보를 반환합니다.",
+      "returnType": "Future<GoogleSignInAccount?>",
+      "example": "final account = await GoogleSignIn().signIn();"
+    },
+    {
+      "method": "signInSilently()",
+      "signature": "Future<GoogleSignInAccount?> signInSilently({...})",
+      "description": "UI 없이 이전 세션을 복원합니다. 실패하면 null을 반환합니다.",
+      "returnType": "Future<GoogleSignInAccount?>",
+      "example": "final account = await GoogleSignIn().signInSilently();"
+    },
+    {
+      "method": "signOut()",
+      "signature": "Future<GoogleSignInAccount?> signOut()",
+      "description": "현재 계정에서 로그아웃합니다. 다음 로그인 시 계정 선택 UI가 표시됩니다.",
+      "returnType": "Future<GoogleSignInAccount?>",
+      "example": "await GoogleSignIn().signOut();"
+    },
+    {
+      "method": "authentication",
+      "signature": "Future<GoogleSignInAuthentication> get authentication",
+      "description": "현재 계정의 인증 토큰(accessToken, idToken)을 가져옵니다.",
+      "returnType": "Future<GoogleSignInAuthentication>",
+      "example": "final auth = await account.authentication;"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "PlatformException(sign_in_failed, ..., 10)",
+      "cause": "Android에서 SHA-1 인증서 지문이 등록되지 않음",
+      "solution": "Google Cloud Console에서 Android 클라이언트의 SHA-1 지문이 올바르게 등록되어 있는지 확인하세요. 디버그와 릴리즈 키가 다릅니다."
+    },
+    {
+      "error": "ApiException: 12500",
+      "cause": "Google Play 서비스 버전 문제 또는 OAuth 설정 오류",
+      "solution": "1. 에뮬레이터에 Google Play 서비스가 설치되어 있는지 확인\n2. OAuth 동의 화면이 설정되어 있는지 확인\n3. 테스트 사용자로 등록되어 있는지 확인 (앱이 테스트 모드일 때)"
+    },
+    {
+      "error": "iOS에서 로그인 후 앱으로 돌아오지 않음",
+      "cause": "URL Scheme이 설정되지 않음",
+      "solution": "Info.plist에 REVERSED_CLIENT_ID를 URL Scheme으로 추가하세요."
+    },
+    {
+      "error": "MissingPluginException",
+      "cause": "네이티브 플러그인이 빌드되지 않음",
+      "solution": "flutter clean 후 앱을 완전히 재시작(hot restart 아닌 재설치)하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "싱글톤으로 GoogleSignIn 관리",
+      "description": "앱 전체에서 하나의 인스턴스만 사용하세요.",
+      "code": "class AuthService {\n  static final GoogleSignIn _googleSignIn = GoogleSignIn(\n    scopes: ['email', 'profile'],\n  );\n  \n  // 모든 곳에서 이 인스턴스 사용\n  static GoogleSignIn get instance => _googleSignIn;\n}"
+    },
+    {
+      "title": "앱 시작 시 자동 로그인 시도",
+      "description": "사용자 경험 향상을 위해 이전 세션을 자동으로 복원하세요.",
+      "code": "@override\nvoid initState() {\n  super.initState();\n  // 자동 로그인 시도\n  GoogleSignIn().signInSilently().then((account) {\n    if (account != null) {\n      // 로그인 성공, 메인 화면으로 이동\n      Navigator.pushReplacement(context, ...);\n    }\n  });\n}"
+    },
+    {
+      "title": "토큰 만료 처리",
+      "description": "accessToken이 만료될 수 있으므로 API 호출 전에 갱신하세요.",
+      "code": "Future<String?> getValidAccessToken() async {\n  final account = GoogleSignIn().currentUser;\n  if (account == null) return null;\n  \n  // authentication 호출 시 자동으로 토큰 갱신됨\n  final auth = await account.authentication;\n  return auth.accessToken;\n}"
+    }
+  ],
+
+  "tips": [
+    "🔐 프로덕션 빌드 전에 릴리즈 키의 SHA-1을 Google Cloud Console에 등록하세요.",
+    "📱 테스트 중에는 OAuth 동의 화면에서 테스트 사용자로 자신의 이메일을 추가해야 합니다.",
+    "🌐 Web에서 사용하려면 추가 설정이 필요합니다. 공식 문서를 참조하세요.",
+    "⚡ signInSilently()는 빠르지만, 네트워크 없이도 캐시된 정보로 성공할 수 있어 오프라인 상태 확인이 필요할 수 있습니다."
+  ]
+}

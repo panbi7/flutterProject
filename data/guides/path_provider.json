@@ -1,0 +1,151 @@
+{
+  "packageName": "path_provider",
+  "overview": {
+    "what": "path_provider는 Flutter 앱에서 파일 시스템의 일반적인 위치(임시 디렉토리, 문서 디렉토리, 앱 지원 디렉토리 등)에 접근할 수 있게 해주는 공식 플러그인입니다.",
+    "why": "각 플랫폼마다 파일을 저장하는 위치가 다릅니다. path_provider는 플랫폼별 차이를 추상화하여 일관된 API로 올바른 디렉토리 경로를 제공합니다.",
+    "when": "로컬 파일 저장, 캐시 관리, 다운로드 파일 처리, SQLite 데이터베이스 저장 등 파일 시스템 접근이 필요할 때 사용합니다.",
+    "features": [
+      "임시 디렉토리 접근 (캐시용)",
+      "문서 디렉토리 접근 (사용자 데이터용)",
+      "앱 지원 디렉토리 접근 (앱 내부 데이터용)",
+      "외부 저장소 접근 (Android)",
+      "다운로드 디렉토리 접근",
+      "크로스 플랫폼 지원 (iOS, Android, macOS, Windows, Linux)"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치",
+      "description": "pubspec.yaml에 path_provider 패키지를 추가합니다.",
+      "code": "dependencies:\n  flutter:\n    sdk: flutter\n  path_provider: ^2.1.2",
+      "explanation": "path_provider는 Flutter 팀에서 공식 관리하는 패키지로, 별도의 네이티브 설정 없이 바로 사용할 수 있습니다."
+    },
+    {
+      "title": "기본 디렉토리 경로 가져오기",
+      "description": "가장 많이 사용하는 디렉토리 경로들을 가져오는 방법입니다.",
+      "code": "import 'package:path_provider/path_provider.dart';\nimport 'dart:io';\n\nclass PathService {\n  // 임시 디렉토리 (캐시, 시스템이 언제든 삭제 가능)\n  Future<Directory> getTempDir() async {\n    return await getTemporaryDirectory();\n  }\n\n  // 문서 디렉토리 (사용자 데이터, 백업됨)\n  Future<Directory> getDocumentsDir() async {\n    return await getApplicationDocumentsDirectory();\n  }\n\n  // 앱 지원 디렉토리 (앱 내부 데이터, 백업됨)\n  Future<Directory> getSupportDir() async {\n    return await getApplicationSupportDirectory();\n  }\n\n  // 앱 캐시 디렉토리 (캐시 전용)\n  Future<Directory> getCacheDir() async {\n    return await getApplicationCacheDirectory();\n  }\n}",
+      "explanation": "각 디렉토리는 용도가 다릅니다. 임시 디렉토리는 캐시용, 문서 디렉토리는 사용자가 생성한 데이터용, 지원 디렉토리는 앱 설정 등 내부 데이터용입니다."
+    },
+    {
+      "title": "파일 읽기/쓰기 구현",
+      "description": "path_provider로 얻은 경로에 실제 파일을 읽고 쓰는 방법입니다.",
+      "code": "import 'package:path_provider/path_provider.dart';\nimport 'dart:io';\nimport 'dart:convert';\n\nclass FileStorageService {\n  Future<String> get _localPath async {\n    final directory = await getApplicationDocumentsDirectory();\n    return directory.path;\n  }\n\n  Future<File> _getFile(String filename) async {\n    final path = await _localPath;\n    return File('$path/$filename');\n  }\n\n  // 텍스트 파일 쓰기\n  Future<File> writeText(String filename, String content) async {\n    final file = await _getFile(filename);\n    return file.writeAsString(content);\n  }\n\n  // 텍스트 파일 읽기\n  Future<String> readText(String filename) async {\n    try {\n      final file = await _getFile(filename);\n      return await file.readAsString();\n    } catch (e) {\n      return '';\n    }\n  }\n\n  // JSON 데이터 저장\n  Future<void> saveJson(String filename, Map<String, dynamic> data) async {\n    final file = await _getFile(filename);\n    await file.writeAsString(jsonEncode(data));\n  }\n\n  // JSON 데이터 읽기\n  Future<Map<String, dynamic>?> loadJson(String filename) async {\n    try {\n      final file = await _getFile(filename);\n      final content = await file.readAsString();\n      return jsonDecode(content) as Map<String, dynamic>;\n    } catch (e) {\n      return null;\n    }\n  }\n\n  // 파일 삭제\n  Future<void> deleteFile(String filename) async {\n    try {\n      final file = await _getFile(filename);\n      if (await file.exists()) {\n        await file.delete();\n      }\n    } catch (e) {\n      // 파일이 없어도 무시\n    }\n  }\n}",
+      "explanation": "path_provider는 경로만 제공하고, 실제 파일 조작은 dart:io의 File 클래스를 사용합니다. 항상 예외 처리를 포함하세요."
+    },
+    {
+      "title": "Android 외부 저장소 접근",
+      "description": "Android에서 외부 저장소나 다운로드 디렉토리에 접근하는 방법입니다.",
+      "code": "import 'package:path_provider/path_provider.dart';\nimport 'dart:io';\n\nclass AndroidStorageService {\n  // 외부 저장소 디렉토리 (Android만)\n  Future<Directory?> getExternalDir() async {\n    if (Platform.isAndroid) {\n      return await getExternalStorageDirectory();\n    }\n    return null;\n  }\n\n  // 다운로드 디렉토리 (Android, iOS, macOS, Windows, Linux)\n  Future<Directory?> getDownloadsDir() async {\n    try {\n      return await getDownloadsDirectory();\n    } catch (e) {\n      return null;\n    }\n  }\n\n  // 외부 캐시 디렉토리들 (Android만, 여러 개 가능)\n  Future<List<Directory>?> getExternalCacheDirs() async {\n    if (Platform.isAndroid) {\n      return await getExternalCacheDirectories();\n    }\n    return null;\n  }\n\n  // 특정 타입의 외부 저장소 (Android만)\n  // StorageDirectory: music, podcasts, ringtones, alarms,\n  // notifications, pictures, movies, downloads, dcim, documents\n  Future<List<Directory>?> getExternalStorageDirs(StorageDirectory type) async {\n    if (Platform.isAndroid) {\n      return await getExternalStorageDirectories(type: type);\n    }\n    return null;\n  }\n}",
+      "explanation": "외부 저장소 기능은 주로 Android에서 사용됩니다. 다운로드 디렉토리는 여러 플랫폼에서 지원됩니다. 플랫폼별 분기 처리가 필요합니다."
+    },
+    {
+      "title": "실제 앱에서의 활용 예제",
+      "description": "캐시 관리와 사용자 데이터 저장을 포함한 실제 사용 예제입니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:path_provider/path_provider.dart';\nimport 'dart:io';\nimport 'dart:convert';\n\nclass UserDataManager {\n  static const _userDataFile = 'user_data.json';\n  static const _cachePrefix = 'cache_';\n\n  // 사용자 데이터 저장 (문서 디렉토리)\n  Future<void> saveUserData(Map<String, dynamic> data) async {\n    final dir = await getApplicationDocumentsDirectory();\n    final file = File('${dir.path}/$_userDataFile');\n    await file.writeAsString(jsonEncode(data));\n  }\n\n  // 사용자 데이터 로드\n  Future<Map<String, dynamic>?> loadUserData() async {\n    try {\n      final dir = await getApplicationDocumentsDirectory();\n      final file = File('${dir.path}/$_userDataFile');\n      if (await file.exists()) {\n        final content = await file.readAsString();\n        return jsonDecode(content);\n      }\n    } catch (e) {\n      debugPrint('Error loading user data: $e');\n    }\n    return null;\n  }\n\n  // 캐시 저장 (캐시 디렉토리)\n  Future<void> cacheData(String key, String data) async {\n    final dir = await getApplicationCacheDirectory();\n    final file = File('${dir.path}/$_cachePrefix$key');\n    await file.writeAsString(data);\n  }\n\n  // 캐시 로드\n  Future<String?> getCachedData(String key) async {\n    try {\n      final dir = await getApplicationCacheDirectory();\n      final file = File('${dir.path}/$_cachePrefix$key');\n      if (await file.exists()) {\n        return await file.readAsString();\n      }\n    } catch (e) {\n      debugPrint('Error loading cache: $e');\n    }\n    return null;\n  }\n\n  // 캐시 전체 삭제\n  Future<void> clearCache() async {\n    final dir = await getApplicationCacheDirectory();\n    if (await dir.exists()) {\n      final files = dir.listSync();\n      for (var file in files) {\n        if (file is File && file.path.contains(_cachePrefix)) {\n          await file.delete();\n        }\n      }\n    }\n  }\n\n  // 저장소 사용량 계산\n  Future<int> getStorageUsage() async {\n    int totalSize = 0;\n    final docDir = await getApplicationDocumentsDirectory();\n    final cacheDir = await getApplicationCacheDirectory();\n\n    totalSize += await _calculateDirSize(docDir);\n    totalSize += await _calculateDirSize(cacheDir);\n\n    return totalSize;\n  }\n\n  Future<int> _calculateDirSize(Directory dir) async {\n    int size = 0;\n    if (await dir.exists()) {\n      await for (var entity in dir.list(recursive: true)) {\n        if (entity is File) {\n          size += await entity.length();\n        }\n      }\n    }\n    return size;\n  }\n}\n\n// UI에서 사용\nclass StorageInfoWidget extends StatefulWidget {\n  const StorageInfoWidget({super.key});\n\n  @override\n  State<StorageInfoWidget> createState() => _StorageInfoWidgetState();\n}\n\nclass _StorageInfoWidgetState extends State<StorageInfoWidget> {\n  final _dataManager = UserDataManager();\n  Map<String, String> _paths = {};\n  int _storageUsage = 0;\n\n  @override\n  void initState() {\n    super.initState();\n    _loadPaths();\n  }\n\n  Future<void> _loadPaths() async {\n    final tempDir = await getTemporaryDirectory();\n    final docDir = await getApplicationDocumentsDirectory();\n    final cacheDir = await getApplicationCacheDirectory();\n    final usage = await _dataManager.getStorageUsage();\n\n    setState(() {\n      _paths = {\n        '임시 디렉토리': tempDir.path,\n        '문서 디렉토리': docDir.path,\n        '캐시 디렉토리': cacheDir.path,\n      };\n      _storageUsage = usage;\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      crossAxisAlignment: CrossAxisAlignment.start,\n      children: [\n        Text('저장소 사용량: ${(_storageUsage / 1024).toStringAsFixed(2)} KB'),\n        const SizedBox(height: 16),\n        ..._paths.entries.map((e) => Padding(\n          padding: const EdgeInsets.only(bottom: 8),\n          child: Column(\n            crossAxisAlignment: CrossAxisAlignment.start,\n            children: [\n              Text(e.key, style: const TextStyle(fontWeight: FontWeight.bold)),\n              Text(e.value, style: const TextStyle(fontSize: 12)),\n            ],\n          ),\n        )),\n        ElevatedButton(\n          onPressed: () async {\n            await _dataManager.clearCache();\n            await _loadPaths();\n          },\n          child: const Text('캐시 삭제'),\n        ),\n      ],\n    );\n  }\n}",
+      "explanation": "실제 앱에서는 사용자 데이터와 캐시를 분리하여 관리합니다. 캐시는 언제든 삭제될 수 있으므로 중요한 데이터는 문서 디렉토리에 저장하세요."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "디렉토리 유형",
+      "description": "각 디렉토리는 특정 목적에 맞게 설계되었습니다:\n- Temporary: 시스템이 언제든 삭제 가능한 임시 파일용\n- Documents: 사용자가 생성한 중요 데이터용 (백업됨)\n- Support: 앱 내부 설정/데이터용 (백업됨)\n- Cache: 앱 캐시 전용 (백업 안됨)\n- External: Android 외부 저장소용"
+    },
+    {
+      "name": "플랫폼별 차이",
+      "description": "같은 함수라도 플랫폼마다 반환되는 경로가 다릅니다:\n- iOS: 앱 샌드박스 내 디렉토리\n- Android: 앱 데이터 디렉토리 또는 외부 저장소\n- Desktop: 사용자 홈 디렉토리 기반 경로\npath_provider가 이 차이를 추상화합니다."
+    },
+    {
+      "name": "비동기 API",
+      "description": "모든 경로 조회 함수는 Future를 반환합니다. 네이티브 플랫폼과 통신해야 하므로 비동기로 동작합니다. async/await을 사용하세요."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "getTemporaryDirectory()",
+      "signature": "Future<Directory> getTemporaryDirectory()",
+      "description": "임시 파일을 저장할 수 있는 디렉토리를 반환합니다. 시스템이 언제든 이 디렉토리의 내용을 삭제할 수 있습니다."
+    },
+    {
+      "name": "getApplicationDocumentsDirectory()",
+      "signature": "Future<Directory> getApplicationDocumentsDirectory()",
+      "description": "앱이 사용자 생성 데이터를 저장할 수 있는 디렉토리를 반환합니다. iOS에서는 iCloud 백업에 포함됩니다."
+    },
+    {
+      "name": "getApplicationSupportDirectory()",
+      "signature": "Future<Directory> getApplicationSupportDirectory()",
+      "description": "앱 지원 파일을 저장할 수 있는 디렉토리를 반환합니다. 사용자에게 노출되지 않는 앱 내부 데이터에 적합합니다."
+    },
+    {
+      "name": "getApplicationCacheDirectory()",
+      "signature": "Future<Directory> getApplicationCacheDirectory()",
+      "description": "앱 캐시 파일을 저장할 디렉토리를 반환합니다. 시스템이 저장공간 부족 시 삭제할 수 있습니다."
+    },
+    {
+      "name": "getDownloadsDirectory()",
+      "signature": "Future<Directory?> getDownloadsDirectory()",
+      "description": "다운로드 디렉토리를 반환합니다. 모든 플랫폼에서 사용 가능하지 않을 수 있어 nullable입니다."
+    },
+    {
+      "name": "getExternalStorageDirectory()",
+      "signature": "Future<Directory?> getExternalStorageDirectory()",
+      "description": "Android 외부 저장소 디렉토리를 반환합니다. Android에서만 사용 가능합니다."
+    },
+    {
+      "name": "getExternalStorageDirectories()",
+      "signature": "Future<List<Directory>?> getExternalStorageDirectories({StorageDirectory? type})",
+      "description": "Android 외부 저장소의 특정 타입 디렉토리들을 반환합니다. StorageDirectory enum으로 타입을 지정합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "MissingPluginException",
+      "cause": "플러그인이 제대로 설치되지 않았거나 핫 리스타트 후 발생",
+      "solution": "앱을 완전히 종료하고 다시 빌드하세요 (flutter clean && flutter run)"
+    },
+    {
+      "error": "FileSystemException: Cannot open file",
+      "cause": "존재하지 않는 파일을 읽으려 하거나 권한이 없음",
+      "solution": "파일 읽기 전 file.exists()로 존재 여부를 확인하고, try-catch로 감싸세요"
+    },
+    {
+      "error": "Null check operator used on a null value",
+      "cause": "getDownloadsDirectory() 등 nullable 반환 함수에서 null 체크 없이 사용",
+      "solution": "nullable 함수는 반환값이 null일 수 있으므로 null 체크를 하세요"
+    },
+    {
+      "error": "Android 외부 저장소 접근 권한 오류",
+      "cause": "Android 10 이상에서 Scoped Storage 정책으로 외부 저장소 접근 제한",
+      "solution": "AndroidManifest.xml에 권한을 추가하고, Android 10 이상에서는 requestLegacyExternalStorage 옵션 또는 SAF 사용"
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "적절한 디렉토리 선택",
+      "description": "데이터의 중요도와 성격에 따라 적절한 디렉토리를 선택하세요. 중요 데이터는 Documents, 캐시는 Cache, 임시 파일은 Temporary 디렉토리를 사용하세요."
+    },
+    {
+      "title": "경로 캐싱",
+      "description": "같은 디렉토리 경로를 반복적으로 조회하면 성능이 저하됩니다. 앱 시작 시 경로를 한 번 조회하여 메모리에 캐싱하세요."
+    },
+    {
+      "title": "예외 처리 필수",
+      "description": "파일 시스템 작업은 항상 실패할 수 있습니다. try-catch로 예외를 처리하고, 사용자에게 적절한 피드백을 제공하세요."
+    },
+    {
+      "title": "플랫폼 체크",
+      "description": "외부 저장소 관련 함수는 Android에서만 동작합니다. Platform.isAndroid로 플랫폼을 체크하고 분기 처리하세요."
+    },
+    {
+      "title": "path 패키지와 함께 사용",
+      "description": "경로 조합 시 문자열 연결 대신 path 패키지의 join() 함수를 사용하면 플랫폼별 경로 구분자 차이를 처리할 수 있습니다."
+    }
+  ],
+  "tips": [
+    "path_provider와 함께 path 패키지를 사용하면 경로 조작이 더 안전합니다",
+    "iOS에서 Documents 디렉토리는 iCloud 백업에 포함되므로 대용량 캐시는 Cache 디렉토리에 저장하세요",
+    "앱 삭제 시 모든 앱 디렉토리의 데이터가 함께 삭제됩니다",
+    "SQLite 데이터베이스 파일은 일반적으로 Documents 또는 Support 디렉토리에 저장합니다",
+    "Android에서 외부 저장소는 사용자가 접근 가능하므로 민감한 데이터는 저장하지 마세요",
+    "테스트 시에는 getApplicationDocumentsDirectory() 대신 Directory.systemTemp를 사용할 수 있습니다"
+  ]
+}

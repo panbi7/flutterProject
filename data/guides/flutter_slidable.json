@@ -1,0 +1,228 @@
+{
+  "packageId": "flutter_slidable",
+  "title": "flutter_slidable 실전 마스터 가이드",
+  "generatedAt": "2026-01-27T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "3.1.1",
+  "packageLikes": 4156,
+
+  "overview": {
+    "what": "flutter_slidable는 리스트 아이템을 좌우로 스와이프하여 숨겨진 액션 버튼을 표시하는 위젯입니다. iOS의 스와이프 삭제 기능이나 Gmail의 보관/삭제 스와이프와 같은 인터랙션을 쉽게 구현할 수 있습니다. 다양한 모션 효과와 커스터마이징 옵션을 제공합니다.",
+    "why": "스와이프 액션은 모바일 앱에서 가장 직관적인 인터랙션 패턴 중 하나입니다. 직접 구현하려면 GestureDetector, AnimationController 등 복잡한 코드가 필요하지만, flutter_slidable는 몇 줄의 선언적 코드로 완성도 높은 스와이프 UI를 만들 수 있습니다.",
+    "when": "1) 리스트 아이템 삭제/편집/보관 기능 구현 시, 2) 이메일 앱처럼 스와이프로 빠른 액션 제공 시, 3) 할 일 목록에서 완료/삭제 처리 시, 4) 메시지/알림 목록에서 읽음/삭제 처리 시, 5) 장바구니 아이템 수량 조절이나 삭제 시",
+    "features": [
+      "↔️ 양방향 스와이프: 왼쪽, 오른쪽 각각 다른 액션 설정",
+      "🎨 다양한 모션: Behind, Drawer, Scroll, Stretch 모션",
+      "✨ 자동 닫기: 다른 아이템 열면 자동으로 닫힘",
+      "🎯 스와이프 Dismiss: 끝까지 스와이프하여 아이템 삭제",
+      "⚙️ 완전 커스터마이징: 액션 버튼 모양과 동작 자유롭게 설정"
+    ]
+  },
+
+  "description": "리스트 아이템에 스와이프 액션(삭제, 편집 등)을 추가하는 Flutter 위젯",
+  "difficulty": "초급 - 간단한 설정으로 바로 사용 가능",
+  "estimatedTime": "25분",
+  "prerequisites": [
+    "Flutter ListView/ListTile 사용법",
+    "기본적인 상태 관리 (setState)",
+    "위젯 빌더 패턴 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "ActionPane",
+      "explanation": "스와이프 시 표시되는 액션 영역입니다. startActionPane(왼쪽→오른쪽 스와이프)과 endActionPane(오른쪽→왼쪽 스와이프) 두 가지가 있습니다.",
+      "analogy": "📂 서랍처럼, 아이템을 밀면 숨겨진 버튼들이 나타납니다.",
+      "usage": "Slidable(startActionPane: ActionPane(...), endActionPane: ActionPane(...))"
+    },
+    {
+      "term": "Motion",
+      "explanation": "액션이 나타나는 방식입니다. ScrollMotion(스크롤처럼), BehindMotion(뒤에서 나타남), DrawerMotion(서랍처럼), StretchMotion(늘어남) 등이 있습니다.",
+      "analogy": "🎬 영화의 전환 효과처럼, 같은 내용도 다르게 연출할 수 있습니다.",
+      "usage": "ActionPane(motion: DrawerMotion(), ...)"
+    },
+    {
+      "term": "SlidableAction",
+      "explanation": "스와이프 시 표시되는 개별 액션 버튼입니다. 아이콘, 레이블, 배경색, 탭 핸들러 등을 설정합니다.",
+      "analogy": "🔘 서랍 안의 버튼들로, 각각 다른 기능을 수행합니다.",
+      "usage": "SlidableAction(onPressed: ..., backgroundColor: Colors.red, icon: Icons.delete)"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "flutter_slidable 패키지를 프로젝트에 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  flutter_slidable: ^3.1.1"
+      },
+      "commands": ["flutter pub add flutter_slidable", "flutter pub get"],
+      "explanation": "flutter_slidable는 순수 Dart 패키지로 네이티브 설정이 필요 없습니다.",
+      "platformSetup": {
+        "android": "추가 설정 불필요",
+        "ios": "추가 설정 불필요"
+      },
+      "beginnerTip": "💡 flutter_slidable 2.x에서 3.x로 업그레이드 시 API가 크게 변경되었습니다. 최신 문서를 참고하세요."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 기본 사용법",
+      "description": "리스트 아이템에 스와이프 삭제 기능을 추가하는 기본 예제입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/basic_slidable.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter_slidable/flutter_slidable.dart';\n\nclass BasicSlidableExample extends StatefulWidget {\n  const BasicSlidableExample({super.key});\n\n  @override\n  State<BasicSlidableExample> createState() => _BasicSlidableExampleState();\n}\n\nclass _BasicSlidableExampleState extends State<BasicSlidableExample> {\n  final List<String> _items = List.generate(10, (i) => '아이템 ${i + 1}');\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Slidable 기본')),\n      body: ListView.builder(\n        itemCount: _items.length,\n        itemBuilder: (context, index) {\n          final item = _items[index];\n          return Slidable(\n            // 오른쪽→왼쪽 스와이프 시 나타나는 액션 (끝 액션)\n            endActionPane: ActionPane(\n              motion: const ScrollMotion(),\n              children: [\n                // 편집 버튼\n                SlidableAction(\n                  onPressed: (context) {\n                    ScaffoldMessenger.of(context).showSnackBar(\n                      SnackBar(content: Text('$item 편집')),\n                    );\n                  },\n                  backgroundColor: Colors.blue,\n                  foregroundColor: Colors.white,\n                  icon: Icons.edit,\n                  label: '편집',\n                ),\n                // 삭제 버튼\n                SlidableAction(\n                  onPressed: (context) {\n                    setState(() {\n                      _items.removeAt(index);\n                    });\n                  },\n                  backgroundColor: Colors.red,\n                  foregroundColor: Colors.white,\n                  icon: Icons.delete,\n                  label: '삭제',\n                ),\n              ],\n            ),\n            \n            // 리스트 아이템 내용\n            child: ListTile(\n              leading: CircleAvatar(child: Text('${index + 1}')),\n              title: Text(item),\n              subtitle: const Text('왼쪽으로 스와이프해보세요'),\n            ),\n          );\n        },\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【Slidable 기본 구조】\n• endActionPane: 오른쪽→왼쪽 스와이프 시 표시\n• startActionPane: 왼쪽→오른쪽 스와이프 시 표시\n• motion: 액션이 나타나는 애니메이션 방식\n• children: SlidableAction 목록\n• child: 실제 리스트 아이템 위젯",
+      "beginnerTip": "💡 endActionPane은 '끝'(오른쪽) 방향으로 나타납니다. 스와이프 방향과 혼동하지 마세요!"
+    },
+    {
+      "stepNumber": 3,
+      "title": "🎨 다양한 모션 효과",
+      "description": "ScrollMotion, DrawerMotion, BehindMotion, StretchMotion 등 다양한 모션을 비교합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/motion_example.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter_slidable/flutter_slidable.dart';\n\nclass MotionExample extends StatelessWidget {\n  const MotionExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('모션 비교')),\n      body: ListView(\n        children: [\n          // 1. ScrollMotion - 스크롤처럼 밀려 나옴\n          _buildSlidableItem(\n            title: 'ScrollMotion',\n            subtitle: '액션이 스크롤되듯 나타남',\n            motion: const ScrollMotion(),\n          ),\n\n          // 2. BehindMotion - 뒤에서 나타남\n          _buildSlidableItem(\n            title: 'BehindMotion',\n            subtitle: '액션이 뒤에 숨어있다가 보임',\n            motion: const BehindMotion(),\n          ),\n\n          // 3. DrawerMotion - 서랍처럼 열림\n          _buildSlidableItem(\n            title: 'DrawerMotion',\n            subtitle: '서랍이 열리듯 나타남',\n            motion: const DrawerMotion(),\n          ),\n\n          // 4. StretchMotion - 늘어남\n          _buildSlidableItem(\n            title: 'StretchMotion',\n            subtitle: '액션이 늘어나며 나타남',\n            motion: const StretchMotion(),\n          ),\n        ],\n      ),\n    );\n  }\n\n  Widget _buildSlidableItem({\n    required String title,\n    required String subtitle,\n    required Widget motion,\n  }) {\n    return Slidable(\n      endActionPane: ActionPane(\n        motion: motion,\n        children: [\n          SlidableAction(\n            onPressed: (_) {},\n            backgroundColor: Colors.green,\n            foregroundColor: Colors.white,\n            icon: Icons.archive,\n            label: '보관',\n          ),\n          SlidableAction(\n            onPressed: (_) {},\n            backgroundColor: Colors.blue,\n            foregroundColor: Colors.white,\n            icon: Icons.share,\n            label: '공유',\n          ),\n          SlidableAction(\n            onPressed: (_) {},\n            backgroundColor: Colors.red,\n            foregroundColor: Colors.white,\n            icon: Icons.delete,\n            label: '삭제',\n          ),\n        ],\n      ),\n      child: ListTile(\n        title: Text(title),\n        subtitle: Text(subtitle),\n        trailing: const Icon(Icons.swipe_left),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【모션 종류】\n• ScrollMotion: 아이템과 함께 액션이 밀려 나옴 (기본)\n• BehindMotion: 아이템 뒤에 액션이 숨어있다가 보임\n• DrawerMotion: 서랍이 열리듯 액션이 나타남 (iOS 스타일)\n• StretchMotion: 액션이 늘어나며 공간을 채움\n\n각 모션은 앱의 디자인 언어에 맞게 선택하세요.",
+      "beginnerTip": "🎨 iOS 앱 느낌을 원한다면 DrawerMotion, Material 느낌을 원한다면 BehindMotion을 추천합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🗑️ 스와이프 Dismiss (밀어서 삭제)",
+      "description": "끝까지 스와이프하면 아이템이 자동으로 삭제되는 Gmail 스타일 기능입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/dismiss_example.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter_slidable/flutter_slidable.dart';\n\nclass DismissExample extends StatefulWidget {\n  const DismissExample({super.key});\n\n  @override\n  State<DismissExample> createState() => _DismissExampleState();\n}\n\nclass _DismissExampleState extends State<DismissExample> {\n  final List<Map<String, dynamic>> _emails = List.generate(\n    10,\n    (i) => {\n      'id': i,\n      'sender': '발신자 ${i + 1}',\n      'subject': '이메일 제목 ${i + 1}',\n      'preview': '이메일 내용 미리보기...',\n    },\n  );\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Gmail 스타일')),\n      body: ListView.builder(\n        itemCount: _emails.length,\n        itemBuilder: (context, index) {\n          final email = _emails[index];\n          return Slidable(\n            key: ValueKey(email['id']),  // 삭제 시 필수!\n\n            // 왼쪽→오른쪽: 보관\n            startActionPane: ActionPane(\n              motion: const BehindMotion(),\n              \n              // 끝까지 스와이프 시 실행될 액션\n              dismissible: DismissiblePane(\n                onDismissed: () {\n                  setState(() {\n                    _emails.removeAt(index);\n                  });\n                  ScaffoldMessenger.of(context).showSnackBar(\n                    SnackBar(\n                      content: const Text('보관됨'),\n                      action: SnackBarAction(\n                        label: '실행취소',\n                        onPressed: () {\n                          setState(() {\n                            _emails.insert(index, email);\n                          });\n                        },\n                      ),\n                    ),\n                  );\n                },\n              ),\n              \n              children: [\n                SlidableAction(\n                  onPressed: (context) {\n                    Slidable.of(context)?.dismiss(\n                      ResizeRequest(const Duration(milliseconds: 300), () {\n                        setState(() {\n                          _emails.removeAt(index);\n                        });\n                      }),\n                      duration: const Duration(milliseconds: 300),\n                    );\n                  },\n                  backgroundColor: Colors.green,\n                  foregroundColor: Colors.white,\n                  icon: Icons.archive,\n                  label: '보관',\n                ),\n              ],\n            ),\n\n            // 오른쪽→왼쪽: 삭제\n            endActionPane: ActionPane(\n              motion: const BehindMotion(),\n              \n              dismissible: DismissiblePane(\n                onDismissed: () {\n                  setState(() {\n                    _emails.removeAt(index);\n                  });\n                  ScaffoldMessenger.of(context).showSnackBar(\n                    SnackBar(\n                      content: const Text('삭제됨'),\n                      action: SnackBarAction(\n                        label: '실행취소',\n                        onPressed: () {\n                          setState(() {\n                            _emails.insert(index, email);\n                          });\n                        },\n                      ),\n                    ),\n                  );\n                },\n              ),\n              \n              children: [\n                SlidableAction(\n                  onPressed: (context) {\n                    Slidable.of(context)?.dismiss(\n                      ResizeRequest(const Duration(milliseconds: 300), () {\n                        setState(() {\n                          _emails.removeAt(index);\n                        });\n                      }),\n                      duration: const Duration(milliseconds: 300),\n                    );\n                  },\n                  backgroundColor: Colors.red,\n                  foregroundColor: Colors.white,\n                  icon: Icons.delete,\n                  label: '삭제',\n                ),\n              ],\n            ),\n\n            child: ListTile(\n              leading: CircleAvatar(\n                backgroundColor: Colors.primaries[index % Colors.primaries.length],\n                child: Text(email['sender'][0]),\n              ),\n              title: Text(email['subject']),\n              subtitle: Text(email['preview']),\n              trailing: const Text('오후 2:30'),\n            ),\n          );\n        },\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【DismissiblePane 핵심】\n• dismissible: ActionPane에 추가하여 끝까지 스와이프 시 동작 정의\n• onDismissed: 아이템이 dismiss될 때 호출되는 콜백\n• confirmDismiss: dismiss 전 확인 다이얼로그 표시 가능\n\n【프로그래밍 방식 dismiss】\nSlidable.of(context)?.dismiss()로 버튼 클릭 시에도 dismiss 애니메이션 실행 가능\n\n중요: Slidable에 key를 지정해야 삭제 후 리스트가 올바르게 업데이트됩니다.",
+      "beginnerTip": "⚠️ dismiss 사용 시 반드시 Slidable에 key를 지정하세요. 그렇지 않으면 예상치 못한 동작이 발생할 수 있습니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "⚙️ 고급 설정 및 컨트롤러",
+      "description": "SlidableController를 사용한 프로그래밍 방식 제어와 그룹 관리입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/advanced_slidable.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter_slidable/flutter_slidable.dart';\n\nclass AdvancedSlidableExample extends StatefulWidget {\n  const AdvancedSlidableExample({super.key});\n\n  @override\n  State<AdvancedSlidableExample> createState() => _AdvancedSlidableExampleState();\n}\n\nclass _AdvancedSlidableExampleState extends State<AdvancedSlidableExample> {\n  final List<String> _items = List.generate(10, (i) => '아이템 ${i + 1}');\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('고급 Slidable'),\n        actions: [\n          // 모든 Slidable 닫기 버튼\n          IconButton(\n            icon: const Icon(Icons.close_fullscreen),\n            onPressed: () {\n              // SlidableAutoCloseBehavior가 활성화된 경우\n              // 하나의 Slidable을 열면 다른 것들이 자동으로 닫힘\n            },\n            tooltip: '모두 닫기',\n          ),\n        ],\n      ),\n      body: SlidableAutoCloseBehavior(\n        // 하나의 Slidable을 열면 다른 것들이 자동으로 닫힘\n        child: ListView.builder(\n          itemCount: _items.length,\n          itemBuilder: (context, index) {\n            return _buildAdvancedSlidable(index);\n          },\n        ),\n      ),\n    );\n  }\n\n  Widget _buildAdvancedSlidable(int index) {\n    final item = _items[index];\n\n    return Slidable(\n      key: ValueKey(item),\n      \n      // 스와이프 범위 제한 (0.0 ~ 1.0)\n      // 기본값은 액션들의 크기에 따라 자동 계산\n      \n      // 왼쪽→오른쪽 (시작 액션)\n      startActionPane: ActionPane(\n        motion: const DrawerMotion(),\n        extentRatio: 0.25,  // 스와이프 최대 범위 (25%)\n        \n        children: [\n          // 커스텀 액션 위젯\n          CustomSlidableAction(\n            onPressed: (context) {\n              ScaffoldMessenger.of(context).showSnackBar(\n                SnackBar(content: Text('$item 즐겨찾기 추가')),\n              );\n              Slidable.of(context)?.close();  // 액션 후 닫기\n            },\n            backgroundColor: Colors.amber,\n            foregroundColor: Colors.white,\n            child: Column(\n              mainAxisAlignment: MainAxisAlignment.center,\n              children: [\n                const Icon(Icons.star),\n                const SizedBox(height: 4),\n                const Text('즐겨찾기', style: TextStyle(fontSize: 12)),\n              ],\n            ),\n          ),\n        ],\n      ),\n      \n      // 오른쪽→왼쪽 (끝 액션)\n      endActionPane: ActionPane(\n        motion: const StretchMotion(),\n        extentRatio: 0.5,  // 스와이프 최대 범위 (50%)\n        \n        children: [\n          SlidableAction(\n            onPressed: (context) async {\n              // 확인 다이얼로그 표시\n              final confirmed = await showDialog<bool>(\n                context: context,\n                builder: (context) => AlertDialog(\n                  title: const Text('삭제 확인'),\n                  content: Text('$item을(를) 삭제할까요?'),\n                  actions: [\n                    TextButton(\n                      onPressed: () => Navigator.pop(context, false),\n                      child: const Text('취소'),\n                    ),\n                    TextButton(\n                      onPressed: () => Navigator.pop(context, true),\n                      child: const Text('삭제'),\n                    ),\n                  ],\n                ),\n              );\n              \n              if (confirmed == true && context.mounted) {\n                setState(() {\n                  _items.removeAt(index);\n                });\n              } else if (context.mounted) {\n                // 취소 시 Slidable 닫기\n                Slidable.of(context)?.close();\n              }\n            },\n            backgroundColor: Colors.red,\n            foregroundColor: Colors.white,\n            icon: Icons.delete,\n            label: '삭제',\n            autoClose: false,  // 액션 후 자동 닫기 비활성화\n          ),\n          \n          SlidableAction(\n            onPressed: (context) {\n              // 편집 화면으로 이동\n              Navigator.push(\n                context,\n                MaterialPageRoute(\n                  builder: (_) => Scaffold(\n                    appBar: AppBar(title: Text('$item 편집')),\n                    body: const Center(child: Text('편집 화면')),\n                  ),\n                ),\n              );\n            },\n            backgroundColor: Colors.blue,\n            foregroundColor: Colors.white,\n            icon: Icons.edit,\n            label: '편집',\n            borderRadius: const BorderRadius.horizontal(\n              right: Radius.circular(12),  // 끝 액션에 둥근 모서리\n            ),\n          ),\n        ],\n      ),\n\n      child: Card(\n        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),\n        child: ListTile(\n          leading: CircleAvatar(\n            backgroundColor: Colors.primaries[index % Colors.primaries.length],\n            child: Text('${index + 1}'),\n          ),\n          title: Text(item),\n          subtitle: const Text('좌우로 스와이프해보세요'),\n          trailing: const Icon(Icons.drag_handle),\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【고급 기능】\n• SlidableAutoCloseBehavior: 다른 아이템 열면 자동으로 닫힘\n• Slidable.of(context)?.close(): 프로그래밍 방식으로 닫기\n• extentRatio: 스와이프 최대 범위 제한 (0.0~1.0)\n• autoClose: false로 설정하면 액션 후 자동 닫기 비활성화\n• CustomSlidableAction: 완전 커스텀 액션 위젯\n\n【유용한 메서드】\n• Slidable.of(context)?.close()\n• Slidable.of(context)?.openStartActionPane()\n• Slidable.of(context)?.openEndActionPane()",
+      "beginnerTip": "🔧 SlidableAutoCloseBehavior를 ListView 밖에 감싸면 한 번에 하나의 아이템만 열 수 있습니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "Slidable",
+      "description": "스와이프 가능한 컨테이너 위젯입니다.",
+      "parameters": "key, startActionPane, endActionPane, child, enabled, closeOnScroll, ...",
+      "returns": "Widget",
+      "example": "Slidable(endActionPane: ActionPane(...), child: ListTile(...))"
+    },
+    {
+      "name": "ActionPane",
+      "description": "스와이프 시 나타나는 액션 영역을 정의합니다.",
+      "parameters": "motion, extentRatio, dismissible, children",
+      "returns": "Widget",
+      "example": "ActionPane(motion: DrawerMotion(), children: [SlidableAction(...)])"
+    },
+    {
+      "name": "SlidableAction",
+      "description": "표준 액션 버튼 위젯입니다.",
+      "parameters": "onPressed, backgroundColor, foregroundColor, icon, label, autoClose, ...",
+      "returns": "Widget",
+      "example": "SlidableAction(onPressed: (ctx) {}, icon: Icons.delete, label: '삭제')"
+    },
+    {
+      "name": "CustomSlidableAction",
+      "description": "완전히 커스텀한 액션 위젯을 만들 수 있습니다.",
+      "parameters": "onPressed, backgroundColor, foregroundColor, child, ...",
+      "returns": "Widget",
+      "example": "CustomSlidableAction(onPressed: (ctx) {}, child: Column(...))"
+    },
+    {
+      "name": "Slidable.of(context)",
+      "description": "가장 가까운 Slidable의 컨트롤러에 접근합니다.",
+      "parameters": "BuildContext context",
+      "returns": "SlidableController?",
+      "example": "Slidable.of(context)?.close();"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "삭제 후 잘못된 아이템이 삭제됨",
+      "cause": "Slidable에 key가 지정되지 않아 Flutter가 아이템을 잘못 식별합니다.",
+      "solution": "각 Slidable에 고유한 key를 지정하세요:\nSlidable(key: ValueKey(item.id), ...)",
+      "prevention": "DismissiblePane을 사용할 때는 반드시 key를 지정하세요."
+    },
+    {
+      "error": "Slidable.of(context)가 null 반환",
+      "cause": "context가 Slidable 위젯 아래에 있지 않습니다. SlidableAction의 onPressed에서는 자동으로 올바른 context가 제공됩니다.",
+      "solution": "SlidableAction의 onPressed 파라미터로 받은 context를 사용하세요.",
+      "prevention": "항상 onPressed: (context) => ... 형태로 context를 받아서 사용하세요."
+    },
+    {
+      "error": "스와이프가 스크롤과 충돌",
+      "cause": "수평 스와이프와 ListView의 수직 스크롤이 충돌할 수 있습니다.",
+      "solution": "closeOnScroll: true (기본값)로 설정하면 스크롤 시 Slidable이 자동으로 닫힙니다.",
+      "prevention": "기본 설정을 유지하거나 dragStartBehavior를 조정하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "실행취소(Undo) 제공",
+      "description": "삭제 액션 후 SnackBar로 실행취소 옵션을 제공하세요.",
+      "doThis": "ScaffoldMessenger.of(context).showSnackBar(\n  SnackBar(\n    content: Text('삭제됨'),\n    action: SnackBarAction(label: '실행취소', onPressed: undo),\n  ),\n);",
+      "dontDoThis": "확인 없이 즉시 영구 삭제"
+    },
+    {
+      "title": "적절한 extentRatio 설정",
+      "description": "액션 개수에 따라 스와이프 범위를 적절히 조절하세요.",
+      "doThis": "// 액션 1개: 0.2~0.25\n// 액션 2개: 0.4~0.5\n// 액션 3개: 0.6~0.75",
+      "dontDoThis": "액션 1개인데 extentRatio: 0.8 (너무 넓음)"
+    },
+    {
+      "title": "일관된 색상 사용",
+      "description": "액션 유형별로 일관된 색상을 사용하세요.",
+      "doThis": "삭제: 빨강 / 편집: 파랑 / 보관: 초록 / 공유: 주황",
+      "dontDoThis": "화면마다 다른 색상 규칙"
+    }
+  ],
+
+  "tips": [
+    "💡 SlidableAutoCloseBehavior를 사용하면 한 번에 하나의 아이템만 열 수 있어 UX가 개선됩니다",
+    "🎨 CustomSlidableAction으로 아이콘+텍스트 외에 더 복잡한 UI도 구현할 수 있습니다",
+    "⚡ closeOnScroll: true (기본값)로 스크롤 시 열린 Slidable이 자동으로 닫힙니다",
+    "🔧 endActionPane과 startActionPane을 모두 설정하면 양방향 스와이프가 가능합니다",
+    "📱 iOS 스타일을 원한다면 DrawerMotion을, Material 스타일을 원한다면 BehindMotion을 사용하세요"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "dismissible",
+      "description": "Flutter 기본 Dismissible 위젯. 단순 삭제에는 충분"
+    },
+    {
+      "name": "flutter_swipe_action_cell",
+      "description": "유사한 기능의 대안 패키지"
+    },
+    {
+      "name": "implicitly_animated_reorderable_list",
+      "description": "애니메이션이 있는 재정렬 가능한 리스트"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/flutter_slidable"},
+    {"title": "GitHub 저장소", "url": "https://github.com/letsar/flutter_slidable"},
+    {"title": "Material Design Swipe Actions", "url": "https://m3.material.io/components/lists/guidelines#swipe-actions"}
+  ]
+}

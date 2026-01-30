@@ -1,0 +1,242 @@
+{
+  "packageId": "sqflite",
+  "title": "sqflite 실전 마스터 가이드",
+  "generatedAt": "2026-01-27T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "2.4.1",
+  "packageLikes": 3198,
+
+  "overview": {
+    "what": "sqflite는 Flutter에서 SQLite 데이터베이스를 사용할 수 있게 해주는 패키지입니다. 로컬에 구조화된 데이터를 저장하고 SQL 쿼리로 조회, 삽입, 수정, 삭제할 수 있습니다. Android와 iOS 모두에서 네이티브 SQLite 엔진을 사용합니다.",
+    "why": "shared_preferences는 간단한 키-값 데이터에 적합하지만, 복잡한 관계형 데이터나 대량의 데이터를 다루기엔 한계가 있습니다. sqflite는 SQL의 강력한 쿼리 기능을 활용하여 복잡한 데이터 모델을 효율적으로 관리할 수 있습니다. 오프라인 우선 앱에 필수적입니다.",
+    "when": "1) 대량의 구조화된 데이터 저장 시, 2) 복잡한 쿼리(JOIN, WHERE, ORDER BY 등)가 필요할 때, 3) 오프라인 우선 앱 개발 시, 4) 데이터 간 관계(1:N, N:M)가 있을 때, 5) 트랜잭션이 필요한 데이터 작업 시",
+    "features": [
+      "💾 로컬 SQL DB: SQLite 데이터베이스 완전 지원",
+      "🔍 SQL 쿼리: SELECT, INSERT, UPDATE, DELETE 등 모든 SQL",
+      "🔄 트랜잭션: 여러 작업을 원자적으로 처리",
+      "📊 마이그레이션: 데이터베이스 버전 관리 및 스키마 업그레이드",
+      "🔒 배치 작업: 대량 데이터 효율적 처리"
+    ]
+  },
+
+  "description": "SQLite 데이터베이스를 사용하여 로컬에 구조화된 데이터를 저장하는 Flutter 패키지",
+  "difficulty": "중급 - SQL 기본 지식 필요",
+  "estimatedTime": "60분",
+  "prerequisites": [
+    "SQL 기본 문법 (SELECT, INSERT, UPDATE, DELETE)",
+    "Flutter 비동기 프로그래밍 (async/await)",
+    "데이터베이스 기본 개념 (테이블, 컬럼, 기본키)"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "Database",
+      "explanation": "SQLite 데이터베이스 인스턴스입니다. openDatabase()로 열고, 앱 종료 시 close()로 닫습니다. 보통 싱글톤 패턴으로 앱 전체에서 하나의 인스턴스를 공유합니다.",
+      "analogy": "📁 파일 캐비닛처럼, 여러 테이블(서랍)을 담고 있는 컨테이너입니다.",
+      "usage": "final db = await openDatabase('my_db.db');"
+    },
+    {
+      "term": "마이그레이션 (Migration)",
+      "explanation": "데이터베이스 스키마가 변경될 때 기존 데이터를 유지하면서 구조를 업데이트하는 과정입니다. version 파라미터와 onUpgrade 콜백으로 관리합니다.",
+      "analogy": "🏠 집 리모델링처럼, 기존 가구(데이터)는 유지하면서 구조(스키마)만 바꿉니다.",
+      "usage": "openDatabase('db.db', version: 2, onUpgrade: (db, oldV, newV) {...})"
+    },
+    {
+      "term": "트랜잭션 (Transaction)",
+      "explanation": "여러 데이터베이스 작업을 하나의 단위로 묶어 실행합니다. 모두 성공하면 커밋, 하나라도 실패하면 롤백됩니다. 데이터 무결성을 보장합니다.",
+      "analogy": "💳 은행 송금처럼, 출금과 입금이 모두 성공해야 거래가 완료됩니다.",
+      "usage": "await db.transaction((txn) async { ... });"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "sqflite와 path 패키지를 설치합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  sqflite: ^2.4.1\n  path: ^1.9.0  # 데이터베이스 경로 관리용"
+      },
+      "commands": ["flutter pub add sqflite path", "flutter pub get"],
+      "explanation": "sqflite는 네이티브 SQLite 엔진을 사용하므로 Android/iOS에서 네이티브 빌드가 필요합니다. path 패키지는 데이터베이스 파일 경로를 안전하게 구성하는 데 사용됩니다.",
+      "platformSetup": {
+        "android": "추가 설정 불필요. 네이티브 SQLite 사용",
+        "ios": "추가 설정 불필요. 네이티브 SQLite 사용"
+      },
+      "beginnerTip": "💡 sqflite_common_ffi를 추가하면 Windows, macOS, Linux에서도 사용할 수 있습니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 데이터베이스 헬퍼 클래스",
+      "description": "데이터베이스 초기화, 테이블 생성, 싱글톤 관리를 담당하는 헬퍼 클래스를 만듭니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/database/database_helper.dart",
+        "content": "import 'package:sqflite/sqflite.dart';\nimport 'package:path/path.dart';\n\nclass DatabaseHelper {\n  static final DatabaseHelper _instance = DatabaseHelper._internal();\n  static Database? _database;\n\n  // 싱글톤 패턴\n  factory DatabaseHelper() => _instance;\n  DatabaseHelper._internal();\n\n  // 데이터베이스 getter\n  Future<Database> get database async {\n    if (_database != null) return _database!;\n    _database = await _initDatabase();\n    return _database!;\n  }\n\n  // 데이터베이스 초기화\n  Future<Database> _initDatabase() async {\n    // 데이터베이스 파일 경로\n    final dbPath = await getDatabasesPath();\n    final path = join(dbPath, 'my_app.db');\n\n    return await openDatabase(\n      path,\n      version: 1,\n      onCreate: _onCreate,\n      onUpgrade: _onUpgrade,\n    );\n  }\n\n  // 테이블 생성 (최초 1회)\n  Future<void> _onCreate(Database db, int version) async {\n    // 사용자 테이블\n    await db.execute('''\n      CREATE TABLE users (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        name TEXT NOT NULL,\n        email TEXT UNIQUE NOT NULL,\n        created_at TEXT NOT NULL\n      )\n    ''');\n\n    // 할 일 테이블\n    await db.execute('''\n      CREATE TABLE todos (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        user_id INTEGER NOT NULL,\n        title TEXT NOT NULL,\n        description TEXT,\n        is_completed INTEGER DEFAULT 0,\n        created_at TEXT NOT NULL,\n        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE\n      )\n    ''');\n\n    // 인덱스 생성 (검색 성능 향상)\n    await db.execute('CREATE INDEX idx_todos_user_id ON todos (user_id)');\n    await db.execute('CREATE INDEX idx_todos_completed ON todos (is_completed)');\n  }\n\n  // 스키마 업그레이드 (버전 변경 시)\n  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {\n    if (oldVersion < 2) {\n      // 버전 2로 업그레이드: 새 컬럼 추가\n      await db.execute('ALTER TABLE todos ADD COLUMN priority INTEGER DEFAULT 0');\n    }\n    if (oldVersion < 3) {\n      // 버전 3으로 업그레이드: 새 테이블 추가\n      await db.execute('''\n        CREATE TABLE categories (\n          id INTEGER PRIMARY KEY AUTOINCREMENT,\n          name TEXT NOT NULL\n        )\n      ''');\n    }\n  }\n\n  // 데이터베이스 닫기\n  Future<void> close() async {\n    final db = await database;\n    await db.close();\n    _database = null;\n  }\n\n  // 데이터베이스 삭제 (테스트/리셋용)\n  Future<void> deleteDatabase() async {\n    final dbPath = await getDatabasesPath();\n    final path = join(dbPath, 'my_app.db');\n    await databaseFactory.deleteDatabase(path);\n    _database = null;\n  }\n}"
+      },
+      "explanation": "【DatabaseHelper 구성】\n• 싱글톤 패턴: 앱 전체에서 하나의 DB 인스턴스 공유\n• _initDatabase: DB 파일 경로 설정 및 열기\n• _onCreate: 최초 실행 시 테이블 생성\n• _onUpgrade: 버전 업그레이드 시 마이그레이션\n\n【SQL 타입 매핑】\n• INTEGER: int, bool (0/1)\n• TEXT: String\n• REAL: double\n• BLOB: Uint8List",
+      "beginnerTip": "⚠️ SQLite는 bool 타입이 없습니다. INTEGER로 저장하고 0(false)/1(true)로 처리합니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🔧 모델과 DAO (Data Access Object)",
+      "description": "데이터 모델 클래스와 CRUD 작업을 담당하는 DAO를 만듭니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/models/todo.dart",
+        "content": "class Todo {\n  final int? id;\n  final int userId;\n  final String title;\n  final String? description;\n  final bool isCompleted;\n  final DateTime createdAt;\n\n  Todo({\n    this.id,\n    required this.userId,\n    required this.title,\n    this.description,\n    this.isCompleted = false,\n    DateTime? createdAt,\n  }) : createdAt = createdAt ?? DateTime.now();\n\n  // Map → 객체 (DB에서 읽을 때)\n  factory Todo.fromMap(Map<String, dynamic> map) {\n    return Todo(\n      id: map['id'] as int,\n      userId: map['user_id'] as int,\n      title: map['title'] as String,\n      description: map['description'] as String?,\n      isCompleted: (map['is_completed'] as int) == 1,\n      createdAt: DateTime.parse(map['created_at'] as String),\n    );\n  }\n\n  // 객체 → Map (DB에 쓸 때)\n  Map<String, dynamic> toMap() {\n    return {\n      if (id != null) 'id': id,\n      'user_id': userId,\n      'title': title,\n      'description': description,\n      'is_completed': isCompleted ? 1 : 0,\n      'created_at': createdAt.toIso8601String(),\n    };\n  }\n\n  // copyWith 패턴\n  Todo copyWith({\n    int? id,\n    int? userId,\n    String? title,\n    String? description,\n    bool? isCompleted,\n    DateTime? createdAt,\n  }) {\n    return Todo(\n      id: id ?? this.id,\n      userId: userId ?? this.userId,\n      title: title ?? this.title,\n      description: description ?? this.description,\n      isCompleted: isCompleted ?? this.isCompleted,\n      createdAt: createdAt ?? this.createdAt,\n    );\n  }\n\n  @override\n  String toString() {\n    return 'Todo(id: $id, title: $title, isCompleted: $isCompleted)';\n  }\n}"
+      },
+      "explanation": "【모델 클래스 설계】\n• fromMap: DB Map → Dart 객체\n• toMap: Dart 객체 → DB Map\n• copyWith: 불변 객체 업데이트\n\n【타입 변환 주의점】\n• bool → int: isCompleted ? 1 : 0\n• DateTime → String: toIso8601String()\n• String → DateTime: DateTime.parse()",
+      "beginnerTip": "📅 DateTime은 ISO 8601 문자열로 저장하면 정렬과 비교가 용이합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "📊 CRUD 작업 구현",
+      "description": "Create, Read, Update, Delete 작업을 수행하는 DAO 클래스입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/database/todo_dao.dart",
+        "content": "import 'package:sqflite/sqflite.dart';\nimport '../models/todo.dart';\nimport 'database_helper.dart';\n\nclass TodoDao {\n  final DatabaseHelper _dbHelper = DatabaseHelper();\n\n  // ===== CREATE =====\n  \n  /// 새 할 일 추가\n  Future<int> insert(Todo todo) async {\n    final db = await _dbHelper.database;\n    return await db.insert(\n      'todos',\n      todo.toMap(),\n      conflictAlgorithm: ConflictAlgorithm.replace,\n    );\n  }\n\n  /// 여러 할 일 일괄 추가 (배치)\n  Future<void> insertAll(List<Todo> todos) async {\n    final db = await _dbHelper.database;\n    final batch = db.batch();\n    \n    for (final todo in todos) {\n      batch.insert('todos', todo.toMap());\n    }\n    \n    await batch.commit(noResult: true);\n  }\n\n  // ===== READ =====\n  \n  /// ID로 조회\n  Future<Todo?> getById(int id) async {\n    final db = await _dbHelper.database;\n    final maps = await db.query(\n      'todos',\n      where: 'id = ?',\n      whereArgs: [id],\n      limit: 1,\n    );\n    \n    if (maps.isEmpty) return null;\n    return Todo.fromMap(maps.first);\n  }\n\n  /// 모든 할 일 조회\n  Future<List<Todo>> getAll() async {\n    final db = await _dbHelper.database;\n    final maps = await db.query(\n      'todos',\n      orderBy: 'created_at DESC',\n    );\n    \n    return maps.map((map) => Todo.fromMap(map)).toList();\n  }\n\n  /// 사용자별 할 일 조회\n  Future<List<Todo>> getByUserId(int userId) async {\n    final db = await _dbHelper.database;\n    final maps = await db.query(\n      'todos',\n      where: 'user_id = ?',\n      whereArgs: [userId],\n      orderBy: 'created_at DESC',\n    );\n    \n    return maps.map((map) => Todo.fromMap(map)).toList();\n  }\n\n  /// 완료/미완료 할 일 조회\n  Future<List<Todo>> getByStatus({required bool isCompleted}) async {\n    final db = await _dbHelper.database;\n    final maps = await db.query(\n      'todos',\n      where: 'is_completed = ?',\n      whereArgs: [isCompleted ? 1 : 0],\n      orderBy: 'created_at DESC',\n    );\n    \n    return maps.map((map) => Todo.fromMap(map)).toList();\n  }\n\n  /// 제목으로 검색\n  Future<List<Todo>> search(String keyword) async {\n    final db = await _dbHelper.database;\n    final maps = await db.query(\n      'todos',\n      where: 'title LIKE ?',\n      whereArgs: ['%$keyword%'],\n      orderBy: 'created_at DESC',\n    );\n    \n    return maps.map((map) => Todo.fromMap(map)).toList();\n  }\n\n  /// 개수 조회\n  Future<int> getCount({bool? isCompleted}) async {\n    final db = await _dbHelper.database;\n    final result = await db.rawQuery(\n      isCompleted == null\n          ? 'SELECT COUNT(*) as count FROM todos'\n          : 'SELECT COUNT(*) as count FROM todos WHERE is_completed = ?',\n      isCompleted == null ? [] : [isCompleted ? 1 : 0],\n    );\n    \n    return Sqflite.firstIntValue(result) ?? 0;\n  }\n\n  // ===== UPDATE =====\n  \n  /// 할 일 수정\n  Future<int> update(Todo todo) async {\n    final db = await _dbHelper.database;\n    return await db.update(\n      'todos',\n      todo.toMap(),\n      where: 'id = ?',\n      whereArgs: [todo.id],\n    );\n  }\n\n  /// 완료 상태 토글\n  Future<int> toggleComplete(int id, bool isCompleted) async {\n    final db = await _dbHelper.database;\n    return await db.update(\n      'todos',\n      {'is_completed': isCompleted ? 1 : 0},\n      where: 'id = ?',\n      whereArgs: [id],\n    );\n  }\n\n  /// 모두 완료로 표시\n  Future<int> markAllComplete(int userId) async {\n    final db = await _dbHelper.database;\n    return await db.update(\n      'todos',\n      {'is_completed': 1},\n      where: 'user_id = ? AND is_completed = 0',\n      whereArgs: [userId],\n    );\n  }\n\n  // ===== DELETE =====\n  \n  /// 할 일 삭제\n  Future<int> delete(int id) async {\n    final db = await _dbHelper.database;\n    return await db.delete(\n      'todos',\n      where: 'id = ?',\n      whereArgs: [id],\n    );\n  }\n\n  /// 완료된 할 일 모두 삭제\n  Future<int> deleteCompleted(int userId) async {\n    final db = await _dbHelper.database;\n    return await db.delete(\n      'todos',\n      where: 'user_id = ? AND is_completed = 1',\n      whereArgs: [userId],\n    );\n  }\n\n  /// 사용자의 모든 할 일 삭제\n  Future<int> deleteByUserId(int userId) async {\n    final db = await _dbHelper.database;\n    return await db.delete(\n      'todos',\n      where: 'user_id = ?',\n      whereArgs: [userId],\n    );\n  }\n}"
+      },
+      "explanation": "【query() vs rawQuery()】\n• query(): 빌더 패턴으로 안전한 쿼리 생성\n• rawQuery(): 직접 SQL 작성 (복잡한 쿼리용)\n\n【whereArgs 사용】\n• SQL 인젝션 방지를 위해 ? 플레이스홀더 사용\n• where: 'id = ?', whereArgs: [id]\n\n【Batch 작업】\n• 여러 쿼리를 모아서 한 번에 실행\n• 대량 데이터 삽입 시 성능 대폭 향상",
+      "beginnerTip": "🛡️ 절대 문자열 보간('id = $id')을 사용하지 마세요. SQL 인젝션 공격에 취약합니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🔄 트랜잭션과 고급 쿼리",
+      "description": "트랜잭션으로 여러 작업을 안전하게 처리하고, JOIN 등 복잡한 쿼리를 실행합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/database/advanced_queries.dart",
+        "content": "import 'package:sqflite/sqflite.dart';\nimport 'database_helper.dart';\nimport '../models/todo.dart';\n\nclass AdvancedQueries {\n  final DatabaseHelper _dbHelper = DatabaseHelper();\n\n  /// 트랜잭션: 사용자 생성 + 기본 할 일 추가\n  Future<int> createUserWithDefaultTodos(String name, String email) async {\n    final db = await _dbHelper.database;\n    \n    return await db.transaction((txn) async {\n      // 1. 사용자 생성\n      final userId = await txn.insert('users', {\n        'name': name,\n        'email': email,\n        'created_at': DateTime.now().toIso8601String(),\n      });\n\n      // 2. 기본 할 일 추가\n      final now = DateTime.now().toIso8601String();\n      await txn.insert('todos', {\n        'user_id': userId,\n        'title': '앱 둘러보기',\n        'description': '앱의 기능을 살펴보세요!',\n        'is_completed': 0,\n        'created_at': now,\n      });\n\n      await txn.insert('todos', {\n        'user_id': userId,\n        'title': '프로필 설정하기',\n        'description': '프로필을 완성해보세요.',\n        'is_completed': 0,\n        'created_at': now,\n      });\n\n      // 에러 발생 시 모든 작업 롤백\n      // throw Exception('테스트 에러'); // 주석 해제하면 롤백 테스트 가능\n\n      return userId;\n    });\n  }\n\n  /// JOIN 쿼리: 사용자별 할 일 통계\n  Future<List<Map<String, dynamic>>> getUserTodoStats() async {\n    final db = await _dbHelper.database;\n    \n    return await db.rawQuery('''\n      SELECT \n        u.id as user_id,\n        u.name as user_name,\n        COUNT(t.id) as total_todos,\n        SUM(CASE WHEN t.is_completed = 1 THEN 1 ELSE 0 END) as completed_todos,\n        SUM(CASE WHEN t.is_completed = 0 THEN 1 ELSE 0 END) as pending_todos\n      FROM users u\n      LEFT JOIN todos t ON u.id = t.user_id\n      GROUP BY u.id\n      ORDER BY total_todos DESC\n    ''');\n  }\n\n  /// 페이지네이션\n  Future<List<Todo>> getTodosPaginated({\n    required int page,\n    int pageSize = 20,\n    int? userId,\n  }) async {\n    final db = await _dbHelper.database;\n    final offset = (page - 1) * pageSize;\n    \n    String whereClause = '';\n    List<dynamic> whereArgs = [];\n    \n    if (userId != null) {\n      whereClause = 'WHERE user_id = ?';\n      whereArgs = [userId];\n    }\n    \n    final maps = await db.rawQuery('''\n      SELECT * FROM todos\n      $whereClause\n      ORDER BY created_at DESC\n      LIMIT ? OFFSET ?\n    ''', [...whereArgs, pageSize, offset]);\n    \n    return maps.map((map) => Todo.fromMap(map)).toList();\n  }\n\n  /// 날짜 범위로 조회\n  Future<List<Todo>> getTodosByDateRange({\n    required DateTime startDate,\n    required DateTime endDate,\n  }) async {\n    final db = await _dbHelper.database;\n    \n    final maps = await db.query(\n      'todos',\n      where: 'created_at BETWEEN ? AND ?',\n      whereArgs: [\n        startDate.toIso8601String(),\n        endDate.toIso8601String(),\n      ],\n      orderBy: 'created_at DESC',\n    );\n    \n    return maps.map((map) => Todo.fromMap(map)).toList();\n  }\n\n  /// 전체 텍스트 검색 (제목 + 설명)\n  Future<List<Todo>> fullTextSearch(String query) async {\n    final db = await _dbHelper.database;\n    final searchPattern = '%$query%';\n    \n    final maps = await db.query(\n      'todos',\n      where: 'title LIKE ? OR description LIKE ?',\n      whereArgs: [searchPattern, searchPattern],\n      orderBy: 'created_at DESC',\n    );\n    \n    return maps.map((map) => Todo.fromMap(map)).toList();\n  }\n\n  /// 집계 쿼리\n  Future<Map<String, int>> getTodoSummary(int userId) async {\n    final db = await _dbHelper.database;\n    \n    final result = await db.rawQuery('''\n      SELECT \n        COUNT(*) as total,\n        SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) as completed,\n        SUM(CASE WHEN is_completed = 0 THEN 1 ELSE 0 END) as pending\n      FROM todos\n      WHERE user_id = ?\n    ''', [userId]);\n    \n    final row = result.first;\n    return {\n      'total': row['total'] as int? ?? 0,\n      'completed': row['completed'] as int? ?? 0,\n      'pending': row['pending'] as int? ?? 0,\n    };\n  }\n\n  /// 배치 업데이트\n  Future<void> batchUpdatePriority(List<Map<String, int>> updates) async {\n    final db = await _dbHelper.database;\n    final batch = db.batch();\n    \n    for (final update in updates) {\n      batch.update(\n        'todos',\n        {'priority': update['priority']},\n        where: 'id = ?',\n        whereArgs: [update['id']],\n      );\n    }\n    \n    await batch.commit();\n  }\n}"
+      },
+      "explanation": "【트랜잭션 특징】\n• 모든 작업이 성공해야 커밋\n• 하나라도 실패하면 전체 롤백\n• 데이터 무결성 보장\n\n【JOIN 쿼리】\n• LEFT JOIN: 모든 사용자 포함 (할 일 없어도)\n• INNER JOIN: 할 일 있는 사용자만\n\n【페이지네이션】\n• LIMIT: 가져올 개수\n• OFFSET: 건너뛸 개수\n• 공식: offset = (page - 1) * pageSize",
+      "beginnerTip": "🔄 트랜잭션 내에서 예외가 발생하면 모든 변경이 자동으로 롤백됩니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "openDatabase()",
+      "description": "데이터베이스를 열거나 생성합니다.",
+      "parameters": "String path, int version, OnDatabaseCreateFn onCreate, OnDatabaseVersionChangeFn onUpgrade",
+      "returns": "Future<Database>",
+      "example": "final db = await openDatabase('app.db', version: 1, onCreate: ...);"
+    },
+    {
+      "name": "db.insert()",
+      "description": "새 행을 삽입합니다.",
+      "parameters": "String table, Map<String, dynamic> values, ConflictAlgorithm conflictAlgorithm",
+      "returns": "Future<int> (삽입된 행 ID)",
+      "example": "final id = await db.insert('todos', todo.toMap());"
+    },
+    {
+      "name": "db.query()",
+      "description": "SELECT 쿼리를 실행합니다.",
+      "parameters": "String table, where, whereArgs, orderBy, limit, offset, ...",
+      "returns": "Future<List<Map<String, dynamic>>>",
+      "example": "final rows = await db.query('todos', where: 'id = ?', whereArgs: [1]);"
+    },
+    {
+      "name": "db.update()",
+      "description": "기존 행을 수정합니다.",
+      "parameters": "String table, Map<String, dynamic> values, where, whereArgs",
+      "returns": "Future<int> (수정된 행 수)",
+      "example": "final count = await db.update('todos', data, where: 'id = ?', whereArgs: [1]);"
+    },
+    {
+      "name": "db.delete()",
+      "description": "행을 삭제합니다.",
+      "parameters": "String table, where, whereArgs",
+      "returns": "Future<int> (삭제된 행 수)",
+      "example": "final count = await db.delete('todos', where: 'id = ?', whereArgs: [1]);"
+    },
+    {
+      "name": "db.transaction()",
+      "description": "트랜잭션을 실행합니다.",
+      "parameters": "Future<T> Function(Transaction txn) action",
+      "returns": "Future<T>",
+      "example": "await db.transaction((txn) async { ... });"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "DatabaseException: no such table: todos",
+      "cause": "테이블이 생성되지 않았거나, 다른 버전의 DB 파일이 열렸습니다.",
+      "solution": "앱을 삭제하고 재설치하거나, deleteDatabase()로 DB를 삭제 후 재생성하세요.",
+      "prevention": "onCreate에서 모든 필요한 테이블을 생성하고, 버전 관리를 철저히 하세요."
+    },
+    {
+      "error": "UNIQUE constraint failed",
+      "cause": "UNIQUE 제약조건이 있는 컬럼에 중복 값을 삽입하려 했습니다.",
+      "solution": "conflictAlgorithm: ConflictAlgorithm.replace 또는 ignore를 사용하세요.",
+      "prevention": "삽입 전 존재 여부를 확인하거나 UPSERT 패턴을 사용하세요."
+    },
+    {
+      "error": "Cannot perform this operation inside a transaction",
+      "cause": "트랜잭션 내에서 또 다른 트랜잭션을 시작하려 했습니다.",
+      "solution": "트랜잭션을 중첩하지 말고, 하나의 트랜잭션 블록에서 모든 작업을 수행하세요.",
+      "prevention": "트랜잭션 설계를 단일 레벨로 유지하세요."
+    },
+    {
+      "error": "database is locked",
+      "cause": "다른 트랜잭션이나 쓰기 작업이 진행 중입니다.",
+      "solution": "동시 쓰기를 피하거나, 적절한 동기화를 추가하세요. WAL 모드를 고려하세요.",
+      "prevention": "싱글톤 패턴으로 DB 인스턴스를 관리하고, 적절한 락킹 전략을 사용하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "싱글톤 패턴 사용",
+      "description": "앱 전체에서 하나의 데이터베이스 인스턴스를 공유하세요.",
+      "doThis": "static final DatabaseHelper _instance = DatabaseHelper._internal();\nfactory DatabaseHelper() => _instance;",
+      "dontDoThis": "매번 new DatabaseHelper()로 새 인스턴스 생성"
+    },
+    {
+      "title": "whereArgs로 파라미터 바인딩",
+      "description": "SQL 인젝션 방지를 위해 항상 whereArgs를 사용하세요.",
+      "doThis": "where: 'id = ?', whereArgs: [id]",
+      "dontDoThis": "where: 'id = $id'  // SQL 인젝션 위험!"
+    },
+    {
+      "title": "버전 관리와 마이그레이션",
+      "description": "스키마 변경 시 버전을 올리고 onUpgrade에서 마이그레이션을 처리하세요.",
+      "doThis": "version: 2, onUpgrade: (db, old, new) {\n  if (old < 2) await db.execute('ALTER TABLE...');\n}",
+      "dontDoThis": "테이블 구조 변경 시 사용자에게 앱 재설치 요청"
+    }
+  ],
+
+  "tips": [
+    "💡 getDatabasesPath()로 플랫폼별 안전한 DB 경로를 얻을 수 있습니다",
+    "⚡ 대량 삽입 시 batch를 사용하면 성능이 10배 이상 향상됩니다",
+    "🔧 개발 중에는 deleteDatabase()로 DB를 리셋하고 테스트하세요",
+    "📊 복잡한 쿼리는 rawQuery()를 사용하고, 단순 CRUD는 query() 등의 헬퍼를 사용하세요",
+    "🛡️ 민감한 데이터는 sqflite_cipher 등 암호화 패키지를 고려하세요"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "floor",
+      "description": "Room 스타일의 SQLite ORM. 어노테이션 기반 코드 생성"
+    },
+    {
+      "name": "drift (moor)",
+      "description": "타입 안전한 SQLite ORM. 컴파일 타임 SQL 검증"
+    },
+    {
+      "name": "hive",
+      "description": "NoSQL 대안. 간단한 키-값 또는 객체 저장에 적합"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/sqflite"},
+    {"title": "GitHub 저장소", "url": "https://github.com/tekartik/sqflite"},
+    {"title": "SQLite 문서", "url": "https://www.sqlite.org/docs.html"},
+    {"title": "Flutter 데이터 저장 가이드", "url": "https://docs.flutter.dev/cookbook/persistence/sqlite"}
+  ]
+}

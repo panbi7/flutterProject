@@ -1,0 +1,174 @@
+{
+  "packageId": "syncfusion_flutter_charts",
+  "title": "syncfusion_flutter_charts 실전 마스터 가이드",
+  "generatedAt": "2026-01-28T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "28.1.33",
+  "packageLikes": 2100,
+
+  "overview": {
+    "what": "syncfusion_flutter_charts는 Syncfusion에서 개발한 전문 차트 라이브러리입니다. 30종 이상의 차트 유형(라인, 바, 파이, 영역, 스플라인 등)을 지원하며, 애니메이션, 인터랙션, 주석, 범례 등 엔터프라이즈급 기능을 제공합니다. 커뮤니티 라이선스로 소규모 비즈니스는 무료로 사용 가능합니다.",
+    "why": "fl_chart 같은 오픈소스보다 더 다양한 차트 유형과 세밀한 커스터마이징을 제공합니다. 특히 금융 차트(캔들스틱, OHLC), 원형 차트(도넛, 방사형), 피라미드/퍼널 차트 등 전문 차트가 필요할 때 최적입니다. 문서화가 잘 되어 있고 Syncfusion 커뮤니티 지원도 활발합니다.",
+    "when": "1) 대시보드나 분석 앱에서 다양한 차트가 필요할 때, 2) 금융 앱에서 캔들스틱/OHLC 차트가 필요할 때, 3) 실시간 데이터 시각화가 필요할 때, 4) 복잡한 차트 인터랙션(줌, 팬, 툴팁)이 필요할 때, 5) 엔터프라이즈급 차트 품질이 요구될 때",
+    "features": [
+      "📊 30+ 차트 유형: 라인, 바, 파이, 영역, 버블, 캔들스틱 등",
+      "🎬 애니메이션: 차트 로딩 시 부드러운 애니메이션 효과",
+      "🔍 줌/팬: 핀치 줌, 더블 탭 줌, 팬 제스처 지원",
+      "💬 툴팁/트랙볼: 데이터 포인트 상세 정보 표시",
+      "📱 반응형: 다양한 화면 크기에 자동 적응"
+    ]
+  },
+
+  "description": "Syncfusion의 전문 Flutter 차트 라이브러리",
+  "difficulty": "중급 - 다양한 차트 옵션 이해 필요",
+  "estimatedTime": "1시간",
+  "prerequisites": [
+    "Flutter 기본 위젯 이해",
+    "List와 데이터 모델 다루기",
+    "데이터 시각화 기본 개념"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "SfCartesianChart",
+      "explanation": "직교 좌표계(X-Y축) 기반 차트입니다. 라인, 바, 영역, 스플라인 등 대부분의 차트가 이에 해당합니다.",
+      "analogy": "📈 그래프 용지에 점을 찍고 선을 잇는 것처럼, X축과 Y축을 기준으로 데이터를 표시합니다.",
+      "usage": "SfCartesianChart(series: <CartesianSeries>[LineSeries(...)])"
+    },
+    {
+      "term": "SfCircularChart",
+      "explanation": "원형 기반 차트입니다. 파이 차트, 도넛 차트, 방사형 바 차트가 이에 해당합니다.",
+      "analogy": "🥧 피자를 조각내는 것처럼, 전체 대비 각 부분의 비율을 표시합니다.",
+      "usage": "SfCircularChart(series: <CircularSeries>[PieSeries(...)])"
+    },
+    {
+      "term": "Series",
+      "explanation": "차트에 표시할 데이터 집합입니다. 하나의 차트에 여러 시리즈를 추가하여 비교 차트를 만들 수 있습니다.",
+      "analogy": "📊 엑셀에서 여러 데이터 열을 한 그래프에 표시하는 것과 같습니다.",
+      "usage": "LineSeries<Data, String>(dataSource: data, xValueMapper: ..., yValueMapper: ...)"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "syncfusion_flutter_charts 패키지를 설치합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  syncfusion_flutter_charts: ^28.1.33"
+      },
+      "commands": ["flutter pub add syncfusion_flutter_charts"],
+      "explanation": "Syncfusion 패키지는 커뮤니티 라이선스(연매출 100만 달러 이하, 개발자 5명 이하)로 무료 사용 가능합니다.",
+      "beginnerTip": "💡 상업용으로 사용 시 라이선스 조건을 확인하세요: https://www.syncfusion.com/products/communitylicense"
+    },
+    {
+      "stepNumber": 2,
+      "title": "📈 기본 라인 차트",
+      "description": "가장 기본적인 라인 차트를 생성합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/charts/line_chart_example.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:syncfusion_flutter_charts/charts.dart';\n\n// 데이터 모델\nclass SalesData {\n  final String month;\n  final double sales;\n  \n  SalesData(this.month, this.sales);\n}\n\nclass LineChartExample extends StatelessWidget {\n  const LineChartExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // 샘플 데이터\n    final List<SalesData> chartData = [\n      SalesData('1월', 35),\n      SalesData('2월', 28),\n      SalesData('3월', 34),\n      SalesData('4월', 32),\n      SalesData('5월', 40),\n      SalesData('6월', 45),\n    ];\n\n    return Scaffold(\n      appBar: AppBar(title: const Text('라인 차트')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: SfCartesianChart(\n          // 차트 제목\n          title: const ChartTitle(text: '월별 판매량'),\n          \n          // 범례 표시\n          legend: const Legend(isVisible: true),\n          \n          // 툴팁 활성화\n          tooltipBehavior: TooltipBehavior(enable: true),\n          \n          // X축 설정\n          primaryXAxis: const CategoryAxis(\n            title: AxisTitle(text: '월'),\n          ),\n          \n          // Y축 설정\n          primaryYAxis: const NumericAxis(\n            title: AxisTitle(text: '판매량'),\n            minimum: 0,\n            maximum: 50,\n            interval: 10,\n          ),\n          \n          // 데이터 시리즈\n          series: <CartesianSeries<SalesData, String>>[\n            LineSeries<SalesData, String>(\n              name: '판매량',\n              dataSource: chartData,\n              xValueMapper: (SalesData data, _) => data.month,\n              yValueMapper: (SalesData data, _) => data.sales,\n              // 데이터 포인트 표시\n              markerSettings: const MarkerSettings(isVisible: true),\n              // 데이터 라벨 표시\n              dataLabelSettings: const DataLabelSettings(isVisible: true),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "• SfCartesianChart: 직교 좌표계 차트 컨테이너\n• CategoryAxis: 카테고리(문자열) X축\n• NumericAxis: 숫자 Y축\n• LineSeries: 라인 차트 시리즈\n• xValueMapper/yValueMapper: 데이터에서 X,Y 값 추출 함수",
+      "beginnerTip": "💡 mapper 함수의 두 번째 파라미터(_)는 인덱스입니다. 필요 없으면 _로 무시할 수 있습니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "📊 바 차트와 복합 차트",
+      "description": "바 차트와 여러 시리즈를 조합한 복합 차트를 만듭니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/charts/bar_chart_example.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:syncfusion_flutter_charts/charts.dart';\n\nclass ProductData {\n  final String product;\n  final double sales2023;\n  final double sales2024;\n  \n  ProductData(this.product, this.sales2023, this.sales2024);\n}\n\nclass BarChartExample extends StatelessWidget {\n  const BarChartExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    final List<ProductData> data = [\n      ProductData('제품A', 120, 150),\n      ProductData('제품B', 90, 110),\n      ProductData('제품C', 75, 95),\n      ProductData('제품D', 60, 80),\n    ];\n\n    return Scaffold(\n      appBar: AppBar(title: const Text('바 차트')),\n      body: Column(\n        children: [\n          // 세로 바 차트 (Column)\n          Expanded(\n            child: SfCartesianChart(\n              title: const ChartTitle(text: '연도별 제품 판매량'),\n              legend: const Legend(\n                isVisible: true,\n                position: LegendPosition.bottom,\n              ),\n              tooltipBehavior: TooltipBehavior(enable: true),\n              primaryXAxis: const CategoryAxis(),\n              primaryYAxis: const NumericAxis(\n                title: AxisTitle(text: '판매량 (억원)'),\n              ),\n              series: <CartesianSeries>[\n                // 2023년 바\n                ColumnSeries<ProductData, String>(\n                  name: '2023년',\n                  dataSource: data,\n                  xValueMapper: (d, _) => d.product,\n                  yValueMapper: (d, _) => d.sales2023,\n                  color: Colors.blue,\n                ),\n                // 2024년 바\n                ColumnSeries<ProductData, String>(\n                  name: '2024년',\n                  dataSource: data,\n                  xValueMapper: (d, _) => d.product,\n                  yValueMapper: (d, _) => d.sales2024,\n                  color: Colors.orange,\n                ),\n              ],\n            ),\n          ),\n          \n          // 가로 바 차트 (Bar)\n          Expanded(\n            child: SfCartesianChart(\n              title: const ChartTitle(text: '가로 바 차트'),\n              primaryXAxis: const CategoryAxis(),\n              primaryYAxis: const NumericAxis(),\n              series: <CartesianSeries>[\n                BarSeries<ProductData, String>(\n                  dataSource: data,\n                  xValueMapper: (d, _) => d.product,\n                  yValueMapper: (d, _) => d.sales2024,\n                  // 그라데이션 효과\n                  gradient: const LinearGradient(\n                    colors: [Colors.blue, Colors.purple],\n                  ),\n                  // 라운드 모서리\n                  borderRadius: const BorderRadius.all(Radius.circular(8)),\n                  dataLabelSettings: const DataLabelSettings(isVisible: true),\n                ),\n              ],\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}\n\n// 스택 바 차트\nclass StackedBarExample extends StatelessWidget {\n  const StackedBarExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    final data = [\n      ProductData('Q1', 30, 20),\n      ProductData('Q2', 35, 25),\n      ProductData('Q3', 40, 30),\n      ProductData('Q4', 45, 35),\n    ];\n\n    return SfCartesianChart(\n      title: const ChartTitle(text: '분기별 매출 (스택)'),\n      legend: const Legend(isVisible: true),\n      series: <CartesianSeries>[\n        StackedColumnSeries<ProductData, String>(\n          name: '온라인',\n          dataSource: data,\n          xValueMapper: (d, _) => d.product,\n          yValueMapper: (d, _) => d.sales2023,\n        ),\n        StackedColumnSeries<ProductData, String>(\n          name: '오프라인',\n          dataSource: data,\n          xValueMapper: (d, _) => d.product,\n          yValueMapper: (d, _) => d.sales2024,\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "• ColumnSeries: 세로 바 차트 (기본)\n• BarSeries: 가로 바 차트\n• StackedColumnSeries: 스택 바 차트\n• 여러 시리즈를 추가하면 자동으로 그룹화됨\n• gradient, borderRadius로 스타일링",
+      "beginnerTip": "💡 ColumnSeries는 세로 바, BarSeries는 가로 바입니다. 이름이 직관적이지 않으니 주의하세요!"
+    },
+    {
+      "stepNumber": 4,
+      "title": "🥧 파이/도넛 차트",
+      "description": "원형 차트인 파이 차트와 도넛 차트를 만듭니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/charts/pie_chart_example.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:syncfusion_flutter_charts/charts.dart';\n\nclass CategoryData {\n  final String category;\n  final double value;\n  final Color color;\n  \n  CategoryData(this.category, this.value, this.color);\n}\n\nclass PieChartExample extends StatelessWidget {\n  const PieChartExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    final List<CategoryData> data = [\n      CategoryData('식비', 35, Colors.red),\n      CategoryData('교통', 20, Colors.blue),\n      CategoryData('쇼핑', 25, Colors.green),\n      CategoryData('문화', 12, Colors.orange),\n      CategoryData('기타', 8, Colors.purple),\n    ];\n\n    return Scaffold(\n      appBar: AppBar(title: const Text('원형 차트')),\n      body: Column(\n        children: [\n          // 기본 파이 차트\n          Expanded(\n            child: SfCircularChart(\n              title: const ChartTitle(text: '지출 비율'),\n              legend: const Legend(\n                isVisible: true,\n                position: LegendPosition.bottom,\n                overflowMode: LegendItemOverflowMode.wrap,\n              ),\n              tooltipBehavior: TooltipBehavior(enable: true),\n              series: <CircularSeries>[\n                PieSeries<CategoryData, String>(\n                  dataSource: data,\n                  xValueMapper: (d, _) => d.category,\n                  yValueMapper: (d, _) => d.value,\n                  pointColorMapper: (d, _) => d.color,\n                  // 데이터 라벨\n                  dataLabelSettings: const DataLabelSettings(\n                    isVisible: true,\n                    labelPosition: ChartDataLabelPosition.outside,\n                  ),\n                  // 조각 분리 효과\n                  explode: true,\n                  explodeIndex: 0,  // 첫 번째 조각 분리\n                ),\n              ],\n            ),\n          ),\n          \n          // 도넛 차트\n          Expanded(\n            child: SfCircularChart(\n              title: const ChartTitle(text: '도넛 차트'),\n              legend: const Legend(isVisible: true),\n              annotations: <CircularChartAnnotation>[\n                // 중앙에 텍스트 추가\n                CircularChartAnnotation(\n                  widget: const Column(\n                    mainAxisSize: MainAxisSize.min,\n                    children: [\n                      Text(\n                        '총 지출',\n                        style: TextStyle(fontSize: 12, color: Colors.grey),\n                      ),\n                      Text(\n                        '₩100만',\n                        style: TextStyle(\n                          fontSize: 20,\n                          fontWeight: FontWeight.bold,\n                        ),\n                      ),\n                    ],\n                  ),\n                ),\n              ],\n              series: <CircularSeries>[\n                DoughnutSeries<CategoryData, String>(\n                  dataSource: data,\n                  xValueMapper: (d, _) => d.category,\n                  yValueMapper: (d, _) => d.value,\n                  pointColorMapper: (d, _) => d.color,\n                  // 도넛 두께\n                  innerRadius: '60%',\n                  radius: '80%',\n                  // 라벨\n                  dataLabelMapper: (d, _) => '${d.value.toInt()}%',\n                  dataLabelSettings: const DataLabelSettings(\n                    isVisible: true,\n                    textStyle: TextStyle(fontSize: 12),\n                  ),\n                ),\n              ],\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}\n\n// 반원 도넛 (게이지 스타일)\nclass SemiDoughnutExample extends StatelessWidget {\n  const SemiDoughnutExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return SfCircularChart(\n      series: <CircularSeries>[\n        DoughnutSeries<CategoryData, String>(\n          dataSource: [\n            CategoryData('완료', 75, Colors.green),\n            CategoryData('남음', 25, Colors.grey.shade300),\n          ],\n          xValueMapper: (d, _) => d.category,\n          yValueMapper: (d, _) => d.value,\n          pointColorMapper: (d, _) => d.color,\n          innerRadius: '70%',\n          // 반원으로 표시\n          startAngle: 180,\n          endAngle: 360,\n        ),\n      ],\n      annotations: <CircularChartAnnotation>[\n        CircularChartAnnotation(\n          angle: 270,\n          radius: '0%',\n          widget: const Text(\n            '75%',\n            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),\n          ),\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "• SfCircularChart: 원형 차트 컨테이너\n• PieSeries: 파이 차트\n• DoughnutSeries: 도넛 차트 (innerRadius로 중앙 구멍 크기 조절)\n• explode: 조각 분리 효과\n• CircularChartAnnotation: 차트 위에 위젯 오버레이",
+      "beginnerTip": "💡 innerRadius를 '60%'처럼 문자열로 설정하면 전체 대비 비율로, 숫자로 설정하면 픽셀 값으로 적용됩니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🔍 인터랙션과 실시간 업데이트",
+      "description": "줌, 팬, 선택 등 인터랙션과 실시간 데이터 업데이트를 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/charts/interactive_chart.dart",
+        "content": "import 'dart:async';\nimport 'dart:math';\nimport 'package:flutter/material.dart';\nimport 'package:syncfusion_flutter_charts/charts.dart';\n\nclass LiveData {\n  final DateTime time;\n  final double value;\n  \n  LiveData(this.time, this.value);\n}\n\nclass InteractiveChartExample extends StatefulWidget {\n  const InteractiveChartExample({super.key});\n\n  @override\n  State<InteractiveChartExample> createState() => _InteractiveChartExampleState();\n}\n\nclass _InteractiveChartExampleState extends State<InteractiveChartExample> {\n  late List<LiveData> _chartData;\n  late Timer _timer;\n  final Random _random = Random();\n  ChartSeriesController? _chartSeriesController;\n\n  @override\n  void initState() {\n    super.initState();\n    _chartData = _generateInitialData();\n    // 1초마다 데이터 업데이트\n    _timer = Timer.periodic(const Duration(seconds: 1), _updateData);\n  }\n\n  List<LiveData> _generateInitialData() {\n    final now = DateTime.now();\n    return List.generate(20, (index) {\n      return LiveData(\n        now.subtract(Duration(seconds: 20 - index)),\n        50 + _random.nextDouble() * 50,\n      );\n    });\n  }\n\n  void _updateData(Timer timer) {\n    setState(() {\n      // 새 데이터 추가\n      _chartData.add(LiveData(\n        DateTime.now(),\n        50 + _random.nextDouble() * 50,\n      ));\n      // 오래된 데이터 제거\n      if (_chartData.length > 20) {\n        _chartData.removeAt(0);\n        // 차트 업데이트 (애니메이션 포함)\n        _chartSeriesController?.updateDataSource(\n          addedDataIndex: _chartData.length - 1,\n          removedDataIndex: 0,\n        );\n      }\n    });\n  }\n\n  @override\n  void dispose() {\n    _timer.cancel();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('실시간 차트')),\n      body: Column(\n        children: [\n          // 실시간 라인 차트\n          Expanded(\n            child: SfCartesianChart(\n              title: const ChartTitle(text: '실시간 데이터'),\n              \n              // 줌/팬 기능\n              zoomPanBehavior: ZoomPanBehavior(\n                enablePinching: true,      // 핀치 줌\n                enableDoubleTapZooming: true,  // 더블탭 줌\n                enablePanning: true,        // 팬(드래그)\n                enableSelectionZooming: true,  // 드래그로 영역 줌\n                zoomMode: ZoomMode.x,       // X축만 줌\n              ),\n              \n              // 트랙볼 (마우스오버 시 정보 표시)\n              trackballBehavior: TrackballBehavior(\n                enable: true,\n                activationMode: ActivationMode.singleTap,\n                tooltipSettings: const InteractiveTooltip(\n                  format: 'point.y',\n                ),\n              ),\n              \n              primaryXAxis: DateTimeAxis(\n                intervalType: DateTimeIntervalType.seconds,\n                interval: 5,\n                dateFormat: DateFormat.Hms(),\n              ),\n              \n              primaryYAxis: const NumericAxis(\n                minimum: 0,\n                maximum: 120,\n              ),\n              \n              series: <CartesianSeries>[\n                LineSeries<LiveData, DateTime>(\n                  dataSource: _chartData,\n                  xValueMapper: (d, _) => d.time,\n                  yValueMapper: (d, _) => d.value,\n                  // 컨트롤러 연결 (실시간 업데이트용)\n                  onRendererCreated: (controller) {\n                    _chartSeriesController = controller;\n                  },\n                  // 영역 채우기\n                  color: Colors.blue,\n                  width: 2,\n                  animationDuration: 0, // 실시간은 애니메이션 비활성화\n                ),\n              ],\n            ),\n          ),\n          \n          // 선택 가능한 차트\n          Expanded(\n            child: SfCartesianChart(\n              title: const ChartTitle(text: '클릭해서 선택'),\n              \n              // 데이터 포인트 선택\n              selectionType: SelectionType.point,\n              selectionGesture: ActivationMode.singleTap,\n              \n              tooltipBehavior: TooltipBehavior(enable: true),\n              \n              primaryXAxis: const CategoryAxis(),\n              \n              series: <CartesianSeries>[\n                ColumnSeries<LiveData, String>(\n                  dataSource: [\n                    LiveData(DateTime(2024, 1), 80),\n                    LiveData(DateTime(2024, 2), 70),\n                    LiveData(DateTime(2024, 3), 90),\n                    LiveData(DateTime(2024, 4), 85),\n                  ],\n                  xValueMapper: (d, _) => '${d.time.month}월',\n                  yValueMapper: (d, _) => d.value,\n                  // 선택 시 스타일\n                  selectionBehavior: SelectionBehavior(\n                    enable: true,\n                    selectedColor: Colors.red,\n                    unselectedColor: Colors.grey.shade300,\n                  ),\n                  // 선택 이벤트\n                  onPointTap: (pointDetails) {\n                    ScaffoldMessenger.of(context).showSnackBar(\n                      SnackBar(\n                        content: Text('선택: ${pointDetails.pointIndex}번째 데이터'),\n                      ),\n                    );\n                  },\n                ),\n              ],\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "• ZoomPanBehavior: 줌/팬 인터랙션 설정\n• TrackballBehavior: 마우스/터치 따라다니는 툴팁\n• SelectionBehavior: 데이터 포인트 선택 기능\n• ChartSeriesController: 실시간 데이터 업데이트 제어\n• onPointTap: 데이터 포인트 클릭 이벤트",
+      "beginnerTip": "💡 실시간 차트에서 animationDuration: 0으로 설정하면 매 업데이트마다 애니메이션이 재생되는 것을 방지할 수 있습니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "method": "SfCartesianChart",
+      "signature": "SfCartesianChart({Key? key, List<CartesianSeries>? series, ...})",
+      "description": "직교 좌표계 기반 차트를 생성합니다.",
+      "example": "SfCartesianChart(series: [LineSeries(...)])"
+    },
+    {
+      "method": "SfCircularChart",
+      "signature": "SfCircularChart({Key? key, List<CircularSeries>? series, ...})",
+      "description": "원형 기반 차트를 생성합니다.",
+      "example": "SfCircularChart(series: [PieSeries(...)])"
+    },
+    {
+      "method": "LineSeries",
+      "signature": "LineSeries<T, D>({required List<T> dataSource, required xValueMapper, required yValueMapper, ...})",
+      "description": "라인 차트 시리즈를 생성합니다.",
+      "example": "LineSeries<Data, String>(dataSource: data, xValueMapper: (d, _) => d.x, yValueMapper: (d, _) => d.y)"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "The argument type 'List<LineSeries<...>>' can't be assigned to 'List<CartesianSeries<dynamic, dynamic>>'",
+      "cause": "시리즈 리스트의 타입이 맞지 않음",
+      "solution": "series: <CartesianSeries<Data, String>>[LineSeries(...)]처럼 명시적으로 타입을 지정하세요."
+    },
+    {
+      "error": "차트가 빈 화면으로 표시됨",
+      "cause": "dataSource가 비어있거나 mapper 함수가 null 반환",
+      "solution": "데이터가 비어있지 않은지 확인하고, mapper 함수가 올바른 값을 반환하는지 확인하세요."
+    },
+    {
+      "error": "setState() called during build",
+      "cause": "차트 이벤트 콜백에서 직접 setState 호출",
+      "solution": "Future.microtask(() => setState(...)) 또는 WidgetsBinding.instance.addPostFrameCallback을 사용하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "데이터 모델 분리",
+      "description": "차트 데이터는 별도의 모델 클래스로 관리하세요.",
+      "code": "class ChartData {\n  final String category;\n  final double value;\n  final Color? color;\n  \n  ChartData(this.category, this.value, [this.color]);\n}\n\n// 사용\nLineSeries<ChartData, String>(\n  dataSource: chartData,\n  xValueMapper: (d, _) => d.category,\n  yValueMapper: (d, _) => d.value,\n  pointColorMapper: (d, _) => d.color,\n)"
+    },
+    {
+      "title": "차트 컨트롤러로 동적 업데이트",
+      "description": "전체 rebuild 대신 컨트롤러로 효율적으로 업데이트하세요.",
+      "code": "ChartSeriesController? _controller;\n\nLineSeries<Data, String>(\n  onRendererCreated: (controller) {\n    _controller = controller;\n  },\n);\n\n// 데이터 추가 시\n_controller?.updateDataSource(\n  addedDataIndex: data.length - 1,\n);"
+    }
+  ],
+
+  "tips": [
+    "📊 30종 이상의 차트 유형이 있으니 공식 갤러리(https://flutter.syncfusion.com)에서 확인하세요.",
+    "🎨 palette 속성으로 차트 전체 색상 테마를 한 번에 설정할 수 있습니다.",
+    "📱 차트는 Container나 SizedBox로 크기를 명시적으로 지정하는 것이 좋습니다.",
+    "⚡ 대량 데이터(1000개 이상)는 FastLineSeries, FastColumnSeries를 사용하세요."
+  ]
+}

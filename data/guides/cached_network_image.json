@@ -1,0 +1,221 @@
+{
+  "packageId": "cached_network_image",
+  "title": "cached_network_image 실전 마스터 가이드",
+  "generatedAt": "2026-01-27T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "3.4.1",
+  "packageLikes": 5123,
+
+  "overview": {
+    "what": "cached_network_image는 네트워크에서 이미지를 다운로드하고 로컬에 캐싱하는 Flutter 위젯입니다. 한 번 다운로드한 이미지는 디스크에 저장되어 재사용되므로, 네트워크 요청 없이 빠르게 로드됩니다. 로딩 중 플레이스홀더와 에러 시 대체 이미지 표시를 기본 지원합니다.",
+    "why": "기본 Image.network()는 매번 네트워크에서 이미지를 다운로드하고, 로딩/에러 상태 처리가 불편합니다. cached_network_image는 자동 캐싱으로 트래픽과 로딩 시간을 줄이고, placeholder/errorWidget으로 UX를 개선합니다. 5,000개 이상의 좋아요를 받은 Flutter 이미지 로딩의 표준 패키지입니다.",
+    "when": "1) 상품 목록, 피드 등 이미지가 많은 화면, 2) 프로필 사진, 썸네일 등 반복적으로 표시되는 이미지, 3) 느린 네트워크 환경에서도 빠른 이미지 로드가 필요할 때, 4) 오프라인에서도 이전에 본 이미지를 표시해야 할 때, 5) 로딩 애니메이션이나 에러 처리가 필요한 이미지",
+    "features": [
+      "💾 자동 캐싱: 다운로드한 이미지를 디스크에 자동 저장",
+      "⏳ 플레이스홀더: 로딩 중 표시할 위젯 커스터마이징",
+      "❌ 에러 처리: 로드 실패 시 대체 위젯 표시",
+      "📊 진행률 표시: 다운로드 진행률 콜백 제공",
+      "🔄 페이드 애니메이션: 이미지 표시 시 부드러운 전환 효과"
+    ]
+  },
+
+  "description": "네트워크 이미지를 자동으로 캐싱하여 빠르게 로드하는 Flutter 이미지 위젯",
+  "difficulty": "초급 - Image.network 대신 바로 사용 가능",
+  "estimatedTime": "20분",
+  "prerequisites": [
+    "Flutter 기본 위젯 사용법",
+    "Image 위젯의 기본 속성 이해",
+    "네트워크 이미지 URL 개념"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "디스크 캐시",
+      "explanation": "다운로드한 이미지를 앱의 캐시 디렉토리에 파일로 저장합니다. 앱을 종료해도 유지되며, URL을 키로 사용합니다. 캐시 만료 시간(maxAge)과 최대 파일 수(maxNrOfCacheObjects)를 설정할 수 있습니다.",
+      "analogy": "📦 창고에 비유하면, 한 번 주문한 물건을 창고에 보관해두고 다음에는 창고에서 바로 꺼내는 것과 같습니다.",
+      "usage": "CachedNetworkImage가 자동으로 처리. 설정은 flutter_cache_manager로 커스터마이징 가능."
+    },
+    {
+      "term": "메모리 캐시",
+      "explanation": "디스크에서 읽은 이미지를 메모리에도 캐싱합니다. 같은 화면에서 동일 이미지를 여러 번 사용할 때 디스크 읽기 없이 바로 표시됩니다.",
+      "analogy": "🧠 기억에 비유하면, 자주 쓰는 물건은 손 닿는 곳에 두는 것과 같습니다.",
+      "usage": "memCacheWidth, memCacheHeight로 메모리 캐시 크기를 최적화할 수 있습니다."
+    },
+    {
+      "term": "ImageProvider",
+      "explanation": "Flutter의 이미지 제공자 인터페이스입니다. CachedNetworkImageProvider를 사용하면 Image 위젯 외의 곳(BoxDecoration 등)에서도 캐시 이미지를 사용할 수 있습니다.",
+      "analogy": "🎁 선물 포장 서비스처럼, 이미지를 어디서든 사용할 수 있는 형태로 제공합니다.",
+      "usage": "BoxDecoration(image: DecorationImage(image: CachedNetworkImageProvider(url)))"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "cached_network_image 패키지를 프로젝트에 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  cached_network_image: ^3.4.1"
+      },
+      "commands": ["flutter pub add cached_network_image", "flutter pub get"],
+      "explanation": "cached_network_image는 내부적으로 flutter_cache_manager를 사용하여 캐싱을 처리합니다. 별도 설정 없이 바로 사용할 수 있습니다.",
+      "platformSetup": {
+        "android": "인터넷 권한이 필요합니다 (AndroidManifest.xml에 기본 포함됨)",
+        "ios": "추가 설정 불필요"
+      },
+      "beginnerTip": "💡 flutter_cache_manager가 자동으로 함께 설치됩니다. 고급 캐시 설정이 필요할 때 사용합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 기본 사용법",
+      "description": "Image.network 대신 CachedNetworkImage를 사용하는 기본 예제입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/basic_example.dart",
+        "content": "import 'package:cached_network_image/cached_network_image.dart';\nimport 'package:flutter/material.dart';\n\nclass BasicCachedImageExample extends StatelessWidget {\n  const BasicCachedImageExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('캐시 이미지 기본')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            // 가장 기본적인 사용법\n            CachedNetworkImage(\n              imageUrl: 'https://picsum.photos/300/200',\n              width: 300,\n              height: 200,\n              fit: BoxFit.cover,\n            ),\n\n            const SizedBox(height: 24),\n\n            // 플레이스홀더와 에러 위젯 포함\n            CachedNetworkImage(\n              imageUrl: 'https://picsum.photos/300/200',\n              width: 300,\n              height: 200,\n              fit: BoxFit.cover,\n              \n              // 로딩 중 표시\n              placeholder: (context, url) => Container(\n                color: Colors.grey.shade200,\n                child: const Center(\n                  child: CircularProgressIndicator(),\n                ),\n              ),\n              \n              // 에러 시 표시\n              errorWidget: (context, url, error) => Container(\n                color: Colors.grey.shade200,\n                child: const Icon(\n                  Icons.error,\n                  color: Colors.red,\n                  size: 40,\n                ),\n              ),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 진행률 표시\n            CachedNetworkImage(\n              imageUrl: 'https://picsum.photos/300/200',\n              width: 300,\n              height: 200,\n              fit: BoxFit.cover,\n              \n              // 다운로드 진행률 표시\n              progressIndicatorBuilder: (context, url, progress) {\n                return Center(\n                  child: CircularProgressIndicator(\n                    value: progress.progress,  // 0.0 ~ 1.0\n                  ),\n                );\n              },\n              \n              errorWidget: (context, url, error) => const Icon(Icons.error),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【주요 파라미터】\n• imageUrl: 네트워크 이미지 URL (필수)\n• placeholder: 로딩 중 표시할 위젯 빌더\n• errorWidget: 에러 시 표시할 위젯 빌더\n• progressIndicatorBuilder: 다운로드 진행률 표시 (placeholder와 함께 사용 불가)\n\nplaceholder와 progressIndicatorBuilder는 동시에 사용할 수 없습니다.",
+      "beginnerTip": "💡 placeholder는 간단한 로딩 표시, progressIndicatorBuilder는 정확한 진행률이 필요할 때 사용하세요."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🎨 다양한 활용 패턴",
+      "description": "실전에서 자주 사용되는 패턴들입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/advanced_example.dart",
+        "content": "import 'package:cached_network_image/cached_network_image.dart';\nimport 'package:flutter/material.dart';\n\nclass AdvancedCachedImageExample extends StatelessWidget {\n  const AdvancedCachedImageExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('캐시 이미지 활용')),\n      body: SingleChildScrollView(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            // 1. 원형 프로필 이미지\n            const Text('원형 프로필 이미지', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            ClipOval(\n              child: CachedNetworkImage(\n                imageUrl: 'https://i.pravatar.cc/150',\n                width: 80,\n                height: 80,\n                fit: BoxFit.cover,\n                placeholder: (context, url) => Container(\n                  color: Colors.grey.shade300,\n                  child: const Icon(Icons.person, size: 40),\n                ),\n                errorWidget: (context, url, error) => Container(\n                  color: Colors.grey.shade300,\n                  child: const Icon(Icons.person, size: 40),\n                ),\n              ),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 2. 둥근 모서리 카드 이미지\n            const Text('둥근 모서리 카드', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            ClipRRect(\n              borderRadius: BorderRadius.circular(12),\n              child: CachedNetworkImage(\n                imageUrl: 'https://picsum.photos/400/200',\n                width: double.infinity,\n                height: 200,\n                fit: BoxFit.cover,\n                placeholder: (context, url) => Container(\n                  color: Colors.grey.shade200,\n                  child: const Center(child: CircularProgressIndicator()),\n                ),\n                errorWidget: (context, url, error) => Container(\n                  color: Colors.grey.shade200,\n                  child: const Icon(Icons.broken_image, size: 50),\n                ),\n              ),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 3. 페이드 인 애니메이션 커스터마이징\n            const Text('커스텀 페이드 애니메이션', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            CachedNetworkImage(\n              imageUrl: 'https://picsum.photos/400/200',\n              width: double.infinity,\n              height: 200,\n              fit: BoxFit.cover,\n              \n              // 페이드 인 시간 조절\n              fadeInDuration: const Duration(milliseconds: 500),\n              fadeOutDuration: const Duration(milliseconds: 200),\n              \n              // 페이드 인 곡선\n              fadeInCurve: Curves.easeIn,\n              \n              placeholder: (context, url) => Container(\n                color: Colors.grey.shade200,\n              ),\n              errorWidget: (context, url, error) => const Icon(Icons.error),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 4. HTTP 헤더 추가 (인증 등)\n            const Text('HTTP 헤더 포함', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            CachedNetworkImage(\n              imageUrl: 'https://picsum.photos/400/200',\n              width: double.infinity,\n              height: 200,\n              fit: BoxFit.cover,\n              \n              // 인증 헤더 추가\n              httpHeaders: const {\n                'Authorization': 'Bearer your_token_here',\n                'Custom-Header': 'value',\n              },\n              \n              placeholder: (context, url) => const Center(\n                child: CircularProgressIndicator(),\n              ),\n              errorWidget: (context, url, error) => const Icon(Icons.error),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 5. 메모리 최적화 (큰 이미지 리사이징)\n            const Text('메모리 최적화', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            CachedNetworkImage(\n              imageUrl: 'https://picsum.photos/1200/800',  // 큰 원본 이미지\n              width: 200,\n              height: 150,\n              fit: BoxFit.cover,\n              \n              // 메모리에 캐시할 크기 제한 (원본보다 작게)\n              memCacheWidth: 400,\n              memCacheHeight: 300,\n              \n              placeholder: (context, url) => Container(\n                color: Colors.grey.shade200,\n              ),\n              errorWidget: (context, url, error) => const Icon(Icons.error),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【활용 패턴】\n1. ClipOval: 원형 프로필 이미지\n2. ClipRRect: 둥근 모서리 카드\n3. fadeInDuration: 페이드 애니메이션 속도 조절\n4. httpHeaders: 인증 토큰 등 HTTP 헤더 추가\n5. memCacheWidth/Height: 메모리 사용량 최적화",
+      "beginnerTip": "⚡ 큰 이미지를 작게 표시할 때 memCacheWidth/Height를 설정하면 메모리를 크게 절약할 수 있습니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🖼️ ImageProvider로 사용하기",
+      "description": "BoxDecoration 등 Image 위젯 외의 곳에서 캐시 이미지를 사용합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/image_provider_example.dart",
+        "content": "import 'package:cached_network_image/cached_network_image.dart';\nimport 'package:flutter/material.dart';\n\nclass ImageProviderExample extends StatelessWidget {\n  const ImageProviderExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('ImageProvider 사용')),\n      body: SingleChildScrollView(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            // 1. Container 배경 이미지\n            const Text('Container 배경', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            Container(\n              width: double.infinity,\n              height: 200,\n              decoration: BoxDecoration(\n                borderRadius: BorderRadius.circular(12),\n                image: const DecorationImage(\n                  image: CachedNetworkImageProvider(\n                    'https://picsum.photos/800/400',\n                  ),\n                  fit: BoxFit.cover,\n                ),\n              ),\n              child: const Center(\n                child: Text(\n                  '배경 이미지',\n                  style: TextStyle(\n                    color: Colors.white,\n                    fontSize: 24,\n                    fontWeight: FontWeight.bold,\n                    shadows: [Shadow(blurRadius: 10)],\n                  ),\n                ),\n              ),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 2. CircleAvatar\n            const Text('CircleAvatar', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            const CircleAvatar(\n              radius: 50,\n              backgroundImage: CachedNetworkImageProvider(\n                'https://i.pravatar.cc/200',\n              ),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 3. Ink.image (Material ripple 효과와 함께)\n            const Text('Ink.image (터치 효과)', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            Material(\n              child: Ink.image(\n                image: const CachedNetworkImageProvider(\n                  'https://picsum.photos/400/200',\n                ),\n                width: double.infinity,\n                height: 150,\n                fit: BoxFit.cover,\n                child: InkWell(\n                  onTap: () {\n                    ScaffoldMessenger.of(context).showSnackBar(\n                      const SnackBar(content: Text('이미지 탭됨!')),\n                    );\n                  },\n                ),\n              ),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 4. FadeInImage와 함께 (추가 페이드 효과)\n            const Text('FadeInImage', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            FadeInImage(\n              placeholder: const AssetImage('assets/placeholder.png'),\n              image: const CachedNetworkImageProvider(\n                'https://picsum.photos/400/200',\n              ),\n              width: double.infinity,\n              height: 150,\n              fit: BoxFit.cover,\n              fadeInDuration: const Duration(milliseconds: 300),\n              imageErrorBuilder: (context, error, stackTrace) {\n                return Container(\n                  width: double.infinity,\n                  height: 150,\n                  color: Colors.grey.shade200,\n                  child: const Icon(Icons.error),\n                );\n              },\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【CachedNetworkImageProvider 사용처】\n• BoxDecoration.image: Container 배경\n• CircleAvatar.backgroundImage: 원형 아바타\n• Ink.image: Material 터치 효과와 함께\n• FadeInImage: 추가 페이드 효과 적용\n\nImageProvider는 errorWidget을 직접 지정할 수 없으므로, 에러 처리가 필요하면 CachedNetworkImage 위젯을 사용하세요.",
+      "beginnerTip": "💡 CircleAvatar에 CachedNetworkImageProvider를 사용하면 프로필 이미지 로딩이 자연스러워집니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🔧 캐시 관리",
+      "description": "캐시를 직접 관리하고 커스텀 캐시 매니저를 설정하는 방법입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/cache_management.dart",
+        "content": "import 'package:cached_network_image/cached_network_image.dart';\nimport 'package:flutter/material.dart';\nimport 'package:flutter_cache_manager/flutter_cache_manager.dart';\n\n// 커스텀 캐시 매니저 정의\nclass CustomCacheManager {\n  static const key = 'customCacheKey';\n\n  static CacheManager instance = CacheManager(\n    Config(\n      key,\n      stalePeriod: const Duration(days: 7),  // 캐시 유효 기간\n      maxNrOfCacheObjects: 100,  // 최대 캐시 파일 수\n      repo: JsonCacheInfoRepository(databaseName: key),\n      fileService: HttpFileService(),\n    ),\n  );\n}\n\nclass CacheManagementExample extends StatefulWidget {\n  const CacheManagementExample({super.key});\n\n  @override\n  State<CacheManagementExample> createState() => _CacheManagementExampleState();\n}\n\nclass _CacheManagementExampleState extends State<CacheManagementExample> {\n  String _cacheInfo = '캐시 정보 로딩 중...';\n\n  @override\n  void initState() {\n    super.initState();\n    _loadCacheInfo();\n  }\n\n  Future<void> _loadCacheInfo() async {\n    // 기본 캐시 매니저의 캐시 경로\n    final cacheManager = DefaultCacheManager();\n    final cacheDir = await cacheManager.store.fileDir;\n\n    setState(() {\n      _cacheInfo = '캐시 경로: $cacheDir';\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('캐시 관리')),\n      body: SingleChildScrollView(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.stretch,\n          children: [\n            // 캐시 정보 표시\n            Card(\n              child: Padding(\n                padding: const EdgeInsets.all(16),\n                child: Column(\n                  crossAxisAlignment: CrossAxisAlignment.start,\n                  children: [\n                    const Text('캐시 정보', style: TextStyle(fontWeight: FontWeight.bold)),\n                    const SizedBox(height: 8),\n                    Text(_cacheInfo, style: const TextStyle(fontSize: 12)),\n                  ],\n                ),\n              ),\n            ),\n\n            const SizedBox(height: 16),\n\n            // 기본 캐시 매니저 사용\n            const Text('기본 캐시', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            CachedNetworkImage(\n              imageUrl: 'https://picsum.photos/400/200?default',\n              height: 150,\n              fit: BoxFit.cover,\n              placeholder: (context, url) => const Center(\n                child: CircularProgressIndicator(),\n              ),\n              errorWidget: (context, url, error) => const Icon(Icons.error),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 커스텀 캐시 매니저 사용\n            const Text('커스텀 캐시 (7일 유효)', style: TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            CachedNetworkImage(\n              imageUrl: 'https://picsum.photos/400/200?custom',\n              height: 150,\n              fit: BoxFit.cover,\n              cacheManager: CustomCacheManager.instance,  // 커스텀 캐시 매니저\n              placeholder: (context, url) => const Center(\n                child: CircularProgressIndicator(),\n              ),\n              errorWidget: (context, url, error) => const Icon(Icons.error),\n            ),\n\n            const SizedBox(height: 24),\n\n            // 캐시 관리 버튼들\n            ElevatedButton(\n              onPressed: () async {\n                // 특정 URL의 캐시 삭제\n                await DefaultCacheManager().removeFile(\n                  'https://picsum.photos/400/200?default',\n                );\n                ScaffoldMessenger.of(context).showSnackBar(\n                  const SnackBar(content: Text('해당 이미지 캐시 삭제됨')),\n                );\n              },\n              child: const Text('특정 이미지 캐시 삭제'),\n            ),\n\n            const SizedBox(height: 12),\n\n            ElevatedButton(\n              onPressed: () async {\n                // 전체 캐시 삭제\n                await DefaultCacheManager().emptyCache();\n                ScaffoldMessenger.of(context).showSnackBar(\n                  const SnackBar(content: Text('전체 캐시 삭제됨')),\n                );\n              },\n              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),\n              child: const Text('전체 캐시 삭제'),\n            ),\n\n            const SizedBox(height: 12),\n\n            ElevatedButton(\n              onPressed: () async {\n                // 이미지 미리 캐싱\n                await precacheImage(\n                  const CachedNetworkImageProvider(\n                    'https://picsum.photos/800/600',\n                  ),\n                  context,\n                );\n                ScaffoldMessenger.of(context).showSnackBar(\n                  const SnackBar(content: Text('이미지 미리 캐싱 완료')),\n                );\n              },\n              child: const Text('이미지 미리 캐싱'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【캐시 관리 기능】\n• DefaultCacheManager(): 기본 캐시 매니저 접근\n• emptyCache(): 전체 캐시 삭제\n• removeFile(url): 특정 URL 캐시 삭제\n• precacheImage(): 이미지 미리 다운로드\n\n【커스텀 캐시 설정】\n• stalePeriod: 캐시 유효 기간 (기본 30일)\n• maxNrOfCacheObjects: 최대 캐시 파일 수 (기본 200)",
+      "beginnerTip": "🔧 앱 설정에서 '캐시 삭제' 버튼을 만들 때 emptyCache()를 사용하세요."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "CachedNetworkImage",
+      "description": "네트워크 이미지를 캐싱하여 표시하는 위젯입니다.",
+      "parameters": "String imageUrl, Widget Function placeholder, Widget Function errorWidget, BoxFit fit, ...",
+      "returns": "Widget",
+      "example": "CachedNetworkImage(imageUrl: 'https://...', placeholder: (c, u) => CircularProgressIndicator())"
+    },
+    {
+      "name": "CachedNetworkImageProvider",
+      "description": "ImageProvider 인터페이스를 구현하여 BoxDecoration 등에서 사용할 수 있습니다.",
+      "parameters": "String url, Map<String, String>? headers, CacheManager? cacheManager",
+      "returns": "ImageProvider",
+      "example": "DecorationImage(image: CachedNetworkImageProvider('https://...'))"
+    },
+    {
+      "name": "DefaultCacheManager",
+      "description": "기본 캐시 매니저. 캐시 삭제 등 관리 기능을 제공합니다.",
+      "parameters": "없음 (싱글톤)",
+      "returns": "CacheManager",
+      "example": "await DefaultCacheManager().emptyCache();"
+    },
+    {
+      "name": "progressIndicatorBuilder",
+      "description": "다운로드 진행률을 표시하는 빌더. placeholder 대신 사용합니다.",
+      "parameters": "BuildContext context, String url, DownloadProgress progress",
+      "returns": "Widget",
+      "example": "progressIndicatorBuilder: (c, u, p) => CircularProgressIndicator(value: p.progress)"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "이미지가 로드되지 않음 (403 Forbidden)",
+      "cause": "서버에서 직접 요청을 차단하거나 Referer 헤더가 필요합니다.",
+      "solution": "httpHeaders로 필요한 헤더를 추가하세요:\nhttpHeaders: {'Referer': 'https://your-site.com'}",
+      "prevention": "이미지 서버의 CORS 정책을 확인하고 필요한 헤더를 설정하세요."
+    },
+    {
+      "error": "메모리 부족 (OutOfMemoryError)",
+      "cause": "고해상도 이미지를 많이 로드했습니다.",
+      "solution": "memCacheWidth/memCacheHeight로 메모리 캐시 크기를 제한하세요.",
+      "prevention": "리스트에서는 항상 memCacheWidth/Height를 설정하고, 불필요하게 큰 이미지를 사용하지 마세요."
+    },
+    {
+      "error": "캐시된 이미지가 업데이트되지 않음",
+      "cause": "같은 URL의 이미지가 서버에서 변경되었지만 캐시가 만료되지 않았습니다.",
+      "solution": "URL에 버전 쿼리를 추가하거나 해당 URL의 캐시를 삭제하세요:\nimageUrl: 'https://.../image.jpg?v=2'",
+      "prevention": "자주 변경되는 이미지는 URL에 타임스탬프나 버전을 포함하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "리스트에서 메모리 최적화",
+      "description": "ListView나 GridView에서 이미지를 표시할 때는 memCacheWidth/Height를 설정하세요.",
+      "doThis": "CachedNetworkImage(\n  imageUrl: url,\n  memCacheWidth: 300,  // 표시 크기의 약 2배\n  memCacheHeight: 200,\n)",
+      "dontDoThis": "// 4K 이미지를 100x100으로 표시 (메모리 낭비)"
+    },
+    {
+      "title": "플레이스홀더 일관성",
+      "description": "앱 전체에서 일관된 플레이스홀더 스타일을 사용하세요.",
+      "doThis": "// 공통 플레이스홀더 위젯 정의\nWidget imagePlaceholder() => Container(\n  color: Colors.grey.shade200,\n  child: Icon(Icons.image),\n);",
+      "dontDoThis": "// 화면마다 다른 플레이스홀더 사용"
+    },
+    {
+      "title": "에러 이미지 준비",
+      "description": "네트워크 오류 시 표시할 기본 이미지를 준비하세요.",
+      "doThis": "errorWidget: (c, u, e) => Image.asset('assets/error_image.png')",
+      "dontDoThis": "errorWidget: (c, u, e) => Icon(Icons.error)  // 투박함"
+    }
+  ],
+
+  "tips": [
+    "💡 imageUrl에 쿼리 파라미터를 추가하면 같은 이미지도 다른 캐시로 저장됩니다 (버전 관리에 활용)",
+    "⚡ maxWidthDiskCache/maxHeightDiskCache로 디스크에 저장할 이미지 크기도 제한할 수 있습니다",
+    "🔧 cacheKey를 지정하면 URL과 다른 키로 캐시를 관리할 수 있습니다",
+    "📱 개발 중에는 emptyCache()로 캐시를 자주 삭제하며 테스트하세요",
+    "🎨 placeholder에 Shimmer 효과를 적용하면 더 세련된 로딩 UI를 만들 수 있습니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "flutter_cache_manager",
+      "description": "cached_network_image의 핵심 의존성. 고급 캐시 설정에 직접 사용"
+    },
+    {
+      "name": "shimmer",
+      "description": "플레이스홀더에 Shimmer 로딩 효과를 적용할 때 사용"
+    },
+    {
+      "name": "extended_image",
+      "description": "더 많은 기능 (제스처, 편집)을 제공하는 이미지 패키지"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/cached_network_image"},
+    {"title": "GitHub 저장소", "url": "https://github.com/Baseflow/flutter_cached_network_image"},
+    {"title": "flutter_cache_manager 문서", "url": "https://pub.dev/packages/flutter_cache_manager"}
+  ]
+}

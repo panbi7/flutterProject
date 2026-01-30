@@ -1,0 +1,214 @@
+{
+  "packageId": "video_player",
+  "title": "video_player 실전 마스터 가이드",
+  "generatedAt": "2026-01-28T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "2.9.2",
+  "packageLikes": 3800,
+
+  "overview": {
+    "what": "video_player는 Flutter 공식 팀에서 개발한 비디오 재생 플러그인입니다. 로컬 파일, 네트워크 URL, assets의 비디오를 재생할 수 있으며, 재생/일시정지, 탐색, 볼륨 조절, 재생 속도 변경 등 기본적인 비디오 컨트롤 기능을 제공합니다.",
+    "why": "네이티브 비디오 재생기를 직접 구현하려면 Android의 ExoPlayer와 iOS의 AVPlayer를 각각 다뤄야 하지만, video_player는 단일 Dart API로 두 플랫폼을 모두 지원합니다. Flutter 공식 패키지로 안정성이 검증되었고, 기본 기능에 충실하여 커스텀 UI를 자유롭게 구현할 수 있습니다.",
+    "when": "1) 앱 내에서 비디오를 재생해야 할 때, 2) 동영상 강의나 미디어 앱을 개발할 때, 3) 제품 소개 비디오를 보여줘야 할 때, 4) 배경 비디오나 애니메이션 효과가 필요할 때, 5) 커스텀 비디오 플레이어 UI가 필요할 때",
+    "features": [
+      "📹 다양한 소스 지원: 네트워크 URL, 로컬 파일, assets 비디오 재생",
+      "🎮 기본 컨트롤: 재생/일시정지, 탐색, 볼륨, 재생 속도 조절",
+      "🔄 상태 관리: 버퍼링, 에러, 완료 등 상태 리스너 제공",
+      "📐 비율 유지: AspectRatio 위젯으로 비디오 비율 자동 조절",
+      "🔁 반복 재생: setLooping으로 무한 반복 재생 가능"
+    ]
+  },
+
+  "description": "Flutter 공식 비디오 재생 플러그인",
+  "difficulty": "초중급 - 비동기 초기화와 dispose 패턴 이해 필요",
+  "estimatedTime": "40분",
+  "prerequisites": [
+    "Flutter StatefulWidget 생명주기 이해",
+    "async/await 비동기 프로그래밍",
+    "dispose 패턴과 리소스 해제 개념"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "VideoPlayerController",
+      "explanation": "비디오 재생을 제어하는 핵심 컨트롤러입니다. 초기화, 재생, 정지, 탐색 등 모든 조작은 이 컨트롤러를 통해 이루어집니다.",
+      "analogy": "🎮 리모컨과 같습니다. 리모컨으로 TV를 제어하듯, 컨트롤러로 비디오를 제어합니다.",
+      "usage": "final controller = VideoPlayerController.networkUrl(Uri.parse(url));"
+    },
+    {
+      "term": "VideoPlayer 위젯",
+      "explanation": "실제로 비디오를 화면에 표시하는 위젯입니다. VideoPlayerController를 받아서 비디오 프레임을 렌더링합니다.",
+      "analogy": "📺 TV 화면과 같습니다. 리모컨(컨트롤러)이 신호를 보내면 화면(VideoPlayer)에 영상이 나옵니다.",
+      "usage": "VideoPlayer(controller)"
+    },
+    {
+      "term": "VideoPlayerValue",
+      "explanation": "비디오의 현재 상태를 담고 있는 값 객체입니다. 재생 위치, 버퍼링 상태, 에러 정보 등을 포함합니다.",
+      "analogy": "📊 대시보드처럼, 현재 재생 시간, 전체 길이, 버퍼링 상태 등 모든 정보를 한눈에 볼 수 있습니다.",
+      "usage": "controller.value.position  // 현재 재생 위치"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치 및 플랫폼 설정",
+      "description": "video_player 패키지를 설치하고 플랫폼별 권한을 설정합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  video_player: ^2.9.2"
+      },
+      "commands": ["flutter pub add video_player"],
+      "platformSetup": {
+        "android": "인터넷 비디오 재생을 위해 AndroidManifest.xml에 인터넷 권한 추가:\n<uses-permission android:name=\"android.permission.INTERNET\"/>",
+        "ios": "HTTP 비디오 재생을 위해 Info.plist에 App Transport Security 설정이 필요할 수 있습니다."
+      },
+      "subSteps": [
+        {
+          "title": "Android 설정 (android/app/src/main/AndroidManifest.xml)",
+          "code": {
+            "language": "xml",
+            "filename": "android/app/src/main/AndroidManifest.xml",
+            "content": "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\n    <!-- 인터넷 권한 (네트워크 비디오 재생용) -->\n    <uses-permission android:name=\"android.permission.INTERNET\"/>\n    \n    <application\n        android:usesCleartextTraffic=\"true\">\n        <!-- HTTP 비디오도 재생하려면 위 속성 추가 -->\n    </application>\n</manifest>"
+          }
+        }
+      ],
+      "beginnerTip": "💡 HTTPS 비디오만 재생한다면 usesCleartextTraffic 설정은 불필요합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📹 기본 비디오 재생",
+      "description": "네트워크 URL의 비디오를 재생하는 기본 예제입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/screens/basic_video_screen.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:video_player/video_player.dart';\n\nclass BasicVideoScreen extends StatefulWidget {\n  const BasicVideoScreen({super.key});\n\n  @override\n  State<BasicVideoScreen> createState() => _BasicVideoScreenState();\n}\n\nclass _BasicVideoScreenState extends State<BasicVideoScreen> {\n  // 비디오 컨트롤러 선언\n  late VideoPlayerController _controller;\n  bool _isInitialized = false;\n\n  @override\n  void initState() {\n    super.initState();\n    _initializeVideo();\n  }\n\n  Future<void> _initializeVideo() async {\n    // 네트워크 비디오로 컨트롤러 생성\n    _controller = VideoPlayerController.networkUrl(\n      Uri.parse('https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4'),\n    );\n\n    try {\n      // 비디오 초기화 (필수!)\n      await _controller.initialize();\n      \n      // 상태 업데이트\n      setState(() {\n        _isInitialized = true;\n      });\n      \n      // 자동 재생 (선택)\n      // await _controller.play();\n    } catch (e) {\n      debugPrint('비디오 초기화 실패: $e');\n    }\n  }\n\n  @override\n  void dispose() {\n    // 중요: 리소스 해제\n    _controller.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('기본 비디오 재생')),\n      body: Center(\n        child: _isInitialized\n            ? Column(\n                mainAxisAlignment: MainAxisAlignment.center,\n                children: [\n                  // 비디오 비율에 맞게 표시\n                  AspectRatio(\n                    aspectRatio: _controller.value.aspectRatio,\n                    child: VideoPlayer(_controller),\n                  ),\n                  const SizedBox(height: 20),\n                  // 재생/일시정지 버튼\n                  ElevatedButton.icon(\n                    onPressed: () {\n                      setState(() {\n                        if (_controller.value.isPlaying) {\n                          _controller.pause();\n                        } else {\n                          _controller.play();\n                        }\n                      });\n                    },\n                    icon: Icon(\n                      _controller.value.isPlaying\n                          ? Icons.pause\n                          : Icons.play_arrow,\n                    ),\n                    label: Text(\n                      _controller.value.isPlaying ? '일시정지' : '재생',\n                    ),\n                  ),\n                ],\n              )\n            : const CircularProgressIndicator(),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "1. VideoPlayerController.networkUrl()로 컨트롤러 생성\n2. initialize()로 비디오 로드 (비동기, 필수!)\n3. AspectRatio로 비디오 비율 유지\n4. play()/pause()로 재생 제어\n5. dispose()에서 반드시 컨트롤러 해제",
+      "beginnerTip": "⚠️ initialize()를 호출하지 않으면 비디오가 표시되지 않습니다. 반드시 await로 완료를 기다리세요."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🎮 커스텀 컨트롤 UI 구현",
+      "description": "재생 컨트롤, 진행 바, 시간 표시 등 커스텀 UI를 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/widgets/video_controls.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:video_player/video_player.dart';\n\nclass VideoWithControls extends StatefulWidget {\n  final String videoUrl;\n  const VideoWithControls({super.key, required this.videoUrl});\n\n  @override\n  State<VideoWithControls> createState() => _VideoWithControlsState();\n}\n\nclass _VideoWithControlsState extends State<VideoWithControls> {\n  late VideoPlayerController _controller;\n  bool _isInitialized = false;\n  bool _showControls = true;\n\n  @override\n  void initState() {\n    super.initState();\n    _initVideo();\n  }\n\n  Future<void> _initVideo() async {\n    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));\n    \n    // 상태 변경 리스너 추가\n    _controller.addListener(_videoListener);\n    \n    await _controller.initialize();\n    setState(() => _isInitialized = true);\n  }\n\n  void _videoListener() {\n    // 상태 변경 시 UI 업데이트\n    if (mounted) setState(() {});\n  }\n\n  @override\n  void dispose() {\n    _controller.removeListener(_videoListener);\n    _controller.dispose();\n    super.dispose();\n  }\n\n  // 시간 포맷팅 (mm:ss)\n  String _formatDuration(Duration duration) {\n    String twoDigits(int n) => n.toString().padLeft(2, '0');\n    final minutes = twoDigits(duration.inMinutes.remainder(60));\n    final seconds = twoDigits(duration.inSeconds.remainder(60));\n    return '$minutes:$seconds';\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    if (!_isInitialized) {\n      return const AspectRatio(\n        aspectRatio: 16 / 9,\n        child: Center(child: CircularProgressIndicator()),\n      );\n    }\n\n    return AspectRatio(\n      aspectRatio: _controller.value.aspectRatio,\n      child: GestureDetector(\n        onTap: () => setState(() => _showControls = !_showControls),\n        child: Stack(\n          alignment: Alignment.center,\n          children: [\n            // 비디오 화면\n            VideoPlayer(_controller),\n            \n            // 버퍼링 인디케이터\n            if (_controller.value.isBuffering)\n              const CircularProgressIndicator(color: Colors.white),\n            \n            // 컨트롤 오버레이\n            if (_showControls)\n              Container(\n                color: Colors.black38,\n                child: Column(\n                  mainAxisAlignment: MainAxisAlignment.end,\n                  children: [\n                    // 중앙 재생 버튼\n                    Expanded(\n                      child: Center(\n                        child: IconButton(\n                          iconSize: 64,\n                          color: Colors.white,\n                          icon: Icon(\n                            _controller.value.isPlaying\n                                ? Icons.pause_circle\n                                : Icons.play_circle,\n                          ),\n                          onPressed: () {\n                            _controller.value.isPlaying\n                                ? _controller.pause()\n                                : _controller.play();\n                          },\n                        ),\n                      ),\n                    ),\n                    \n                    // 하단 컨트롤 바\n                    _buildBottomControls(),\n                  ],\n                ),\n              ),\n          ],\n        ),\n      ),\n    );\n  }\n\n  Widget _buildBottomControls() {\n    final position = _controller.value.position;\n    final duration = _controller.value.duration;\n\n    return Container(\n      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),\n      child: Row(\n        children: [\n          // 현재 시간\n          Text(\n            _formatDuration(position),\n            style: const TextStyle(color: Colors.white),\n          ),\n          \n          // 진행 바\n          Expanded(\n            child: Slider(\n              value: position.inMilliseconds.toDouble(),\n              min: 0,\n              max: duration.inMilliseconds.toDouble(),\n              onChanged: (value) {\n                _controller.seekTo(Duration(milliseconds: value.toInt()));\n              },\n            ),\n          ),\n          \n          // 전체 시간\n          Text(\n            _formatDuration(duration),\n            style: const TextStyle(color: Colors.white),\n          ),\n          \n          // 전체화면 버튼\n          IconButton(\n            icon: const Icon(Icons.fullscreen, color: Colors.white),\n            onPressed: () {\n              // 전체화면 로직 구현\n            },\n          ),\n        ],\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "• addListener(): 비디오 상태 변경 시 콜백 (재생 위치 업데이트용)\n• isBuffering: 버퍼링 중인지 확인\n• seekTo(): 특정 위치로 이동\n• Slider: 진행 바로 탐색 기능 구현",
+      "beginnerTip": "💡 VideoProgressIndicator 위젯을 사용하면 진행 바를 더 간단하게 구현할 수 있습니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🔊 볼륨과 재생 속도 제어",
+      "description": "볼륨 조절과 재생 속도 변경 기능을 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/widgets/video_settings.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:video_player/video_player.dart';\n\nclass VideoSettingsExample extends StatefulWidget {\n  const VideoSettingsExample({super.key});\n\n  @override\n  State<VideoSettingsExample> createState() => _VideoSettingsExampleState();\n}\n\nclass _VideoSettingsExampleState extends State<VideoSettingsExample> {\n  late VideoPlayerController _controller;\n  double _volume = 1.0;\n  double _playbackSpeed = 1.0;\n  bool _isInitialized = false;\n\n  final List<double> _speedOptions = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];\n\n  @override\n  void initState() {\n    super.initState();\n    _initVideo();\n  }\n\n  Future<void> _initVideo() async {\n    _controller = VideoPlayerController.networkUrl(\n      Uri.parse('https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4'),\n    );\n    await _controller.initialize();\n    await _controller.setLooping(true);  // 반복 재생\n    setState(() => _isInitialized = true);\n  }\n\n  @override\n  void dispose() {\n    _controller.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    if (!_isInitialized) {\n      return const Center(child: CircularProgressIndicator());\n    }\n\n    return Column(\n      children: [\n        // 비디오 플레이어\n        AspectRatio(\n          aspectRatio: _controller.value.aspectRatio,\n          child: VideoPlayer(_controller),\n        ),\n        \n        const SizedBox(height: 16),\n        \n        // 기본 진행 바\n        VideoProgressIndicator(\n          _controller,\n          allowScrubbing: true,  // 터치로 탐색 허용\n          padding: const EdgeInsets.symmetric(horizontal: 16),\n        ),\n        \n        const SizedBox(height: 16),\n        \n        // 재생 컨트롤\n        Row(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            // 10초 뒤로\n            IconButton(\n              icon: const Icon(Icons.replay_10),\n              onPressed: () {\n                final newPosition = _controller.value.position - \n                    const Duration(seconds: 10);\n                _controller.seekTo(newPosition);\n              },\n            ),\n            \n            // 재생/일시정지\n            IconButton(\n              iconSize: 48,\n              icon: Icon(\n                _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,\n              ),\n              onPressed: () {\n                setState(() {\n                  _controller.value.isPlaying\n                      ? _controller.pause()\n                      : _controller.play();\n                });\n              },\n            ),\n            \n            // 10초 앞으로\n            IconButton(\n              icon: const Icon(Icons.forward_10),\n              onPressed: () {\n                final newPosition = _controller.value.position + \n                    const Duration(seconds: 10);\n                _controller.seekTo(newPosition);\n              },\n            ),\n          ],\n        ),\n        \n        const Divider(),\n        \n        // 볼륨 조절\n        Padding(\n          padding: const EdgeInsets.symmetric(horizontal: 16),\n          child: Row(\n            children: [\n              Icon(_volume == 0 ? Icons.volume_off : Icons.volume_up),\n              Expanded(\n                child: Slider(\n                  value: _volume,\n                  min: 0,\n                  max: 1,\n                  onChanged: (value) {\n                    setState(() => _volume = value);\n                    _controller.setVolume(value);\n                  },\n                ),\n              ),\n              Text('${(_volume * 100).toInt()}%'),\n            ],\n          ),\n        ),\n        \n        // 재생 속도\n        Padding(\n          padding: const EdgeInsets.symmetric(horizontal: 16),\n          child: Row(\n            children: [\n              const Icon(Icons.speed),\n              const SizedBox(width: 16),\n              const Text('재생 속도: '),\n              DropdownButton<double>(\n                value: _playbackSpeed,\n                items: _speedOptions.map((speed) {\n                  return DropdownMenuItem(\n                    value: speed,\n                    child: Text('${speed}x'),\n                  );\n                }).toList(),\n                onChanged: (value) {\n                  if (value != null) {\n                    setState(() => _playbackSpeed = value);\n                    _controller.setPlaybackSpeed(value);\n                  }\n                },\n              ),\n            ],\n          ),\n        ),\n        \n        // 음소거/반복 토글\n        Row(\n          mainAxisAlignment: MainAxisAlignment.spaceEvenly,\n          children: [\n            TextButton.icon(\n              icon: Icon(_volume == 0 ? Icons.volume_off : Icons.volume_up),\n              label: const Text('음소거'),\n              onPressed: () {\n                setState(() {\n                  _volume = _volume == 0 ? 1.0 : 0;\n                  _controller.setVolume(_volume);\n                });\n              },\n            ),\n            TextButton.icon(\n              icon: Icon(\n                _controller.value.isLooping ? Icons.repeat_one : Icons.repeat,\n              ),\n              label: Text(_controller.value.isLooping ? '반복 ON' : '반복 OFF'),\n              onPressed: () {\n                _controller.setLooping(!_controller.value.isLooping);\n                setState(() {});\n              },\n            ),\n          ],\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "• setVolume(0.0~1.0): 볼륨 조절 (0=음소거, 1=최대)\n• setPlaybackSpeed(): 재생 속도 (0.5~2.0배속)\n• setLooping(true): 반복 재생 설정\n• VideoProgressIndicator: 기본 제공 진행 바 위젯",
+      "beginnerTip": "💡 iOS 시뮬레이터에서는 볼륨 조절이 작동하지 않을 수 있습니다. 실제 기기에서 테스트하세요."
+    },
+    {
+      "stepNumber": 5,
+      "title": "📂 다양한 소스 재생",
+      "description": "네트워크, 파일, assets 등 다양한 소스의 비디오를 재생합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/services/video_service.dart",
+        "content": "import 'dart:io';\nimport 'package:flutter/material.dart';\nimport 'package:video_player/video_player.dart';\n\nclass VideoService {\n  // 네트워크 URL 비디오\n  static VideoPlayerController fromNetwork(String url) {\n    return VideoPlayerController.networkUrl(\n      Uri.parse(url),\n      // HTTP 헤더 설정 (인증 등)\n      httpHeaders: {\n        'Authorization': 'Bearer token',\n      },\n    );\n  }\n\n  // 로컬 파일 비디오\n  static VideoPlayerController fromFile(File file) {\n    return VideoPlayerController.file(file);\n  }\n\n  // Assets 비디오\n  static VideoPlayerController fromAsset(String assetPath) {\n    return VideoPlayerController.asset(assetPath);\n  }\n}\n\n// Assets 비디오 사용 예시\n// pubspec.yaml에 추가 필요:\n// flutter:\n//   assets:\n//     - assets/videos/intro.mp4\n\nclass AssetVideoExample extends StatefulWidget {\n  const AssetVideoExample({super.key});\n\n  @override\n  State<AssetVideoExample> createState() => _AssetVideoExampleState();\n}\n\nclass _AssetVideoExampleState extends State<AssetVideoExample> {\n  late VideoPlayerController _controller;\n\n  @override\n  void initState() {\n    super.initState();\n    // Assets 비디오 로드\n    _controller = VideoPlayerController.asset('assets/videos/intro.mp4')\n      ..initialize().then((_) {\n        setState(() {});\n        _controller.play();\n      });\n  }\n\n  @override\n  void dispose() {\n    _controller.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return _controller.value.isInitialized\n        ? AspectRatio(\n            aspectRatio: _controller.value.aspectRatio,\n            child: VideoPlayer(_controller),\n          )\n        : const Center(child: CircularProgressIndicator());\n  }\n}\n\n// 여러 비디오 관리 (재생목록)\nclass VideoPlaylist extends StatefulWidget {\n  final List<String> videoUrls;\n  const VideoPlaylist({super.key, required this.videoUrls});\n\n  @override\n  State<VideoPlaylist> createState() => _VideoPlaylistState();\n}\n\nclass _VideoPlaylistState extends State<VideoPlaylist> {\n  late VideoPlayerController _controller;\n  int _currentIndex = 0;\n\n  @override\n  void initState() {\n    super.initState();\n    _initVideo(_currentIndex);\n  }\n\n  Future<void> _initVideo(int index) async {\n    // 이전 컨트롤러 해제\n    if (_currentIndex != index) {\n      await _controller.dispose();\n    }\n\n    _controller = VideoPlayerController.networkUrl(\n      Uri.parse(widget.videoUrls[index]),\n    );\n    \n    await _controller.initialize();\n    \n    // 재생 완료 시 다음 비디오로\n    _controller.addListener(() {\n      if (_controller.value.position >= _controller.value.duration) {\n        _playNext();\n      }\n    });\n    \n    setState(() => _currentIndex = index);\n    _controller.play();\n  }\n\n  void _playNext() {\n    if (_currentIndex < widget.videoUrls.length - 1) {\n      _initVideo(_currentIndex + 1);\n    }\n  }\n\n  void _playPrevious() {\n    if (_currentIndex > 0) {\n      _initVideo(_currentIndex - 1);\n    }\n  }\n\n  @override\n  void dispose() {\n    _controller.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      children: [\n        if (_controller.value.isInitialized)\n          AspectRatio(\n            aspectRatio: _controller.value.aspectRatio,\n            child: VideoPlayer(_controller),\n          ),\n        Row(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            IconButton(\n              icon: const Icon(Icons.skip_previous),\n              onPressed: _currentIndex > 0 ? _playPrevious : null,\n            ),\n            Text('${_currentIndex + 1} / ${widget.videoUrls.length}'),\n            IconButton(\n              icon: const Icon(Icons.skip_next),\n              onPressed: _currentIndex < widget.videoUrls.length - 1\n                  ? _playNext\n                  : null,\n            ),\n          ],\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "• networkUrl(): 네트워크 URL 비디오 (httpHeaders로 인증 가능)\n• file(): 로컬 파일 비디오 (File 객체 필요)\n• asset(): pubspec.yaml에 등록된 assets 비디오\n• 재생 완료 감지: position >= duration 체크",
+      "beginnerTip": "💡 Assets 비디오를 사용할 때는 pubspec.yaml의 assets 섹션에 파일 경로를 반드시 추가하세요."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "method": "initialize()",
+      "signature": "Future<void> initialize()",
+      "description": "비디오를 로드하고 재생 준비를 합니다. 재생 전 반드시 호출해야 합니다.",
+      "returnType": "Future<void>",
+      "example": "await controller.initialize();"
+    },
+    {
+      "method": "play()",
+      "signature": "Future<void> play()",
+      "description": "비디오를 재생합니다.",
+      "returnType": "Future<void>",
+      "example": "await controller.play();"
+    },
+    {
+      "method": "pause()",
+      "signature": "Future<void> pause()",
+      "description": "비디오를 일시정지합니다.",
+      "returnType": "Future<void>",
+      "example": "await controller.pause();"
+    },
+    {
+      "method": "seekTo()",
+      "signature": "Future<void> seekTo(Duration position)",
+      "description": "특정 위치로 이동합니다.",
+      "returnType": "Future<void>",
+      "example": "await controller.seekTo(Duration(seconds: 30));"
+    },
+    {
+      "method": "setVolume()",
+      "signature": "Future<void> setVolume(double volume)",
+      "description": "볼륨을 설정합니다 (0.0~1.0).",
+      "returnType": "Future<void>",
+      "example": "await controller.setVolume(0.5);"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "VideoPlayerController was used after being disposed",
+      "cause": "dispose() 후에 컨트롤러 접근 시도",
+      "solution": "mounted 체크를 추가하거나, 비동기 작업 완료 전 화면이 닫히지 않도록 처리하세요."
+    },
+    {
+      "error": "비디오가 검은 화면만 표시됨",
+      "cause": "initialize()를 호출하지 않았거나 완료를 기다리지 않음",
+      "solution": "await controller.initialize()로 초기화 완료를 반드시 기다리세요."
+    },
+    {
+      "error": "Cleartext HTTP traffic not permitted",
+      "cause": "Android에서 HTTP URL 재생 시도",
+      "solution": "AndroidManifest.xml에 android:usesCleartextTraffic=\"true\" 추가하거나 HTTPS URL을 사용하세요."
+    },
+    {
+      "error": "No video track found",
+      "cause": "지원하지 않는 비디오 코덱",
+      "solution": "H.264 코덱의 MP4 파일을 사용하세요. 대부분의 플랫폼에서 지원됩니다."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "dispose에서 반드시 컨트롤러 해제",
+      "description": "메모리 누수와 백그라운드 재생을 방지합니다.",
+      "code": "@override\nvoid dispose() {\n  _controller.dispose();\n  super.dispose();\n}"
+    },
+    {
+      "title": "초기화 상태 확인 후 UI 렌더링",
+      "description": "초기화 전에 VideoPlayer 위젯을 렌더링하면 에러가 발생합니다.",
+      "code": "Widget build(BuildContext context) {\n  if (!_controller.value.isInitialized) {\n    return const Center(child: CircularProgressIndicator());\n  }\n  return VideoPlayer(_controller);\n}"
+    },
+    {
+      "title": "화면 이탈 시 자동 일시정지",
+      "description": "다른 화면으로 이동 시 비디오를 일시정지합니다.",
+      "code": "class _VideoScreenState extends State<VideoScreen> with WidgetsBindingObserver {\n  @override\n  void initState() {\n    super.initState();\n    WidgetsBinding.instance.addObserver(this);\n  }\n\n  @override\n  void didChangeAppLifecycleState(AppLifecycleState state) {\n    if (state == AppLifecycleState.paused) {\n      _controller.pause();\n    }\n  }\n\n  @override\n  void dispose() {\n    WidgetsBinding.instance.removeObserver(this);\n    super.dispose();\n  }\n}"
+    }
+  ],
+
+  "tips": [
+    "🎬 더 많은 기능(전체화면, PiP 등)이 필요하면 chewie 패키지를 함께 사용하세요.",
+    "📱 백그라운드 재생이 필요하면 audio_service 패키지와 연동하세요.",
+    "⚡ 여러 비디오를 빠르게 전환하려면 미리 다음 비디오의 컨트롤러를 초기화해두세요.",
+    "🔄 자동 재생은 사용자 경험을 해칠 수 있으니, 무음 상태에서만 자동 재생하는 것을 권장합니다."
+  ]
+}

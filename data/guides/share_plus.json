@@ -1,0 +1,137 @@
+{
+  "packageName": "share_plus",
+  "overview": {
+    "what": "share_plus는 Flutter 앱에서 텍스트, 파일, 이미지 등을 다른 앱과 공유할 수 있게 해주는 패키지입니다.",
+    "why": "소셜 공유, 파일 전송, 콘텐츠 공유 등은 많은 앱에서 필수 기능입니다. share_plus는 플랫폼의 네이티브 공유 시트를 사용하여 일관된 사용자 경험을 제공합니다.",
+    "when": "텍스트 공유, URL 공유, 이미지 공유, 파일 공유, SNS 공유 등에 사용합니다.",
+    "features": [
+      "텍스트/URL 공유",
+      "파일 공유 (이미지, 문서 등)",
+      "여러 파일 동시 공유",
+      "공유 결과 확인",
+      "공유 시트 위치 지정 (iPad)",
+      "크로스 플랫폼 지원"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치",
+      "description": "pubspec.yaml에 share_plus 패키지를 추가합니다.",
+      "code": "dependencies:\n  flutter:\n    sdk: flutter\n  share_plus: ^7.2.1",
+      "explanation": "share_plus는 Flutter 팀의 plus 패키지 시리즈 중 하나입니다. 별도의 네이티브 설정은 필요 없습니다."
+    },
+    {
+      "title": "텍스트 및 URL 공유",
+      "description": "Share.share로 텍스트와 URL을 공유합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:share_plus/share_plus.dart';\n\nclass TextShareExample extends StatelessWidget {\n  const TextShareExample({super.key});\n\n  // 텍스트 공유\n  void _shareText() {\n    Share.share('안녕하세요! Flutter로 만든 앱입니다.');\n  }\n\n  // 제목과 함께 공유\n  void _shareWithSubject() {\n    Share.share(\n      '이 앱을 확인해보세요!\\n\\nhttps://flutter.dev',\n      subject: '멋진 앱 추천',\n    );\n  }\n\n  // URL 공유\n  void _shareUrl() {\n    Share.shareUri(Uri.parse('https://flutter.dev'));\n  }\n\n  // 공유 결과 확인\n  Future<void> _shareWithResult(BuildContext context) async {\n    final result = await Share.shareWithResult(\n      '공유할 텍스트입니다.',\n      subject: '공유 테스트',\n    );\n\n    // 결과 확인\n    String message;\n    switch (result.status) {\n      case ShareResultStatus.success:\n        message = '공유 성공!';\n        break;\n      case ShareResultStatus.dismissed:\n        message = '공유 취소됨';\n        break;\n      case ShareResultStatus.unavailable:\n        message = '공유 불가';\n        break;\n    }\n\n    if (context.mounted) {\n      ScaffoldMessenger.of(context).showSnackBar(\n        SnackBar(content: Text(message)),\n      );\n    }\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('텍스트 공유')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            ElevatedButton.icon(\n              onPressed: _shareText,\n              icon: const Icon(Icons.share),\n              label: const Text('텍스트 공유'),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton.icon(\n              onPressed: _shareWithSubject,\n              icon: const Icon(Icons.email),\n              label: const Text('제목과 함께 공유'),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton.icon(\n              onPressed: _shareUrl,\n              icon: const Icon(Icons.link),\n              label: const Text('URL 공유'),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton.icon(\n              onPressed: () => _shareWithResult(context),\n              icon: const Icon(Icons.check),\n              label: const Text('결과 확인하며 공유'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "Share.share()는 텍스트를, Share.shareUri()는 URL을 공유합니다. shareWithResult()를 사용하면 공유 결과(성공/취소)를 확인할 수 있습니다."
+    },
+    {
+      "title": "파일 공유",
+      "description": "Share.shareXFiles로 이미지, 문서 등 파일을 공유합니다.",
+      "code": "import 'dart:io';\nimport 'package:flutter/material.dart';\nimport 'package:share_plus/share_plus.dart';\nimport 'package:path_provider/path_provider.dart';\n\nclass FileShareExample extends StatelessWidget {\n  const FileShareExample({super.key});\n\n  // 단일 파일 공유\n  Future<void> _shareFile() async {\n    // 임시 파일 생성 (실제로는 갤러리나 다운로드된 파일 사용)\n    final directory = await getTemporaryDirectory();\n    final file = File('${directory.path}/test.txt');\n    await file.writeAsString('공유할 파일 내용입니다.');\n\n    await Share.shareXFiles(\n      [XFile(file.path)],\n      text: '파일을 공유합니다.',\n      subject: '파일 공유',\n    );\n  }\n\n  // 이미지 공유 (에셋에서)\n  Future<void> _shareImageFromAsset(BuildContext context) async {\n    // 에셋을 임시 파일로 복사\n    final ByteData bytes = await DefaultAssetBundle.of(context)\n        .load('assets/images/sample.png');\n    final directory = await getTemporaryDirectory();\n    final file = File('${directory.path}/share_image.png');\n    await file.writeAsBytes(bytes.buffer.asUint8List());\n\n    await Share.shareXFiles(\n      [XFile(file.path)],\n      text: '멋진 이미지를 공유합니다!',\n    );\n  }\n\n  // 여러 파일 공유\n  Future<void> _shareMultipleFiles() async {\n    final directory = await getTemporaryDirectory();\n\n    // 여러 파일 생성\n    final file1 = File('${directory.path}/doc1.txt');\n    await file1.writeAsString('첫 번째 문서');\n\n    final file2 = File('${directory.path}/doc2.txt');\n    await file2.writeAsString('두 번째 문서');\n\n    await Share.shareXFiles(\n      [\n        XFile(file1.path),\n        XFile(file2.path),\n      ],\n      text: '여러 파일을 공유합니다.',\n    );\n  }\n\n  // MIME 타입 지정\n  Future<void> _shareWithMimeType() async {\n    final directory = await getTemporaryDirectory();\n    final file = File('${directory.path}/data.json');\n    await file.writeAsString('{\"name\": \"test\"}');\n\n    await Share.shareXFiles(\n      [XFile(file.path, mimeType: 'application/json')],\n    );\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('파일 공유')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            ElevatedButton.icon(\n              onPressed: _shareFile,\n              icon: const Icon(Icons.insert_drive_file),\n              label: const Text('파일 공유'),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton.icon(\n              onPressed: () => _shareImageFromAsset(context),\n              icon: const Icon(Icons.image),\n              label: const Text('이미지 공유'),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton.icon(\n              onPressed: _shareMultipleFiles,\n              icon: const Icon(Icons.folder),\n              label: const Text('여러 파일 공유'),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton.icon(\n              onPressed: _shareWithMimeType,\n              icon: const Icon(Icons.code),\n              label: const Text('MIME 타입 지정'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "Share.shareXFiles()로 파일을 공유합니다. XFile은 파일 경로와 MIME 타입을 포함합니다. 여러 파일을 리스트로 전달하면 동시에 공유됩니다."
+    },
+    {
+      "title": "iPad 공유 시트 위치 지정",
+      "description": "iPad에서 공유 시트가 표시될 위치를 지정합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:share_plus/share_plus.dart';\n\nclass iPadShareExample extends StatelessWidget {\n  const iPadShareExample({super.key});\n\n  // 버튼 위치에 공유 시트 표시\n  void _shareAtButtonPosition(BuildContext context, Rect sharePositionOrigin) {\n    Share.share(\n      '공유할 텍스트입니다.',\n      sharePositionOrigin: sharePositionOrigin,\n    );\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('iPad 공유')),\n      body: Center(\n        child: Builder(\n          builder: (context) {\n            return ElevatedButton.icon(\n              onPressed: () {\n                // 버튼의 위치와 크기 가져오기\n                final box = context.findRenderObject() as RenderBox;\n                final position = box.localToGlobal(Offset.zero);\n                final size = box.size;\n\n                final rect = Rect.fromLTWH(\n                  position.dx,\n                  position.dy,\n                  size.width,\n                  size.height,\n                );\n\n                _shareAtButtonPosition(context, rect);\n              },\n              icon: const Icon(Icons.share),\n              label: const Text('여기서 공유'),\n            );\n          },\n        ),\n      ),\n    );\n  }\n}\n\n// 공유 버튼 위젯\nclass ShareButton extends StatelessWidget {\n  final String text;\n  final String? subject;\n  final List<XFile>? files;\n\n  const ShareButton({\n    super.key,\n    required this.text,\n    this.subject,\n    this.files,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    return Builder(\n      builder: (context) {\n        return IconButton(\n          icon: const Icon(Icons.share),\n          onPressed: () async {\n            final box = context.findRenderObject() as RenderBox;\n            final position = box.localToGlobal(Offset.zero);\n            final rect = Rect.fromLTWH(\n              position.dx,\n              position.dy,\n              box.size.width,\n              box.size.height,\n            );\n\n            if (files != null && files!.isNotEmpty) {\n              await Share.shareXFiles(\n                files!,\n                text: text,\n                subject: subject,\n                sharePositionOrigin: rect,\n              );\n            } else {\n              await Share.share(\n                text,\n                subject: subject,\n                sharePositionOrigin: rect,\n              );\n            }\n          },\n        );\n      },\n    );\n  }\n}",
+      "explanation": "iPad에서는 공유 시트가 popover로 표시됩니다. sharePositionOrigin으로 팝오버가 나타날 기준 위치를 지정합니다. 지정하지 않으면 화면 중앙에 나타납니다."
+    },
+    {
+      "title": "실제 앱 적용 예제",
+      "description": "상품 공유, 스크린샷 공유 등 실제 사용 패턴입니다.",
+      "code": "import 'dart:typed_data';\nimport 'dart:ui' as ui;\nimport 'package:flutter/material.dart';\nimport 'package:flutter/rendering.dart';\nimport 'package:share_plus/share_plus.dart';\nimport 'package:path_provider/path_provider.dart';\nimport 'dart:io';\n\n// 상품 공유\nclass ProductShareExample extends StatelessWidget {\n  final String productName;\n  final String productUrl;\n  final int price;\n\n  const ProductShareExample({\n    super.key,\n    required this.productName,\n    required this.productUrl,\n    required this.price,\n  });\n\n  void _shareProduct(BuildContext context) {\n    final text = '''\n$productName\n\n가격: ${price.toString().replaceAllMapped(\n      RegExp(r'(\\d)(?=(\\d{3})+(?!\\d))'),\n      (m) => '${m[1]},',\n    )}원\n\n지금 확인하기: $productUrl''';\n\n    final box = context.findRenderObject() as RenderBox?;\n    final rect = box != null\n        ? Rect.fromLTWH(\n            box.localToGlobal(Offset.zero).dx,\n            box.localToGlobal(Offset.zero).dy,\n            box.size.width,\n            box.size.height,\n          )\n        : null;\n\n    Share.share(\n      text,\n      subject: '$productName 추천',\n      sharePositionOrigin: rect,\n    );\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Card(\n      child: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            Text(productName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),\n            const SizedBox(height: 8),\n            Text('${price}원'),\n            const SizedBox(height: 16),\n            Row(\n              children: [\n                Expanded(\n                  child: ElevatedButton(\n                    onPressed: () {},\n                    child: const Text('구매하기'),\n                  ),\n                ),\n                const SizedBox(width: 8),\n                Builder(\n                  builder: (context) => IconButton(\n                    icon: const Icon(Icons.share),\n                    onPressed: () => _shareProduct(context),\n                  ),\n                ),\n              ],\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\n// 스크린샷 공유\nclass ScreenshotShareWidget extends StatefulWidget {\n  final Widget child;\n\n  const ScreenshotShareWidget({super.key, required this.child});\n\n  @override\n  State<ScreenshotShareWidget> createState() => _ScreenshotShareWidgetState();\n}\n\nclass _ScreenshotShareWidgetState extends State<ScreenshotShareWidget> {\n  final GlobalKey _screenshotKey = GlobalKey();\n\n  Future<void> _captureAndShare() async {\n    try {\n      // 위젯을 이미지로 캡처\n      final boundary = _screenshotKey.currentContext!.findRenderObject()\n          as RenderRepaintBoundary;\n      final image = await boundary.toImage(pixelRatio: 3.0);\n      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);\n      final bytes = byteData!.buffer.asUint8List();\n\n      // 임시 파일로 저장\n      final directory = await getTemporaryDirectory();\n      final file = File('${directory.path}/screenshot.png');\n      await file.writeAsBytes(bytes);\n\n      // 공유\n      await Share.shareXFiles(\n        [XFile(file.path)],\n        text: '앱에서 캡처한 이미지입니다.',\n      );\n    } catch (e) {\n      debugPrint('스크린샷 공유 실패: $e');\n    }\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      children: [\n        RepaintBoundary(\n          key: _screenshotKey,\n          child: widget.child,\n        ),\n        const SizedBox(height: 16),\n        ElevatedButton.icon(\n          onPressed: _captureAndShare,\n          icon: const Icon(Icons.screenshot),\n          label: const Text('스크린샷 공유'),\n        ),\n      ],\n    );\n  }\n}\n\n// 앱 공유 (앱스토어 링크)\nclass AppShareButton extends StatelessWidget {\n  final String appName;\n  final String appStoreUrl;\n  final String playStoreUrl;\n\n  const AppShareButton({\n    super.key,\n    required this.appName,\n    required this.appStoreUrl,\n    required this.playStoreUrl,\n  });\n\n  void _shareApp() {\n    final text = '''\n$appName 앱을 추천합니다!\n\niOS: $appStoreUrl\nAndroid: $playStoreUrl''';\n\n    Share.share(text, subject: '$appName 앱 추천');\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return ElevatedButton.icon(\n      onPressed: _shareApp,\n      icon: const Icon(Icons.share),\n      label: const Text('앱 공유'),\n    );\n  }\n}",
+      "explanation": "상품 공유, 스크린샷 공유, 앱 공유 등 다양한 실제 사용 패턴입니다. RepaintBoundary로 위젯을 이미지로 캡처하여 공유할 수 있습니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "Share.share()",
+      "description": "텍스트를 공유합니다. subject는 이메일 앱 등에서 제목으로 사용됩니다."
+    },
+    {
+      "name": "Share.shareXFiles()",
+      "description": "파일을 공유합니다. XFile 리스트를 받아 여러 파일을 동시에 공유할 수 있습니다."
+    },
+    {
+      "name": "ShareResultStatus",
+      "description": "shareWithResult()의 결과입니다. success(공유 완료), dismissed(취소), unavailable(사용 불가)가 있습니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "Share.share",
+      "signature": "static Future<void> share(String text, {String? subject, Rect? sharePositionOrigin})",
+      "description": "텍스트를 공유합니다."
+    },
+    {
+      "name": "Share.shareUri",
+      "signature": "static Future<void> shareUri(Uri uri, {Rect? sharePositionOrigin})",
+      "description": "URI를 공유합니다."
+    },
+    {
+      "name": "Share.shareXFiles",
+      "signature": "static Future<ShareResult> shareXFiles(List<XFile> files, {String? text, String? subject, Rect? sharePositionOrigin})",
+      "description": "파일을 공유합니다."
+    },
+    {
+      "name": "Share.shareWithResult",
+      "signature": "static Future<ShareResult> shareWithResult(String text, {String? subject, Rect? sharePositionOrigin})",
+      "description": "텍스트를 공유하고 결과를 반환합니다."
+    },
+    {
+      "name": "XFile",
+      "signature": "XFile(String path, {String? mimeType, String? name})",
+      "description": "공유할 파일을 나타냅니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "iPad에서 공유 시트가 이상한 위치에 표시됨",
+      "cause": "sharePositionOrigin이 지정되지 않음",
+      "solution": "Builder와 findRenderObject로 버튼 위치를 가져와 sharePositionOrigin에 전달하세요."
+    },
+    {
+      "error": "파일 공유 실패",
+      "cause": "파일이 존재하지 않거나 권한 없음",
+      "solution": "파일 경로가 올바른지 확인하고, 앱이 접근할 수 있는 위치(임시 디렉토리 등)를 사용하세요."
+    },
+    {
+      "error": "MIME 타입 인식 안됨",
+      "cause": "일부 앱이 특정 MIME 타입을 지원하지 않음",
+      "solution": "XFile 생성 시 적절한 mimeType을 지정하세요."
+    },
+    {
+      "error": "공유 결과가 항상 dismissed",
+      "cause": "일부 플랫폼에서 결과 추적이 제한됨",
+      "solution": "결과 확인은 iOS에서 가장 잘 작동합니다. Android에서는 제한적일 수 있습니다."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "iPad 위치 지정",
+      "description": "iPad에서는 반드시 sharePositionOrigin을 지정하여 공유 시트가 올바른 위치에 나타나도록 하세요."
+    },
+    {
+      "title": "임시 디렉토리 사용",
+      "description": "공유할 파일은 앱의 임시 디렉토리에 저장하세요. 공유 후 정리가 필요할 수 있습니다."
+    },
+    {
+      "title": "적절한 텍스트 포맷",
+      "description": "공유 텍스트에 제목, 설명, 링크를 구분하여 가독성을 높이세요."
+    },
+    {
+      "title": "subject 활용",
+      "description": "이메일 앱에서 사용되는 subject를 적절히 설정하세요."
+    }
+  ],
+  "tips": [
+    "shareWithResult로 사용자가 실제로 공유했는지 확인할 수 있습니다",
+    "이미지 공유 시 path_provider로 임시 파일을 생성하세요",
+    "대용량 파일 공유는 시간이 걸릴 수 있으므로 로딩 표시를 해주세요",
+    "딥링크 URL을 공유하면 앱 설치 유도에 효과적입니다",
+    "공유 텍스트에 앱 이름이나 브랜드를 포함하면 홍보 효과가 있습니다",
+    "스크린샷 공유는 RepaintBoundary와 함께 사용하세요"
+  ]
+}

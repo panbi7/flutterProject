@@ -1,0 +1,147 @@
+{
+  "packageName": "flutter_animate",
+  "overview": {
+    "what": "flutter_animate는 선언적이고 체이닝 가능한 API로 복잡한 애니메이션을 쉽게 구현할 수 있게 해주는 Flutter 패키지입니다.",
+    "why": "Flutter의 기본 애니메이션 API는 강력하지만 보일러플레이트 코드가 많고 복잡합니다. flutter_animate는 간단한 메서드 체이닝으로 다양한 애니메이션을 쉽게 구현할 수 있습니다.",
+    "when": "페이드 인/아웃, 슬라이드, 스케일, 로테이션 등의 애니메이션, 순차/동시 실행, 지연 애니메이션 등이 필요할 때 사용합니다.",
+    "features": [
+      "메서드 체이닝으로 애니메이션 조합",
+      "순차/동시 애니메이션",
+      "다양한 내장 이펙트",
+      "커스텀 이펙트 생성",
+      "애니메이션 컨트롤러 연동",
+      "테스트 친화적"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치",
+      "description": "pubspec.yaml에 flutter_animate 패키지를 추가합니다.",
+      "code": "dependencies:\n  flutter:\n    sdk: flutter\n  flutter_animate: ^4.5.0",
+      "explanation": "순수 Dart 패키지로 별도의 네이티브 설정이 필요 없습니다."
+    },
+    {
+      "title": "기본 애니메이션",
+      "description": "Animate 확장 메서드로 간단한 애니메이션을 적용합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_animate/flutter_animate.dart';\n\nclass BasicAnimateExample extends StatelessWidget {\n  const BasicAnimateExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('기본 애니메이션')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            // 페이드 인\n            const Text('페이드 인')\n                .animate()\n                .fadeIn(duration: 600.ms),\n            const SizedBox(height: 20),\n\n            // 슬라이드 + 페이드\n            const Text('슬라이드 + 페이드')\n                .animate()\n                .fadeIn()\n                .slideX(begin: -0.5, end: 0),\n            const SizedBox(height: 20),\n\n            // 스케일\n            Container(\n              width: 100,\n              height: 100,\n              color: Colors.blue,\n            )\n                .animate()\n                .scale(begin: const Offset(0.5, 0.5), end: const Offset(1, 1))\n                .fadeIn(),\n            const SizedBox(height: 20),\n\n            // 회전\n            const Icon(Icons.star, size: 50, color: Colors.amber)\n                .animate(onPlay: (controller) => controller.repeat())\n                .rotate(duration: 2.seconds),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": ".animate()를 호출한 후 .fadeIn(), .slideX(), .scale() 등의 이펙트를 체이닝합니다. duration으로 애니메이션 시간을 설정합니다."
+    },
+    {
+      "title": "순차 및 동시 애니메이션",
+      "description": "여러 애니메이션을 순차적으로 또는 동시에 실행합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_animate/flutter_animate.dart';\n\nclass SequenceAnimateExample extends StatelessWidget {\n  const SequenceAnimateExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('순차/동시 애니메이션')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            // 순차 애니메이션 (then 사용)\n            Container(\n              width: 100,\n              height: 100,\n              color: Colors.blue,\n              child: const Center(\n                child: Text('순차', style: TextStyle(color: Colors.white)),\n              ),\n            )\n                .animate()\n                // 1. 페이드 인\n                .fadeIn(duration: 500.ms)\n                // 2. 페이드 인 후 스케일 업\n                .then(delay: 200.ms)\n                .scale(begin: const Offset(1, 1), end: const Offset(1.2, 1.2))\n                // 3. 스케일 후 회전\n                .then()\n                .rotate(begin: 0, end: 0.05)\n                // 4. 다시 원래 크기로\n                .then()\n                .scale(begin: const Offset(1.2, 1.2), end: const Offset(1, 1)),\n            const SizedBox(height: 40),\n\n            // 동시 애니메이션 (같은 위치에서 시작)\n            Container(\n              width: 100,\n              height: 100,\n              color: Colors.green,\n              child: const Center(\n                child: Text('동시', style: TextStyle(color: Colors.white)),\n              ),\n            )\n                .animate()\n                // 모두 동시에 실행\n                .fadeIn(duration: 800.ms)\n                .slideY(begin: 0.5, end: 0, duration: 800.ms)\n                .scale(\n                  begin: const Offset(0.8, 0.8),\n                  end: const Offset(1, 1),\n                  duration: 800.ms,\n                ),\n            const SizedBox(height: 40),\n\n            // 지연 시작\n            Row(\n              mainAxisAlignment: MainAxisAlignment.center,\n              children: List.generate(5, (index) {\n                return Container(\n                  width: 40,\n                  height: 40,\n                  margin: const EdgeInsets.symmetric(horizontal: 4),\n                  decoration: BoxDecoration(\n                    color: Colors.primaries[index * 2],\n                    borderRadius: BorderRadius.circular(8),\n                  ),\n                )\n                    .animate()\n                    .fadeIn(delay: (100 * index).ms)\n                    .slideY(begin: 0.5, end: 0, delay: (100 * index).ms);\n              }),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": ".then()을 사용하면 이전 애니메이션 완료 후 다음 애니메이션이 시작됩니다. 체이닝만 하면 동시에 실행됩니다. delay로 시작 지연을 줄 수 있습니다."
+    },
+    {
+      "title": "다양한 내장 이펙트",
+      "description": "flutter_animate가 제공하는 다양한 애니메이션 이펙트를 활용합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_animate/flutter_animate.dart';\n\nclass EffectsShowcase extends StatelessWidget {\n  const EffectsShowcase({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('이펙트 모음')),\n      body: ListView(\n        padding: const EdgeInsets.all(16),\n        children: [\n          // 페이드\n          _EffectCard(\n            title: 'Fade',\n            child: const Icon(Icons.visibility, size: 50)\n                .animate(onPlay: (c) => c.repeat(reverse: true))\n                .fadeIn(duration: 1.seconds)\n                .fadeOut(delay: 1.seconds, duration: 1.seconds),\n          ),\n\n          // 슬라이드\n          _EffectCard(\n            title: 'Slide',\n            child: const Icon(Icons.arrow_forward, size: 50)\n                .animate(onPlay: (c) => c.repeat(reverse: true))\n                .slideX(begin: -0.5, end: 0.5, duration: 1.seconds),\n          ),\n\n          // 스케일\n          _EffectCard(\n            title: 'Scale',\n            child: const Icon(Icons.zoom_in, size: 50)\n                .animate(onPlay: (c) => c.repeat(reverse: true))\n                .scale(\n                  begin: const Offset(0.5, 0.5),\n                  end: const Offset(1.5, 1.5),\n                  duration: 1.seconds,\n                ),\n          ),\n\n          // 회전\n          _EffectCard(\n            title: 'Rotate',\n            child: const Icon(Icons.refresh, size: 50)\n                .animate(onPlay: (c) => c.repeat())\n                .rotate(duration: 2.seconds),\n          ),\n\n          // 쉐이크\n          _EffectCard(\n            title: 'Shake',\n            child: const Icon(Icons.vibration, size: 50)\n                .animate(onPlay: (c) => c.repeat())\n                .shake(hz: 4, duration: 1.seconds),\n          ),\n\n          // 블러\n          _EffectCard(\n            title: 'Blur',\n            child: const Icon(Icons.blur_on, size: 50)\n                .animate(onPlay: (c) => c.repeat(reverse: true))\n                .blur(begin: const Offset(0, 0), end: const Offset(5, 5)),\n          ),\n\n          // 틴트 (색상 변경)\n          _EffectCard(\n            title: 'Tint',\n            child: const Icon(Icons.color_lens, size: 50)\n                .animate(onPlay: (c) => c.repeat(reverse: true))\n                .tint(color: Colors.red, duration: 1.seconds),\n          ),\n\n          // 새추레이션\n          _EffectCard(\n            title: 'Saturate',\n            child: Container(\n              width: 50,\n              height: 50,\n              decoration: const BoxDecoration(\n                gradient: LinearGradient(colors: [Colors.red, Colors.blue]),\n              ),\n            )\n                .animate(onPlay: (c) => c.repeat(reverse: true))\n                .saturate(begin: 1, end: 0, duration: 1.seconds),\n          ),\n\n          // 플립\n          _EffectCard(\n            title: 'Flip',\n            child: const Icon(Icons.flip, size: 50)\n                .animate(onPlay: (c) => c.repeat())\n                .flipH(duration: 1.seconds),\n          ),\n\n          // 쉬머\n          _EffectCard(\n            title: 'Shimmer',\n            child: Container(\n              width: 100,\n              height: 50,\n              color: Colors.grey[300],\n            )\n                .animate(onPlay: (c) => c.repeat())\n                .shimmer(duration: 1.5.seconds),\n          ),\n        ],\n      ),\n    );\n  }\n}\n\nclass _EffectCard extends StatelessWidget {\n  final String title;\n  final Widget child;\n\n  const _EffectCard({required this.title, required this.child});\n\n  @override\n  Widget build(BuildContext context) {\n    return Card(\n      margin: const EdgeInsets.only(bottom: 16),\n      child: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Row(\n          children: [\n            SizedBox(width: 100, child: Text(title)),\n            Expanded(child: Center(child: child)),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "fadeIn/fadeOut, slideX/slideY, scale, rotate, shake, blur, tint, saturate, flip, shimmer 등 다양한 내장 이펙트가 있습니다."
+    },
+    {
+      "title": "리스트 애니메이션 및 실제 활용",
+      "description": "리스트 아이템에 순차적 애니메이션을 적용하고 실제 UI에 활용합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_animate/flutter_animate.dart';\n\nclass ListAnimationExample extends StatelessWidget {\n  const ListAnimationExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('리스트 애니메이션')),\n      body: ListView.builder(\n        padding: const EdgeInsets.all(16),\n        itemCount: 10,\n        itemBuilder: (context, index) {\n          return Card(\n            child: ListTile(\n              leading: CircleAvatar(\n                child: Text('${index + 1}'),\n              ),\n              title: Text('아이템 ${index + 1}'),\n              subtitle: const Text('설명 텍스트'),\n              trailing: const Icon(Icons.chevron_right),\n            ),\n          )\n              .animate()\n              .fadeIn(delay: (50 * index).ms, duration: 400.ms)\n              .slideX(begin: 0.2, end: 0, delay: (50 * index).ms);\n        },\n      ),\n    );\n  }\n}\n\n// 로그인 화면 애니메이션\nclass AnimatedLoginScreen extends StatelessWidget {\n  const AnimatedLoginScreen({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      body: SafeArea(\n        child: Padding(\n          padding: const EdgeInsets.all(24),\n          child: Column(\n            mainAxisAlignment: MainAxisAlignment.center,\n            children: [\n              // 로고\n              const Icon(Icons.flutter_dash, size: 100, color: Colors.blue)\n                  .animate()\n                  .fadeIn(duration: 600.ms)\n                  .scale(begin: const Offset(0.5, 0.5), end: const Offset(1, 1)),\n              const SizedBox(height: 48),\n\n              // 이메일 필드\n              TextField(\n                decoration: const InputDecoration(\n                  labelText: '이메일',\n                  prefixIcon: Icon(Icons.email),\n                  border: OutlineInputBorder(),\n                ),\n              )\n                  .animate()\n                  .fadeIn(delay: 200.ms, duration: 400.ms)\n                  .slideY(begin: 0.2, end: 0),\n              const SizedBox(height: 16),\n\n              // 비밀번호 필드\n              TextField(\n                obscureText: true,\n                decoration: const InputDecoration(\n                  labelText: '비밀번호',\n                  prefixIcon: Icon(Icons.lock),\n                  border: OutlineInputBorder(),\n                ),\n              )\n                  .animate()\n                  .fadeIn(delay: 300.ms, duration: 400.ms)\n                  .slideY(begin: 0.2, end: 0),\n              const SizedBox(height: 24),\n\n              // 로그인 버튼\n              SizedBox(\n                width: double.infinity,\n                height: 48,\n                child: ElevatedButton(\n                  onPressed: () {},\n                  child: const Text('로그인'),\n                ),\n              )\n                  .animate()\n                  .fadeIn(delay: 400.ms, duration: 400.ms)\n                  .slideY(begin: 0.2, end: 0),\n              const SizedBox(height: 16),\n\n              // 회원가입 링크\n              TextButton(\n                onPressed: () {},\n                child: const Text('계정이 없으신가요? 회원가입'),\n              )\n                  .animate()\n                  .fadeIn(delay: 500.ms, duration: 400.ms),\n            ],\n          ),\n        ),\n      ),\n    );\n  }\n}\n\n// 성공 애니메이션\nclass SuccessAnimation extends StatelessWidget {\n  const SuccessAnimation({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Container(\n      width: 100,\n      height: 100,\n      decoration: const BoxDecoration(\n        color: Colors.green,\n        shape: BoxShape.circle,\n      ),\n      child: const Icon(Icons.check, color: Colors.white, size: 60),\n    )\n        .animate()\n        .scale(\n          begin: const Offset(0, 0),\n          end: const Offset(1, 1),\n          duration: 400.ms,\n          curve: Curves.elasticOut,\n        )\n        .then()\n        .shake(hz: 2, offset: const Offset(0, 5), duration: 400.ms);\n  }\n}",
+      "explanation": "리스트 아이템에 인덱스 기반 딜레이를 적용하면 순차적으로 나타나는 효과를 만들 수 있습니다. 로그인 화면 등 실제 UI에 적용하면 세련된 느낌을 줍니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "메서드 체이닝",
+      "description": ".animate()를 호출한 후 이펙트 메서드를 연속으로 호출하여 애니메이션을 조합합니다. 각 이펙트는 독립적인 duration, delay, curve를 가질 수 있습니다."
+    },
+    {
+      "name": "then()",
+      "description": "이전 애니메이션이 완료된 후 다음 애니메이션을 시작합니다. delay를 추가하면 완료 후 추가 대기 시간을 줄 수 있습니다."
+    },
+    {
+      "name": "Duration 확장",
+      "description": "flutter_animate는 100.ms, 2.seconds 같은 편리한 Duration 확장을 제공합니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "animate()",
+      "signature": "Widget animate({...})",
+      "description": "위젯에 애니메이션 기능을 추가하는 확장 메서드입니다."
+    },
+    {
+      "name": "fadeIn / fadeOut",
+      "signature": ".fadeIn({Duration? duration, Duration? delay, Curve? curve})",
+      "description": "페이드 인/아웃 애니메이션입니다."
+    },
+    {
+      "name": "slideX / slideY",
+      "signature": ".slideX({double? begin, double? end, ...})",
+      "description": "수평/수직 슬라이드 애니메이션입니다. 값은 위젯 크기 비율입니다."
+    },
+    {
+      "name": "scale",
+      "signature": ".scale({Offset? begin, Offset? end, ...})",
+      "description": "크기 변환 애니메이션입니다."
+    },
+    {
+      "name": "rotate",
+      "signature": ".rotate({double? begin, double? end, ...})",
+      "description": "회전 애니메이션입니다. 값은 회전 수(1 = 360도)입니다."
+    },
+    {
+      "name": "then()",
+      "signature": ".then({Duration? delay})",
+      "description": "이전 애니메이션 완료 후 다음 애니메이션을 시작합니다."
+    },
+    {
+      "name": "onPlay",
+      "signature": "onPlay: (AnimationController controller) => ...",
+      "description": "애니메이션 컨트롤러에 접근하여 repeat(), stop() 등을 호출할 수 있습니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "애니메이션이 한 번만 실행됨",
+      "cause": "기본적으로 애니메이션은 한 번 실행됨",
+      "solution": "onPlay: (c) => c.repeat()으로 반복하거나, c.repeat(reverse: true)로 왕복 반복하세요."
+    },
+    {
+      "error": "애니메이션 타이밍이 맞지 않음",
+      "cause": "여러 이펙트의 duration이 다름",
+      "solution": "동시 실행을 원하면 모든 이펙트에 같은 duration을 지정하세요."
+    },
+    {
+      "error": "위젯이 깜빡임",
+      "cause": "setState 등으로 위젯이 리빌드될 때 애니메이션 재시작",
+      "solution": "Key를 지정하거나 애니메이션 컨트롤러를 외부에서 관리하세요."
+    },
+    {
+      "error": "메모리 누수",
+      "cause": "무한 반복 애니메이션을 dispose하지 않음",
+      "solution": "StatefulWidget에서 컨트롤러를 관리하거나 화면 전환 시 정리하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "적절한 지연 시간",
+      "description": "리스트 아이템에 순차 애니메이션을 적용할 때 50-100ms 정도의 간격이 자연스럽습니다."
+    },
+    {
+      "title": "과도한 애니메이션 피하기",
+      "description": "모든 요소에 애니메이션을 적용하면 산만해집니다. 중요한 요소에만 적용하세요."
+    },
+    {
+      "title": "접근성 고려",
+      "description": "MediaQuery.of(context).disableAnimations를 확인하여 사용자가 애니메이션을 비활성화했는지 확인하세요."
+    },
+    {
+      "title": "Curve 활용",
+      "description": "Curves.easeInOut, Curves.elasticOut 등 적절한 curve를 사용하면 더 자연스러운 애니메이션을 만들 수 있습니다."
+    }
+  ],
+  "tips": [
+    ".ms와 .seconds 확장으로 Duration을 간단하게 작성할 수 있습니다",
+    "onPlay 콜백에서 controller.repeat()으로 무한 반복할 수 있습니다",
+    "Animate.defaultDuration으로 기본 duration을 전역 설정할 수 있습니다",
+    "custom() 메서드로 직접 AnimatedBuilder를 사용한 커스텀 이펙트를 만들 수 있습니다",
+    "toggle() 메서드로 특정 조건에 따라 애니메이션을 전환할 수 있습니다",
+    "flutter_staggered_animations 패키지도 리스트 애니메이션에 좋은 대안입니다"
+  ]
+}

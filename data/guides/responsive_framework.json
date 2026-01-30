@@ -1,0 +1,187 @@
+{
+  "packageId": "responsive_framework",
+  "title": "responsive_framework 실전 마스터 가이드",
+  "generatedAt": "2026-01-28T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "1.5.1",
+  "packageLikes": 1800,
+
+  "overview": {
+    "what": "responsive_framework는 Flutter 앱을 다양한 화면 크기에 자동으로 적응시키는 반응형 UI 패키지입니다. 화면 크기에 따라 UI를 자동으로 스케일링하고, 브레이크포인트를 정의하여 모바일/태블릿/데스크톱 레이아웃을 쉽게 구현할 수 있습니다.",
+    "why": "직접 MediaQuery로 반응형 UI를 구현하면 코드가 복잡해지고 모든 위젯에 조건문을 추가해야 하지만, responsive_framework는 자동 스케일링으로 기존 UI를 그대로 유지하면서 화면 크기에 적응합니다. 특히 웹/데스크톱 대응이 필요한 앱에서 개발 시간을 크게 단축합니다.",
+    "when": "1) 태블릿과 모바일을 동시 지원해야 할 때, 2) Flutter 웹/데스크톱 앱을 개발할 때, 3) 다양한 화면 크기에서 일관된 UI가 필요할 때, 4) 기존 모바일 앱을 큰 화면에 대응시킬 때, 5) 브레이크포인트 기반 레이아웃 전환이 필요할 때",
+    "features": [
+      "📏 자동 스케일링: 화면 크기에 따라 UI 자동 확대/축소",
+      "📐 브레이크포인트: 화면 크기별 다른 레이아웃 정의",
+      "🎯 최대 너비 제한: 대형 화면에서 콘텐츠 너비 제한",
+      "🔧 조건부 표시: 화면 크기에 따라 위젯 표시/숨김",
+      "📱 반응형 값: 화면 크기에 따른 동적 값 지정"
+    ]
+  },
+
+  "description": "자동 스케일링과 브레이크포인트 기반 반응형 UI 패키지",
+  "difficulty": "초중급 - 브레이크포인트 개념 이해 필요",
+  "estimatedTime": "40분",
+  "prerequisites": [
+    "Flutter 기본 위젯 이해",
+    "MediaQuery 기본 개념",
+    "반응형 디자인 기초 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "Breakpoint",
+      "explanation": "레이아웃이 변경되는 화면 너비 기준점입니다. 예: 600px 미만은 모바일, 600-900px는 태블릿, 900px 이상은 데스크톱.",
+      "analogy": "🚦 도로의 속도 제한 구간처럼, 화면 너비에 따라 다른 규칙(레이아웃)이 적용됩니다.",
+      "usage": "Breakpoint(start: 600, end: 900, name: TABLET)"
+    },
+    {
+      "term": "AutoScale",
+      "explanation": "화면 크기에 따라 UI를 자동으로 확대/축소합니다. 기준 너비를 설정하면 그 비율에 맞게 모든 요소가 조절됩니다.",
+      "analogy": "🔍 프로젝터의 줌처럼, 화면 크기에 맞게 전체 UI를 확대하거나 축소합니다.",
+      "usage": "ResponsiveBreakpoint.autoScale(600)"
+    },
+    {
+      "term": "MaxWidth",
+      "explanation": "콘텐츠의 최대 너비를 제한합니다. 대형 화면에서 너무 넓어지는 것을 방지합니다.",
+      "analogy": "📦 택배 박스의 최대 크기처럼, 콘텐츠가 일정 너비를 넘지 않도록 제한합니다.",
+      "usage": "maxWidth: 1200"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치 및 기본 설정",
+      "description": "responsive_framework를 설치하고 MaterialApp에 적용합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  responsive_framework: ^1.5.1"
+      },
+      "commands": ["flutter pub add responsive_framework"],
+      "subSteps": [
+        {
+          "title": "MaterialApp에 ResponsiveBreakpoints 적용",
+          "code": {
+            "language": "dart",
+            "filename": "lib/main.dart",
+            "content": "import 'package:flutter/material.dart';\nimport 'package:responsive_framework/responsive_framework.dart';\n\nvoid main() {\n  runApp(const MyApp());\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      title: 'Responsive App',\n      // ResponsiveBreakpoints 적용\n      builder: (context, child) => ResponsiveBreakpoints.builder(\n        child: child!,\n        breakpoints: [\n          const Breakpoint(start: 0, end: 450, name: MOBILE),\n          const Breakpoint(start: 451, end: 800, name: TABLET),\n          const Breakpoint(start: 801, end: 1920, name: DESKTOP),\n          const Breakpoint(start: 1921, end: double.infinity, name: '4K'),\n        ],\n      ),\n      home: const HomePage(),\n    );\n  }\n}"
+          }
+        }
+      ],
+      "explanation": "• ResponsiveBreakpoints.builder: MaterialApp의 builder에서 반응형 시스템 초기화\n• Breakpoint: 화면 너비 범위와 이름 정의\n• MOBILE, TABLET, DESKTOP: 기본 제공되는 브레이크포인트 이름 상수",
+      "beginnerTip": "💡 브레이크포인트 이름은 문자열로 원하는 대로 정의할 수 있습니다. MOBILE, TABLET 등은 편의상 제공되는 상수입니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📏 자동 스케일링 적용",
+      "description": "화면 크기에 따라 UI가 자동으로 확대/축소되도록 설정합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:responsive_framework/responsive_framework.dart';\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      title: 'Auto Scale App',\n      builder: (context, child) => ResponsiveBreakpoints.builder(\n        child: child!,\n        breakpoints: [\n          // autoScale: 해당 범위에서 자동 스케일링\n          const Breakpoint(\n            start: 0,\n            end: 450,\n            name: MOBILE,\n          ),\n          const Breakpoint(\n            start: 451,\n            end: 800,\n            name: TABLET,\n          ),\n          const Breakpoint(\n            start: 801,\n            end: 1920,\n            name: DESKTOP,\n          ),\n        ],\n      ),\n      home: const HomePage(),\n    );\n  }\n}\n\nclass HomePage extends StatelessWidget {\n  const HomePage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('자동 스케일링')),\n      // MaxWidthBox로 최대 너비 제한\n      body: MaxWidthBox(\n        maxWidth: 1200,  // 최대 너비\n        child: ResponsiveScaledBox(\n          width: 450,  // 기준 너비 (모바일 기준)\n          child: _buildContent(),\n        ),\n      ),\n    );\n  }\n\n  Widget _buildContent() {\n    return SingleChildScrollView(\n      padding: const EdgeInsets.all(16),\n      child: Column(\n        crossAxisAlignment: CrossAxisAlignment.start,\n        children: [\n          const Text(\n            '자동 스케일링 예시',\n            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),\n          ),\n          const SizedBox(height: 16),\n          const Text(\n            '화면 크기에 따라 모든 요소가 비율에 맞게 확대/축소됩니다. '\n            '기준 너비 450px에서 디자인하면 다른 화면 크기에서도 '\n            '동일한 비율로 표시됩니다.',\n          ),\n          const SizedBox(height: 24),\n          // 카드 그리드\n          GridView.count(\n            shrinkWrap: true,\n            physics: const NeverScrollableScrollPhysics(),\n            crossAxisCount: 2,\n            mainAxisSpacing: 16,\n            crossAxisSpacing: 16,\n            children: List.generate(4, (index) {\n              return Card(\n                child: Center(\n                  child: Text('Item ${index + 1}'),\n                ),\n              );\n            }),\n          ),\n        ],\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "• ResponsiveScaledBox: 지정한 기준 너비에 맞게 자식 위젯을 스케일링\n• MaxWidthBox: 콘텐츠의 최대 너비를 제한하고 중앙 정렬\n• width 파라미터: 디자인 기준이 되는 화면 너비",
+      "beginnerTip": "💡 ResponsiveScaledBox의 width는 디자인 기준 화면 너비입니다. 피그마에서 375px로 디자인했다면 375를 입력하세요."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🎯 브레이크포인트별 조건부 UI",
+      "description": "화면 크기에 따라 다른 레이아웃이나 위젯을 표시합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/screens/responsive_screen.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:responsive_framework/responsive_framework.dart';\n\nclass ResponsiveScreen extends StatelessWidget {\n  const ResponsiveScreen({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // 현재 브레이크포인트 확인\n    final breakpoint = ResponsiveBreakpoints.of(context).breakpoint;\n    final isMobile = ResponsiveBreakpoints.of(context).isMobile;\n    final isTablet = ResponsiveBreakpoints.of(context).isTablet;\n    final isDesktop = ResponsiveBreakpoints.of(context).isDesktop;\n    \n    // 화면 너비 (MediaQuery와 동일)\n    final screenWidth = ResponsiveBreakpoints.of(context).screenWidth;\n\n    return Scaffold(\n      appBar: AppBar(\n        title: Text('현재: ${breakpoint.name} (${screenWidth.toInt()}px)'),\n      ),\n      // 모바일에서만 Drawer 사용\n      drawer: isMobile ? const Drawer(child: Text('모바일 메뉴')) : null,\n      body: Row(\n        children: [\n          // 데스크톱/태블릿에서 사이드 네비게이션\n          if (!isMobile)\n            NavigationRail(\n              extended: isDesktop,  // 데스크톱에서만 확장\n              destinations: const [\n                NavigationRailDestination(\n                  icon: Icon(Icons.home),\n                  label: Text('홈'),\n                ),\n                NavigationRailDestination(\n                  icon: Icon(Icons.search),\n                  label: Text('검색'),\n                ),\n                NavigationRailDestination(\n                  icon: Icon(Icons.settings),\n                  label: Text('설정'),\n                ),\n              ],\n              selectedIndex: 0,\n              onDestinationSelected: (_) {},\n            ),\n          \n          // 메인 콘텐츠\n          Expanded(\n            child: _buildContent(context),\n          ),\n        ],\n      ),\n      // 모바일에서만 BottomNavigationBar\n      bottomNavigationBar: isMobile\n          ? BottomNavigationBar(\n              items: const [\n                BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),\n                BottomNavigationBarItem(icon: Icon(Icons.search), label: '검색'),\n                BottomNavigationBarItem(icon: Icon(Icons.settings), label: '설정'),\n              ],\n            )\n          : null,\n    );\n  }\n\n  Widget _buildContent(BuildContext context) {\n    final isDesktop = ResponsiveBreakpoints.of(context).isDesktop;\n    final isTablet = ResponsiveBreakpoints.of(context).isTablet;\n\n    // 브레이크포인트별 열 개수\n    int crossAxisCount;\n    if (isDesktop) {\n      crossAxisCount = 4;\n    } else if (isTablet) {\n      crossAxisCount = 3;\n    } else {\n      crossAxisCount = 2;\n    }\n\n    return GridView.builder(\n      padding: const EdgeInsets.all(16),\n      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(\n        crossAxisCount: crossAxisCount,\n        mainAxisSpacing: 16,\n        crossAxisSpacing: 16,\n      ),\n      itemCount: 12,\n      itemBuilder: (context, index) {\n        return Card(\n          child: Center(\n            child: Text('Item ${index + 1}'),\n          ),\n        );\n      },\n    );\n  }\n}"
+      },
+      "explanation": "• ResponsiveBreakpoints.of(context): 현재 반응형 상태 접근\n• isMobile, isTablet, isDesktop: 현재 브레이크포인트 확인\n• breakpoint.name: 현재 브레이크포인트 이름\n• screenWidth: 현재 화면 너비",
+      "beginnerTip": "💡 ResponsiveBreakpoints.of(context)는 MaterialApp의 builder에 설정된 브레이크포인트를 기준으로 판단합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "📐 ResponsiveValue로 반응형 값 설정",
+      "description": "화면 크기에 따라 자동으로 변하는 값을 정의합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/widgets/responsive_values.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:responsive_framework/responsive_framework.dart';\n\nclass ResponsiveValuesExample extends StatelessWidget {\n  const ResponsiveValuesExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // 브레이크포인트별 패딩 값\n    final padding = ResponsiveValue<double>(\n      context,\n      defaultValue: 16,  // 기본값\n      conditionalValues: [\n        const Condition.equals(name: MOBILE, value: 16),\n        const Condition.equals(name: TABLET, value: 24),\n        const Condition.equals(name: DESKTOP, value: 32),\n      ],\n    ).value;\n\n    // 브레이크포인트별 폰트 크기\n    final titleSize = ResponsiveValue<double>(\n      context,\n      defaultValue: 24,\n      conditionalValues: [\n        const Condition.smallerThan(name: TABLET, value: 20),\n        const Condition.largerThan(name: TABLET, value: 32),\n      ],\n    ).value;\n\n    // 브레이크포인트별 열 개수\n    final columnCount = ResponsiveValue<int>(\n      context,\n      defaultValue: 2,\n      conditionalValues: [\n        const Condition.equals(name: MOBILE, value: 1),\n        const Condition.equals(name: TABLET, value: 2),\n        const Condition.equals(name: DESKTOP, value: 3),\n        const Condition.largerThan(name: DESKTOP, value: 4),\n      ],\n    ).value;\n\n    // 특정 브레이크포인트에서만 표시\n    final showSidebar = ResponsiveValue<bool>(\n      context,\n      defaultValue: false,\n      conditionalValues: [\n        const Condition.largerThan(name: MOBILE, value: true),\n      ],\n    ).value;\n\n    return Scaffold(\n      appBar: AppBar(\n        title: Text(\n          '반응형 값',\n          style: TextStyle(fontSize: titleSize),\n        ),\n      ),\n      body: Row(\n        children: [\n          // 조건부 사이드바\n          if (showSidebar)\n            Container(\n              width: 200,\n              color: Colors.grey[200],\n              child: const Center(child: Text('Sidebar')),\n            ),\n          \n          // 메인 콘텐츠\n          Expanded(\n            child: Padding(\n              padding: EdgeInsets.all(padding),\n              child: Column(\n                crossAxisAlignment: CrossAxisAlignment.start,\n                children: [\n                  Text(\n                    '브레이크포인트별 스타일',\n                    style: TextStyle(\n                      fontSize: titleSize,\n                      fontWeight: FontWeight.bold,\n                    ),\n                  ),\n                  Text('패딩: $padding, 열: $columnCount'),\n                  const SizedBox(height: 16),\n                  Expanded(\n                    child: GridView.builder(\n                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(\n                        crossAxisCount: columnCount,\n                        mainAxisSpacing: 16,\n                        crossAxisSpacing: 16,\n                      ),\n                      itemCount: 8,\n                      itemBuilder: (context, index) {\n                        return Card(\n                          child: Center(child: Text('Item ${index + 1}')),\n                        );\n                      },\n                    ),\n                  ),\n                ],\n              ),\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}\n\n// 재사용 가능한 반응형 유틸리티\nclass ResponsiveUtils {\n  static double getPadding(BuildContext context) {\n    return ResponsiveValue<double>(\n      context,\n      defaultValue: 16,\n      conditionalValues: [\n        const Condition.equals(name: MOBILE, value: 16),\n        const Condition.equals(name: TABLET, value: 24),\n        const Condition.equals(name: DESKTOP, value: 32),\n      ],\n    ).value;\n  }\n\n  static int getGridColumns(BuildContext context) {\n    return ResponsiveValue<int>(\n      context,\n      defaultValue: 2,\n      conditionalValues: [\n        const Condition.equals(name: MOBILE, value: 2),\n        const Condition.equals(name: TABLET, value: 3),\n        const Condition.equals(name: DESKTOP, value: 4),\n      ],\n    ).value;\n  }\n\n  static double getFontSize(BuildContext context, {required double base}) {\n    final multiplier = ResponsiveValue<double>(\n      context,\n      defaultValue: 1.0,\n      conditionalValues: [\n        const Condition.equals(name: MOBILE, value: 1.0),\n        const Condition.equals(name: TABLET, value: 1.1),\n        const Condition.equals(name: DESKTOP, value: 1.2),\n      ],\n    ).value;\n    return base * multiplier;\n  }\n}"
+      },
+      "explanation": "• ResponsiveValue<T>: 브레이크포인트에 따라 다른 값 반환\n• Condition.equals: 특정 브레이크포인트일 때\n• Condition.smallerThan: 특정 브레이크포인트보다 작을 때\n• Condition.largerThan: 특정 브레이크포인트보다 클 때",
+      "beginnerTip": "💡 ResponsiveValue는 어떤 타입이든 사용할 수 있습니다. double, int, bool, EdgeInsets, Color 등."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🏗️ 실전 레이아웃 패턴",
+      "description": "실제 앱에서 자주 사용하는 반응형 레이아웃 패턴을 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/layouts/adaptive_layout.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:responsive_framework/responsive_framework.dart';\n\n// 적응형 레이아웃: 화면 크기에 따라 완전히 다른 레이아웃\nclass AdaptiveLayout extends StatelessWidget {\n  final Widget mobileLayout;\n  final Widget tabletLayout;\n  final Widget desktopLayout;\n\n  const AdaptiveLayout({\n    super.key,\n    required this.mobileLayout,\n    required this.tabletLayout,\n    required this.desktopLayout,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    if (ResponsiveBreakpoints.of(context).isDesktop) {\n      return desktopLayout;\n    } else if (ResponsiveBreakpoints.of(context).isTablet) {\n      return tabletLayout;\n    } else {\n      return mobileLayout;\n    }\n  }\n}\n\n// 마스터-디테일 레이아웃\nclass MasterDetailLayout extends StatefulWidget {\n  const MasterDetailLayout({super.key});\n\n  @override\n  State<MasterDetailLayout> createState() => _MasterDetailLayoutState();\n}\n\nclass _MasterDetailLayoutState extends State<MasterDetailLayout> {\n  int? _selectedIndex;\n\n  final List<String> _items = List.generate(20, (i) => 'Item ${i + 1}');\n\n  @override\n  Widget build(BuildContext context) {\n    final isWide = ResponsiveBreakpoints.of(context)\n        .largerOrEqualTo(TABLET);\n\n    if (isWide) {\n      // 태블릿/데스크톱: 좌우 분할\n      return Scaffold(\n        appBar: AppBar(title: const Text('마스터-디테일')),\n        body: Row(\n          children: [\n            // 마스터 (리스트)\n            SizedBox(\n              width: 300,\n              child: _buildMasterList(),\n            ),\n            const VerticalDivider(width: 1),\n            // 디테일\n            Expanded(\n              child: _selectedIndex != null\n                  ? _buildDetailView(_items[_selectedIndex!])\n                  : const Center(child: Text('항목을 선택하세요')),\n            ),\n          ],\n        ),\n      );\n    } else {\n      // 모바일: 스택 네비게이션\n      return Scaffold(\n        appBar: AppBar(title: const Text('목록')),\n        body: _buildMasterList(),\n      );\n    }\n  }\n\n  Widget _buildMasterList() {\n    return ListView.builder(\n      itemCount: _items.length,\n      itemBuilder: (context, index) {\n        final isSelected = _selectedIndex == index;\n        return ListTile(\n          title: Text(_items[index]),\n          selected: isSelected,\n          onTap: () {\n            final isWide = ResponsiveBreakpoints.of(context)\n                .largerOrEqualTo(TABLET);\n            \n            if (isWide) {\n              setState(() => _selectedIndex = index);\n            } else {\n              // 모바일에서는 새 화면으로\n              Navigator.push(\n                context,\n                MaterialPageRoute(\n                  builder: (_) => Scaffold(\n                    appBar: AppBar(title: Text(_items[index])),\n                    body: _buildDetailView(_items[index]),\n                  ),\n                ),\n              );\n            }\n          },\n        );\n      },\n    );\n  }\n\n  Widget _buildDetailView(String item) {\n    return Center(\n      child: Column(\n        mainAxisAlignment: MainAxisAlignment.center,\n        children: [\n          Text(\n            item,\n            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),\n          ),\n          const SizedBox(height: 16),\n          const Text('상세 내용이 여기에 표시됩니다.'),\n        ],\n      ),\n    );\n  }\n}\n\n// 반응형 그리드 레이아웃\nclass ResponsiveGridLayout extends StatelessWidget {\n  final List<Widget> children;\n\n  const ResponsiveGridLayout({super.key, required this.children});\n\n  @override\n  Widget build(BuildContext context) {\n    return LayoutBuilder(\n      builder: (context, constraints) {\n        // 화면 너비에 따른 열 개수 계산\n        final width = constraints.maxWidth;\n        int columns;\n        if (width >= 1200) {\n          columns = 4;\n        } else if (width >= 900) {\n          columns = 3;\n        } else if (width >= 600) {\n          columns = 2;\n        } else {\n          columns = 1;\n        }\n\n        return GridView.count(\n          crossAxisCount: columns,\n          mainAxisSpacing: 16,\n          crossAxisSpacing: 16,\n          padding: const EdgeInsets.all(16),\n          children: children,\n        );\n      },\n    );\n  }\n}\n\n// 사용 예시\nclass ExampleScreen extends StatelessWidget {\n  const ExampleScreen({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return AdaptiveLayout(\n      mobileLayout: const MobileHomeScreen(),\n      tabletLayout: const TabletHomeScreen(),\n      desktopLayout: const DesktopHomeScreen(),\n    );\n  }\n}\n\nclass MobileHomeScreen extends StatelessWidget {\n  const MobileHomeScreen({super.key});\n  @override\n  Widget build(BuildContext context) => const Center(child: Text('모바일'));\n}\n\nclass TabletHomeScreen extends StatelessWidget {\n  const TabletHomeScreen({super.key});\n  @override\n  Widget build(BuildContext context) => const Center(child: Text('태블릿'));\n}\n\nclass DesktopHomeScreen extends StatelessWidget {\n  const DesktopHomeScreen({super.key});\n  @override\n  Widget build(BuildContext context) => const Center(child: Text('데스크톱'));\n}"
+      },
+      "explanation": "• AdaptiveLayout: 화면 크기별로 완전히 다른 레이아웃 제공\n• MasterDetailLayout: 태블릿 이상에서 좌우 분할, 모바일에서 스택 네비게이션\n• largerOrEqualTo(): 특정 브레이크포인트 이상인지 확인\n• LayoutBuilder와 조합하여 더 세밀한 반응형 구현",
+      "beginnerTip": "💡 AdaptiveLayout 패턴을 사용하면 완전히 다른 UX를 제공할 수 있습니다. 예: 모바일은 탭, 데스크톱은 사이드바."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "method": "ResponsiveBreakpoints.of(context)",
+      "signature": "ResponsiveBreakpointsData of(BuildContext context)",
+      "description": "현재 반응형 상태에 접근합니다.",
+      "returnType": "ResponsiveBreakpointsData",
+      "example": "ResponsiveBreakpoints.of(context).isMobile"
+    },
+    {
+      "method": "ResponsiveValue",
+      "signature": "ResponsiveValue<T>(context, {defaultValue, conditionalValues})",
+      "description": "브레이크포인트별로 다른 값을 반환합니다.",
+      "returnType": "T",
+      "example": "ResponsiveValue<double>(context, defaultValue: 16, conditionalValues: [...]).value"
+    },
+    {
+      "method": "MaxWidthBox",
+      "signature": "MaxWidthBox({maxWidth, child})",
+      "description": "콘텐츠의 최대 너비를 제한하고 중앙 정렬합니다.",
+      "returnType": "Widget",
+      "example": "MaxWidthBox(maxWidth: 1200, child: content)"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "ResponsiveBreakpoints.of() called with a context that does not contain ResponsiveBreakpoints",
+      "cause": "MaterialApp의 builder에 ResponsiveBreakpoints.builder를 설정하지 않음",
+      "solution": "MaterialApp의 builder에서 ResponsiveBreakpoints.builder로 자식을 감싸세요."
+    },
+    {
+      "error": "UI가 너무 작게/크게 스케일됨",
+      "cause": "ResponsiveScaledBox의 width 값이 적절하지 않음",
+      "solution": "디자인 기준 화면 너비에 맞게 width 값을 조정하세요. 일반적으로 모바일 디자인은 375~414 정도입니다."
+    },
+    {
+      "error": "브레이크포인트 전환 시 깜빡임",
+      "cause": "레이아웃 변경 시 전체 리빌드",
+      "solution": "AnimatedSwitcher 등으로 부드러운 전환 효과를 추가하거나, 변경되는 부분만 조건부로 처리하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "일관된 브레이크포인트 정의",
+      "description": "앱 전체에서 동일한 브레이크포인트를 사용하세요.",
+      "code": "// constants/breakpoints.dart\nclass AppBreakpoints {\n  static const List<Breakpoint> breakpoints = [\n    Breakpoint(start: 0, end: 450, name: MOBILE),\n    Breakpoint(start: 451, end: 800, name: TABLET),\n    Breakpoint(start: 801, end: 1920, name: DESKTOP),\n  ];\n}\n\n// main.dart에서 사용\nResponsiveBreakpoints.builder(\n  breakpoints: AppBreakpoints.breakpoints,\n  child: child!,\n)"
+    },
+    {
+      "title": "반응형 유틸리티 함수 만들기",
+      "description": "자주 사용하는 반응형 값은 함수로 분리하세요.",
+      "code": "extension ResponsiveContext on BuildContext {\n  bool get isMobile => ResponsiveBreakpoints.of(this).isMobile;\n  bool get isTablet => ResponsiveBreakpoints.of(this).isTablet;\n  bool get isDesktop => ResponsiveBreakpoints.of(this).isDesktop;\n  \n  double get screenWidth => ResponsiveBreakpoints.of(this).screenWidth;\n}\n\n// 사용\nif (context.isMobile) { ... }"
+    }
+  ],
+
+  "tips": [
+    "📐 피그마 디자인의 화면 너비를 ResponsiveScaledBox의 width로 설정하면 1:1로 구현됩니다.",
+    "🖥️ Flutter 웹/데스크톱 앱에서 창 크기 조절을 테스트하여 모든 브레이크포인트를 확인하세요.",
+    "📱 Chrome DevTools의 기기 에뮬레이터로 다양한 화면 크기를 테스트할 수 있습니다.",
+    "⚡ ResponsiveValue는 build 메서드 내에서 호출되므로 화면 크기 변경 시 자동으로 업데이트됩니다."
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "packageName": "flutter_spinkit",
+  "overview": {
+    "what": "flutter_spinkit은 다양한 스타일의 로딩 인디케이터를 제공하는 Flutter 패키지입니다. SpinKit 애니메이션을 Flutter에서 쉽게 사용할 수 있습니다.",
+    "why": "기본 CircularProgressIndicator는 단조롭습니다. flutter_spinkit은 40개 이상의 세련된 로딩 애니메이션을 제공하여 앱의 사용자 경험을 향상시킵니다.",
+    "when": "데이터 로딩 중, 페이지 전환 시, 버튼 처리 중 등 사용자에게 대기 상태를 알려줄 때 사용합니다.",
+    "features": [
+      "40+ 로딩 애니메이션 스타일",
+      "커스텀 크기와 색상",
+      "애니메이션 속도 조절",
+      "컨트롤러 기반 제어",
+      "가벼운 패키지 크기",
+      "iOS/Android 네이티브 스타일 포함"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치",
+      "description": "pubspec.yaml에 flutter_spinkit 패키지를 추가합니다.",
+      "code": "dependencies:\n  flutter:\n    sdk: flutter\n  flutter_spinkit: ^5.2.1",
+      "explanation": "순수 Dart 패키지로 별도의 네이티브 설정이 필요 없습니다."
+    },
+    {
+      "title": "기본 스피너 사용",
+      "description": "다양한 스타일의 로딩 스피너를 표시합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_spinkit/flutter_spinkit.dart';\n\nclass BasicSpinnerExample extends StatelessWidget {\n  const BasicSpinnerExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('SpinKit 기본')),\n      body: const Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            // 회전하는 원\n            SpinKitCircle(\n              color: Colors.blue,\n              size: 50.0,\n            ),\n            SizedBox(height: 30),\n            \n            // 튀는 점 3개\n            SpinKitThreeBounce(\n              color: Colors.green,\n              size: 30.0,\n            ),\n            SizedBox(height: 30),\n            \n            // 물결 효과\n            SpinKitWave(\n              color: Colors.orange,\n              size: 40.0,\n            ),\n            SizedBox(height: 30),\n            \n            // 페이딩 원\n            SpinKitFadingCircle(\n              color: Colors.purple,\n              size: 50.0,\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "SpinKit 위젯들은 color와 size 속성으로 간단하게 커스터마이징할 수 있습니다."
+    },
+    {
+      "title": "인기 있는 스피너 모음",
+      "description": "가장 많이 사용되는 다양한 스피너 스타일을 살펴봅니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_spinkit/flutter_spinkit.dart';\n\nclass PopularSpinnersExample extends StatelessWidget {\n  const PopularSpinnersExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('인기 스피너')),\n      body: GridView.count(\n        crossAxisCount: 3,\n        padding: const EdgeInsets.all(16),\n        mainAxisSpacing: 16,\n        crossAxisSpacing: 16,\n        children: const [\n          _SpinnerItem(name: 'Circle', spinner: SpinKitCircle(color: Colors.blue)),\n          _SpinnerItem(name: 'ThreeBounce', spinner: SpinKitThreeBounce(color: Colors.green)),\n          _SpinnerItem(name: 'Wave', spinner: SpinKitWave(color: Colors.orange)),\n          _SpinnerItem(name: 'CubeGrid', spinner: SpinKitCubeGrid(color: Colors.red)),\n          _SpinnerItem(name: 'FadingCube', spinner: SpinKitFadingCube(color: Colors.purple)),\n          _SpinnerItem(name: 'Pulse', spinner: SpinKitPulse(color: Colors.teal)),\n          _SpinnerItem(name: 'DoubleBounce', spinner: SpinKitDoubleBounce(color: Colors.indigo)),\n          _SpinnerItem(name: 'FoldingCube', spinner: SpinKitFoldingCube(color: Colors.pink)),\n          _SpinnerItem(name: 'RotatingCircle', spinner: SpinKitRotatingCircle(color: Colors.cyan)),\n          _SpinnerItem(name: 'PumpingHeart', spinner: SpinKitPumpingHeart(color: Colors.red)),\n          _SpinnerItem(name: 'FadingFour', spinner: SpinKitFadingFour(color: Colors.amber)),\n          _SpinnerItem(name: 'Ring', spinner: SpinKitRing(color: Colors.blue)),\n          _SpinnerItem(name: 'DualRing', spinner: SpinKitDualRing(color: Colors.green)),\n          _SpinnerItem(name: 'Ripple', spinner: SpinKitRipple(color: Colors.deepPurple)),\n          _SpinnerItem(name: 'SpinningLines', spinner: SpinKitSpinningLines(color: Colors.brown)),\n          _SpinnerItem(name: 'SquareCircle', spinner: SpinKitSquareCircle(color: Colors.lime)),\n          _SpinnerItem(name: 'WanderingCubes', spinner: SpinKitWanderingCubes(color: Colors.deepOrange)),\n          _SpinnerItem(name: 'HourGlass', spinner: SpinKitHourGlass(color: Colors.blueGrey)),\n        ],\n      ),\n    );\n  }\n}\n\nclass _SpinnerItem extends StatelessWidget {\n  final String name;\n  final Widget spinner;\n\n  const _SpinnerItem({required this.name, required this.spinner});\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      mainAxisAlignment: MainAxisAlignment.center,\n      children: [\n        SizedBox(\n          width: 50,\n          height: 50,\n          child: spinner,\n        ),\n        const SizedBox(height: 8),\n        Text(\n          name,\n          style: const TextStyle(fontSize: 10),\n          textAlign: TextAlign.center,\n          overflow: TextOverflow.ellipsis,\n        ),\n      ],\n    );\n  }\n}",
+      "explanation": "SpinKit은 Circle, Wave, Cube, Ring 등 다양한 계열의 스피너를 제공합니다. 앱의 디자인에 맞는 스타일을 선택하세요."
+    },
+    {
+      "title": "로딩 화면 구현",
+      "description": "전체 화면 로딩 오버레이와 버튼 로딩 상태를 구현합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_spinkit/flutter_spinkit.dart';\n\n// 전체 화면 로딩 오버레이\nclass LoadingOverlay extends StatelessWidget {\n  final bool isLoading;\n  final Widget child;\n  final Color? color;\n\n  const LoadingOverlay({\n    super.key,\n    required this.isLoading,\n    required this.child,\n    this.color,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    return Stack(\n      children: [\n        child,\n        if (isLoading)\n          Container(\n            color: Colors.black.withOpacity(0.5),\n            child: Center(\n              child: SpinKitFadingCircle(\n                color: color ?? Colors.white,\n                size: 60,\n              ),\n            ),\n          ),\n      ],\n    );\n  }\n}\n\n// 로딩 버튼\nclass LoadingButton extends StatelessWidget {\n  final bool isLoading;\n  final String text;\n  final VoidCallback? onPressed;\n  final Color? color;\n\n  const LoadingButton({\n    super.key,\n    required this.isLoading,\n    required this.text,\n    this.onPressed,\n    this.color,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    return ElevatedButton(\n      onPressed: isLoading ? null : onPressed,\n      style: ElevatedButton.styleFrom(\n        backgroundColor: color ?? Theme.of(context).primaryColor,\n        minimumSize: const Size(double.infinity, 48),\n      ),\n      child: isLoading\n          ? const SpinKitThreeBounce(\n              color: Colors.white,\n              size: 20,\n            )\n          : Text(text, style: const TextStyle(color: Colors.white)),\n    );\n  }\n}\n\n// 사용 예시\nclass LoadingExampleScreen extends StatefulWidget {\n  const LoadingExampleScreen({super.key});\n\n  @override\n  State<LoadingExampleScreen> createState() => _LoadingExampleScreenState();\n}\n\nclass _LoadingExampleScreenState extends State<LoadingExampleScreen> {\n  bool _isPageLoading = false;\n  bool _isButtonLoading = false;\n\n  Future<void> _loadPage() async {\n    setState(() => _isPageLoading = true);\n    await Future.delayed(const Duration(seconds: 2));\n    setState(() => _isPageLoading = false);\n  }\n\n  Future<void> _submitForm() async {\n    setState(() => _isButtonLoading = true);\n    await Future.delayed(const Duration(seconds: 2));\n    setState(() => _isButtonLoading = false);\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return LoadingOverlay(\n      isLoading: _isPageLoading,\n      child: Scaffold(\n        appBar: AppBar(title: const Text('로딩 예시')),\n        body: Padding(\n          padding: const EdgeInsets.all(16),\n          child: Column(\n            crossAxisAlignment: CrossAxisAlignment.stretch,\n            children: [\n              ElevatedButton(\n                onPressed: _loadPage,\n                child: const Text('전체 화면 로딩'),\n              ),\n              const SizedBox(height: 24),\n              LoadingButton(\n                isLoading: _isButtonLoading,\n                text: '제출하기',\n                onPressed: _submitForm,\n              ),\n            ],\n          ),\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "로딩 오버레이는 비동기 작업 중 사용자 상호작용을 차단하고, 로딩 버튼은 제출 중 상태를 표시합니다."
+    },
+    {
+      "title": "고급 커스터마이징",
+      "description": "애니메이션 컨트롤러를 사용한 세밀한 제어와 커스텀 색상을 적용합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_spinkit/flutter_spinkit.dart';\n\nclass AdvancedSpinnerExample extends StatefulWidget {\n  const AdvancedSpinnerExample({super.key});\n\n  @override\n  State<AdvancedSpinnerExample> createState() => _AdvancedSpinnerExampleState();\n}\n\nclass _AdvancedSpinnerExampleState extends State<AdvancedSpinnerExample>\n    with SingleTickerProviderStateMixin {\n  late AnimationController _controller;\n  double _speed = 1.0;\n  double _size = 50.0;\n  Color _color = Colors.blue;\n\n  @override\n  void initState() {\n    super.initState();\n    _controller = AnimationController(\n      vsync: this,\n      duration: const Duration(milliseconds: 1200),\n    );\n  }\n\n  @override\n  void dispose() {\n    _controller.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('고급 설정')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          children: [\n            // 스피너 표시\n            Expanded(\n              child: Center(\n                child: SpinKitFadingCircle(\n                  color: _color,\n                  size: _size,\n                  controller: _controller,\n                  duration: Duration(\n                    milliseconds: (1200 / _speed).round(),\n                  ),\n                ),\n              ),\n            ),\n            // 속도 조절\n            Row(\n              children: [\n                const Text('속도:'),\n                Expanded(\n                  child: Slider(\n                    value: _speed,\n                    min: 0.5,\n                    max: 3.0,\n                    divisions: 5,\n                    label: '${_speed}x',\n                    onChanged: (value) {\n                      setState(() => _speed = value);\n                    },\n                  ),\n                ),\n              ],\n            ),\n            // 크기 조절\n            Row(\n              children: [\n                const Text('크기:'),\n                Expanded(\n                  child: Slider(\n                    value: _size,\n                    min: 30,\n                    max: 100,\n                    divisions: 7,\n                    label: '${_size.round()}',\n                    onChanged: (value) {\n                      setState(() => _size = value);\n                    },\n                  ),\n                ),\n              ],\n            ),\n            // 색상 선택\n            Row(\n              mainAxisAlignment: MainAxisAlignment.spaceEvenly,\n              children: [\n                _colorButton(Colors.blue),\n                _colorButton(Colors.red),\n                _colorButton(Colors.green),\n                _colorButton(Colors.purple),\n                _colorButton(Colors.orange),\n              ],\n            ),\n            const SizedBox(height: 16),\n            // 재생/정지 버튼\n            Row(\n              mainAxisAlignment: MainAxisAlignment.center,\n              children: [\n                ElevatedButton(\n                  onPressed: () => _controller.repeat(),\n                  child: const Text('재생'),\n                ),\n                const SizedBox(width: 16),\n                ElevatedButton(\n                  onPressed: () => _controller.stop(),\n                  child: const Text('정지'),\n                ),\n                const SizedBox(width: 16),\n                ElevatedButton(\n                  onPressed: () => _controller.reset(),\n                  child: const Text('리셋'),\n                ),\n              ],\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n\n  Widget _colorButton(Color color) {\n    return GestureDetector(\n      onTap: () => setState(() => _color = color),\n      child: Container(\n        width: 40,\n        height: 40,\n        decoration: BoxDecoration(\n          color: color,\n          shape: BoxShape.circle,\n          border: _color == color\n              ? Border.all(color: Colors.black, width: 3)\n              : null,\n        ),\n      ),\n    );\n  }\n}\n\n// 테마 색상 자동 적용 스피너\nclass ThemedSpinner extends StatelessWidget {\n  final double size;\n\n  const ThemedSpinner({super.key, this.size = 50});\n\n  @override\n  Widget build(BuildContext context) {\n    final color = Theme.of(context).primaryColor;\n    return SpinKitCircle(\n      color: color,\n      size: size,\n    );\n  }\n}\n\n// 조건부 스피너 선택\nclass AdaptiveSpinner extends StatelessWidget {\n  final TargetPlatform platform;\n  final double size;\n  final Color color;\n\n  const AdaptiveSpinner({\n    super.key,\n    required this.platform,\n    this.size = 50,\n    this.color = Colors.blue,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    // 플랫폼별 다른 스피너\n    switch (platform) {\n      case TargetPlatform.iOS:\n      case TargetPlatform.macOS:\n        return SpinKitFadingCircle(color: color, size: size);\n      case TargetPlatform.android:\n      case TargetPlatform.fuchsia:\n        return SpinKitCircle(color: color, size: size);\n      default:\n        return SpinKitRing(color: color, size: size);\n    }\n  }\n}",
+      "explanation": "AnimationController를 전달하면 스피너의 재생/정지/리셋을 직접 제어할 수 있습니다. duration으로 애니메이션 속도를 조절합니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "SpinKit 위젯",
+      "description": "각 스피너는 독립적인 위젯으로 제공됩니다. SpinKitCircle, SpinKitWave 등 40개 이상의 스타일이 있으며, 모두 같은 속성(color, size)을 지원합니다."
+    },
+    {
+      "name": "애니메이션 컨트롤러",
+      "description": "controller 속성에 AnimationController를 전달하면 애니메이션을 직접 제어할 수 있습니다. 재생, 정지, 리셋 등의 제어가 가능합니다."
+    },
+    {
+      "name": "duration",
+      "description": "애니메이션 한 사이클의 시간을 지정합니다. 값이 작을수록 빠르게 회전합니다. 기본값은 스피너마다 다릅니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "SpinKitCircle",
+      "signature": "SpinKitCircle({Color? color, double size, AnimationController? controller, Duration? duration})",
+      "description": "12개의 점이 원형으로 페이딩되는 스피너입니다."
+    },
+    {
+      "name": "SpinKitThreeBounce",
+      "signature": "SpinKitThreeBounce({Color? color, double size, ...})",
+      "description": "3개의 점이 튀어오르는 스피너입니다."
+    },
+    {
+      "name": "SpinKitWave",
+      "signature": "SpinKitWave({Color? color, double size, ...})",
+      "description": "5개의 막대가 파도처럼 움직이는 스피너입니다."
+    },
+    {
+      "name": "SpinKitFadingCircle",
+      "signature": "SpinKitFadingCircle({Color? color, double size, ...})",
+      "description": "12개의 점이 시계 방향으로 페이딩되는 스피너입니다. iOS 스타일과 유사합니다."
+    },
+    {
+      "name": "SpinKitPulse",
+      "signature": "SpinKitPulse({Color? color, double size, ...})",
+      "description": "원이 펄스처럼 커졌다 작아지는 스피너입니다."
+    },
+    {
+      "name": "color",
+      "signature": "Color? color",
+      "description": "스피너의 색상입니다. 기본값은 테마의 accentColor입니다."
+    },
+    {
+      "name": "size",
+      "signature": "double size = 50.0",
+      "description": "스피너의 크기(너비와 높이)입니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "스피너가 보이지 않음",
+      "cause": "부모 위젯에 크기 제약이 없거나 스피너 색상이 배경과 같음",
+      "solution": "스피너에 명시적인 size를 지정하고, 배경과 대비되는 color를 설정하세요."
+    },
+    {
+      "error": "애니메이션이 멈추지 않음",
+      "cause": "화면을 벗어나도 애니메이션이 계속 실행됨",
+      "solution": "커스텀 controller를 사용하는 경우 dispose에서 controller를 정리하세요."
+    },
+    {
+      "error": "Multiple AnimationController 오류",
+      "cause": "SingleTickerProviderStateMixin 없이 AnimationController 사용",
+      "solution": "State 클래스에 SingleTickerProviderStateMixin을 추가하세요."
+    },
+    {
+      "error": "화면 깜빡임",
+      "cause": "로딩 상태 변경 시 전체 화면이 리빌드됨",
+      "solution": "로딩 위젯만 조건부로 표시하거나 AnimatedSwitcher로 부드럽게 전환하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "일관된 스타일 사용",
+      "description": "앱 전체에서 같은 스피너 스타일을 사용하여 일관성을 유지하세요. 여러 스타일을 혼용하면 산만해 보입니다."
+    },
+    {
+      "title": "적절한 크기 선택",
+      "description": "전체 화면 로딩은 50-60px, 버튼 로딩은 20-30px, 인라인 로딩은 16-24px 정도가 적절합니다."
+    },
+    {
+      "title": "테마 색상 활용",
+      "description": "하드코딩된 색상 대신 Theme.of(context).primaryColor를 사용하면 테마 변경에 자동 대응합니다."
+    },
+    {
+      "title": "로딩 상태 분리",
+      "description": "isLoading 상태를 사용하여 로딩 중일 때만 스피너를 표시하고, 불필요한 리빌드를 피하세요."
+    }
+  ],
+  "tips": [
+    "SpinKitFadingCircle은 iOS의 기본 로딩 인디케이터와 유사합니다",
+    "SpinKitCircle은 Material Design의 CircularProgressIndicator와 유사한 느낌입니다",
+    "로딩 버튼에는 SpinKitThreeBounce가 크기가 작아서 잘 어울립니다",
+    "다크 모드에서는 밝은 색상의 스피너를 사용하세요",
+    "AnimationController로 로딩 완료 시 애니메이션을 우아하게 종료할 수 있습니다",
+    "여러 스피너를 나란히 배치하면 로딩 진행 단계를 표현할 수 있습니다"
+  ]
+}

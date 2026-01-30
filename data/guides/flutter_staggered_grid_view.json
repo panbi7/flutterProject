@@ -1,0 +1,147 @@
+{
+  "packageName": "flutter_staggered_grid_view",
+  "overview": {
+    "what": "flutter_staggered_grid_view는 Pinterest 스타일의 불규칙한 그리드 레이아웃을 Flutter에서 쉽게 구현할 수 있게 해주는 패키지입니다.",
+    "why": "기본 GridView는 모든 아이템이 같은 크기여야 합니다. 이 패키지는 각 아이템이 서로 다른 높이를 가질 수 있어 Pinterest, Masonry 스타일의 레이아웃을 구현할 수 있습니다.",
+    "when": "이미지 갤러리, 카드 리스트, 대시보드 등에서 아이템마다 다른 높이의 레이아웃이 필요할 때 사용합니다.",
+    "features": [
+      "가변 높이 그리드 아이템",
+      "Masonry/Pinterest 스타일 레이아웃",
+      "Quilted, Woven, Staired 등 다양한 레이아웃",
+      "스크롤 성능 최적화",
+      "SliverGrid 지원",
+      "반응형 열 수 조절"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치",
+      "description": "pubspec.yaml에 flutter_staggered_grid_view 패키지를 추가합니다.",
+      "code": "dependencies:\n  flutter:\n    sdk: flutter\n  flutter_staggered_grid_view: ^0.7.0",
+      "explanation": "순수 Dart 패키지로 별도의 네이티브 설정이 필요 없습니다."
+    },
+    {
+      "title": "MasonryGridView 기본 사용",
+      "description": "가장 많이 사용하는 Pinterest 스타일의 Masonry 그리드를 구현합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';\nimport 'dart:math';\n\nclass MasonryExample extends StatelessWidget {\n  const MasonryExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Masonry Grid')),\n      body: MasonryGridView.count(\n        crossAxisCount: 2, // 열 수\n        mainAxisSpacing: 8, // 세로 간격\n        crossAxisSpacing: 8, // 가로 간격\n        padding: const EdgeInsets.all(8),\n        itemCount: 20,\n        itemBuilder: (context, index) {\n          // 랜덤한 높이의 카드 생성\n          final height = 100.0 + Random().nextInt(100);\n          return _GridItem(\n            index: index,\n            height: height,\n          );\n        },\n      ),\n    );\n  }\n}\n\nclass _GridItem extends StatelessWidget {\n  final int index;\n  final double height;\n\n  const _GridItem({required this.index, required this.height});\n\n  @override\n  Widget build(BuildContext context) {\n    return Container(\n      height: height,\n      decoration: BoxDecoration(\n        color: Colors.primaries[index % Colors.primaries.length],\n        borderRadius: BorderRadius.circular(12),\n      ),\n      child: Center(\n        child: Text(\n          'Item $index',\n          style: const TextStyle(\n            color: Colors.white,\n            fontWeight: FontWeight.bold,\n          ),\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "MasonryGridView.count는 고정 열 수로 Masonry 레이아웃을 만듭니다. 각 아이템의 높이가 달라도 빈틈없이 배치됩니다."
+    },
+    {
+      "title": "이미지 갤러리 구현",
+      "description": "실제 이미지 갤러리에 Masonry 레이아웃을 적용합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';\n\nclass ImageGalleryExample extends StatelessWidget {\n  const ImageGalleryExample({super.key});\n\n  // 샘플 이미지 데이터 (실제로는 API에서 가져옴)\n  static const List<Map<String, dynamic>> _images = [\n    {'url': 'https://picsum.photos/200/300', 'aspectRatio': 0.67},\n    {'url': 'https://picsum.photos/200/200', 'aspectRatio': 1.0},\n    {'url': 'https://picsum.photos/200/250', 'aspectRatio': 0.8},\n    {'url': 'https://picsum.photos/200/350', 'aspectRatio': 0.57},\n    {'url': 'https://picsum.photos/200/180', 'aspectRatio': 1.11},\n    {'url': 'https://picsum.photos/200/280', 'aspectRatio': 0.71},\n  ];\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('이미지 갤러리')),\n      body: MasonryGridView.builder(\n        crossAxisCount: 2,\n        mainAxisSpacing: 8,\n        crossAxisSpacing: 8,\n        padding: const EdgeInsets.all(8),\n        itemCount: _images.length * 5, // 반복해서 표시\n        itemBuilder: (context, index) {\n          final image = _images[index % _images.length];\n          return _ImageCard(\n            imageUrl: '${image['url']}?random=$index',\n            aspectRatio: image['aspectRatio'] as double,\n            index: index,\n          );\n        },\n      ),\n    );\n  }\n}\n\nclass _ImageCard extends StatelessWidget {\n  final String imageUrl;\n  final double aspectRatio;\n  final int index;\n\n  const _ImageCard({\n    required this.imageUrl,\n    required this.aspectRatio,\n    required this.index,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    return GestureDetector(\n      onTap: () {\n        // 이미지 상세 보기\n      },\n      child: ClipRRect(\n        borderRadius: BorderRadius.circular(12),\n        child: AspectRatio(\n          aspectRatio: aspectRatio,\n          child: Stack(\n            fit: StackFit.expand,\n            children: [\n              Image.network(\n                imageUrl,\n                fit: BoxFit.cover,\n                loadingBuilder: (context, child, loadingProgress) {\n                  if (loadingProgress == null) return child;\n                  return Container(\n                    color: Colors.grey[200],\n                    child: const Center(\n                      child: CircularProgressIndicator(),\n                    ),\n                  );\n                },\n                errorBuilder: (context, error, stackTrace) {\n                  return Container(\n                    color: Colors.grey[300],\n                    child: const Icon(Icons.error),\n                  );\n                },\n              ),\n              // 하단 그라데이션 오버레이\n              Positioned(\n                bottom: 0,\n                left: 0,\n                right: 0,\n                child: Container(\n                  padding: const EdgeInsets.all(8),\n                  decoration: BoxDecoration(\n                    gradient: LinearGradient(\n                      begin: Alignment.bottomCenter,\n                      end: Alignment.topCenter,\n                      colors: [\n                        Colors.black.withOpacity(0.7),\n                        Colors.transparent,\n                      ],\n                    ),\n                  ),\n                  child: Text(\n                    'Photo $index',\n                    style: const TextStyle(\n                      color: Colors.white,\n                      fontWeight: FontWeight.bold,\n                    ),\n                  ),\n                ),\n              ),\n            ],\n          ),\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "MasonryGridView.builder는 대량의 아이템을 효율적으로 렌더링합니다. AspectRatio를 사용하여 이미지 비율에 맞는 높이를 설정합니다."
+    },
+    {
+      "title": "다양한 그리드 레이아웃",
+      "description": "Quilted, Woven, Staired 등 다양한 스타일의 그리드를 구현합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';\n\nclass GridLayoutsExample extends StatelessWidget {\n  const GridLayoutsExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return DefaultTabController(\n      length: 3,\n      child: Scaffold(\n        appBar: AppBar(\n          title: const Text('그리드 레이아웃'),\n          bottom: const TabBar(\n            tabs: [\n              Tab(text: 'Quilted'),\n              Tab(text: 'Staired'),\n              Tab(text: 'Aligned'),\n            ],\n          ),\n        ),\n        body: const TabBarView(\n          children: [\n            _QuiltedGridExample(),\n            _StairedGridExample(),\n            _AlignedGridExample(),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\n// Quilted: 특정 패턴으로 타일 배치\nclass _QuiltedGridExample extends StatelessWidget {\n  const _QuiltedGridExample();\n\n  @override\n  Widget build(BuildContext context) {\n    return GridView.custom(\n      padding: const EdgeInsets.all(8),\n      gridDelegate: SliverQuiltedGridDelegate(\n        crossAxisCount: 4,\n        mainAxisSpacing: 8,\n        crossAxisSpacing: 8,\n        repeatPattern: QuiltedGridRepeatPattern.inverted,\n        pattern: [\n          const QuiltedGridTile(2, 2), // 2x2 큰 타일\n          const QuiltedGridTile(1, 1), // 1x1 작은 타일\n          const QuiltedGridTile(1, 1),\n          const QuiltedGridTile(1, 2), // 1x2 세로 타일\n        ],\n      ),\n      childrenDelegate: SliverChildBuilderDelegate(\n        (context, index) => _ColorTile(index: index),\n        childCount: 20,\n      ),\n    );\n  }\n}\n\n// Staired: 계단 형태로 배치\nclass _StairedGridExample extends StatelessWidget {\n  const _StairedGridExample();\n\n  @override\n  Widget build(BuildContext context) {\n    return GridView.custom(\n      padding: const EdgeInsets.all(8),\n      gridDelegate: SliverStairedGridDelegate(\n        crossAxisSpacing: 8,\n        mainAxisSpacing: 8,\n        pattern: [\n          const StairedGridTile(0.5, 1), // 비율, 높이 배수\n          const StairedGridTile(0.5, 0.8),\n          const StairedGridTile(0.5, 1.2),\n          const StairedGridTile(0.5, 0.9),\n        ],\n      ),\n      childrenDelegate: SliverChildBuilderDelegate(\n        (context, index) => _ColorTile(index: index),\n        childCount: 20,\n      ),\n    );\n  }\n}\n\n// Aligned: 정렬된 불규칙 그리드\nclass _AlignedGridExample extends StatelessWidget {\n  const _AlignedGridExample();\n\n  @override\n  Widget build(BuildContext context) {\n    return AlignedGridView.count(\n      crossAxisCount: 3,\n      mainAxisSpacing: 8,\n      crossAxisSpacing: 8,\n      padding: const EdgeInsets.all(8),\n      itemCount: 20,\n      itemBuilder: (context, index) {\n        final height = 80.0 + (index % 3) * 40;\n        return Container(\n          height: height,\n          decoration: BoxDecoration(\n            color: Colors.primaries[index % Colors.primaries.length],\n            borderRadius: BorderRadius.circular(8),\n          ),\n          child: Center(\n            child: Text(\n              '$index',\n              style: const TextStyle(\n                color: Colors.white,\n                fontWeight: FontWeight.bold,\n                fontSize: 20,\n              ),\n            ),\n          ),\n        );\n      },\n    );\n  }\n}\n\nclass _ColorTile extends StatelessWidget {\n  final int index;\n\n  const _ColorTile({required this.index});\n\n  @override\n  Widget build(BuildContext context) {\n    return Container(\n      decoration: BoxDecoration(\n        color: Colors.primaries[index % Colors.primaries.length],\n        borderRadius: BorderRadius.circular(8),\n      ),\n      child: Center(\n        child: Text(\n          '$index',\n          style: const TextStyle(\n            color: Colors.white,\n            fontWeight: FontWeight.bold,\n            fontSize: 24,\n          ),\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "SliverQuiltedGridDelegate는 패턴 기반, SliverStairedGridDelegate는 계단형, AlignedGridView는 행별로 정렬된 불규칙 그리드를 만듭니다."
+    },
+    {
+      "title": "반응형 그리드 구현",
+      "description": "화면 크기에 따라 열 수가 자동으로 조절되는 반응형 그리드를 만듭니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';\nimport 'dart:math';\n\nclass ResponsiveGridExample extends StatelessWidget {\n  const ResponsiveGridExample({super.key});\n\n  // 화면 너비에 따른 열 수 계산\n  int _getCrossAxisCount(double width) {\n    if (width > 1200) return 5;\n    if (width > 900) return 4;\n    if (width > 600) return 3;\n    return 2;\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('반응형 그리드')),\n      body: LayoutBuilder(\n        builder: (context, constraints) {\n          final crossAxisCount = _getCrossAxisCount(constraints.maxWidth);\n          \n          return MasonryGridView.count(\n            crossAxisCount: crossAxisCount,\n            mainAxisSpacing: 12,\n            crossAxisSpacing: 12,\n            padding: const EdgeInsets.all(12),\n            itemCount: 30,\n            itemBuilder: (context, index) => _ResponsiveCard(index: index),\n          );\n        },\n      ),\n    );\n  }\n}\n\nclass _ResponsiveCard extends StatelessWidget {\n  final int index;\n  static final Random _random = Random(42); // 고정 시드로 일관된 높이\n\n  const _ResponsiveCard({required this.index});\n\n  @override\n  Widget build(BuildContext context) {\n    // 인덱스 기반 고정 높이 (매번 같은 높이 보장)\n    final height = 120.0 + (_random.nextInt(100) * (index % 3 + 1) / 2);\n    \n    return Container(\n      height: height,\n      decoration: BoxDecoration(\n        color: Colors.white,\n        borderRadius: BorderRadius.circular(16),\n        boxShadow: [\n          BoxShadow(\n            color: Colors.black.withOpacity(0.1),\n            blurRadius: 10,\n            offset: const Offset(0, 4),\n          ),\n        ],\n      ),\n      child: Column(\n        crossAxisAlignment: CrossAxisAlignment.start,\n        children: [\n          // 이미지 영역\n          Expanded(\n            child: Container(\n              decoration: BoxDecoration(\n                color: Colors.primaries[index % Colors.primaries.length]\n                    .withOpacity(0.2),\n                borderRadius: const BorderRadius.vertical(\n                  top: Radius.circular(16),\n                ),\n              ),\n              child: Center(\n                child: Icon(\n                  Icons.image,\n                  size: 40,\n                  color: Colors.primaries[index % Colors.primaries.length],\n                ),\n              ),\n            ),\n          ),\n          // 텍스트 영역\n          Padding(\n            padding: const EdgeInsets.all(12),\n            child: Column(\n              crossAxisAlignment: CrossAxisAlignment.start,\n              children: [\n                Text(\n                  'Item ${index + 1}',\n                  style: const TextStyle(\n                    fontWeight: FontWeight.bold,\n                    fontSize: 14,\n                  ),\n                ),\n                const SizedBox(height: 4),\n                Text(\n                  '설명 텍스트',\n                  style: TextStyle(\n                    fontSize: 12,\n                    color: Colors.grey[600],\n                  ),\n                ),\n              ],\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}\n\n// extent 기반 반응형 그리드\nclass ResponsiveExtentGrid extends StatelessWidget {\n  const ResponsiveExtentGrid({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Extent 기반 그리드')),\n      body: MasonryGridView.extent(\n        maxCrossAxisExtent: 200, // 최대 열 너비\n        mainAxisSpacing: 8,\n        crossAxisSpacing: 8,\n        padding: const EdgeInsets.all(8),\n        itemCount: 30,\n        itemBuilder: (context, index) {\n          final height = 100.0 + (index % 4) * 50;\n          return Container(\n            height: height,\n            decoration: BoxDecoration(\n              color: Colors.primaries[index % Colors.primaries.length],\n              borderRadius: BorderRadius.circular(8),\n            ),\n            child: Center(\n              child: Text(\n                '$index',\n                style: const TextStyle(\n                  color: Colors.white,\n                  fontWeight: FontWeight.bold,\n                ),\n              ),\n            ),\n          );\n        },\n      ),\n    );\n  }\n}",
+      "explanation": "LayoutBuilder로 화면 너비를 감지하고 crossAxisCount를 동적으로 설정합니다. MasonryGridView.extent는 최대 열 너비를 기준으로 자동 계산합니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "Masonry Layout",
+      "description": "Pinterest 스타일의 레이아웃으로, 각 열에서 빈 공간 없이 아이템을 위에서 아래로 채워나갑니다. 가장 짧은 열에 다음 아이템이 배치됩니다."
+    },
+    {
+      "name": "Quilted Layout",
+      "description": "미리 정의된 패턴에 따라 다양한 크기의 타일을 배치합니다. 대시보드나 미디어 그리드에 적합합니다."
+    },
+    {
+      "name": "Sliver 기반",
+      "description": "CustomScrollView의 sliver로 사용할 수 있어 다른 sliver 위젯들과 함께 복잡한 스크롤 레이아웃을 구성할 수 있습니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "MasonryGridView.count",
+      "signature": "MasonryGridView.count({required int crossAxisCount, ...})",
+      "description": "고정 열 수의 Masonry 그리드를 생성합니다."
+    },
+    {
+      "name": "MasonryGridView.builder",
+      "signature": "MasonryGridView.builder({required int crossAxisCount, required IndexedWidgetBuilder itemBuilder, ...})",
+      "description": "대량의 아이템을 위한 지연 빌드 Masonry 그리드입니다."
+    },
+    {
+      "name": "MasonryGridView.extent",
+      "signature": "MasonryGridView.extent({required double maxCrossAxisExtent, ...})",
+      "description": "최대 열 너비 기준으로 열 수가 자동 계산되는 Masonry 그리드입니다."
+    },
+    {
+      "name": "SliverQuiltedGridDelegate",
+      "signature": "SliverQuiltedGridDelegate({required int crossAxisCount, required List<QuiltedGridTile> pattern, ...})",
+      "description": "패턴 기반의 Quilted 그리드 레이아웃 델리게이트입니다."
+    },
+    {
+      "name": "AlignedGridView",
+      "signature": "AlignedGridView.count/builder/extent({...})",
+      "description": "각 행이 정렬된 불규칙 높이 그리드입니다."
+    },
+    {
+      "name": "crossAxisCount",
+      "signature": "int crossAxisCount",
+      "description": "그리드의 열 수입니다."
+    },
+    {
+      "name": "mainAxisSpacing / crossAxisSpacing",
+      "signature": "double",
+      "description": "아이템 간의 세로/가로 간격입니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "아이템 높이가 0이 됨",
+      "cause": "아이템 위젯에 높이가 지정되지 않음",
+      "solution": "각 아이템에 명시적인 높이를 지정하거나 AspectRatio, Intrinsic height를 사용하세요."
+    },
+    {
+      "error": "무한 스크롤 시 레이아웃 점프",
+      "cause": "아이템 높이가 매번 다르게 계산됨",
+      "solution": "Random을 사용할 때는 고정 시드를 사용하거나 높이를 캐싱하세요."
+    },
+    {
+      "error": "Quilted 패턴이 맞지 않음",
+      "cause": "패턴의 총 crossAxis 크기가 crossAxisCount와 맞지 않음",
+      "solution": "QuiltedGridTile의 crossAxisCount 합이 전체 crossAxisCount와 맞는지 확인하세요."
+    },
+    {
+      "error": "스크롤 성능 저하",
+      "cause": "모든 아이템을 한 번에 빌드함",
+      "solution": "MasonryGridView.builder를 사용하여 지연 빌드를 활성화하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "일관된 높이 계산",
+      "description": "아이템 높이를 인덱스나 데이터 기반으로 일관되게 계산하세요. 매번 다른 Random 값을 사용하면 스크롤 시 레이아웃이 변경됩니다."
+    },
+    {
+      "title": "builder 사용",
+      "description": "아이템이 많을 때는 MasonryGridView.builder를 사용하여 화면에 보이는 아이템만 빌드하세요."
+    },
+    {
+      "title": "이미지 AspectRatio 활용",
+      "description": "이미지 갤러리에서는 이미지의 실제 비율을 저장해두고 AspectRatio로 표시하면 이미지 로드 전에도 올바른 레이아웃이 유지됩니다."
+    },
+    {
+      "title": "반응형 열 수",
+      "description": "LayoutBuilder나 MediaQuery로 화면 크기를 감지하여 적절한 열 수를 설정하세요."
+    }
+  ],
+  "tips": [
+    "MasonryGridView.extent는 화면 크기에 자동 적응하는 가장 쉬운 방법입니다",
+    "CustomScrollView에서 SliverMasonryGrid를 사용하면 다른 Sliver와 조합할 수 있습니다",
+    "이미지 높이를 미리 알고 있다면 placeholder에도 같은 높이를 적용하세요",
+    "QuiltedGridRepeatPattern.inverted로 패턴을 교차 반복할 수 있습니다",
+    "shrinkWrap: true는 성능을 저하시키므로 가능하면 피하세요",
+    "cached_network_image와 함께 사용하면 이미지 로딩 성능을 개선할 수 있습니다"
+  ]
+}

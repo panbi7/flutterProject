@@ -1,0 +1,235 @@
+{
+  "packageId": "geolocator",
+  "title": "geolocator 실전 마스터 가이드",
+  "generatedAt": "2026-01-27T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "13.0.2",
+  "packageLikes": 4012,
+
+  "overview": {
+    "what": "geolocator는 Flutter에서 기기의 현재 위치(GPS)를 가져오고, 위치 변경을 실시간으로 추적하며, 두 지점 간 거리를 계산하는 크로스 플랫폼 위치 서비스 패키지입니다. Android와 iOS의 네이티브 위치 API를 래핑하여 일관된 Dart API를 제공합니다.",
+    "why": "위치 기반 서비스는 지도, 배달, 운동 추적 등 많은 앱에서 핵심 기능입니다. 직접 구현하려면 Android의 FusedLocationProviderClient와 iOS의 CLLocationManager를 각각 다뤄야 하지만, geolocator는 단일 API로 모든 플랫폼을 지원합니다. 4,000개 이상의 좋아요를 받은 검증된 패키지입니다.",
+    "when": "1) 현재 위치 기반 서비스 구현 시, 2) 실시간 위치 추적 (운동, 배달 등) 시, 3) 두 지점 간 거리 계산 시, 4) 위치 권한 요청 및 관리 시, 5) 지오펜싱이나 위치 기반 알림 구현 시",
+    "features": [
+      "📍 현재 위치: 한 번의 호출로 현재 GPS 좌표 획득",
+      "🔄 실시간 추적: 위치 변경을 스트림으로 실시간 수신",
+      "📏 거리 계산: 두 좌표 간 거리(미터) 및 방위각 계산",
+      "🔐 권한 관리: 위치 권한 요청 및 상태 확인",
+      "⚙️ 정밀도 설정: 배터리 vs 정확도 조절 가능"
+    ]
+  },
+
+  "description": "GPS 위치 정보를 가져오고 실시간 추적, 거리 계산을 제공하는 Flutter 위치 서비스 패키지",
+  "difficulty": "중급 - 플랫폼별 권한 설정 필요",
+  "estimatedTime": "40분",
+  "prerequisites": [
+    "Flutter 기본 위젯과 비동기 프로그래밍",
+    "AndroidManifest.xml, Info.plist 편집 기초",
+    "Stream과 StreamSubscription 개념 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "LocationPermission",
+      "explanation": "위치 권한의 상태입니다. denied(거부됨), deniedForever(영구 거부), whileInUse(앱 사용 중만), always(항상) 네 가지 상태가 있습니다.",
+      "analogy": "🔑 건물 출입증처럼, 어떤 권한이 있냐에 따라 접근할 수 있는 위치 기능이 달라집니다.",
+      "usage": "LocationPermission permission = await Geolocator.checkPermission();"
+    },
+    {
+      "term": "LocationAccuracy",
+      "explanation": "위치 정확도 수준입니다. lowest, low, medium, high, best, bestForNavigation이 있습니다. 높을수록 정확하지만 배터리 소모가 큽니다.",
+      "analogy": "🔍 현미경 배율처럼, 높은 정확도는 더 세밀하지만 리소스가 더 필요합니다.",
+      "usage": "Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)"
+    },
+    {
+      "term": "Position",
+      "explanation": "위치 정보를 담는 객체입니다. latitude(위도), longitude(경도), altitude(고도), speed(속도), accuracy(정확도) 등의 속성을 포함합니다.",
+      "analogy": "📋 위치 보고서처럼, 현재 위치에 대한 모든 정보가 담겨있습니다.",
+      "usage": "Position position = await Geolocator.getCurrentPosition();\nprint('위도: ${position.latitude}, 경도: ${position.longitude}');"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치 및 플랫폼 설정",
+      "description": "geolocator 패키지를 설치하고 Android, iOS 권한을 설정합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  geolocator: ^13.0.2"
+      },
+      "commands": ["flutter pub add geolocator", "flutter pub get"],
+      "explanation": "geolocator는 네이티브 코드를 포함하므로 각 플랫폼별 권한 설정이 필요합니다.",
+      "platformSetup": {
+        "android": "android/app/src/main/AndroidManifest.xml에 추가:\n<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />\n<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\" />\n<uses-permission android:name=\"android.permission.ACCESS_BACKGROUND_LOCATION\" /> <!-- 백그라운드 위치 필요시 -->",
+        "ios": "ios/Runner/Info.plist에 추가:\n<key>NSLocationWhenInUseUsageDescription</key>\n<string>위치 기반 서비스를 위해 위치 권한이 필요합니다.</string>\n<key>NSLocationAlwaysUsageDescription</key>\n<string>백그라운드 위치 추적을 위해 항상 위치 권한이 필요합니다.</string>"
+      },
+      "beginnerTip": "💡 Android에서 ACCESS_BACKGROUND_LOCATION은 Play Store 심사가 더 엄격합니다. 꼭 필요한 경우에만 사용하세요."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 권한 요청 및 현재 위치 가져오기",
+      "description": "위치 권한을 요청하고 현재 GPS 좌표를 가져오는 기본 예제입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/location_service.dart",
+        "content": "import 'package:geolocator/geolocator.dart';\n\nclass LocationService {\n  /// 권한 확인 및 요청\n  static Future<bool> handlePermission() async {\n    bool serviceEnabled;\n    LocationPermission permission;\n\n    // 1. 위치 서비스 활성화 확인\n    serviceEnabled = await Geolocator.isLocationServiceEnabled();\n    if (!serviceEnabled) {\n      // 위치 서비스가 비활성화됨\n      return false;\n    }\n\n    // 2. 현재 권한 상태 확인\n    permission = await Geolocator.checkPermission();\n    \n    if (permission == LocationPermission.denied) {\n      // 권한이 거부된 상태 → 권한 요청\n      permission = await Geolocator.requestPermission();\n      if (permission == LocationPermission.denied) {\n        // 사용자가 권한을 거부함\n        return false;\n      }\n    }\n\n    if (permission == LocationPermission.deniedForever) {\n      // 영구적으로 거부됨 → 설정으로 이동 필요\n      // Geolocator.openAppSettings(); 또는 Geolocator.openLocationSettings();\n      return false;\n    }\n\n    // whileInUse 또는 always 권한 획득\n    return true;\n  }\n\n  /// 현재 위치 가져오기\n  static Future<Position?> getCurrentLocation() async {\n    final hasPermission = await handlePermission();\n    if (!hasPermission) {\n      return null;\n    }\n\n    return await Geolocator.getCurrentPosition(\n      desiredAccuracy: LocationAccuracy.high,\n    );\n  }\n\n  /// 마지막으로 알려진 위치 (캐시, 빠름)\n  static Future<Position?> getLastKnownLocation() async {\n    return await Geolocator.getLastKnownPosition();\n  }\n}"
+      },
+      "explanation": "【권한 처리 흐름】\n1. isLocationServiceEnabled(): GPS가 켜져있는지 확인\n2. checkPermission(): 현재 권한 상태 확인\n3. requestPermission(): 권한 요청 다이얼로그 표시\n4. 권한 상태에 따라 분기 처리\n\n【LocationPermission 상태】\n• denied: 아직 요청 안함 또는 거부됨 (재요청 가능)\n• deniedForever: 영구 거부 (설정에서만 변경 가능)\n• whileInUse: 앱 사용 중에만 허용\n• always: 백그라운드에서도 허용",
+      "beginnerTip": "⚠️ deniedForever 상태에서는 권한 요청이 불가능합니다. 사용자에게 설정으로 이동하도록 안내하세요."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🔄 실시간 위치 추적",
+      "description": "위치 변경을 스트림으로 실시간으로 수신하는 예제입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/location_tracking.dart",
+        "content": "import 'dart:async';\nimport 'package:flutter/material.dart';\nimport 'package:geolocator/geolocator.dart';\nimport 'location_service.dart';\n\nclass LocationTrackingPage extends StatefulWidget {\n  const LocationTrackingPage({super.key});\n\n  @override\n  State<LocationTrackingPage> createState() => _LocationTrackingPageState();\n}\n\nclass _LocationTrackingPageState extends State<LocationTrackingPage> {\n  Position? _currentPosition;\n  StreamSubscription<Position>? _positionSubscription;\n  bool _isTracking = false;\n  final List<Position> _positionHistory = [];\n\n  @override\n  void dispose() {\n    _stopTracking();\n    super.dispose();\n  }\n\n  /// 위치 추적 시작\n  Future<void> _startTracking() async {\n    final hasPermission = await LocationService.handlePermission();\n    if (!hasPermission) {\n      ScaffoldMessenger.of(context).showSnackBar(\n        const SnackBar(content: Text('위치 권한이 필요합니다')),\n      );\n      return;\n    }\n\n    setState(() {\n      _isTracking = true;\n      _positionHistory.clear();\n    });\n\n    // 위치 스트림 설정\n    const locationSettings = LocationSettings(\n      accuracy: LocationAccuracy.high,\n      distanceFilter: 10,  // 10미터 이동 시에만 업데이트\n    );\n\n    _positionSubscription = Geolocator.getPositionStream(\n      locationSettings: locationSettings,\n    ).listen(\n      (Position position) {\n        setState(() {\n          _currentPosition = position;\n          _positionHistory.add(position);\n        });\n      },\n      onError: (error) {\n        debugPrint('위치 추적 에러: $error');\n      },\n    );\n  }\n\n  /// 위치 추적 중지\n  void _stopTracking() {\n    _positionSubscription?.cancel();\n    _positionSubscription = null;\n    setState(() {\n      _isTracking = false;\n    });\n  }\n\n  /// 이동 거리 계산\n  double _calculateTotalDistance() {\n    if (_positionHistory.length < 2) return 0;\n\n    double totalDistance = 0;\n    for (int i = 1; i < _positionHistory.length; i++) {\n      totalDistance += Geolocator.distanceBetween(\n        _positionHistory[i - 1].latitude,\n        _positionHistory[i - 1].longitude,\n        _positionHistory[i].latitude,\n        _positionHistory[i].longitude,\n      );\n    }\n    return totalDistance;\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('위치 추적')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.stretch,\n          children: [\n            // 현재 위치 정보\n            Card(\n              child: Padding(\n                padding: const EdgeInsets.all(16),\n                child: Column(\n                  crossAxisAlignment: CrossAxisAlignment.start,\n                  children: [\n                    Text(\n                      '현재 위치',\n                      style: Theme.of(context).textTheme.titleMedium,\n                    ),\n                    const SizedBox(height: 8),\n                    if (_currentPosition != null) ...[\n                      Text('위도: ${_currentPosition!.latitude.toStringAsFixed(6)}'),\n                      Text('경도: ${_currentPosition!.longitude.toStringAsFixed(6)}'),\n                      Text('고도: ${_currentPosition!.altitude.toStringAsFixed(1)}m'),\n                      Text('속도: ${(_currentPosition!.speed * 3.6).toStringAsFixed(1)} km/h'),\n                      Text('정확도: ${_currentPosition!.accuracy.toStringAsFixed(1)}m'),\n                    ] else\n                      const Text('위치 정보 없음'),\n                  ],\n                ),\n              ),\n            ),\n\n            const SizedBox(height: 16),\n\n            // 추적 통계\n            Card(\n              child: Padding(\n                padding: const EdgeInsets.all(16),\n                child: Column(\n                  crossAxisAlignment: CrossAxisAlignment.start,\n                  children: [\n                    Text(\n                      '추적 통계',\n                      style: Theme.of(context).textTheme.titleMedium,\n                    ),\n                    const SizedBox(height: 8),\n                    Text('기록 포인트: ${_positionHistory.length}개'),\n                    Text('총 이동 거리: ${(_calculateTotalDistance() / 1000).toStringAsFixed(2)} km'),\n                  ],\n                ),\n              ),\n            ),\n\n            const Spacer(),\n\n            // 추적 시작/중지 버튼\n            ElevatedButton.icon(\n              onPressed: _isTracking ? _stopTracking : _startTracking,\n              icon: Icon(_isTracking ? Icons.stop : Icons.play_arrow),\n              label: Text(_isTracking ? '추적 중지' : '추적 시작'),\n              style: ElevatedButton.styleFrom(\n                backgroundColor: _isTracking ? Colors.red : Colors.green,\n                foregroundColor: Colors.white,\n                padding: const EdgeInsets.symmetric(vertical: 16),\n              ),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【Geolocator.getPositionStream() 핵심】\n• accuracy: 위치 정확도 (배터리 vs 정확도 트레이드오프)\n• distanceFilter: 최소 이동 거리 (미터). 이 거리 이상 이동해야 업데이트\n• timeLimit: 업데이트 간 최대 시간 간격\n\n【Position 객체 속성】\n• latitude/longitude: 위도/경도\n• altitude: 해발 고도 (미터)\n• speed: 이동 속도 (m/s, km/h로 변환: * 3.6)\n• accuracy: 위치 정확도 (미터, 낮을수록 정확)",
+      "beginnerTip": "⚡ distanceFilter를 너무 낮게 설정하면 배터리 소모가 심합니다. 운동 앱은 10m, 배달 앱은 50m 정도가 적당합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "📏 거리 및 방위각 계산",
+      "description": "두 지점 간의 거리와 방향(방위각)을 계산하는 방법입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/distance_calculator.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:geolocator/geolocator.dart';\n\nclass DistanceCalculatorPage extends StatefulWidget {\n  const DistanceCalculatorPage({super.key});\n\n  @override\n  State<DistanceCalculatorPage> createState() => _DistanceCalculatorPageState();\n}\n\nclass _DistanceCalculatorPageState extends State<DistanceCalculatorPage> {\n  // 예시 좌표들\n  final Map<String, Map<String, double>> _landmarks = {\n    '서울역': {'lat': 37.5547, 'lng': 126.9707},\n    '강남역': {'lat': 37.4979, 'lng': 127.0276},\n    '인천공항': {'lat': 37.4602, 'lng': 126.4407},\n    '부산역': {'lat': 35.1152, 'lng': 129.0403},\n  };\n\n  String _selectedFrom = '서울역';\n  String _selectedTo = '강남역';\n  double? _distance;\n  double? _bearing;\n\n  void _calculateDistance() {\n    final from = _landmarks[_selectedFrom]!;\n    final to = _landmarks[_selectedTo]!;\n\n    // 두 지점 간 거리 (미터)\n    final distanceInMeters = Geolocator.distanceBetween(\n      from['lat']!,\n      from['lng']!,\n      to['lat']!,\n      to['lng']!,\n    );\n\n    // 두 지점 간 방위각 (0~360도, 북쪽 기준 시계방향)\n    final bearing = Geolocator.bearingBetween(\n      from['lat']!,\n      from['lng']!,\n      to['lat']!,\n      to['lng']!,\n    );\n\n    setState(() {\n      _distance = distanceInMeters;\n      _bearing = bearing;\n    });\n  }\n\n  String _getDirectionName(double bearing) {\n    if (bearing >= 337.5 || bearing < 22.5) return '북';\n    if (bearing >= 22.5 && bearing < 67.5) return '북동';\n    if (bearing >= 67.5 && bearing < 112.5) return '동';\n    if (bearing >= 112.5 && bearing < 157.5) return '남동';\n    if (bearing >= 157.5 && bearing < 202.5) return '남';\n    if (bearing >= 202.5 && bearing < 247.5) return '남서';\n    if (bearing >= 247.5 && bearing < 292.5) return '서';\n    return '북서';\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('거리 계산')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.stretch,\n          children: [\n            // 출발지 선택\n            Card(\n              child: Padding(\n                padding: const EdgeInsets.all(16),\n                child: Column(\n                  crossAxisAlignment: CrossAxisAlignment.start,\n                  children: [\n                    const Text('출발지', style: TextStyle(fontWeight: FontWeight.bold)),\n                    DropdownButton<String>(\n                      value: _selectedFrom,\n                      isExpanded: true,\n                      items: _landmarks.keys.map((name) {\n                        return DropdownMenuItem(value: name, child: Text(name));\n                      }).toList(),\n                      onChanged: (value) {\n                        setState(() {\n                          _selectedFrom = value!;\n                          _distance = null;\n                        });\n                      },\n                    ),\n                  ],\n                ),\n              ),\n            ),\n\n            // 화살표 아이콘\n            const Padding(\n              padding: EdgeInsets.symmetric(vertical: 8),\n              child: Icon(Icons.arrow_downward, size: 32),\n            ),\n\n            // 도착지 선택\n            Card(\n              child: Padding(\n                padding: const EdgeInsets.all(16),\n                child: Column(\n                  crossAxisAlignment: CrossAxisAlignment.start,\n                  children: [\n                    const Text('도착지', style: TextStyle(fontWeight: FontWeight.bold)),\n                    DropdownButton<String>(\n                      value: _selectedTo,\n                      isExpanded: true,\n                      items: _landmarks.keys.map((name) {\n                        return DropdownMenuItem(value: name, child: Text(name));\n                      }).toList(),\n                      onChanged: (value) {\n                        setState(() {\n                          _selectedTo = value!;\n                          _distance = null;\n                        });\n                      },\n                    ),\n                  ],\n                ),\n              ),\n            ),\n\n            const SizedBox(height: 16),\n\n            // 거리 계산 버튼\n            ElevatedButton(\n              onPressed: _calculateDistance,\n              child: const Text('거리 계산'),\n            ),\n\n            const SizedBox(height: 16),\n\n            // 결과 표시\n            if (_distance != null)\n              Card(\n                color: Colors.blue.shade50,\n                child: Padding(\n                  padding: const EdgeInsets.all(16),\n                  child: Column(\n                    children: [\n                      Text(\n                        '${(_distance! / 1000).toStringAsFixed(2)} km',\n                        style: const TextStyle(\n                          fontSize: 32,\n                          fontWeight: FontWeight.bold,\n                          color: Colors.blue,\n                        ),\n                      ),\n                      const SizedBox(height: 8),\n                      Text(\n                        '방향: ${_getDirectionName(_bearing!)} (${_bearing!.toStringAsFixed(1)}°)',\n                        style: const TextStyle(fontSize: 16),\n                      ),\n                    ],\n                  ),\n                ),\n              ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【Geolocator 유틸리티 메서드】\n\n• distanceBetween(lat1, lng1, lat2, lng2)\n  - 두 좌표 간 직선 거리 (미터)\n  - Haversine 공식 사용 (지구 곡률 고려)\n\n• bearingBetween(lat1, lng1, lat2, lng2)\n  - 두 좌표 간 방위각 (0~360도)\n  - 0도 = 북쪽, 90도 = 동쪽, 180도 = 남쪽\n\n이 메서드들은 위치 권한 없이 순수 계산만 수행합니다.",
+      "beginnerTip": "📐 distanceBetween은 직선 거리입니다. 실제 도로 거리는 Google Maps API 등을 사용해야 합니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "⚙️ 플랫폼별 고급 설정",
+      "description": "Android와 iOS에서 배터리 최적화와 백그라운드 위치 추적을 설정합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/advanced_location.dart",
+        "content": "import 'dart:async';\nimport 'dart:io';\nimport 'package:flutter/material.dart';\nimport 'package:geolocator/geolocator.dart';\n\nclass AdvancedLocationService {\n  static StreamSubscription<Position>? _positionSubscription;\n\n  /// 플랫폼별 최적화된 위치 스트림 시작\n  static Stream<Position> getOptimizedPositionStream() {\n    late LocationSettings locationSettings;\n\n    if (Platform.isAndroid) {\n      // Android 전용 설정\n      locationSettings = AndroidSettings(\n        accuracy: LocationAccuracy.high,\n        distanceFilter: 10,\n        // 포그라운드 서비스 알림 설정\n        foregroundNotificationConfig: const ForegroundNotificationConfig(\n          notificationText: '위치를 추적하고 있습니다',\n          notificationTitle: '위치 추적 중',\n          enableWakeLock: true,\n        ),\n      );\n    } else if (Platform.isIOS) {\n      // iOS 전용 설정\n      locationSettings = AppleSettings(\n        accuracy: LocationAccuracy.high,\n        activityType: ActivityType.fitness,  // 운동 앱\n        distanceFilter: 10,\n        pauseLocationUpdatesAutomatically: true,  // 정지 시 자동 일시정지\n        showBackgroundLocationIndicator: true,  // 상태바 위치 아이콘\n      );\n    } else {\n      // 기타 플랫폼 (Web 등)\n      locationSettings = const LocationSettings(\n        accuracy: LocationAccuracy.high,\n        distanceFilter: 10,\n      );\n    }\n\n    return Geolocator.getPositionStream(locationSettings: locationSettings);\n  }\n\n  /// 위치 서비스 상태 스트림\n  static Stream<ServiceStatus> getServiceStatusStream() {\n    return Geolocator.getServiceStatusStream();\n  }\n\n  /// 설정 화면 열기\n  static Future<void> openSettings() async {\n    await Geolocator.openAppSettings();\n  }\n\n  /// 위치 설정 화면 열기\n  static Future<void> openLocationSettings() async {\n    await Geolocator.openLocationSettings();\n  }\n}\n\nclass AdvancedLocationPage extends StatefulWidget {\n  const AdvancedLocationPage({super.key});\n\n  @override\n  State<AdvancedLocationPage> createState() => _AdvancedLocationPageState();\n}\n\nclass _AdvancedLocationPageState extends State<AdvancedLocationPage> {\n  bool _isServiceEnabled = false;\n  LocationPermission _permission = LocationPermission.denied;\n  Position? _currentPosition;\n  StreamSubscription<Position>? _positionSubscription;\n  StreamSubscription<ServiceStatus>? _serviceSubscription;\n\n  @override\n  void initState() {\n    super.initState();\n    _checkStatus();\n    _listenToServiceStatus();\n  }\n\n  @override\n  void dispose() {\n    _positionSubscription?.cancel();\n    _serviceSubscription?.cancel();\n    super.dispose();\n  }\n\n  Future<void> _checkStatus() async {\n    final serviceEnabled = await Geolocator.isLocationServiceEnabled();\n    final permission = await Geolocator.checkPermission();\n\n    setState(() {\n      _isServiceEnabled = serviceEnabled;\n      _permission = permission;\n    });\n  }\n\n  void _listenToServiceStatus() {\n    _serviceSubscription = AdvancedLocationService.getServiceStatusStream().listen(\n      (ServiceStatus status) {\n        setState(() {\n          _isServiceEnabled = status == ServiceStatus.enabled;\n        });\n      },\n    );\n  }\n\n  Future<void> _startTracking() async {\n    // 권한 확인 및 요청\n    if (_permission == LocationPermission.denied) {\n      _permission = await Geolocator.requestPermission();\n      setState(() {});\n    }\n\n    if (_permission == LocationPermission.deniedForever) {\n      // 설정으로 이동 안내\n      showDialog(\n        context: context,\n        builder: (context) => AlertDialog(\n          title: const Text('권한 필요'),\n          content: const Text('위치 권한이 영구적으로 거부되었습니다. 설정에서 권한을 허용해주세요.'),\n          actions: [\n            TextButton(\n              onPressed: () => Navigator.pop(context),\n              child: const Text('취소'),\n            ),\n            TextButton(\n              onPressed: () {\n                Navigator.pop(context);\n                AdvancedLocationService.openSettings();\n              },\n              child: const Text('설정 열기'),\n            ),\n          ],\n        ),\n      );\n      return;\n    }\n\n    if (_permission == LocationPermission.whileInUse ||\n        _permission == LocationPermission.always) {\n      _positionSubscription = AdvancedLocationService.getOptimizedPositionStream()\n          .listen((Position position) {\n        setState(() {\n          _currentPosition = position;\n        });\n      });\n    }\n  }\n\n  void _stopTracking() {\n    _positionSubscription?.cancel();\n    _positionSubscription = null;\n    setState(() {});\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('고급 위치 설정')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.stretch,\n          children: [\n            // 상태 카드\n            Card(\n              child: Padding(\n                padding: const EdgeInsets.all(16),\n                child: Column(\n                  children: [\n                    _StatusRow(\n                      label: '위치 서비스',\n                      value: _isServiceEnabled ? '활성화' : '비활성화',\n                      isOk: _isServiceEnabled,\n                    ),\n                    const SizedBox(height: 8),\n                    _StatusRow(\n                      label: '권한 상태',\n                      value: _permission.name,\n                      isOk: _permission == LocationPermission.whileInUse ||\n                          _permission == LocationPermission.always,\n                    ),\n                  ],\n                ),\n              ),\n            ),\n\n            const SizedBox(height: 16),\n\n            // 위치 정보\n            if (_currentPosition != null)\n              Card(\n                child: Padding(\n                  padding: const EdgeInsets.all(16),\n                  child: Column(\n                    crossAxisAlignment: CrossAxisAlignment.start,\n                    children: [\n                      const Text('현재 위치', style: TextStyle(fontWeight: FontWeight.bold)),\n                      const SizedBox(height: 8),\n                      Text('위도: ${_currentPosition!.latitude.toStringAsFixed(6)}'),\n                      Text('경도: ${_currentPosition!.longitude.toStringAsFixed(6)}'),\n                    ],\n                  ),\n                ),\n              ),\n\n            const Spacer(),\n\n            // 버튼들\n            ElevatedButton(\n              onPressed: _positionSubscription == null ? _startTracking : _stopTracking,\n              child: Text(_positionSubscription == null ? '추적 시작' : '추적 중지'),\n            ),\n            const SizedBox(height: 8),\n            OutlinedButton(\n              onPressed: () => AdvancedLocationService.openLocationSettings(),\n              child: const Text('위치 설정 열기'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\nclass _StatusRow extends StatelessWidget {\n  final String label;\n  final String value;\n  final bool isOk;\n\n  const _StatusRow({\n    required this.label,\n    required this.value,\n    required this.isOk,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    return Row(\n      mainAxisAlignment: MainAxisAlignment.spaceBetween,\n      children: [\n        Text(label),\n        Row(\n          children: [\n            Icon(\n              isOk ? Icons.check_circle : Icons.error,\n              color: isOk ? Colors.green : Colors.red,\n              size: 20,\n            ),\n            const SizedBox(width: 4),\n            Text(value),\n          ],\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "【AndroidSettings 옵션】\n• foregroundNotificationConfig: 백그라운드 위치 추적 시 표시할 알림\n• intervalDuration: 업데이트 간 최소 시간 간격\n\n【AppleSettings 옵션】\n• activityType: 앱 유형 (fitness, automotiveNavigation 등)\n• pauseLocationUpdatesAutomatically: 정지 시 자동 일시정지\n• showBackgroundLocationIndicator: 상태바 위치 아이콘 표시\n\n【유용한 유틸리티】\n• openAppSettings(): 앱 설정 화면 열기\n• openLocationSettings(): 기기 위치 설정 화면 열기\n• getServiceStatusStream(): 위치 서비스 on/off 변경 감지",
+      "beginnerTip": "🔋 ActivityType을 앱에 맞게 설정하면 iOS가 배터리 최적화를 더 효율적으로 합니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "Geolocator.getCurrentPosition()",
+      "description": "현재 위치를 한 번 가져옵니다.",
+      "parameters": "LocationAccuracy desiredAccuracy, Duration? timeLimit",
+      "returns": "Future<Position>",
+      "example": "Position pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);"
+    },
+    {
+      "name": "Geolocator.getPositionStream()",
+      "description": "위치 변경을 스트림으로 실시간 수신합니다.",
+      "parameters": "LocationSettings locationSettings",
+      "returns": "Stream<Position>",
+      "example": "Geolocator.getPositionStream(locationSettings: settings).listen((pos) {...});"
+    },
+    {
+      "name": "Geolocator.checkPermission()",
+      "description": "현재 위치 권한 상태를 확인합니다.",
+      "parameters": "없음",
+      "returns": "Future<LocationPermission>",
+      "example": "LocationPermission permission = await Geolocator.checkPermission();"
+    },
+    {
+      "name": "Geolocator.distanceBetween()",
+      "description": "두 좌표 간 거리(미터)를 계산합니다.",
+      "parameters": "double lat1, double lng1, double lat2, double lng2",
+      "returns": "double",
+      "example": "double meters = Geolocator.distanceBetween(37.5, 127.0, 35.1, 129.0);"
+    },
+    {
+      "name": "Geolocator.bearingBetween()",
+      "description": "두 좌표 간 방위각(0~360도)을 계산합니다.",
+      "parameters": "double lat1, double lng1, double lat2, double lng2",
+      "returns": "double",
+      "example": "double bearing = Geolocator.bearingBetween(37.5, 127.0, 35.1, 129.0);"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "MissingPluginException",
+      "cause": "네이티브 플러그인이 제대로 빌드되지 않았습니다.",
+      "solution": "flutter clean && flutter pub get 후 앱을 완전히 재빌드하세요.",
+      "prevention": "네이티브 플러그인 추가 후에는 hot reload가 아닌 전체 재빌드가 필요합니다."
+    },
+    {
+      "error": "Location services are disabled",
+      "cause": "기기의 GPS가 꺼져있습니다.",
+      "solution": "Geolocator.openLocationSettings()로 사용자에게 GPS를 켜도록 안내하세요.",
+      "prevention": "위치 요청 전 isLocationServiceEnabled()로 항상 확인하세요."
+    },
+    {
+      "error": "Permission denied forever",
+      "cause": "사용자가 '다시 묻지 않기'를 선택하고 권한을 거부했습니다.",
+      "solution": "Geolocator.openAppSettings()로 앱 설정 화면을 열어 권한을 직접 허용하도록 안내하세요.",
+      "prevention": "권한 요청 전 왜 위치가 필요한지 설명하는 다이얼로그를 먼저 표시하세요."
+    },
+    {
+      "error": "iOS 백그라운드 위치가 작동 안함",
+      "cause": "Xcode에서 Background Modes > Location updates가 활성화되지 않았습니다.",
+      "solution": "ios/Runner.xcworkspace를 Xcode에서 열고 Signing & Capabilities에서 Background Modes를 추가하세요.",
+      "prevention": "백그라운드 위치가 필요한 앱은 Xcode 설정을 반드시 확인하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "권한 요청 전 설명 제공",
+      "description": "갑자기 권한 다이얼로그를 표시하지 말고, 왜 위치가 필요한지 먼저 설명하세요.",
+      "doThis": "showDialog('정확한 배달 위치를 위해 위치 정보가 필요합니다').then(() => requestPermission())",
+      "dontDoThis": "앱 시작 시 바로 requestPermission() 호출"
+    },
+    {
+      "title": "배터리 최적화",
+      "description": "앱의 요구사항에 맞는 최소한의 정확도와 업데이트 빈도를 사용하세요.",
+      "doThis": "배달 앱: distanceFilter: 50m, accuracy: medium\n운동 앱: distanceFilter: 10m, accuracy: high",
+      "dontDoThis": "모든 앱에서 accuracy: bestForNavigation (배터리 소모 심함)"
+    },
+    {
+      "title": "스트림 구독 관리",
+      "description": "위치 스트림 구독은 반드시 dispose에서 취소하세요.",
+      "doThis": "@override\nvoid dispose() {\n  _positionSubscription?.cancel();\n  super.dispose();\n}",
+      "dontDoThis": "dispose 없이 위치 스트림 사용 (메모리 누수)"
+    }
+  ],
+
+  "tips": [
+    "💡 getLastKnownPosition()은 캐시된 마지막 위치를 즉시 반환합니다. GPS 대기 시간이 없어서 빠릅니다",
+    "🔋 distanceFilter를 너무 낮게 설정하면 배터리 소모가 심합니다. 앱 특성에 맞게 조절하세요",
+    "📍 실내에서는 GPS 정확도가 낮습니다. accuracy 값을 확인하여 신뢰도를 판단하세요",
+    "🔧 getServiceStatusStream()으로 사용자가 GPS를 끄는 것을 감지하고 적절히 대응하세요",
+    "📱 iOS 시뮬레이터에서는 Debug > Simulate Location으로 가상 위치를 테스트할 수 있습니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "google_maps_flutter",
+      "description": "Google Maps 위젯. geolocator로 얻은 위치를 지도에 표시"
+    },
+    {
+      "name": "geocoding",
+      "description": "좌표 ↔ 주소 변환. 같은 팀에서 제작"
+    },
+    {
+      "name": "location",
+      "description": "유사한 기능의 대안 패키지"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/geolocator"},
+    {"title": "GitHub 저장소", "url": "https://github.com/Baseflow/flutter-geolocator"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/geolocator/latest/"},
+    {"title": "Android 위치 권한 가이드", "url": "https://developer.android.com/training/location"}
+  ]
+}

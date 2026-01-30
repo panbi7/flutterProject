@@ -1,0 +1,229 @@
+{
+  "packageId": "go_router",
+  "title": "go_router 실전 마스터 가이드",
+  "generatedAt": "2026-01-27T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "14.6.2",
+  "packageLikes": 3542,
+
+  "overview": {
+    "what": "go_router는 Flutter 공식 팀에서 개발한 선언적 라우팅 패키지입니다. URL 기반 내비게이션, 딥링킹, 중첩 라우팅, 리다이렉션 등 웹과 모바일 앱 모두에 적합한 강력한 라우팅 기능을 제공합니다. Navigator 2.0의 복잡성을 추상화하여 직관적인 API를 제공합니다.",
+    "why": "기본 Navigator.push/pop은 간단하지만, 딥링킹, 웹 URL 동기화, 복잡한 네비게이션 패턴에 대응하기 어렵습니다. go_router는 경로를 선언적으로 정의하고, URL 파라미터, 쿼리 스트링, 가드(리다이렉션) 등을 쉽게 처리합니다. Flutter 공식 추천 라우터입니다.",
+    "when": "1) 딥링킹/유니버셜 링크가 필요한 앱, 2) Flutter 웹 앱 (URL 동기화), 3) 복잡한 네비게이션 플로우 (인증, 온보딩 등), 4) 바텀 네비게이션 + 중첩 라우팅, 5) 앱 전체 네비게이션 상태 관리가 필요할 때",
+    "features": [
+      "🔗 URL 기반 라우팅: 웹 URL과 앱 경로 동기화",
+      "📱 딥링킹: iOS Universal Links, Android App Links 지원",
+      "🛡️ 가드/리다이렉션: 인증 확인, 온보딩 플로우 제어",
+      "🏠 중첩 라우팅: ShellRoute로 바텀 네비게이션 구현",
+      "🎯 타입 안전 라우트: go_router_builder로 타입 안전한 내비게이션"
+    ]
+  },
+
+  "description": "URL 기반의 선언적 라우팅과 딥링킹을 지원하는 Flutter 공식 라우터 패키지",
+  "difficulty": "중급 - 선언적 라우팅 개념 이해 필요",
+  "estimatedTime": "50분",
+  "prerequisites": [
+    "Flutter Navigator 기본 사용법",
+    "BuildContext와 위젯 트리 개념",
+    "URL 경로와 쿼리 파라미터 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "GoRoute",
+      "explanation": "단일 경로를 정의합니다. path(경로 패턴), builder(화면 위젯), routes(하위 경로)를 포함합니다. path에 :id 같은 파라미터를 사용할 수 있습니다.",
+      "analogy": "🚏 버스 정류장처럼, 각 경로는 특정 화면(정류장)으로 안내합니다.",
+      "usage": "GoRoute(path: '/user/:id', builder: (context, state) => UserPage(id: state.pathParameters['id']!))"
+    },
+    {
+      "term": "ShellRoute",
+      "explanation": "공통 UI(바텀 네비게이션 등)를 유지하면서 내부 콘텐츠만 교체하는 라우트입니다. 탭 기반 앱의 필수 기능입니다.",
+      "analogy": "🏠 집의 벽과 지붕(ShellRoute)은 유지하면서 방(child routes)만 바꾸는 것과 같습니다.",
+      "usage": "ShellRoute(builder: (context, state, child) => ScaffoldWithNavBar(child: child), routes: [...])"
+    },
+    {
+      "term": "redirect",
+      "explanation": "특정 조건에서 다른 경로로 리다이렉트합니다. 인증되지 않은 사용자를 로그인 페이지로 보내는 등의 가드 역할을 합니다.",
+      "analogy": "🚧 도로의 우회 표지판처럼, 조건에 따라 다른 경로로 안내합니다.",
+      "usage": "redirect: (context, state) => isLoggedIn ? null : '/login'"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치 및 기본 설정",
+      "description": "go_router를 설치하고 기본 라우터를 설정합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  go_router: ^14.6.2"
+      },
+      "commands": ["flutter pub add go_router", "flutter pub get"],
+      "explanation": "go_router는 Flutter SDK에 포함된 Navigator 2.0 위에 구축되어 추가 네이티브 설정이 필요 없습니다.",
+      "platformSetup": {
+        "android": "딥링킹 설정은 AndroidManifest.xml에 intent-filter 추가 필요",
+        "ios": "딥링킹 설정은 Info.plist와 Associated Domains 설정 필요"
+      },
+      "beginnerTip": "💡 go_router는 MaterialApp 대신 MaterialApp.router를 사용합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 기본 라우터 설정",
+      "description": "앱의 라우트를 정의하고 MaterialApp.router에 연결합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/router/app_router.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:go_router/go_router.dart';\n\n// 라우터 설정\nfinal GoRouter appRouter = GoRouter(\n  initialLocation: '/',  // 시작 경로\n  debugLogDiagnostics: true,  // 개발 중 로그 출력\n  \n  routes: [\n    // 홈 화면\n    GoRoute(\n      path: '/',\n      name: 'home',  // 이름으로 네비게이션 가능\n      builder: (context, state) => const HomePage(),\n    ),\n    \n    // 상세 화면 (경로 파라미터)\n    GoRoute(\n      path: '/product/:id',\n      name: 'product-detail',\n      builder: (context, state) {\n        final productId = state.pathParameters['id']!;\n        return ProductDetailPage(productId: productId);\n      },\n    ),\n    \n    // 검색 화면 (쿼리 파라미터)\n    GoRoute(\n      path: '/search',\n      name: 'search',\n      builder: (context, state) {\n        final query = state.uri.queryParameters['q'] ?? '';\n        final category = state.uri.queryParameters['category'];\n        return SearchPage(query: query, category: category);\n      },\n    ),\n    \n    // 설정 (하위 라우트)\n    GoRoute(\n      path: '/settings',\n      name: 'settings',\n      builder: (context, state) => const SettingsPage(),\n      routes: [\n        GoRoute(\n          path: 'profile',  // /settings/profile\n          name: 'settings-profile',\n          builder: (context, state) => const ProfileSettingsPage(),\n        ),\n        GoRoute(\n          path: 'notifications',  // /settings/notifications\n          name: 'settings-notifications',\n          builder: (context, state) => const NotificationSettingsPage(),\n        ),\n      ],\n    ),\n  ],\n  \n  // 404 에러 페이지\n  errorBuilder: (context, state) => ErrorPage(error: state.error),\n);\n\n// main.dart에서 사용\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp.router(\n      title: 'Go Router 예제',\n      routerConfig: appRouter,  // 라우터 설정 연결\n      theme: ThemeData(\n        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),\n        useMaterial3: true,\n      ),\n    );\n  }\n}\n\n// 예시 페이지들\nclass HomePage extends StatelessWidget {\n  const HomePage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('홈')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            ElevatedButton(\n              onPressed: () => context.go('/product/123'),\n              child: const Text('상품 상세로 이동'),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton(\n              onPressed: () => context.go('/search?q=flutter&category=books'),\n              child: const Text('검색 결과로 이동'),\n            ),\n            const SizedBox(height: 16),\n            ElevatedButton(\n              onPressed: () => context.goNamed('settings'),\n              child: const Text('설정으로 이동 (이름 기반)'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\nclass ProductDetailPage extends StatelessWidget {\n  final String productId;\n  const ProductDetailPage({super.key, required this.productId});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: Text('상품 $productId')),\n      body: Center(child: Text('상품 ID: $productId')),\n    );\n  }\n}\n\nclass SearchPage extends StatelessWidget {\n  final String query;\n  final String? category;\n  const SearchPage({super.key, required this.query, this.category});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('검색')),\n      body: Center(\n        child: Text('검색어: $query\\n카테고리: ${category ?? \"전체\"}'),\n      ),\n    );\n  }\n}\n\nclass SettingsPage extends StatelessWidget {\n  const SettingsPage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('설정')),\n      body: ListView(\n        children: [\n          ListTile(\n            title: const Text('프로필'),\n            onTap: () => context.go('/settings/profile'),\n          ),\n          ListTile(\n            title: const Text('알림'),\n            onTap: () => context.go('/settings/notifications'),\n          ),\n        ],\n      ),\n    );\n  }\n}\n\nclass ProfileSettingsPage extends StatelessWidget {\n  const ProfileSettingsPage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('프로필 설정')),\n      body: const Center(child: Text('프로필 설정 화면')),\n    );\n  }\n}\n\nclass NotificationSettingsPage extends StatelessWidget {\n  const NotificationSettingsPage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('알림 설정')),\n      body: const Center(child: Text('알림 설정 화면')),\n    );\n  }\n}\n\nclass ErrorPage extends StatelessWidget {\n  final Exception? error;\n  const ErrorPage({super.key, this.error});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('오류')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            const Text('페이지를 찾을 수 없습니다'),\n            const SizedBox(height: 16),\n            ElevatedButton(\n              onPressed: () => context.go('/'),\n              child: const Text('홈으로 돌아가기'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【주요 네비게이션 메서드】\n• context.go('/path'): 해당 경로로 이동 (스택 교체)\n• context.push('/path'): 스택에 추가 (뒤로가기 가능)\n• context.pop(): 이전 화면으로\n• context.goNamed('name'): 이름으로 이동\n\n【경로 파라미터】\n• :id → state.pathParameters['id']\n• ?key=value → state.uri.queryParameters['key']",
+      "beginnerTip": "💡 go()는 스택을 교체하고, push()는 스택에 추가합니다. 뒤로가기가 필요하면 push()를 사용하세요."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🛡️ 리다이렉트와 인증 가드",
+      "description": "로그인 상태에 따라 접근을 제어하는 인증 가드를 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/router/auth_router.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:go_router/go_router.dart';\n\n// 간단한 인증 상태 관리 (실제로는 Provider/Riverpod 등 사용)\nclass AuthService extends ChangeNotifier {\n  bool _isLoggedIn = false;\n  bool _hasCompletedOnboarding = false;\n\n  bool get isLoggedIn => _isLoggedIn;\n  bool get hasCompletedOnboarding => _hasCompletedOnboarding;\n\n  void login() {\n    _isLoggedIn = true;\n    notifyListeners();\n  }\n\n  void logout() {\n    _isLoggedIn = false;\n    notifyListeners();\n  }\n\n  void completeOnboarding() {\n    _hasCompletedOnboarding = true;\n    notifyListeners();\n  }\n}\n\n// 전역 AuthService 인스턴스\nfinal authService = AuthService();\n\n// 인증 가드가 포함된 라우터\nGoRouter createAuthRouter() {\n  return GoRouter(\n    initialLocation: '/',\n    debugLogDiagnostics: true,\n    \n    // 인증 상태 변경 시 라우터 새로고침\n    refreshListenable: authService,\n    \n    // 글로벌 리다이렉트\n    redirect: (context, state) {\n      final isLoggedIn = authService.isLoggedIn;\n      final hasCompletedOnboarding = authService.hasCompletedOnboarding;\n      final currentPath = state.uri.path;\n      \n      // 로그인 페이지에 있는 경우\n      final isLoggingIn = currentPath == '/login';\n      // 온보딩 페이지에 있는 경우\n      final isOnboarding = currentPath == '/onboarding';\n      \n      // 1. 로그인하지 않은 경우 → 로그인 페이지로\n      if (!isLoggedIn && !isLoggingIn) {\n        return '/login';\n      }\n      \n      // 2. 로그인했지만 온보딩 미완료 → 온보딩 페이지로\n      if (isLoggedIn && !hasCompletedOnboarding && !isOnboarding) {\n        return '/onboarding';\n      }\n      \n      // 3. 로그인 상태에서 로그인/온보딩 페이지 접근 → 홈으로\n      if (isLoggedIn && hasCompletedOnboarding && (isLoggingIn || isOnboarding)) {\n        return '/';\n      }\n      \n      // 리다이렉트 불필요\n      return null;\n    },\n    \n    routes: [\n      // 로그인 페이지\n      GoRoute(\n        path: '/login',\n        name: 'login',\n        builder: (context, state) => const LoginPage(),\n      ),\n      \n      // 온보딩 페이지\n      GoRoute(\n        path: '/onboarding',\n        name: 'onboarding',\n        builder: (context, state) => const OnboardingPage(),\n      ),\n      \n      // 메인 앱 (인증 필요)\n      GoRoute(\n        path: '/',\n        name: 'home',\n        builder: (context, state) => const AuthenticatedHomePage(),\n        routes: [\n          GoRoute(\n            path: 'profile',\n            name: 'profile',\n            builder: (context, state) => const ProfilePage(),\n          ),\n        ],\n      ),\n    ],\n    \n    errorBuilder: (context, state) => const NotFoundPage(),\n  );\n}\n\n// 로그인 페이지\nclass LoginPage extends StatelessWidget {\n  const LoginPage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('로그인')),\n      body: Center(\n        child: ElevatedButton(\n          onPressed: () {\n            authService.login();\n            // redirect가 자동으로 처리\n          },\n          child: const Text('로그인'),\n        ),\n      ),\n    );\n  }\n}\n\n// 온보딩 페이지\nclass OnboardingPage extends StatelessWidget {\n  const OnboardingPage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('시작하기')),\n      body: Center(\n        child: ElevatedButton(\n          onPressed: () {\n            authService.completeOnboarding();\n            // redirect가 자동으로 처리\n          },\n          child: const Text('온보딩 완료'),\n        ),\n      ),\n    );\n  }\n}\n\n// 인증된 홈 페이지\nclass AuthenticatedHomePage extends StatelessWidget {\n  const AuthenticatedHomePage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('홈 (로그인됨)'),\n        actions: [\n          IconButton(\n            icon: const Icon(Icons.logout),\n            onPressed: () {\n              authService.logout();\n            },\n          ),\n        ],\n      ),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            const Text('로그인 성공!'),\n            const SizedBox(height: 16),\n            ElevatedButton(\n              onPressed: () => context.go('/profile'),\n              child: const Text('프로필로 이동'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\nclass ProfilePage extends StatelessWidget {\n  const ProfilePage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('프로필')),\n      body: const Center(child: Text('프로필 페이지')),\n    );\n  }\n}\n\nclass NotFoundPage extends StatelessWidget {\n  const NotFoundPage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return const Scaffold(\n      body: Center(child: Text('404 - 페이지를 찾을 수 없습니다')),\n    );\n  }\n}"
+      },
+      "explanation": "【redirect 동작 원리】\n1. 모든 네비게이션 전에 redirect 함수 호출\n2. null 반환 → 원래 경로로 진행\n3. 경로 문자열 반환 → 해당 경로로 리다이렉트\n\n【refreshListenable】\n• ChangeNotifier를 연결하면 상태 변경 시 자동으로 redirect 재평가\n• 로그인/로그아웃 시 즉시 적절한 화면으로 이동\n\n【가드 패턴】\n• 로그인 여부 확인\n• 온보딩 완료 여부 확인\n• 권한 레벨 확인",
+      "beginnerTip": "🛡️ redirect에서 무한 루프를 피하려면 현재 경로가 리다이렉트 대상인지 확인해야 합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🏠 ShellRoute - 바텀 네비게이션",
+      "description": "ShellRoute를 사용하여 바텀 네비게이션 바를 유지하면서 탭 간 이동을 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/router/shell_router.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:go_router/go_router.dart';\n\n// 네비게이션 키 (탭별 네비게이터 상태 유지)\nfinal _rootNavigatorKey = GlobalKey<NavigatorState>();\nfinal _shellNavigatorKey = GlobalKey<NavigatorState>();\n\nfinal GoRouter shellRouter = GoRouter(\n  navigatorKey: _rootNavigatorKey,\n  initialLocation: '/home',\n  debugLogDiagnostics: true,\n  \n  routes: [\n    // ShellRoute: 바텀 네비게이션 바를 유지하는 컨테이너\n    ShellRoute(\n      navigatorKey: _shellNavigatorKey,\n      builder: (context, state, child) {\n        return ScaffoldWithNavBar(child: child);\n      },\n      routes: [\n        // 홈 탭\n        GoRoute(\n          path: '/home',\n          name: 'home',\n          pageBuilder: (context, state) => const NoTransitionPage(\n            child: HomeTab(),\n          ),\n          routes: [\n            // 홈 탭 내 상세 페이지 (바텀 네비 유지)\n            GoRoute(\n              path: 'detail/:id',\n              name: 'home-detail',\n              builder: (context, state) {\n                final id = state.pathParameters['id']!;\n                return HomeDetailPage(id: id);\n              },\n            ),\n          ],\n        ),\n        \n        // 검색 탭\n        GoRoute(\n          path: '/search',\n          name: 'search',\n          pageBuilder: (context, state) => const NoTransitionPage(\n            child: SearchTab(),\n          ),\n        ),\n        \n        // 즐겨찾기 탭\n        GoRoute(\n          path: '/favorites',\n          name: 'favorites',\n          pageBuilder: (context, state) => const NoTransitionPage(\n            child: FavoritesTab(),\n          ),\n        ),\n        \n        // 프로필 탭\n        GoRoute(\n          path: '/profile',\n          name: 'profile',\n          pageBuilder: (context, state) => const NoTransitionPage(\n            child: ProfileTab(),\n          ),\n          routes: [\n            GoRoute(\n              path: 'settings',\n              name: 'profile-settings',\n              builder: (context, state) => const SettingsPage(),\n            ),\n          ],\n        ),\n      ],\n    ),\n    \n    // ShellRoute 밖: 바텀 네비 없이 전체 화면\n    GoRoute(\n      path: '/login',\n      name: 'login',\n      parentNavigatorKey: _rootNavigatorKey,  // root navigator 사용\n      builder: (context, state) => const LoginFullPage(),\n    ),\n    GoRoute(\n      path: '/product/:id',\n      name: 'product',\n      parentNavigatorKey: _rootNavigatorKey,\n      builder: (context, state) {\n        final id = state.pathParameters['id']!;\n        return ProductFullPage(id: id);\n      },\n    ),\n  ],\n);\n\n// 바텀 네비게이션 바가 있는 Scaffold\nclass ScaffoldWithNavBar extends StatelessWidget {\n  final Widget child;\n  \n  const ScaffoldWithNavBar({super.key, required this.child});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      body: child,\n      bottomNavigationBar: NavigationBar(\n        selectedIndex: _calculateSelectedIndex(context),\n        onDestinationSelected: (index) => _onItemTapped(index, context),\n        destinations: const [\n          NavigationDestination(icon: Icon(Icons.home), label: '홈'),\n          NavigationDestination(icon: Icon(Icons.search), label: '검색'),\n          NavigationDestination(icon: Icon(Icons.favorite), label: '즐겨찾기'),\n          NavigationDestination(icon: Icon(Icons.person), label: '프로필'),\n        ],\n      ),\n    );\n  }\n\n  int _calculateSelectedIndex(BuildContext context) {\n    final location = GoRouterState.of(context).uri.path;\n    if (location.startsWith('/home')) return 0;\n    if (location.startsWith('/search')) return 1;\n    if (location.startsWith('/favorites')) return 2;\n    if (location.startsWith('/profile')) return 3;\n    return 0;\n  }\n\n  void _onItemTapped(int index, BuildContext context) {\n    switch (index) {\n      case 0:\n        context.go('/home');\n        break;\n      case 1:\n        context.go('/search');\n        break;\n      case 2:\n        context.go('/favorites');\n        break;\n      case 3:\n        context.go('/profile');\n        break;\n    }\n  }\n}\n\n// 탭 화면들\nclass HomeTab extends StatelessWidget {\n  const HomeTab({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('홈')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            const Text('홈 탭'),\n            const SizedBox(height: 16),\n            ElevatedButton(\n              onPressed: () => context.go('/home/detail/123'),\n              child: const Text('상세 (바텀 네비 유지)'),\n            ),\n            const SizedBox(height: 8),\n            ElevatedButton(\n              onPressed: () => context.go('/product/456'),\n              child: const Text('상품 (전체 화면)'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\nclass SearchTab extends StatelessWidget {\n  const SearchTab({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('검색')),\n      body: const Center(child: Text('검색 탭')),\n    );\n  }\n}\n\nclass FavoritesTab extends StatelessWidget {\n  const FavoritesTab({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('즐겨찾기')),\n      body: const Center(child: Text('즐겨찾기 탭')),\n    );\n  }\n}\n\nclass ProfileTab extends StatelessWidget {\n  const ProfileTab({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('프로필')),\n      body: Center(\n        child: ElevatedButton(\n          onPressed: () => context.go('/profile/settings'),\n          child: const Text('설정'),\n        ),\n      ),\n    );\n  }\n}\n\nclass HomeDetailPage extends StatelessWidget {\n  final String id;\n  const HomeDetailPage({super.key, required this.id});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: Text('상세 $id')),\n      body: Center(child: Text('홈 상세 페이지 (바텀 네비 유지)\\nID: $id')),\n    );\n  }\n}\n\nclass SettingsPage extends StatelessWidget {\n  const SettingsPage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('설정')),\n      body: const Center(child: Text('설정 페이지 (바텀 네비 유지)')),\n    );\n  }\n}\n\nclass LoginFullPage extends StatelessWidget {\n  const LoginFullPage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('로그인')),\n      body: const Center(child: Text('로그인 (전체 화면, 바텀 네비 없음)')),\n    );\n  }\n}\n\nclass ProductFullPage extends StatelessWidget {\n  final String id;\n  const ProductFullPage({super.key, required this.id});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: Text('상품 $id')),\n      body: Center(child: Text('상품 상세 (전체 화면)\\nID: $id')),\n    );\n  }\n}"
+      },
+      "explanation": "【ShellRoute 핵심 개념】\n• ShellRoute 내부 라우트: 바텀 네비게이션 유지\n• ShellRoute 외부 라우트 (parentNavigatorKey: _rootNavigatorKey): 전체 화면\n\n【NoTransitionPage】\n• 탭 전환 시 애니메이션 제거\n• 탭 간 이동에 적합\n\n【NavigatorKey 분리】\n• _rootNavigatorKey: 앱 전체 네비게이터\n• _shellNavigatorKey: ShellRoute 내부 네비게이터\n• parentNavigatorKey로 어떤 네비게이터를 사용할지 지정",
+      "beginnerTip": "🏠 ShellRoute 내 하위 라우트는 바텀 네비가 유지되고, 외부 라우트는 전체 화면으로 표시됩니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🔗 딥링킹 설정",
+      "description": "iOS Universal Links와 Android App Links를 설정하여 외부에서 앱의 특정 화면으로 바로 이동합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/router/deep_link_router.dart",
+        "content": "// 1. Android 딥링킹 설정\n// android/app/src/main/AndroidManifest.xml\n/*\n<manifest ...>\n  <application ...>\n    <activity ...>\n      <!-- 기존 intent-filter 유지 -->\n      \n      <!-- 딥링킹용 intent-filter 추가 -->\n      <intent-filter android:autoVerify=\"true\">\n        <action android:name=\"android.intent.action.VIEW\" />\n        <category android:name=\"android.intent.category.DEFAULT\" />\n        <category android:name=\"android.intent.category.BROWSABLE\" />\n        <data android:scheme=\"https\" android:host=\"yourapp.com\" />\n        <data android:scheme=\"yourapp\" />\n      </intent-filter>\n    </activity>\n  </application>\n</manifest>\n*/\n\n// 2. iOS 딥링킹 설정\n// ios/Runner/Info.plist\n/*\n<dict>\n  <!-- URL Scheme -->\n  <key>CFBundleURLTypes</key>\n  <array>\n    <dict>\n      <key>CFBundleURLSchemes</key>\n      <array>\n        <string>yourapp</string>\n      </array>\n    </dict>\n  </array>\n</dict>\n*/\n\n// ios/Runner/Runner.entitlements (Universal Links)\n/*\n<dict>\n  <key>com.apple.developer.associated-domains</key>\n  <array>\n    <string>applinks:yourapp.com</string>\n  </array>\n</dict>\n*/\n\n// 3. Dart 코드 - 딥링크 처리\nimport 'package:flutter/material.dart';\nimport 'package:go_router/go_router.dart';\n\nfinal GoRouter deepLinkRouter = GoRouter(\n  initialLocation: '/',\n  debugLogDiagnostics: true,\n  \n  routes: [\n    GoRoute(\n      path: '/',\n      builder: (context, state) => const HomePage(),\n    ),\n    \n    // 딥링크: yourapp://product/123 또는 https://yourapp.com/product/123\n    GoRoute(\n      path: '/product/:id',\n      builder: (context, state) {\n        final id = state.pathParameters['id']!;\n        // 딥링크로 전달된 추가 데이터 확인\n        final referrer = state.uri.queryParameters['ref'];\n        return ProductPage(id: id, referrer: referrer);\n      },\n    ),\n    \n    // 딥링크: yourapp://share?code=ABC123\n    GoRoute(\n      path: '/share',\n      builder: (context, state) {\n        final code = state.uri.queryParameters['code'];\n        return SharePage(code: code);\n      },\n    ),\n    \n    // 비밀번호 재설정 딥링크\n    GoRoute(\n      path: '/reset-password',\n      builder: (context, state) {\n        final token = state.uri.queryParameters['token'];\n        if (token == null) {\n          return const ErrorPage(message: '유효하지 않은 링크');\n        }\n        return ResetPasswordPage(token: token);\n      },\n    ),\n  ],\n  \n  // 딥링크로 접근한 잘못된 경로 처리\n  errorBuilder: (context, state) {\n    return ErrorPage(message: '페이지를 찾을 수 없습니다: ${state.uri.path}');\n  },\n);\n\nclass HomePage extends StatelessWidget {\n  const HomePage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('홈')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            const Text('딥링크 테스트'),\n            const SizedBox(height: 16),\n            const Text('테스트 URL:'),\n            const SelectableText('yourapp://product/123'),\n            const SelectableText('yourapp://share?code=ABC123'),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\nclass ProductPage extends StatelessWidget {\n  final String id;\n  final String? referrer;\n  const ProductPage({super.key, required this.id, this.referrer});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: Text('상품 $id')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            Text('상품 ID: $id'),\n            if (referrer != null) Text('추천인: $referrer'),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\nclass SharePage extends StatelessWidget {\n  final String? code;\n  const SharePage({super.key, this.code});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('공유')),\n      body: Center(\n        child: Text('공유 코드: ${code ?? \"없음\"}'),\n      ),\n    );\n  }\n}\n\nclass ResetPasswordPage extends StatelessWidget {\n  final String token;\n  const ResetPasswordPage({super.key, required this.token});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('비밀번호 재설정')),\n      body: Center(\n        child: Text('토큰: $token'),\n      ),\n    );\n  }\n}\n\nclass ErrorPage extends StatelessWidget {\n  final String message;\n  const ErrorPage({super.key, required this.message});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('오류')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            Text(message),\n            const SizedBox(height: 16),\n            ElevatedButton(\n              onPressed: () => context.go('/'),\n              child: const Text('홈으로'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【딥링크 유형】\n• URL Scheme: yourapp://path (앱 전용)\n• Universal Links (iOS) / App Links (Android): https://yourapp.com/path (웹 폴백)\n\n【설정 단계】\n1. Android: AndroidManifest.xml에 intent-filter 추가\n2. iOS: Info.plist에 URL Scheme, entitlements에 associated-domains\n3. 서버: apple-app-site-association (iOS), assetlinks.json (Android) 파일 호스팅\n\ngo_router는 딥링크를 자동으로 처리하여 해당 경로의 화면을 표시합니다.",
+      "beginnerTip": "🔗 딥링크 테스트는 adb shell am start -W -a android.intent.action.VIEW -d \"yourapp://...\" (Android) 또는 xcrun simctl openurl (iOS)로 가능합니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "GoRouter",
+      "description": "라우터 설정을 정의하는 메인 클래스입니다.",
+      "parameters": "initialLocation, routes, redirect, refreshListenable, errorBuilder, ...",
+      "returns": "GoRouter",
+      "example": "GoRouter(routes: [...], redirect: (ctx, state) => ...)"
+    },
+    {
+      "name": "GoRoute",
+      "description": "단일 경로를 정의합니다.",
+      "parameters": "path, name, builder, pageBuilder, routes (하위 라우트), redirect, ...",
+      "returns": "RouteBase",
+      "example": "GoRoute(path: '/user/:id', builder: (ctx, state) => UserPage())"
+    },
+    {
+      "name": "ShellRoute",
+      "description": "공통 UI(쉘)를 유지하면서 내부 콘텐츠만 교체하는 라우트입니다.",
+      "parameters": "builder, navigatorKey, routes",
+      "returns": "RouteBase",
+      "example": "ShellRoute(builder: (ctx, state, child) => Shell(child: child), routes: [...])"
+    },
+    {
+      "name": "context.go() / context.push()",
+      "description": "경로로 이동합니다. go는 스택 교체, push는 스택 추가.",
+      "parameters": "String location, Object? extra",
+      "returns": "void / Future<T?>",
+      "example": "context.go('/home'); context.push('/detail', extra: data);"
+    },
+    {
+      "name": "GoRouterState",
+      "description": "현재 라우터 상태 정보를 담습니다.",
+      "parameters": "없음",
+      "returns": "GoRouterState",
+      "example": "state.pathParameters['id'], state.uri.queryParameters['q']"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "redirect 무한 루프",
+      "cause": "redirect에서 현재 경로를 확인하지 않고 항상 리다이렉트합니다.",
+      "solution": "리다이렉트 대상 경로에 있는지 확인하는 조건을 추가하세요:\nif (currentPath == '/login') return null;",
+      "prevention": "redirect 로직에서 모든 분기에 대해 테스트하세요."
+    },
+    {
+      "error": "ShellRoute에서 바텀 네비가 안 보임",
+      "cause": "ShellRoute 외부에서 정의된 라우트로 이동했습니다.",
+      "solution": "바텀 네비가 필요한 페이지는 ShellRoute 내부 routes에 정의하세요.",
+      "prevention": "전체 화면이 필요한 라우트는 parentNavigatorKey를 사용하여 명시적으로 분리하세요."
+    },
+    {
+      "error": "pathParameters가 null",
+      "cause": "경로 패턴에 파라미터가 없거나 이름이 다릅니다.",
+      "solution": "path: '/user/:id'와 state.pathParameters['id']의 이름이 일치하는지 확인하세요.",
+      "prevention": "path에 정의한 파라미터명을 정확히 사용하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "라우트 이름 사용",
+      "description": "경로 문자열 대신 name으로 네비게이션하면 오타를 방지할 수 있습니다.",
+      "doThis": "context.goNamed('product-detail', pathParameters: {'id': '123'})",
+      "dontDoThis": "context.go('/product/123')  // 문자열 직접 사용"
+    },
+    {
+      "title": "라우터 파일 분리",
+      "description": "라우터 설정을 별도 파일로 분리하여 관리하세요.",
+      "doThis": "lib/router/app_router.dart에 라우터 정의\nmain.dart에서 import하여 사용",
+      "dontDoThis": "main.dart에 모든 라우트 정의"
+    },
+    {
+      "title": "extra 데이터 신중히 사용",
+      "description": "extra로 전달한 데이터는 딥링크/새로고침 시 손실됩니다. 필수 데이터는 URL에 포함하세요.",
+      "doThis": "필수 데이터: /product/123 (URL에 포함)\n선택 데이터: extra로 전달",
+      "dontDoThis": "모든 데이터를 extra로 전달 (딥링크 불가)"
+    }
+  ],
+
+  "tips": [
+    "💡 debugLogDiagnostics: true로 설정하면 네비게이션 로그를 볼 수 있습니다",
+    "🔄 refreshListenable에 ChangeNotifier를 연결하면 상태 변경 시 redirect가 재평가됩니다",
+    "📱 Flutter 웹에서는 브라우저 주소창과 자동으로 동기화됩니다",
+    "⚡ NoTransitionPage로 탭 전환 시 애니메이션을 제거할 수 있습니다",
+    "🛡️ redirect에서 async를 지원하므로 서버 확인 후 리다이렉트도 가능합니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "go_router_builder",
+      "description": "타입 안전한 라우팅을 위한 코드 생성 패키지"
+    },
+    {
+      "name": "flutter_riverpod + go_router",
+      "description": "Riverpod과 통합하여 상태 기반 리다이렉트 구현"
+    },
+    {
+      "name": "beamer",
+      "description": "go_router의 대안. 더 유연한 라우팅 패턴 제공"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/go_router"},
+    {"title": "Flutter 공식 문서 - go_router", "url": "https://docs.flutter.dev/ui/navigation"},
+    {"title": "GitHub 저장소", "url": "https://github.com/flutter/packages/tree/main/packages/go_router"},
+    {"title": "딥링킹 가이드", "url": "https://docs.flutter.dev/ui/navigation/deep-linking"}
+  ]
+}

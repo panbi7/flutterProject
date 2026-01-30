@@ -1,0 +1,147 @@
+{
+  "packageName": "lottie",
+  "overview": {
+    "what": "lottie는 Airbnb에서 개발한 Lottie 애니메이션을 Flutter에서 재생할 수 있게 해주는 패키지입니다. After Effects에서 만든 애니메이션을 JSON 형식으로 내보내어 앱에서 사용합니다.",
+    "why": "복잡한 벡터 애니메이션을 코드로 구현하는 것은 어렵고 시간이 많이 걸립니다. Lottie를 사용하면 디자이너가 만든 고품질 애니메이션을 그대로 앱에 적용할 수 있습니다.",
+    "when": "로딩 애니메이션, 온보딩 화면, 빈 상태 표시, 성공/실패 피드백, 마이크로 인터랙션 등에 사용합니다.",
+    "features": [
+      "JSON 기반 벡터 애니메이션 재생",
+      "애니메이션 속도/방향 제어",
+      "특정 구간 반복 재생",
+      "애니메이션 컨트롤러 지원",
+      "네트워크 URL에서 로드",
+      "작은 파일 크기"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치",
+      "description": "pubspec.yaml에 lottie 패키지를 추가합니다.",
+      "code": "dependencies:\n  flutter:\n    sdk: flutter\n  lottie: ^3.1.0\n\n# 애니메이션 파일을 assets에 추가\nflutter:\n  assets:\n    - assets/animations/",
+      "explanation": "Lottie 애니메이션 JSON 파일은 LottieFiles.com에서 무료로 다운로드하거나 After Effects + Bodymovin 플러그인으로 직접 만들 수 있습니다."
+    },
+    {
+      "title": "기본 애니메이션 재생",
+      "description": "Lottie.asset과 Lottie.network로 애니메이션을 재생합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:lottie/lottie.dart';\n\nclass BasicLottieExample extends StatelessWidget {\n  const BasicLottieExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Lottie 기본')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            // 로컬 에셋에서 로드\n            Lottie.asset(\n              'assets/animations/loading.json',\n              width: 200,\n              height: 200,\n            ),\n            const SizedBox(height: 20),\n            const Text('로컬 애니메이션'),\n            const SizedBox(height: 40),\n\n            // 네트워크 URL에서 로드\n            Lottie.network(\n              'https://lottie.host/xxx/animation.json',\n              width: 200,\n              height: 200,\n              // 로딩 중 표시\n              frameBuilder: (context, child, composition) {\n                if (composition == null) {\n                  return const CircularProgressIndicator();\n                }\n                return child;\n              },\n              // 에러 시 표시\n              errorBuilder: (context, error, stackTrace) {\n                return const Icon(Icons.error, size: 50);\n              },\n            ),\n            const SizedBox(height: 20),\n            const Text('네트워크 애니메이션'),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "Lottie.asset은 로컬 파일, Lottie.network는 URL에서 애니메이션을 로드합니다. 기본적으로 자동 재생되고 무한 반복됩니다."
+    },
+    {
+      "title": "애니메이션 컨트롤러 사용",
+      "description": "AnimationController로 애니메이션을 세밀하게 제어합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:lottie/lottie.dart';\n\nclass ControlledLottieExample extends StatefulWidget {\n  const ControlledLottieExample({super.key});\n\n  @override\n  State<ControlledLottieExample> createState() => _ControlledLottieExampleState();\n}\n\nclass _ControlledLottieExampleState extends State<ControlledLottieExample>\n    with SingleTickerProviderStateMixin {\n  late AnimationController _controller;\n  bool _isPlaying = false;\n\n  @override\n  void initState() {\n    super.initState();\n    _controller = AnimationController(vsync: this);\n  }\n\n  @override\n  void dispose() {\n    _controller.dispose();\n    super.dispose();\n  }\n\n  void _togglePlay() {\n    setState(() {\n      if (_isPlaying) {\n        _controller.stop();\n      } else {\n        _controller.repeat();\n      }\n      _isPlaying = !_isPlaying;\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('애니메이션 제어')),\n      body: Column(\n        mainAxisAlignment: MainAxisAlignment.center,\n        children: [\n          Lottie.asset(\n            'assets/animations/heart.json',\n            controller: _controller,\n            width: 200,\n            height: 200,\n            onLoaded: (composition) {\n              // 애니메이션 길이 설정\n              _controller.duration = composition.duration;\n            },\n          ),\n          const SizedBox(height: 20),\n          // 진행률 슬라이더\n          Padding(\n            padding: const EdgeInsets.symmetric(horizontal: 40),\n            child: AnimatedBuilder(\n              animation: _controller,\n              builder: (context, child) {\n                return Slider(\n                  value: _controller.value,\n                  onChanged: (value) {\n                    _controller.value = value;\n                  },\n                );\n              },\n            ),\n          ),\n          const SizedBox(height: 20),\n          // 제어 버튼들\n          Row(\n            mainAxisAlignment: MainAxisAlignment.center,\n            children: [\n              IconButton(\n                icon: const Icon(Icons.replay),\n                onPressed: () {\n                  _controller.reset();\n                  setState(() => _isPlaying = false);\n                },\n              ),\n              IconButton(\n                icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),\n                iconSize: 48,\n                onPressed: _togglePlay,\n              ),\n              IconButton(\n                icon: const Icon(Icons.fast_forward),\n                onPressed: () {\n                  _controller.forward();\n                  setState(() => _isPlaying = true);\n                },\n              ),\n            ],\n          ),\n          const SizedBox(height: 20),\n          // 속도 조절\n          Row(\n            mainAxisAlignment: MainAxisAlignment.center,\n            children: [\n              const Text('속도: '),\n              ...[0.5, 1.0, 1.5, 2.0].map((speed) {\n                return TextButton(\n                  onPressed: () {\n                    _controller.duration = Duration(\n                      milliseconds: (1000 / speed).round(),\n                    );\n                  },\n                  child: Text('${speed}x'),\n                );\n              }),\n            ],\n          ),\n        ],\n      ),\n    );\n  }\n}",
+      "explanation": "AnimationController를 전달하면 재생, 정지, 되감기, 속도 조절 등을 직접 제어할 수 있습니다. onLoaded에서 애니메이션 duration을 설정하세요."
+    },
+    {
+      "title": "다양한 재생 옵션",
+      "description": "반복, 역재생, 특정 구간 재생 등 다양한 재생 옵션을 적용합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:lottie/lottie.dart';\n\nclass LottieOptionsExample extends StatelessWidget {\n  const LottieOptionsExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('재생 옵션')),\n      body: ListView(\n        padding: const EdgeInsets.all(16),\n        children: [\n          // 1. 한 번만 재생\n          _LottieCard(\n            title: '한 번만 재생',\n            child: Lottie.asset(\n              'assets/animations/success.json',\n              repeat: false,\n              width: 100,\n              height: 100,\n            ),\n          ),\n\n          // 2. 역방향 재생\n          _LottieCard(\n            title: '역방향 재생',\n            child: Lottie.asset(\n              'assets/animations/loading.json',\n              reverse: true,\n              width: 100,\n              height: 100,\n            ),\n          ),\n\n          // 3. 자동 재생 끔\n          _LottieCard(\n            title: '자동 재생 끔 (탭하여 재생)',\n            child: _TapToPlayLottie(),\n          ),\n\n          // 4. 특정 프레임에서 정지\n          _LottieCard(\n            title: '50% 프레임에서 정지',\n            child: Lottie.asset(\n              'assets/animations/heart.json',\n              animate: false,\n              width: 100,\n              height: 100,\n              frameBuilder: (context, child, composition) {\n                if (composition != null) {\n                  return Lottie(\n                    composition: composition,\n                    animate: false,\n                    frameRate: FrameRate.max,\n                    // 특정 프레임 표시\n                    controller: AlwaysStoppedAnimation(0.5),\n                    width: 100,\n                    height: 100,\n                  );\n                }\n                return child;\n              },\n            ),\n          ),\n\n          // 5. 렌더링 옵션\n          _LottieCard(\n            title: '다양한 fit 옵션',\n            child: Row(\n              mainAxisAlignment: MainAxisAlignment.spaceEvenly,\n              children: [\n                _FitExample(fit: BoxFit.contain, label: 'contain'),\n                _FitExample(fit: BoxFit.cover, label: 'cover'),\n                _FitExample(fit: BoxFit.fill, label: 'fill'),\n              ],\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}\n\nclass _LottieCard extends StatelessWidget {\n  final String title;\n  final Widget child;\n\n  const _LottieCard({required this.title, required this.child});\n\n  @override\n  Widget build(BuildContext context) {\n    return Card(\n      margin: const EdgeInsets.only(bottom: 16),\n      child: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          crossAxisAlignment: CrossAxisAlignment.start,\n          children: [\n            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),\n            const SizedBox(height: 12),\n            Center(child: child),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\nclass _TapToPlayLottie extends StatefulWidget {\n  @override\n  State<_TapToPlayLottie> createState() => _TapToPlayLottieState();\n}\n\nclass _TapToPlayLottieState extends State<_TapToPlayLottie>\n    with SingleTickerProviderStateMixin {\n  late AnimationController _controller;\n\n  @override\n  void initState() {\n    super.initState();\n    _controller = AnimationController(vsync: this);\n  }\n\n  @override\n  void dispose() {\n    _controller.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return GestureDetector(\n      onTap: () {\n        if (_controller.isCompleted) {\n          _controller.reset();\n        }\n        _controller.forward();\n      },\n      child: Lottie.asset(\n        'assets/animations/like.json',\n        controller: _controller,\n        width: 100,\n        height: 100,\n        onLoaded: (composition) {\n          _controller.duration = composition.duration;\n        },\n      ),\n    );\n  }\n}\n\nclass _FitExample extends StatelessWidget {\n  final BoxFit fit;\n  final String label;\n\n  const _FitExample({required this.fit, required this.label});\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      children: [\n        Container(\n          width: 80,\n          height: 60,\n          color: Colors.grey[200],\n          child: Lottie.asset(\n            'assets/animations/loading.json',\n            fit: fit,\n          ),\n        ),\n        const SizedBox(height: 4),\n        Text(label, style: const TextStyle(fontSize: 12)),\n      ],\n    );\n  }\n}",
+      "explanation": "repeat, reverse, animate 등의 속성으로 재생 방식을 제어합니다. fit으로 크기 조절 방식을, frameBuilder로 로딩 상태를 처리합니다."
+    },
+    {
+      "title": "실제 앱에서의 활용",
+      "description": "로딩 화면, 빈 상태, 성공/실패 피드백 등 실제 사용 패턴입니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:lottie/lottie.dart';\n\n// 로딩 화면\nclass LottieLoadingScreen extends StatelessWidget {\n  const LottieLoadingScreen({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            Lottie.asset(\n              'assets/animations/loading.json',\n              width: 150,\n              height: 150,\n            ),\n            const SizedBox(height: 20),\n            const Text('로딩 중...'),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\n// 빈 상태\nclass EmptyStateWidget extends StatelessWidget {\n  final String message;\n  final VoidCallback? onRetry;\n\n  const EmptyStateWidget({\n    super.key,\n    required this.message,\n    this.onRetry,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    return Center(\n      child: Column(\n        mainAxisAlignment: MainAxisAlignment.center,\n        children: [\n          Lottie.asset(\n            'assets/animations/empty.json',\n            width: 200,\n            height: 200,\n            repeat: false,\n          ),\n          const SizedBox(height: 16),\n          Text(\n            message,\n            style: const TextStyle(fontSize: 16, color: Colors.grey),\n            textAlign: TextAlign.center,\n          ),\n          if (onRetry != null) ...[\n            const SizedBox(height: 16),\n            ElevatedButton(\n              onPressed: onRetry,\n              child: const Text('다시 시도'),\n            ),\n          ],\n        ],\n      ),\n    );\n  }\n}\n\n// 성공 다이얼로그\nclass SuccessDialog extends StatelessWidget {\n  final String title;\n  final String message;\n\n  const SuccessDialog({\n    super.key,\n    required this.title,\n    required this.message,\n  });\n\n  static Future<void> show(BuildContext context, String title, String message) {\n    return showDialog(\n      context: context,\n      barrierDismissible: false,\n      builder: (context) => SuccessDialog(title: title, message: message),\n    );\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Dialog(\n      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),\n      child: Padding(\n        padding: const EdgeInsets.all(24),\n        child: Column(\n          mainAxisSize: MainAxisSize.min,\n          children: [\n            Lottie.asset(\n              'assets/animations/success.json',\n              width: 120,\n              height: 120,\n              repeat: false,\n            ),\n            const SizedBox(height: 16),\n            Text(\n              title,\n              style: const TextStyle(\n                fontSize: 20,\n                fontWeight: FontWeight.bold,\n              ),\n            ),\n            const SizedBox(height: 8),\n            Text(\n              message,\n              textAlign: TextAlign.center,\n              style: const TextStyle(color: Colors.grey),\n            ),\n            const SizedBox(height: 24),\n            SizedBox(\n              width: double.infinity,\n              child: ElevatedButton(\n                onPressed: () => Navigator.pop(context),\n                child: const Text('확인'),\n              ),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\n// 좋아요 버튼 (인터랙티브)\nclass LikeButton extends StatefulWidget {\n  final bool isLiked;\n  final ValueChanged<bool> onChanged;\n\n  const LikeButton({\n    super.key,\n    required this.isLiked,\n    required this.onChanged,\n  });\n\n  @override\n  State<LikeButton> createState() => _LikeButtonState();\n}\n\nclass _LikeButtonState extends State<LikeButton>\n    with SingleTickerProviderStateMixin {\n  late AnimationController _controller;\n\n  @override\n  void initState() {\n    super.initState();\n    _controller = AnimationController(\n      vsync: this,\n      duration: const Duration(milliseconds: 1000),\n    );\n    if (widget.isLiked) {\n      _controller.value = 1.0;\n    }\n  }\n\n  @override\n  void didUpdateWidget(LikeButton oldWidget) {\n    super.didUpdateWidget(oldWidget);\n    if (widget.isLiked != oldWidget.isLiked) {\n      if (widget.isLiked) {\n        _controller.forward();\n      } else {\n        _controller.reverse();\n      }\n    }\n  }\n\n  @override\n  void dispose() {\n    _controller.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return GestureDetector(\n      onTap: () => widget.onChanged(!widget.isLiked),\n      child: Lottie.asset(\n        'assets/animations/heart.json',\n        controller: _controller,\n        width: 60,\n        height: 60,\n      ),\n    );\n  }\n}",
+      "explanation": "Lottie 애니메이션은 로딩, 빈 상태, 성공/실패 피드백, 인터랙티브 버튼 등 다양한 곳에서 UX를 향상시킵니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "LottieComposition",
+      "description": "Lottie JSON 파일이 파싱된 애니메이션 데이터입니다. duration, frameRate, bounds 등의 정보를 포함합니다. onLoaded 콜백에서 접근할 수 있습니다."
+    },
+    {
+      "name": "AnimationController 연동",
+      "description": "Flutter의 AnimationController를 Lottie 위젯에 전달하면 재생/정지/속도 등을 완전히 제어할 수 있습니다. 컨트롤러의 duration은 composition.duration으로 설정하세요."
+    },
+    {
+      "name": "frameBuilder",
+      "description": "애니메이션 로딩 상태를 처리합니다. composition이 null이면 아직 로딩 중입니다. 로딩 인디케이터나 플레이스홀더를 표시할 수 있습니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "Lottie.asset",
+      "signature": "Lottie.asset(String name, {...})",
+      "description": "로컬 에셋에서 Lottie 애니메이션을 로드합니다."
+    },
+    {
+      "name": "Lottie.network",
+      "signature": "Lottie.network(String url, {...})",
+      "description": "네트워크 URL에서 Lottie 애니메이션을 로드합니다."
+    },
+    {
+      "name": "repeat",
+      "signature": "bool repeat = true",
+      "description": "애니메이션 반복 여부입니다. false면 한 번만 재생합니다."
+    },
+    {
+      "name": "reverse",
+      "signature": "bool reverse = false",
+      "description": "역방향 재생 여부입니다."
+    },
+    {
+      "name": "animate",
+      "signature": "bool animate = true",
+      "description": "자동 재생 여부입니다. false면 정지 상태로 시작합니다."
+    },
+    {
+      "name": "onLoaded",
+      "signature": "void Function(LottieComposition)? onLoaded",
+      "description": "애니메이션이 로드되면 호출됩니다. composition 정보에 접근할 수 있습니다."
+    },
+    {
+      "name": "controller",
+      "signature": "Animation<double>? controller",
+      "description": "외부 AnimationController를 전달하여 애니메이션을 제어합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "Unable to load asset",
+      "cause": "pubspec.yaml에 에셋 경로가 등록되지 않음",
+      "solution": "pubspec.yaml의 flutter: assets: 섹션에 애니메이션 파일 경로를 추가하세요."
+    },
+    {
+      "error": "애니메이션이 재생되지 않음",
+      "cause": "animate: false로 설정했거나 controller가 시작되지 않음",
+      "solution": "animate 속성을 확인하고, controller 사용 시 forward() 또는 repeat()를 호출하세요."
+    },
+    {
+      "error": "애니메이션 속도가 이상함",
+      "cause": "controller.duration이 composition.duration과 다름",
+      "solution": "onLoaded에서 controller.duration = composition.duration으로 설정하세요."
+    },
+    {
+      "error": "네트워크 애니메이션 로드 실패",
+      "cause": "잘못된 URL이거나 CORS 문제",
+      "solution": "URL이 올바른지 확인하고, errorBuilder로 에러 상태를 처리하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "에셋 캐싱",
+      "description": "자주 사용하는 애니메이션은 앱 시작 시 미리 로드해두면 표시 시 지연이 없습니다."
+    },
+    {
+      "title": "적절한 파일 크기",
+      "description": "복잡한 애니메이션은 파일 크기가 클 수 있습니다. 가능하면 단순화하거나 압축된 .lottie 형식을 사용하세요."
+    },
+    {
+      "title": "한 번만 재생할 때",
+      "description": "성공/완료 애니메이션은 repeat: false로 설정하고 한 번만 재생하세요."
+    },
+    {
+      "title": "컨트롤러 정리",
+      "description": "AnimationController를 사용할 때는 dispose()에서 반드시 정리하세요."
+    }
+  ],
+  "tips": [
+    "LottieFiles.com에서 수천 개의 무료 애니메이션을 다운로드할 수 있습니다",
+    "애니메이션 파일은 JSON이므로 텍스트 편집기로 색상 등을 수정할 수 있습니다",
+    "rive 패키지는 Lottie의 대안으로 더 인터랙티브한 애니메이션을 지원합니다",
+    "큰 애니메이션은 성능에 영향을 줄 수 있으니 최적화된 파일을 사용하세요",
+    "frameRate: FrameRate.max로 최대 프레임 레이트로 재생할 수 있습니다",
+    "애니메이션의 특정 레이어만 표시하려면 delegates를 사용하세요"
+  ]
+}

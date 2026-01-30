@@ -1,0 +1,235 @@
+{
+  "packageId": "flutter_launcher_icons",
+  "title": "flutter_launcher_icons 실전 마스터 가이드",
+  "generatedAt": "2026-01-27T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "0.14.3",
+  "packageLikes": 8542,
+
+  "overview": {
+    "what": "flutter_launcher_icons는 Flutter 앱의 런처 아이콘(앱 아이콘)을 Android, iOS, macOS, Windows, Linux, Web 등 모든 플랫폼에 맞게 자동으로 생성해주는 CLI 도구입니다. 하나의 고해상도 이미지만 제공하면 각 플랫폼에 필요한 모든 사이즈의 아이콘을 자동으로 생성하고 설정 파일까지 업데이트합니다.",
+    "why": "앱 아이콘을 수동으로 설정하려면 Android는 mipmap 폴더에 여러 해상도별 이미지를, iOS는 Assets.xcassets에 다양한 크기의 아이콘을 일일이 생성해야 합니다. flutter_launcher_icons를 사용하면 단 하나의 명령어로 모든 플랫폼의 아이콘 설정이 완료됩니다. 5,000개 이상의 좋아요를 받은 Flutter 커뮤니티 필수 도구입니다.",
+    "when": "1) 새 Flutter 프로젝트의 앱 아이콘 설정 시, 2) 앱 리브랜딩으로 아이콘 변경 시, 3) 앱 스토어 출시 전 아이콘 최종 설정 시, 4) 개발/스테이징/프로덕션 환경별 다른 아이콘 적용 시, 5) 적응형 아이콘(Android 8.0+) 설정이 필요할 때",
+    "features": [
+      "🎨 원클릭 생성: 하나의 이미지로 모든 플랫폼 아이콘 자동 생성",
+      "📱 적응형 아이콘: Android 8.0+ 적응형 아이콘 (전경/배경 레이어) 지원",
+      "🖥️ 멀티 플랫폼: Android, iOS, macOS, Windows, Linux, Web 모두 지원",
+      "⚙️ Flavor 지원: 개발/스테이징/프로덕션 환경별 다른 아이콘 설정 가능",
+      "🔧 간편한 설정: pubspec.yaml 또는 별도 설정 파일로 구성"
+    ]
+  },
+
+  "description": "Flutter 앱의 런처 아이콘을 모든 플랫폼에 맞게 자동 생성하는 CLI 도구",
+  "difficulty": "초급 - 설정 파일만 작성하면 바로 사용 가능",
+  "estimatedTime": "15분",
+  "prerequisites": [
+    "Flutter 프로젝트 기본 구조 이해",
+    "앱 아이콘용 고해상도 PNG 이미지 (1024x1024 권장)",
+    "pubspec.yaml 파일 구조 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "적응형 아이콘 (Adaptive Icon)",
+      "explanation": "Android 8.0(API 26) 이상에서 지원하는 아이콘 형식입니다. 전경(foreground)과 배경(background) 레이어로 분리되어 있어, 기기 제조사나 런처에 따라 원형, 사각형, 물방울 등 다양한 모양으로 표시될 수 있습니다.",
+      "analogy": "🎭 마스크에 비유하면, 배경은 고정된 캔버스이고 전경은 그 위에 떠 있는 레이어입니다. 마스크(기기 런처)가 바뀌어도 콘텐츠는 유지됩니다.",
+      "usage": "adaptive_icon_foreground: 'assets/icon/foreground.png'\nadaptive_icon_background: '#FFFFFF'"
+    },
+    {
+      "term": "mipmap vs drawable",
+      "explanation": "Android에서 앱 아이콘은 mipmap 폴더에, 일반 이미지는 drawable 폴더에 저장합니다. mipmap은 런처가 현재 화면 밀도보다 높은 해상도의 아이콘을 사용할 수 있게 해줍니다.",
+      "analogy": "📐 mipmap은 '특별 보관함'으로, 아이콘이 확대되어도 선명하게 보이도록 여러 해상도를 모두 유지합니다.",
+      "usage": "flutter_launcher_icons가 자동으로 mipmap-hdpi, mipmap-xhdpi 등 폴더에 생성합니다."
+    },
+    {
+      "term": "Flavor별 아이콘",
+      "explanation": "개발(dev), 스테이징(staging), 프로덕션(prod) 환경에 따라 다른 아이콘을 사용할 수 있습니다. 개발 버전에 'DEV' 배지를 붙이면 실수로 잘못된 앱을 테스트하는 것을 방지할 수 있습니다.",
+      "analogy": "🏷️ 같은 제품이지만 '샘플', '테스트용', '정식판' 스티커를 붙여 구분하는 것과 같습니다.",
+      "usage": "flutter_launcher_icons -f flutter_launcher_icons-dev.yaml"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치 및 아이콘 이미지 준비",
+      "description": "flutter_launcher_icons를 dev_dependencies에 추가하고 아이콘 이미지를 준비합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dev_dependencies:\n  flutter_test:\n    sdk: flutter\n  flutter_launcher_icons: ^0.14.3"
+      },
+      "commands": ["flutter pub add --dev flutter_launcher_icons", "flutter pub get"],
+      "explanation": "flutter_launcher_icons는 빌드 시에만 사용되므로 dev_dependencies에 추가합니다. 런타임에는 필요하지 않습니다.",
+      "platformSetup": {
+        "android": "아이콘 이미지를 assets/icon/ 폴더에 준비합니다.",
+        "ios": "동일한 이미지를 사용하거나 iOS 전용 이미지를 별도로 준비할 수 있습니다."
+      },
+      "beginnerTip": "💡 아이콘 이미지는 1024x1024 픽셀, PNG 형식, 투명 배경 없이 준비하세요. 둥근 모서리는 OS가 자동으로 적용합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 기본 설정 - pubspec.yaml에 아이콘 설정",
+      "description": "pubspec.yaml 파일에 flutter_launcher_icons 설정을 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "flutter_launcher_icons:\n  # 기본 아이콘 이미지 경로\n  image_path: \"assets/icon/app_icon.png\"\n  \n  # Android 설정\n  android: true\n  min_sdk_android: 21  # Android 5.0 이상\n  \n  # iOS 설정  \n  ios: true\n  remove_alpha_ios: true  # iOS는 투명 배경 지원 안함\n  \n  # Web 설정\n  web:\n    generate: true\n    image_path: \"assets/icon/app_icon.png\"\n    background_color: \"#FFFFFF\"\n    theme_color: \"#2196F3\"\n  \n  # Windows 설정\n  windows:\n    generate: true\n    image_path: \"assets/icon/app_icon.png\"\n    icon_size: 48  # 48x48 권장\n  \n  # macOS 설정\n  macos:\n    generate: true\n    image_path: \"assets/icon/app_icon.png\""
+      },
+      "explanation": "android: true와 ios: true로 해당 플랫폼 아이콘 생성을 활성화합니다. remove_alpha_ios: true는 iOS에서 투명 배경을 흰색으로 대체합니다.",
+      "beginnerTip": "⚠️ iOS는 투명 배경(알파 채널)을 지원하지 않습니다. 투명 부분이 있으면 검은색으로 표시될 수 있으니 remove_alpha_ios: true를 꼭 설정하세요."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🎨 Android 적응형 아이콘 설정",
+      "description": "Android 8.0 이상에서 사용되는 적응형 아이콘(Adaptive Icon)을 설정합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "flutter_launcher_icons:\n  image_path: \"assets/icon/app_icon.png\"\n  \n  android: true\n  min_sdk_android: 21\n  \n  # 적응형 아이콘 설정 (Android 8.0+)\n  adaptive_icon_foreground: \"assets/icon/foreground.png\"\n  adaptive_icon_background: \"#2196F3\"  # 색상 코드 또는 이미지 경로\n  # adaptive_icon_background: \"assets/icon/background.png\"  # 이미지 사용 시\n  \n  # 둥근 아이콘 (일부 기기용)\n  adaptive_icon_round: \"assets/icon/app_icon_round.png\"\n  \n  # 모노크롬 아이콘 (Android 13+)\n  adaptive_icon_monochrome: \"assets/icon/monochrome.png\"\n  \n  ios: true\n  remove_alpha_ios: true"
+      },
+      "explanation": "【적응형 아이콘 구성】\n• foreground: 전경 레이어 (로고/아이콘, 투명 배경 필수)\n• background: 배경 레이어 (색상 코드 또는 이미지)\n• round: 원형 아이콘 (일부 구형 기기용)\n• monochrome: Android 13 테마 아이콘용 (흑백)",
+      "beginnerTip": "🎯 foreground 이미지는 안전 영역(전체 크기의 66%)만 표시됩니다. 중요한 요소는 중앙에 배치하세요."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🚀 아이콘 생성 실행",
+      "description": "설정이 완료되면 명령어를 실행하여 모든 플랫폼의 아이콘을 생성합니다.",
+      "code": {
+        "language": "bash",
+        "filename": "터미널",
+        "content": "# 아이콘 생성 실행\ndart run flutter_launcher_icons\n\n# 또는 Flutter 2.x 이하 버전\nflutter pub run flutter_launcher_icons:main\n\n# 특정 설정 파일 사용\ndart run flutter_launcher_icons -f flutter_launcher_icons-dev.yaml"
+      },
+      "explanation": "명령어 실행 시 다음 작업이 자동으로 수행됩니다:\n• Android: mipmap-* 폴더에 모든 해상도 아이콘 생성, AndroidManifest.xml 업데이트 불필요\n• iOS: Assets.xcassets/AppIcon.appiconset에 모든 크기 아이콘 생성, Contents.json 자동 업데이트\n• Web: web/icons 폴더에 PWA 아이콘 생성, manifest.json 업데이트",
+      "beginnerTip": "💡 생성 후 android/app/src/main/res/mipmap-* 폴더와 ios/Runner/Assets.xcassets/AppIcon.appiconset 폴더를 확인하세요."
+    },
+    {
+      "stepNumber": 5,
+      "title": "⚙️ Flavor별 다른 아이콘 설정",
+      "description": "개발/스테이징/프로덕션 환경에 따라 다른 아이콘을 사용하는 고급 설정입니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "flutter_launcher_icons-dev.yaml",
+        "content": "# 개발 환경용 아이콘 설정 파일\nflutter_launcher_icons:\n  image_path: \"assets/icon/app_icon_dev.png\"  # DEV 배지가 있는 아이콘\n  \n  android: true\n  min_sdk_android: 21\n  adaptive_icon_foreground: \"assets/icon/foreground_dev.png\"\n  adaptive_icon_background: \"#FF5722\"  # 개발 버전은 주황색 배경\n  \n  ios: true\n  remove_alpha_ios: true"
+      },
+      "explanation": "Flavor별로 별도의 설정 파일을 만들어 관리합니다:\n\n1. flutter_launcher_icons.yaml (기본/프로덕션)\n2. flutter_launcher_icons-dev.yaml (개발)\n3. flutter_launcher_icons-staging.yaml (스테이징)\n\n실행: dart run flutter_launcher_icons -f flutter_launcher_icons-dev.yaml",
+      "beginnerTip": "🏷️ 개발 버전 아이콘에 'DEV' 또는 'β' 배지를 추가하면 실수로 테스트 앱을 사용자에게 배포하는 것을 방지할 수 있습니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "image_path",
+      "description": "기본 아이콘 이미지 경로입니다. 모든 플랫폼에서 사용됩니다.",
+      "parameters": "문자열 (이미지 경로)",
+      "returns": "N/A",
+      "example": "image_path: \"assets/icon/app_icon.png\""
+    },
+    {
+      "name": "android / ios",
+      "description": "해당 플랫폼의 아이콘 생성 여부를 설정합니다. true면 생성, false면 건너뜁니다.",
+      "parameters": "boolean (true/false)",
+      "returns": "N/A",
+      "example": "android: true\nios: true"
+    },
+    {
+      "name": "adaptive_icon_foreground",
+      "description": "Android 적응형 아이콘의 전경 레이어 이미지입니다. 투명 배경의 PNG 권장.",
+      "parameters": "문자열 (이미지 경로)",
+      "returns": "N/A",
+      "example": "adaptive_icon_foreground: \"assets/icon/foreground.png\""
+    },
+    {
+      "name": "adaptive_icon_background",
+      "description": "Android 적응형 아이콘의 배경 레이어입니다. 색상 코드 또는 이미지 경로.",
+      "parameters": "문자열 (색상 코드 또는 이미지 경로)",
+      "returns": "N/A",
+      "example": "adaptive_icon_background: \"#FFFFFF\"\nadaptive_icon_background: \"assets/icon/background.png\""
+    },
+    {
+      "name": "remove_alpha_ios",
+      "description": "iOS 아이콘에서 투명 배경을 제거합니다. true 권장.",
+      "parameters": "boolean",
+      "returns": "N/A",
+      "example": "remove_alpha_ios: true"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "FormatException: Could not find a file at the path 'assets/icon/app_icon.png'",
+      "cause": "설정에 지정된 경로에 이미지 파일이 없습니다.",
+      "solution": "1. 이미지 파일이 올바른 경로에 있는지 확인\n2. 파일명과 확장자가 정확히 일치하는지 확인\n3. assets 폴더가 프로젝트 루트에 있는지 확인",
+      "prevention": "이미지 경로를 복사/붙여넣기하지 말고 상대 경로를 정확히 입력하세요."
+    },
+    {
+      "error": "iOS 아이콘에 검은 배경이 나타남",
+      "cause": "PNG 이미지에 투명 배경(알파 채널)이 있고, remove_alpha_ios 설정이 없습니다.",
+      "solution": "remove_alpha_ios: true를 설정에 추가하세요.",
+      "prevention": "iOS용 아이콘은 처음부터 불투명한 배경으로 디자인하는 것이 좋습니다."
+    },
+    {
+      "error": "Android 적응형 아이콘이 잘려서 표시됨",
+      "cause": "foreground 이미지의 중요 요소가 안전 영역 밖에 있습니다. 적응형 아이콘은 전체의 66%만 표시됩니다.",
+      "solution": "foreground 이미지의 중요 요소를 중앙 66% 영역 안에 배치하세요.",
+      "prevention": "432x432 캔버스에서 중앙 288x288 영역에만 로고를 배치하세요."
+    },
+    {
+      "error": "아이콘이 변경되지 않음",
+      "cause": "앱을 완전히 삭제하지 않고 다시 설치했거나, 기기에 캐시된 아이콘이 남아있습니다.",
+      "solution": "1. 기기에서 앱 완전 삭제\n2. flutter clean 실행\n3. flutter run으로 재설치",
+      "prevention": "아이콘 변경 후에는 항상 앱을 완전히 삭제 후 재설치하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "고해상도 원본 이미지 준비",
+      "description": "1024x1024 픽셀의 고해상도 PNG 이미지를 준비하세요. 작은 이미지를 확대하면 품질이 떨어집니다.",
+      "doThis": "1024x1024 PNG, 불투명 배경, 중앙 정렬된 로고",
+      "dontDoThis": "512x512 이하 이미지, JPG 형식, 투명 배경"
+    },
+    {
+      "title": "적응형 아이콘 안전 영역 준수",
+      "description": "Android 적응형 아이콘의 foreground는 전체 크기의 66%만 표시됩니다. 중요 요소는 안전 영역 내에 배치하세요.",
+      "doThis": "432x432 캔버스에서 중앙 288x288에 로고 배치",
+      "dontDoThis": "로고가 가장자리까지 확장된 foreground 이미지"
+    },
+    {
+      "title": "환경별 아이콘 구분",
+      "description": "개발, 스테이징, 프로덕션 환경의 아이콘을 다르게 설정하여 혼동을 방지하세요.",
+      "doThis": "개발 버전에 'DEV' 배지 추가, 스테이징에 'β' 배지 추가",
+      "dontDoThis": "모든 환경에서 동일한 아이콘 사용"
+    }
+  ],
+
+  "tips": [
+    "💡 이미지 편집이 어렵다면 Figma나 Canva에서 1024x1024 아이콘을 쉽게 만들 수 있습니다",
+    "🎨 적응형 아이콘 미리보기는 Android Studio의 Image Asset Studio에서 확인할 수 있습니다",
+    "📱 실제 기기에서 아이콘을 확인할 때는 앱을 완전히 삭제 후 재설치하세요",
+    "⚡ 아이콘 변경이 빈번하다면 별도의 yaml 파일로 설정을 분리하는 것이 편리합니다",
+    "🔧 Web PWA 아이콘은 manifest.json의 icons 배열도 함께 업데이트됩니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "flutter_native_splash",
+      "description": "앱 시작 시 스플래시 화면을 설정하는 패키지. 앱 아이콘과 함께 브랜딩 완성"
+    },
+    {
+      "name": "icons_launcher",
+      "description": "flutter_launcher_icons의 대안. 유사한 기능 제공"
+    },
+    {
+      "name": "flutter_app_badger",
+      "description": "앱 아이콘에 뱃지(알림 숫자)를 표시하는 패키지"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/flutter_launcher_icons"},
+    {"title": "GitHub 저장소", "url": "https://github.com/fluttercommunity/flutter_launcher_icons"},
+    {"title": "Android 적응형 아이콘 가이드", "url": "https://developer.android.com/guide/practices/ui_guidelines/icon_design_adaptive"},
+    {"title": "Apple Human Interface Guidelines - App Icons", "url": "https://developer.apple.com/design/human-interface-guidelines/app-icons"}
+  ]
+}

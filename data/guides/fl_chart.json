@@ -1,0 +1,229 @@
+{
+  "packageId": "fl_chart",
+  "title": "fl_chart 실전 마스터 가이드",
+  "generatedAt": "2026-01-27T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "0.70.2",
+  "packageLikes": 5892,
+
+  "overview": {
+    "what": "fl_chart는 Flutter에서 아름다운 차트를 그리는 고성능 차트 라이브러리입니다. 라인 차트, 바 차트, 파이 차트, 스캐터 차트, 레이더 차트 등 다양한 차트 유형을 지원하며, 터치 인터랙션과 애니메이션을 기본 제공합니다. 순수 Dart로 작성되어 모든 플랫폼에서 동일하게 작동합니다.",
+    "why": "데이터 시각화는 앱의 핵심 기능 중 하나입니다. fl_chart는 네이티브 코드 의존성 없이 Flutter Canvas API를 직접 사용하여 고성능 차트를 렌더링합니다. charts_flutter 대비 더 현대적인 디자인과 유연한 커스터마이징을 제공하며, 5,000개 이상의 좋아요를 받은 Flutter 커뮤니티 인기 패키지입니다.",
+    "when": "1) 대시보드나 분석 화면에서 데이터 시각화 시, 2) 매출/사용량 등 추이 그래프 표시 시, 3) 비율/구성 데이터를 파이 차트로 표현 시, 4) 실시간 데이터 업데이트가 필요한 모니터링 화면, 5) 인터랙티브한 데이터 탐색 기능 구현 시",
+    "features": [
+      "📊 다양한 차트: Line, Bar, Pie, Scatter, Radar 차트 지원",
+      "🎨 완전 커스터마이징: 색상, 그라데이션, 스타일 자유롭게 설정",
+      "👆 터치 인터랙션: 터치 이벤트 콜백으로 상세 정보 표시",
+      "✨ 부드러운 애니메이션: 데이터 변경 시 자동 애니메이션",
+      "📱 반응형 디자인: 화면 크기에 맞게 자동 조절"
+    ]
+  },
+
+  "description": "라인, 바, 파이 등 다양한 차트를 고성능으로 렌더링하는 Flutter 차트 라이브러리",
+  "difficulty": "중급 - 차트 데이터 구조와 커스터마이징 이해 필요",
+  "estimatedTime": "60분",
+  "prerequisites": [
+    "Flutter 위젯과 레이아웃 기본 이해",
+    "Dart 리스트와 객체 다루기",
+    "기본적인 데이터 시각화 개념"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "ChartData",
+      "explanation": "각 차트 유형별 데이터 클래스입니다. LineChartData, BarChartData, PieChartData 등이 있으며, 차트의 모든 설정(데이터, 스타일, 동작)을 담습니다.",
+      "analogy": "🎨 그림의 설계도에 비유하면, 어떤 색을 쓰고 어디에 뭘 그릴지 모든 정보가 담긴 청사진입니다.",
+      "usage": "LineChartData(lineBarsData: [...], titlesData: FlTitlesData(...))"
+    },
+    {
+      "term": "Spot / BarChartGroupData",
+      "explanation": "차트의 개별 데이터 포인트입니다. LineChart에서는 FlSpot(x, y), BarChart에서는 BarChartGroupData를 사용합니다.",
+      "analogy": "📍 지도의 핀에 비유하면, 각 핀이 데이터의 위치(좌표)를 나타냅니다.",
+      "usage": "FlSpot(0, 3)  // x=0, y=3 위치의 점"
+    },
+    {
+      "term": "TouchCallback",
+      "explanation": "사용자가 차트를 터치했을 때 호출되는 콜백입니다. 터치한 데이터 포인트 정보를 받아 툴팁 표시 등에 활용합니다.",
+      "analogy": "👆 터치스크린 버튼처럼, 특정 영역을 터치하면 그에 맞는 반응을 보여줍니다.",
+      "usage": "lineTouchData: LineTouchData(touchCallback: (event, response) {...})"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "fl_chart 패키지를 프로젝트에 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  fl_chart: ^0.70.2"
+      },
+      "commands": ["flutter pub add fl_chart", "flutter pub get"],
+      "explanation": "fl_chart는 순수 Dart 패키지이므로 네이티브 설정이 필요 없습니다. 설치 후 바로 사용할 수 있습니다.",
+      "platformSetup": {
+        "android": "추가 설정 불필요",
+        "ios": "추가 설정 불필요"
+      },
+      "beginnerTip": "💡 fl_chart는 Flutter Canvas API를 사용하므로 모든 플랫폼에서 동일하게 렌더링됩니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📈 라인 차트 기본",
+      "description": "가장 많이 사용되는 라인 차트를 그리는 기본 예제입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/charts/line_chart_example.dart",
+        "content": "import 'package:fl_chart/fl_chart.dart';\nimport 'package:flutter/material.dart';\n\nclass LineChartExample extends StatelessWidget {\n  const LineChartExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('라인 차트')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          children: [\n            const Text('월별 매출 추이', style: TextStyle(fontSize: 18)),\n            const SizedBox(height: 16),\n            SizedBox(\n              height: 300,\n              child: LineChart(\n                LineChartData(\n                  // 그리드 라인 설정\n                  gridData: FlGridData(\n                    show: true,\n                    drawVerticalLine: true,\n                    horizontalInterval: 20,\n                    verticalInterval: 1,\n                    getDrawingHorizontalLine: (value) {\n                      return FlLine(\n                        color: Colors.grey.shade300,\n                        strokeWidth: 1,\n                      );\n                    },\n                  ),\n\n                  // 축 타이틀 설정\n                  titlesData: FlTitlesData(\n                    leftTitles: AxisTitles(\n                      sideTitles: SideTitles(\n                        showTitles: true,\n                        reservedSize: 40,\n                        getTitlesWidget: (value, meta) {\n                          return Text(\n                            '${value.toInt()}만',\n                            style: const TextStyle(fontSize: 12),\n                          );\n                        },\n                      ),\n                    ),\n                    bottomTitles: AxisTitles(\n                      sideTitles: SideTitles(\n                        showTitles: true,\n                        getTitlesWidget: (value, meta) {\n                          const months = ['1월', '2월', '3월', '4월', '5월', '6월'];\n                          final index = value.toInt();\n                          if (index >= 0 && index < months.length) {\n                            return Text(months[index]);\n                          }\n                          return const Text('');\n                        },\n                      ),\n                    ),\n                    topTitles: const AxisTitles(\n                      sideTitles: SideTitles(showTitles: false),\n                    ),\n                    rightTitles: const AxisTitles(\n                      sideTitles: SideTitles(showTitles: false),\n                    ),\n                  ),\n\n                  // 테두리 설정\n                  borderData: FlBorderData(\n                    show: true,\n                    border: Border.all(color: Colors.grey.shade300),\n                  ),\n\n                  // 데이터 범위\n                  minX: 0,\n                  maxX: 5,\n                  minY: 0,\n                  maxY: 100,\n\n                  // 실제 데이터 라인\n                  lineBarsData: [\n                    LineChartBarData(\n                      spots: const [\n                        FlSpot(0, 30),  // 1월: 30만\n                        FlSpot(1, 45),  // 2월: 45만\n                        FlSpot(2, 38),  // 3월: 38만\n                        FlSpot(3, 60),  // 4월: 60만\n                        FlSpot(4, 72),  // 5월: 72만\n                        FlSpot(5, 85),  // 6월: 85만\n                      ],\n                      isCurved: true,  // 곡선으로 표시\n                      color: Colors.blue,\n                      barWidth: 3,\n                      isStrokeCapRound: true,\n                      dotData: const FlDotData(show: true),  // 점 표시\n                      belowBarData: BarAreaData(\n                        show: true,\n                        color: Colors.blue.withOpacity(0.2),  // 아래 영역 채우기\n                      ),\n                    ),\n                  ],\n                ),\n              ),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【LineChartData 핵심 구성】\n• gridData: 배경 그리드 선 설정\n• titlesData: X축, Y축 레이블 설정\n• borderData: 차트 테두리\n• minX/maxX, minY/maxY: 데이터 범위\n• lineBarsData: 실제 데이터 라인 배열\n\nFlSpot(x, y)로 각 데이터 포인트를 정의합니다.",
+      "beginnerTip": "💡 SizedBox로 차트의 높이를 명시적으로 지정해야 합니다. 그렇지 않으면 unbounded height 에러가 발생합니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "📊 바 차트",
+      "description": "카테고리별 비교에 적합한 바 차트 예제입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/charts/bar_chart_example.dart",
+        "content": "import 'package:fl_chart/fl_chart.dart';\nimport 'package:flutter/material.dart';\n\nclass BarChartExample extends StatelessWidget {\n  const BarChartExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('바 차트')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          children: [\n            const Text('부서별 실적', style: TextStyle(fontSize: 18)),\n            const SizedBox(height: 16),\n            SizedBox(\n              height: 300,\n              child: BarChart(\n                BarChartData(\n                  alignment: BarChartAlignment.spaceAround,\n\n                  // Y축 범위\n                  maxY: 100,\n\n                  // 바 터치 설정\n                  barTouchData: BarTouchData(\n                    enabled: true,\n                    touchTooltipData: BarTouchTooltipData(\n                      getTooltipColor: (group) => Colors.blueGrey,\n                      getTooltipItem: (group, groupIndex, rod, rodIndex) {\n                        final departments = ['영업', '개발', '마케팅', '디자인'];\n                        return BarTooltipItem(\n                          '${departments[groupIndex]}\\n${rod.toY.toInt()}점',\n                          const TextStyle(color: Colors.white),\n                        );\n                      },\n                    ),\n                  ),\n\n                  // 축 타이틀\n                  titlesData: FlTitlesData(\n                    leftTitles: AxisTitles(\n                      sideTitles: SideTitles(\n                        showTitles: true,\n                        reservedSize: 30,\n                        getTitlesWidget: (value, meta) {\n                          return Text('${value.toInt()}');\n                        },\n                      ),\n                    ),\n                    bottomTitles: AxisTitles(\n                      sideTitles: SideTitles(\n                        showTitles: true,\n                        getTitlesWidget: (value, meta) {\n                          const titles = ['영업', '개발', '마케팅', '디자인'];\n                          return Text(titles[value.toInt()]);\n                        },\n                      ),\n                    ),\n                    topTitles: const AxisTitles(\n                      sideTitles: SideTitles(showTitles: false),\n                    ),\n                    rightTitles: const AxisTitles(\n                      sideTitles: SideTitles(showTitles: false),\n                    ),\n                  ),\n\n                  borderData: FlBorderData(show: false),\n                  gridData: const FlGridData(show: true),\n\n                  // 바 데이터\n                  barGroups: [\n                    _makeBarGroup(0, 75, Colors.blue),\n                    _makeBarGroup(1, 90, Colors.green),\n                    _makeBarGroup(2, 60, Colors.orange),\n                    _makeBarGroup(3, 85, Colors.purple),\n                  ],\n                ),\n              ),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n\n  /// 바 그룹 생성 헬퍼\n  BarChartGroupData _makeBarGroup(int x, double y, Color color) {\n    return BarChartGroupData(\n      x: x,\n      barRods: [\n        BarChartRodData(\n          toY: y,\n          color: color,\n          width: 22,\n          borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),\n          // 그라데이션 적용\n          gradient: LinearGradient(\n            colors: [color.withOpacity(0.8), color],\n            begin: Alignment.bottomCenter,\n            end: Alignment.topCenter,\n          ),\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "【BarChartData 핵심 구성】\n• alignment: 바 그룹 정렬 방식\n• barGroups: 각 바의 데이터와 스타일\n• barTouchData: 터치 시 툴팁 설정\n\nBarChartGroupData는 하나의 X 위치에 여러 바(barRods)를 가질 수 있어 그룹 바 차트도 구현 가능합니다.",
+      "beginnerTip": "🎨 borderRadius로 바의 모서리를 둥글게, gradient로 그라데이션을 적용할 수 있습니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🥧 파이 차트",
+      "description": "비율/구성 데이터를 표현하는 파이 차트입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/charts/pie_chart_example.dart",
+        "content": "import 'package:fl_chart/fl_chart.dart';\nimport 'package:flutter/material.dart';\n\nclass PieChartExample extends StatefulWidget {\n  const PieChartExample({super.key});\n\n  @override\n  State<PieChartExample> createState() => _PieChartExampleState();\n}\n\nclass _PieChartExampleState extends State<PieChartExample> {\n  int touchedIndex = -1;  // 터치된 섹션 인덱스\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('파이 차트')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          children: [\n            const Text('플랫폼별 사용자 비율', style: TextStyle(fontSize: 18)),\n            const SizedBox(height: 32),\n            SizedBox(\n              height: 250,\n              child: PieChart(\n                PieChartData(\n                  // 터치 설정\n                  pieTouchData: PieTouchData(\n                    touchCallback: (FlTouchEvent event, pieTouchResponse) {\n                      setState(() {\n                        if (!event.isInterestedForInteractions ||\n                            pieTouchResponse == null ||\n                            pieTouchResponse.touchedSection == null) {\n                          touchedIndex = -1;\n                          return;\n                        }\n                        touchedIndex = pieTouchResponse\n                            .touchedSection!.touchedSectionIndex;\n                      });\n                    },\n                  ),\n\n                  // 중앙 구멍 (도넛 차트)\n                  centerSpaceRadius: 50,\n\n                  // 섹션별 공간\n                  sectionsSpace: 2,\n\n                  // 파이 섹션 데이터\n                  sections: _buildSections(),\n                ),\n              ),\n            ),\n            const SizedBox(height: 32),\n            // 범례\n            _buildLegend(),\n          ],\n        ),\n      ),\n    );\n  }\n\n  List<PieChartSectionData> _buildSections() {\n    final data = [\n      {'name': 'Android', 'value': 45.0, 'color': Colors.green},\n      {'name': 'iOS', 'value': 35.0, 'color': Colors.blue},\n      {'name': 'Web', 'value': 15.0, 'color': Colors.orange},\n      {'name': '기타', 'value': 5.0, 'color': Colors.grey},\n    ];\n\n    return List.generate(data.length, (index) {\n      final isTouched = index == touchedIndex;\n      final radius = isTouched ? 70.0 : 60.0;  // 터치 시 확대\n      final fontSize = isTouched ? 18.0 : 14.0;\n\n      return PieChartSectionData(\n        value: data[index]['value'] as double,\n        title: '${(data[index]['value'] as double).toInt()}%',\n        color: data[index]['color'] as Color,\n        radius: radius,\n        titleStyle: TextStyle(\n          fontSize: fontSize,\n          fontWeight: FontWeight.bold,\n          color: Colors.white,\n        ),\n        // 타이틀 위치 (0=중앙, 1=가장자리)\n        titlePositionPercentageOffset: 0.55,\n      );\n    });\n  }\n\n  Widget _buildLegend() {\n    final items = [\n      {'name': 'Android', 'color': Colors.green},\n      {'name': 'iOS', 'color': Colors.blue},\n      {'name': 'Web', 'color': Colors.orange},\n      {'name': '기타', 'color': Colors.grey},\n    ];\n\n    return Row(\n      mainAxisAlignment: MainAxisAlignment.center,\n      children: items.map((item) {\n        return Padding(\n          padding: const EdgeInsets.symmetric(horizontal: 8),\n          child: Row(\n            children: [\n              Container(\n                width: 16,\n                height: 16,\n                decoration: BoxDecoration(\n                  color: item['color'] as Color,\n                  borderRadius: BorderRadius.circular(4),\n                ),\n              ),\n              const SizedBox(width: 4),\n              Text(item['name'] as String),\n            ],\n          ),\n        );\n      }).toList(),\n    );\n  }\n}"
+      },
+      "explanation": "【PieChartData 핵심 구성】\n• sections: 각 파이 조각의 데이터와 스타일\n• centerSpaceRadius: 도넛 차트 중앙 구멍 크기 (0이면 일반 파이)\n• pieTouchData: 터치 시 동작 설정\n\n터치된 섹션을 touchedIndex로 추적하여 확대 효과를 적용합니다.",
+      "beginnerTip": "💡 titlePositionPercentageOffset으로 퍼센트 텍스트 위치를 조절할 수 있습니다. 0.5 정도가 적당합니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "✨ 애니메이션과 실시간 업데이트",
+      "description": "데이터 변경 시 부드러운 애니메이션을 적용하는 예제입니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/charts/animated_chart_example.dart",
+        "content": "import 'dart:async';\nimport 'dart:math';\nimport 'package:fl_chart/fl_chart.dart';\nimport 'package:flutter/material.dart';\n\nclass AnimatedChartExample extends StatefulWidget {\n  const AnimatedChartExample({super.key});\n\n  @override\n  State<AnimatedChartExample> createState() => _AnimatedChartExampleState();\n}\n\nclass _AnimatedChartExampleState extends State<AnimatedChartExample> {\n  List<FlSpot> spots = [];\n  Timer? timer;\n  final random = Random();\n\n  @override\n  void initState() {\n    super.initState();\n    // 초기 데이터 생성\n    _generateInitialData();\n    // 1초마다 데이터 업데이트\n    timer = Timer.periodic(const Duration(seconds: 1), (_) {\n      _updateData();\n    });\n  }\n\n  @override\n  void dispose() {\n    timer?.cancel();\n    super.dispose();\n  }\n\n  void _generateInitialData() {\n    spots = List.generate(10, (index) {\n      return FlSpot(index.toDouble(), random.nextDouble() * 100);\n    });\n  }\n\n  void _updateData() {\n    setState(() {\n      // 첫 번째 데이터 제거, 새 데이터 추가 (스트리밍 효과)\n      spots = spots.sublist(1).map((spot) {\n        return FlSpot(spot.x - 1, spot.y);  // x 위치 한 칸씩 왼쪽으로\n      }).toList();\n\n      // 새 데이터 추가\n      spots.add(FlSpot(9, random.nextDouble() * 100));\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('실시간 차트')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          children: [\n            const Text('실시간 모니터링', style: TextStyle(fontSize: 18)),\n            const SizedBox(height: 16),\n            SizedBox(\n              height: 300,\n              child: LineChart(\n                LineChartData(\n                  minX: 0,\n                  maxX: 9,\n                  minY: 0,\n                  maxY: 100,\n\n                  // 그리드\n                  gridData: FlGridData(\n                    show: true,\n                    horizontalInterval: 20,\n                    getDrawingHorizontalLine: (value) {\n                      return FlLine(\n                        color: Colors.grey.shade200,\n                        strokeWidth: 1,\n                      );\n                    },\n                  ),\n\n                  // 축 숨기기 (모니터링 스타일)\n                  titlesData: const FlTitlesData(show: false),\n                  borderData: FlBorderData(show: false),\n\n                  // 데이터 라인\n                  lineBarsData: [\n                    LineChartBarData(\n                      spots: spots,\n                      isCurved: true,\n                      curveSmoothness: 0.3,\n                      color: Colors.cyan,\n                      barWidth: 3,\n                      isStrokeCapRound: true,\n                      dotData: const FlDotData(show: false),  // 점 숨기기\n                      belowBarData: BarAreaData(\n                        show: true,\n                        gradient: LinearGradient(\n                          colors: [\n                            Colors.cyan.withOpacity(0.3),\n                            Colors.cyan.withOpacity(0.0),\n                          ],\n                          begin: Alignment.topCenter,\n                          end: Alignment.bottomCenter,\n                        ),\n                      ),\n                    ),\n                  ],\n\n                  // 터치 비활성화 (실시간 차트)\n                  lineTouchData: const LineTouchData(enabled: false),\n                ),\n\n                // 핵심: 애니메이션 duration 설정\n                duration: const Duration(milliseconds: 500),\n                curve: Curves.easeInOut,\n              ),\n            ),\n            const SizedBox(height: 24),\n            Row(\n              mainAxisAlignment: MainAxisAlignment.center,\n              children: [\n                ElevatedButton(\n                  onPressed: () {\n                    if (timer?.isActive ?? false) {\n                      timer?.cancel();\n                    } else {\n                      timer = Timer.periodic(\n                        const Duration(seconds: 1),\n                        (_) => _updateData(),\n                      );\n                    }\n                    setState(() {});\n                  },\n                  child: Text(timer?.isActive ?? false ? '일시정지' : '재개'),\n                ),\n                const SizedBox(width: 12),\n                ElevatedButton(\n                  onPressed: () {\n                    setState(() {\n                      _generateInitialData();\n                    });\n                  },\n                  child: const Text('초기화'),\n                ),\n              ],\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "【애니메이션 핵심】\nLineChart 위젯의 duration과 curve 파라미터로 애니메이션을 설정합니다:\n• duration: 애니메이션 지속 시간\n• curve: 애니메이션 곡선 (Curves.easeInOut 등)\n\nsetState로 spots 리스트를 업데이트하면 자동으로 애니메이션이 적용됩니다.",
+      "beginnerTip": "⚡ 실시간 데이터가 많으면 duration을 짧게 (200ms) 설정하여 지연을 줄이세요."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "LineChart",
+      "description": "라인 차트 위젯입니다. LineChartData를 받아 렌더링합니다.",
+      "parameters": "LineChartData data, Duration? duration, Curve? curve",
+      "returns": "Widget",
+      "example": "LineChart(LineChartData(lineBarsData: [...]))"
+    },
+    {
+      "name": "FlSpot",
+      "description": "라인 차트의 데이터 포인트입니다. x, y 좌표를 가집니다.",
+      "parameters": "double x, double y",
+      "returns": "FlSpot",
+      "example": "FlSpot(0, 30)  // x=0, y=30"
+    },
+    {
+      "name": "LineChartBarData",
+      "description": "하나의 라인에 대한 설정입니다. spots, 색상, 너비, 곡선 여부 등을 설정합니다.",
+      "parameters": "List<FlSpot> spots, Color? color, double barWidth, bool isCurved, ...",
+      "returns": "LineChartBarData",
+      "example": "LineChartBarData(spots: [...], isCurved: true, color: Colors.blue)"
+    },
+    {
+      "name": "BarChart",
+      "description": "바 차트 위젯입니다. BarChartData를 받아 렌더링합니다.",
+      "parameters": "BarChartData data, Duration? duration, Curve? curve",
+      "returns": "Widget",
+      "example": "BarChart(BarChartData(barGroups: [...]))"
+    },
+    {
+      "name": "PieChart",
+      "description": "파이/도넛 차트 위젯입니다. PieChartData를 받아 렌더링합니다.",
+      "parameters": "PieChartData data, Duration? duration, Curve? curve",
+      "returns": "Widget",
+      "example": "PieChart(PieChartData(sections: [...]))"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "RenderBox was not laid out: RenderConstrainedBox",
+      "cause": "차트 위젯의 높이가 지정되지 않았습니다. fl_chart는 명시적인 크기가 필요합니다.",
+      "solution": "SizedBox나 Container로 차트를 감싸고 height를 지정하세요.",
+      "prevention": "차트 위젯은 항상 SizedBox(height: 300, child: LineChart(...))처럼 크기를 지정하세요."
+    },
+    {
+      "error": "minX/maxX 범위 밖의 데이터",
+      "cause": "FlSpot의 x 값이 minX/maxX 범위를 벗어났습니다.",
+      "solution": "데이터의 x 값 범위에 맞게 minX/maxX를 조정하세요.",
+      "prevention": "데이터 범위를 자동으로 계산하여 설정하세요: minX = spots.map((s) => s.x).reduce(min)"
+    },
+    {
+      "error": "파이 차트 섹션이 보이지 않음",
+      "cause": "모든 섹션의 value가 0이거나, radius가 너무 작습니다.",
+      "solution": "각 섹션에 유효한 value와 적절한 radius(최소 50)를 설정하세요.",
+      "prevention": "데이터 유효성을 검사하고 최소값을 보장하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "데이터와 UI 분리",
+      "description": "차트 데이터를 별도의 모델 클래스로 관리하면 유지보수가 쉬워집니다.",
+      "doThis": "class SalesData {\n  final DateTime date;\n  final double amount;\n}\n// 변환\nspots = salesData.map((d) => FlSpot(d.date.day.toDouble(), d.amount)).toList();",
+      "dontDoThis": "spots = [FlSpot(1, 30), FlSpot(2, 45), ...]  // 하드코딩"
+    },
+    {
+      "title": "반응형 차트 크기",
+      "description": "화면 크기에 따라 차트 크기를 조절하세요.",
+      "doThis": "SizedBox(\n  height: MediaQuery.of(context).size.height * 0.3,\n  child: LineChart(...),\n)",
+      "dontDoThis": "SizedBox(height: 300, ...)  // 고정 크기"
+    },
+    {
+      "title": "성능 최적화",
+      "description": "대량의 데이터 포인트는 샘플링하여 표시하세요.",
+      "doThis": "// 1000개 데이터를 100개로 샘플링\nfinal sampled = data.where((d, i) => i % 10 == 0).toList();",
+      "dontDoThis": "// 1000개 포인트 모두 표시 (느림)"
+    }
+  ],
+
+  "tips": [
+    "💡 isCurved: true로 부드러운 곡선을, curveSmoothness로 곡선 정도를 조절할 수 있습니다",
+    "🎨 belowBarData.gradient로 라인 아래 영역에 그라데이션을 적용하면 시각적으로 더 예쁩니다",
+    "📱 터치 툴팁은 touchTooltipData에서 완전히 커스터마이징할 수 있습니다",
+    "⚡ 실시간 차트에서는 dotData: FlDotData(show: false)로 점을 숨기면 성능이 향상됩니다",
+    "🔧 showingTooltipIndicators로 특정 포인트에 항상 툴팁을 표시할 수 있습니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "syncfusion_flutter_charts",
+      "description": "더 많은 차트 유형과 기능을 제공하는 상업용 차트 라이브러리"
+    },
+    {
+      "name": "charts_flutter",
+      "description": "Google에서 만든 차트 라이브러리. Material Design 스타일"
+    },
+    {
+      "name": "graphic",
+      "description": "Grammar of Graphics 기반의 선언적 차트 라이브러리"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/fl_chart"},
+    {"title": "GitHub 저장소", "url": "https://github.com/imaNNeo/fl_chart"},
+    {"title": "공식 문서 및 예제", "url": "https://github.com/imaNNeo/fl_chart/blob/main/repo_files/documentations/index.md"},
+    {"title": "갤러리 (차트 예제 모음)", "url": "https://github.com/nicholascioli/fl_chart_gallery"}
+  ]
+}

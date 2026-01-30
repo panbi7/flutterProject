@@ -1,0 +1,151 @@
+{
+  "packageName": "shimmer",
+  "overview": {
+    "what": "shimmer는 Flutter에서 콘텐츠 로딩 중 스켈레톤 UI에 반짝이는 애니메이션 효과를 쉽게 추가할 수 있게 해주는 패키지입니다.",
+    "why": "로딩 중 빈 화면이나 스피너만 보여주면 사용자 경험이 좋지 않습니다. shimmer 효과는 콘텐츠가 곧 나타날 것임을 시각적으로 알려주어 체감 로딩 시간을 줄여줍니다.",
+    "when": "API 응답 대기, 이미지 로딩, 리스트 데이터 페칭 등 콘텐츠가 로드되기 전 플레이스홀더를 보여줄 때 사용합니다.",
+    "features": [
+      "손쉬운 shimmer 애니메이션 적용",
+      "색상, 방향, 속도 커스터마이징",
+      "어떤 위젯에도 적용 가능",
+      "스켈레톤 UI 구현에 최적화",
+      "메모리 효율적인 애니메이션",
+      "Material 3 디자인과 호환"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치",
+      "description": "pubspec.yaml에 shimmer 패키지를 추가합니다.",
+      "code": "dependencies:\n  flutter:\n    sdk: flutter\n  shimmer: ^3.0.0",
+      "explanation": "shimmer는 순수 Dart로 작성되어 별도의 네이티브 설정이 필요 없습니다."
+    },
+    {
+      "title": "기본 Shimmer 효과 적용",
+      "description": "Shimmer.fromColors를 사용하여 기본적인 shimmer 효과를 적용합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:shimmer/shimmer.dart';\n\nclass BasicShimmerExample extends StatelessWidget {\n  const BasicShimmerExample({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Shimmer.fromColors(\n      baseColor: Colors.grey[300]!,\n      highlightColor: Colors.grey[100]!,\n      child: Container(\n        width: 200,\n        height: 100,\n        color: Colors.white,\n      ),\n    );\n  }\n}",
+      "explanation": "baseColor는 기본 배경색, highlightColor는 반짝이는 하이라이트 색상입니다. child에 shimmer 효과를 적용할 위젯을 넣습니다."
+    },
+    {
+      "title": "스켈레톤 카드 UI 만들기",
+      "description": "실제 콘텐츠 카드의 스켈레톤 버전을 shimmer로 구현합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:shimmer/shimmer.dart';\n\nclass ShimmerCard extends StatelessWidget {\n  const ShimmerCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Shimmer.fromColors(\n      baseColor: Colors.grey[300]!,\n      highlightColor: Colors.grey[100]!,\n      child: Card(\n        child: Padding(\n          padding: const EdgeInsets.all(16),\n          child: Column(\n            crossAxisAlignment: CrossAxisAlignment.start,\n            children: [\n              // 이미지 플레이스홀더\n              Container(\n                width: double.infinity,\n                height: 150,\n                decoration: BoxDecoration(\n                  color: Colors.white,\n                  borderRadius: BorderRadius.circular(8),\n                ),\n              ),\n              const SizedBox(height: 12),\n              // 제목 플레이스홀더\n              Container(\n                width: double.infinity,\n                height: 20,\n                decoration: BoxDecoration(\n                  color: Colors.white,\n                  borderRadius: BorderRadius.circular(4),\n                ),\n              ),\n              const SizedBox(height: 8),\n              // 부제목 플레이스홀더\n              Container(\n                width: 150,\n                height: 16,\n                decoration: BoxDecoration(\n                  color: Colors.white,\n                  borderRadius: BorderRadius.circular(4),\n                ),\n              ),\n              const SizedBox(height: 12),\n              // 텍스트 라인들\n              Container(\n                width: double.infinity,\n                height: 12,\n                decoration: BoxDecoration(\n                  color: Colors.white,\n                  borderRadius: BorderRadius.circular(4),\n                ),\n              ),\n              const SizedBox(height: 6),\n              Container(\n                width: double.infinity,\n                height: 12,\n                decoration: BoxDecoration(\n                  color: Colors.white,\n                  borderRadius: BorderRadius.circular(4),\n                ),\n              ),\n              const SizedBox(height: 6),\n              Container(\n                width: 200,\n                height: 12,\n                decoration: BoxDecoration(\n                  color: Colors.white,\n                  borderRadius: BorderRadius.circular(4),\n                ),\n              ),\n            ],\n          ),\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "실제 콘텐츠의 레이아웃과 비슷한 플레이스홀더를 만들어 shimmer를 적용합니다. 흰색 Container들이 shimmer 효과로 반짝입니다."
+    },
+    {
+      "title": "리스트 스켈레톤 구현",
+      "description": "로딩 중인 리스트를 shimmer 스켈레톤으로 표시하는 방법입니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:shimmer/shimmer.dart';\n\nclass ShimmerList extends StatelessWidget {\n  final int itemCount;\n\n  const ShimmerList({super.key, this.itemCount = 5});\n\n  @override\n  Widget build(BuildContext context) {\n    return Shimmer.fromColors(\n      baseColor: Colors.grey[300]!,\n      highlightColor: Colors.grey[100]!,\n      child: ListView.builder(\n        shrinkWrap: true,\n        physics: const NeverScrollableScrollPhysics(),\n        itemCount: itemCount,\n        itemBuilder: (context, index) => const _ShimmerListItem(),\n      ),\n    );\n  }\n}\n\nclass _ShimmerListItem extends StatelessWidget {\n  const _ShimmerListItem();\n\n  @override\n  Widget build(BuildContext context) {\n    return Padding(\n      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),\n      child: Row(\n        children: [\n          // 아바타 플레이스홀더\n          Container(\n            width: 48,\n            height: 48,\n            decoration: const BoxDecoration(\n              color: Colors.white,\n              shape: BoxShape.circle,\n            ),\n          ),\n          const SizedBox(width: 12),\n          // 텍스트 플레이스홀더\n          Expanded(\n            child: Column(\n              crossAxisAlignment: CrossAxisAlignment.start,\n              children: [\n                Container(\n                  width: double.infinity,\n                  height: 16,\n                  decoration: BoxDecoration(\n                    color: Colors.white,\n                    borderRadius: BorderRadius.circular(4),\n                  ),\n                ),\n                const SizedBox(height: 8),\n                Container(\n                  width: 120,\n                  height: 12,\n                  decoration: BoxDecoration(\n                    color: Colors.white,\n                    borderRadius: BorderRadius.circular(4),\n                  ),\n                ),\n              ],\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}\n\n// 사용 예시\nclass UserListScreen extends StatefulWidget {\n  const UserListScreen({super.key});\n\n  @override\n  State<UserListScreen> createState() => _UserListScreenState();\n}\n\nclass _UserListScreenState extends State<UserListScreen> {\n  List<Map<String, String>>? _users;\n  bool _isLoading = true;\n\n  @override\n  void initState() {\n    super.initState();\n    _loadUsers();\n  }\n\n  Future<void> _loadUsers() async {\n    // API 호출 시뮬레이션\n    await Future.delayed(const Duration(seconds: 2));\n    setState(() {\n      _users = [\n        {'name': '홍길동', 'email': 'hong@email.com'},\n        {'name': '김철수', 'email': 'kim@email.com'},\n        {'name': '이영희', 'email': 'lee@email.com'},\n      ];\n      _isLoading = false;\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    if (_isLoading) {\n      return const ShimmerList();\n    }\n\n    return ListView.builder(\n      itemCount: _users!.length,\n      itemBuilder: (context, index) {\n        final user = _users![index];\n        return ListTile(\n          leading: CircleAvatar(child: Text(user['name']![0])),\n          title: Text(user['name']!),\n          subtitle: Text(user['email']!),\n        );\n      },\n    );\n  }\n}",
+      "explanation": "shimmer를 ListView 전체에 적용하면 모든 아이템이 동기화된 애니메이션으로 반짝입니다. 로딩 완료 후 실제 콘텐츠로 교체합니다."
+    },
+    {
+      "title": "고급 커스터마이징",
+      "description": "shimmer의 방향, 속도, 루프 설정 등을 커스터마이징합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:shimmer/shimmer.dart';\n\nclass CustomShimmerExamples extends StatelessWidget {\n  const CustomShimmerExamples({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      children: [\n        // 1. 오른쪽에서 왼쪽으로 이동\n        Shimmer.fromColors(\n          baseColor: Colors.grey[300]!,\n          highlightColor: Colors.grey[100]!,\n          direction: ShimmerDirection.rtl,\n          child: _buildPlaceholder(),\n        ),\n        const SizedBox(height: 20),\n\n        // 2. 위에서 아래로 이동\n        Shimmer.fromColors(\n          baseColor: Colors.grey[300]!,\n          highlightColor: Colors.grey[100]!,\n          direction: ShimmerDirection.ttb,\n          child: _buildPlaceholder(),\n        ),\n        const SizedBox(height: 20),\n\n        // 3. 느린 애니메이션\n        Shimmer.fromColors(\n          baseColor: Colors.grey[300]!,\n          highlightColor: Colors.grey[100]!,\n          period: const Duration(milliseconds: 2000),\n          child: _buildPlaceholder(),\n        ),\n        const SizedBox(height: 20),\n\n        // 4. 빠른 애니메이션\n        Shimmer.fromColors(\n          baseColor: Colors.grey[300]!,\n          highlightColor: Colors.grey[100]!,\n          period: const Duration(milliseconds: 800),\n          child: _buildPlaceholder(),\n        ),\n        const SizedBox(height: 20),\n\n        // 5. 한 번만 실행\n        Shimmer.fromColors(\n          baseColor: Colors.grey[300]!,\n          highlightColor: Colors.grey[100]!,\n          loop: 1,\n          child: _buildPlaceholder(),\n        ),\n        const SizedBox(height: 20),\n\n        // 6. 커스텀 색상 (다크 테마용)\n        Shimmer.fromColors(\n          baseColor: Colors.grey[800]!,\n          highlightColor: Colors.grey[600]!,\n          child: _buildPlaceholder(),\n        ),\n        const SizedBox(height: 20),\n\n        // 7. 활성화/비활성화 제어\n        Shimmer.fromColors(\n          baseColor: Colors.grey[300]!,\n          highlightColor: Colors.grey[100]!,\n          enabled: true, // false로 설정하면 애니메이션 정지\n          child: _buildPlaceholder(),\n        ),\n      ],\n    );\n  }\n\n  Widget _buildPlaceholder() {\n    return Container(\n      width: 200,\n      height: 60,\n      decoration: BoxDecoration(\n        color: Colors.white,\n        borderRadius: BorderRadius.circular(8),\n      ),\n    );\n  }\n}\n\n// 테마 기반 shimmer 헬퍼\nclass ThemedShimmer extends StatelessWidget {\n  final Widget child;\n  final ShimmerDirection direction;\n  final Duration period;\n\n  const ThemedShimmer({\n    super.key,\n    required this.child,\n    this.direction = ShimmerDirection.ltr,\n    this.period = const Duration(milliseconds: 1500),\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    final isDark = Theme.of(context).brightness == Brightness.dark;\n\n    return Shimmer.fromColors(\n      baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,\n      highlightColor: isDark ? Colors.grey[600]! : Colors.grey[100]!,\n      direction: direction,\n      period: period,\n      child: child,\n    );\n  }\n}\n\n// 재사용 가능한 스켈레톤 위젯들\nclass SkeletonBox extends StatelessWidget {\n  final double? width;\n  final double height;\n  final double borderRadius;\n\n  const SkeletonBox({\n    super.key,\n    this.width,\n    required this.height,\n    this.borderRadius = 4,\n  });\n\n  @override\n  Widget build(BuildContext context) {\n    return Container(\n      width: width,\n      height: height,\n      decoration: BoxDecoration(\n        color: Colors.white,\n        borderRadius: BorderRadius.circular(borderRadius),\n      ),\n    );\n  }\n}\n\nclass SkeletonCircle extends StatelessWidget {\n  final double size;\n\n  const SkeletonCircle({super.key, required this.size});\n\n  @override\n  Widget build(BuildContext context) {\n    return Container(\n      width: size,\n      height: size,\n      decoration: const BoxDecoration(\n        color: Colors.white,\n        shape: BoxShape.circle,\n      ),\n    );\n  }\n}",
+      "explanation": "direction으로 애니메이션 방향을, period로 속도를, loop로 반복 횟수를 조절합니다. enabled로 애니메이션을 제어할 수 있습니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "Shimmer.fromColors",
+      "description": "가장 많이 사용하는 생성자입니다. baseColor와 highlightColor를 지정하여 그라데이션 shimmer 효과를 만듭니다. child의 불투명한 부분에 효과가 적용됩니다."
+    },
+    {
+      "name": "스켈레톤 UI 패턴",
+      "description": "실제 콘텐츠의 레이아웃을 본떠 플레이스홀더를 만드는 패턴입니다. 사용자가 곧 나타날 콘텐츠의 구조를 미리 인지할 수 있어 체감 로딩 시간이 줄어듭니다."
+    },
+    {
+      "name": "동기화된 애니메이션",
+      "description": "하나의 Shimmer 위젯 아래 여러 자식 요소가 있으면 모두 같은 타이밍으로 애니메이션됩니다. 일관된 시각적 효과를 제공합니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "Shimmer.fromColors",
+      "signature": "Shimmer.fromColors({required Color baseColor, required Color highlightColor, Widget? child, ...})",
+      "description": "색상 기반 shimmer 위젯을 생성합니다. baseColor는 기본색, highlightColor는 반짝이는 색상입니다."
+    },
+    {
+      "name": "baseColor",
+      "signature": "Color baseColor",
+      "description": "shimmer 효과의 기본 배경색입니다. 일반적으로 밝은 회색을 사용합니다."
+    },
+    {
+      "name": "highlightColor",
+      "signature": "Color highlightColor",
+      "description": "shimmer 애니메이션의 하이라이트 색상입니다. baseColor보다 밝은 색을 사용합니다."
+    },
+    {
+      "name": "direction",
+      "signature": "ShimmerDirection direction",
+      "description": "애니메이션 방향을 지정합니다. ltr(왼→오), rtl(오→왼), ttb(위→아래), btt(아래→위)가 있습니다."
+    },
+    {
+      "name": "period",
+      "signature": "Duration period",
+      "description": "한 번의 shimmer 애니메이션 사이클 시간입니다. 기본값은 1500밀리초입니다."
+    },
+    {
+      "name": "loop",
+      "signature": "int loop",
+      "description": "애니메이션 반복 횟수입니다. 0이면 무한 반복(기본값), 양수면 해당 횟수만큼 반복합니다."
+    },
+    {
+      "name": "enabled",
+      "signature": "bool enabled",
+      "description": "애니메이션 활성화 여부입니다. false로 설정하면 애니메이션이 정지합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "Shimmer 효과가 보이지 않음",
+      "cause": "child 위젯이 투명하거나 색상이 지정되지 않음",
+      "solution": "shimmer 효과는 불투명한 영역에만 적용됩니다. Container에 color: Colors.white 등 색상을 지정하세요."
+    },
+    {
+      "error": "성능 저하",
+      "cause": "화면에 너무 많은 Shimmer 위젯이 독립적으로 존재",
+      "solution": "여러 요소를 하나의 Shimmer 위젯으로 감싸세요. 각각 독립적인 Shimmer를 사용하면 애니메이션이 각자 돌아갑니다."
+    },
+    {
+      "error": "ListView에서 shimmer가 이상하게 보임",
+      "cause": "스크롤 시 shimmer 위치가 어긋남",
+      "solution": "ListView 전체를 Shimmer로 감싸고, shrinkWrap: true와 NeverScrollableScrollPhysics()를 사용하세요."
+    },
+    {
+      "error": "다크 테마에서 shimmer가 잘 안 보임",
+      "cause": "라이트 테마용 색상을 그대로 사용",
+      "solution": "다크 테마에서는 baseColor와 highlightColor를 어두운 회색 계열로 변경하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "실제 레이아웃과 유사하게 만들기",
+      "description": "스켈레톤 UI는 실제 콘텐츠의 레이아웃과 최대한 비슷하게 만드세요. 사용자가 곧 나타날 콘텐츠 구조를 예측할 수 있습니다."
+    },
+    {
+      "title": "하나의 Shimmer로 여러 요소 감싸기",
+      "description": "관련된 스켈레톤 요소들은 하나의 Shimmer 위젯으로 감싸세요. 애니메이션이 동기화되고 성능도 좋아집니다."
+    },
+    {
+      "title": "테마 대응",
+      "description": "라이트/다크 테마에 따라 shimmer 색상을 다르게 설정하세요. 테마에 맞지 않는 색상은 사용자 경험을 해칩니다."
+    },
+    {
+      "title": "적절한 애니메이션 속도",
+      "description": "너무 빠르면 산만하고, 너무 느리면 정지된 것처럼 보입니다. 1000-1500ms 정도가 적당합니다."
+    },
+    {
+      "title": "재사용 가능한 컴포넌트 만들기",
+      "description": "SkeletonBox, SkeletonCircle 같은 기본 스켈레톤 위젯을 만들어 재사용하세요. 일관성 있는 UI를 쉽게 유지할 수 있습니다."
+    }
+  ],
+  "tips": [
+    "Container의 decoration에 color를 지정해야 shimmer 효과가 보입니다",
+    "borderRadius를 적용하면 더 자연스러운 스켈레톤 UI를 만들 수 있습니다",
+    "실제 텍스트 높이에 맞게 스켈레톤 높이를 설정하세요 (제목 20px, 본문 14px 등)",
+    "이미지 스켈레톤은 실제 이미지 비율과 맞추면 콘텐츠 로드 시 레이아웃 점프가 없습니다",
+    "shimmer 대신 skeleton_loader나 skeletonizer 같은 대안 패키지도 고려해보세요",
+    "CachedNetworkImage의 placeholder와 함께 사용하면 이미지 로딩 UX를 개선할 수 있습니다"
+  ]
+}

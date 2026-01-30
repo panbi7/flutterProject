@@ -1,0 +1,186 @@
+{
+  "packageId": "audioplayers",
+  "title": "audioplayers 실전 마스터 가이드",
+  "generatedAt": "2026-01-28T10:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "6.1.0",
+  "packageLikes": 2500,
+
+  "overview": {
+    "what": "audioplayers는 Flutter에서 오디오 파일을 재생할 수 있는 경량 패키지입니다. 네트워크 URL, 로컬 파일, assets의 오디오를 재생할 수 있으며, 동시에 여러 오디오를 재생하고, 볼륨/속도/위치를 제어할 수 있습니다. MP3, WAV, AAC 등 다양한 포맷을 지원합니다.",
+    "why": "단순한 효과음부터 음악 재생까지 다양한 오디오 요구사항을 충족합니다. just_audio보다 가볍고 간단한 API를 제공하며, 게임 효과음처럼 짧은 오디오를 빠르게 재생하는데 최적화되어 있습니다. 여러 오디오를 동시에 재생할 수 있어 게임이나 인터랙티브 앱에 유용합니다.",
+    "when": "1) 앱에서 효과음을 재생해야 할 때, 2) 배경 음악을 재생해야 할 때, 3) 팟캐스트나 오디오북 앱을 개발할 때, 4) 게임에서 여러 사운드를 동시에 재생해야 할 때, 5) 간단한 오디오 재생이 필요할 때",
+    "features": [
+      "🎵 다중 재생: 여러 오디오를 동시에 재생",
+      "📂 다양한 소스: URL, 파일, assets 지원",
+      "🎚️ 볼륨/속도 제어: 재생 속도와 볼륨 실시간 조절",
+      "🔁 반복 재생: 루프 모드 지원",
+      "📱 전 플랫폼: Android, iOS, Web, macOS, Linux, Windows"
+    ]
+  },
+
+  "description": "간단하고 가벼운 Flutter 오디오 재생 패키지",
+  "difficulty": "초급 - 간단한 API로 빠르게 시작 가능",
+  "estimatedTime": "30분",
+  "prerequisites": [
+    "Flutter 기본 위젯 이해",
+    "async/await 비동기 프로그래밍"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "AudioPlayer",
+      "explanation": "오디오 재생을 담당하는 핵심 클래스입니다. 하나의 AudioPlayer 인스턴스가 하나의 오디오를 재생합니다.",
+      "analogy": "🎧 MP3 플레이어 한 대와 같습니다. 여러 곡을 동시에 들으려면 여러 플레이어가 필요합니다.",
+      "usage": "final player = AudioPlayer();"
+    },
+    {
+      "term": "Source",
+      "explanation": "오디오 파일의 출처를 나타냅니다. URL, 파일 경로, assets 경로 등을 지정할 수 있습니다.",
+      "analogy": "💿 CD, USB, 스트리밍 등 음악을 가져오는 소스와 같습니다.",
+      "usage": "UrlSource('https://...'), AssetSource('audio/song.mp3')"
+    },
+    {
+      "term": "PlayerState",
+      "explanation": "플레이어의 현재 상태입니다. playing, paused, stopped, completed 중 하나입니다.",
+      "analogy": "🚦 신호등처럼 현재 재생 중인지, 일시정지인지, 멈춤인지를 나타냅니다.",
+      "usage": "player.state  // PlayerState.playing"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "audioplayers 패키지를 설치합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  audioplayers: ^6.1.0\n\nflutter:\n  assets:\n    - assets/audio/"
+      },
+      "commands": ["flutter pub add audioplayers", "mkdir -p assets/audio"],
+      "platformSetup": {
+        "android": "추가 설정 불필요. 인터넷 오디오 재생 시 INTERNET 권한 필요.",
+        "ios": "HTTP 오디오 재생 시 App Transport Security 설정 필요할 수 있음."
+      },
+      "beginnerTip": "💡 assets/audio 폴더에 오디오 파일을 넣고 pubspec.yaml에 등록하세요."
+    },
+    {
+      "stepNumber": 2,
+      "title": "🎵 기본 오디오 재생",
+      "description": "가장 기본적인 오디오 재생 방법을 알아봅니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/basic_audio_example.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:audioplayers/audioplayers.dart';\n\nclass BasicAudioExample extends StatefulWidget {\n  const BasicAudioExample({super.key});\n\n  @override\n  State<BasicAudioExample> createState() => _BasicAudioExampleState();\n}\n\nclass _BasicAudioExampleState extends State<BasicAudioExample> {\n  // 오디오 플레이어 인스턴스\n  final AudioPlayer _player = AudioPlayer();\n  \n  bool _isPlaying = false;\n\n  @override\n  void dispose() {\n    // 리소스 해제 필수!\n    _player.dispose();\n    super.dispose();\n  }\n\n  // URL에서 오디오 재생\n  Future<void> _playFromUrl() async {\n    await _player.play(UrlSource(\n      'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'\n    ));\n    setState(() => _isPlaying = true);\n  }\n\n  // Assets에서 오디오 재생\n  Future<void> _playFromAsset() async {\n    // assets/audio/sound.mp3 파일\n    await _player.play(AssetSource('audio/sound.mp3'));\n    setState(() => _isPlaying = true);\n  }\n\n  // 로컬 파일에서 재생\n  Future<void> _playFromFile(String filePath) async {\n    await _player.play(DeviceFileSource(filePath));\n    setState(() => _isPlaying = true);\n  }\n\n  // 일시정지\n  Future<void> _pause() async {\n    await _player.pause();\n    setState(() => _isPlaying = false);\n  }\n\n  // 정지 (처음으로 돌아감)\n  Future<void> _stop() async {\n    await _player.stop();\n    setState(() => _isPlaying = false);\n  }\n\n  // 다시 재생 (일시정지 후)\n  Future<void> _resume() async {\n    await _player.resume();\n    setState(() => _isPlaying = true);\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('기본 오디오 재생')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            // 재생/일시정지 버튼\n            IconButton(\n              iconSize: 64,\n              icon: Icon(_isPlaying ? Icons.pause_circle : Icons.play_circle),\n              onPressed: () {\n                if (_isPlaying) {\n                  _pause();\n                } else {\n                  _playFromUrl();\n                }\n              },\n            ),\n            const SizedBox(height: 20),\n            // 정지 버튼\n            ElevatedButton(\n              onPressed: _stop,\n              child: const Text('정지'),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "• play(): 오디오 재생 시작 (Source 필요)\n• pause(): 일시정지 (현재 위치 유지)\n• resume(): 일시정지된 위치에서 다시 재생\n• stop(): 정지 (위치가 처음으로)\n• dispose(): 플레이어 리소스 해제",
+      "beginnerTip": "⚠️ dispose()에서 반드시 _player.dispose()를 호출하세요. 메모리 누수를 방지합니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🎚️ 볼륨, 속도, 위치 제어",
+      "description": "오디오의 볼륨, 재생 속도, 재생 위치를 제어합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/audio_controls.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:audioplayers/audioplayers.dart';\n\nclass AudioControlsExample extends StatefulWidget {\n  const AudioControlsExample({super.key});\n\n  @override\n  State<AudioControlsExample> createState() => _AudioControlsExampleState();\n}\n\nclass _AudioControlsExampleState extends State<AudioControlsExample> {\n  final AudioPlayer _player = AudioPlayer();\n  \n  double _volume = 1.0;\n  double _playbackRate = 1.0;\n  Duration _duration = Duration.zero;\n  Duration _position = Duration.zero;\n\n  @override\n  void initState() {\n    super.initState();\n    _setupListeners();\n  }\n\n  void _setupListeners() {\n    // 전체 길이 변경 리스너\n    _player.onDurationChanged.listen((duration) {\n      setState(() => _duration = duration);\n    });\n\n    // 현재 위치 변경 리스너\n    _player.onPositionChanged.listen((position) {\n      setState(() => _position = position);\n    });\n\n    // 재생 상태 변경 리스너\n    _player.onPlayerStateChanged.listen((state) {\n      print('상태: $state');\n    });\n\n    // 재생 완료 리스너\n    _player.onPlayerComplete.listen((_) {\n      setState(() => _position = Duration.zero);\n      print('재생 완료');\n    });\n  }\n\n  @override\n  void dispose() {\n    _player.dispose();\n    super.dispose();\n  }\n\n  // 볼륨 설정 (0.0 ~ 1.0)\n  Future<void> _setVolume(double volume) async {\n    await _player.setVolume(volume);\n    setState(() => _volume = volume);\n  }\n\n  // 재생 속도 설정 (0.5 ~ 2.0)\n  Future<void> _setPlaybackRate(double rate) async {\n    await _player.setPlaybackRate(rate);\n    setState(() => _playbackRate = rate);\n  }\n\n  // 특정 위치로 이동\n  Future<void> _seek(Duration position) async {\n    await _player.seek(position);\n  }\n\n  String _formatDuration(Duration d) {\n    String twoDigits(int n) => n.toString().padLeft(2, '0');\n    return '${twoDigits(d.inMinutes)}:${twoDigits(d.inSeconds.remainder(60))}';\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('오디오 컨트롤')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          children: [\n            // 재생 버튼\n            ElevatedButton(\n              onPressed: () async {\n                await _player.play(UrlSource(\n                  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'\n                ));\n              },\n              child: const Text('재생'),\n            ),\n            \n            const SizedBox(height: 24),\n            \n            // 진행 바\n            Column(\n              children: [\n                Slider(\n                  value: _position.inMilliseconds.toDouble(),\n                  min: 0,\n                  max: _duration.inMilliseconds.toDouble() + 1,\n                  onChanged: (value) {\n                    _seek(Duration(milliseconds: value.toInt()));\n                  },\n                ),\n                Row(\n                  mainAxisAlignment: MainAxisAlignment.spaceBetween,\n                  children: [\n                    Text(_formatDuration(_position)),\n                    Text(_formatDuration(_duration)),\n                  ],\n                ),\n              ],\n            ),\n            \n            const SizedBox(height: 24),\n            \n            // 볼륨 조절\n            Row(\n              children: [\n                const Icon(Icons.volume_down),\n                Expanded(\n                  child: Slider(\n                    value: _volume,\n                    min: 0,\n                    max: 1,\n                    onChanged: _setVolume,\n                  ),\n                ),\n                const Icon(Icons.volume_up),\n                Text('${(_volume * 100).toInt()}%'),\n              ],\n            ),\n            \n            const SizedBox(height: 16),\n            \n            // 재생 속도 조절\n            Row(\n              children: [\n                const Text('속도: '),\n                Expanded(\n                  child: Slider(\n                    value: _playbackRate,\n                    min: 0.5,\n                    max: 2.0,\n                    divisions: 6,\n                    label: '${_playbackRate}x',\n                    onChanged: _setPlaybackRate,\n                  ),\n                ),\n                Text('${_playbackRate}x'),\n              ],\n            ),\n            \n            // 빠른 속도 버튼\n            Row(\n              mainAxisAlignment: MainAxisAlignment.center,\n              children: [0.5, 1.0, 1.5, 2.0].map((speed) {\n                return Padding(\n                  padding: const EdgeInsets.symmetric(horizontal: 4),\n                  child: ChoiceChip(\n                    label: Text('${speed}x'),\n                    selected: _playbackRate == speed,\n                    onSelected: (_) => _setPlaybackRate(speed),\n                  ),\n                );\n              }).toList(),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "• onDurationChanged: 오디오 전체 길이 확인\n• onPositionChanged: 현재 재생 위치 실시간 업데이트\n• setVolume(): 볼륨 조절 (0.0~1.0)\n• setPlaybackRate(): 재생 속도 조절 (0.5~2.0)\n• seek(): 특정 위치로 이동",
+      "beginnerTip": "💡 onPositionChanged는 약 200ms마다 호출됩니다. UI 업데이트에 적합합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🔊 효과음과 다중 재생",
+      "description": "게임 효과음처럼 짧은 오디오를 빠르게, 동시에 여러 개 재생합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/services/sound_effects.dart",
+        "content": "import 'package:audioplayers/audioplayers.dart';\n\nclass SoundEffectsManager {\n  // 효과음별 플레이어 풀\n  final Map<String, AudioPlayer> _players = {};\n  \n  // 동시 재생용 플레이어 리스트\n  final List<AudioPlayer> _sfxPool = [];\n  static const int _poolSize = 5;\n\n  SoundEffectsManager() {\n    // 효과음 풀 초기화\n    for (int i = 0; i < _poolSize; i++) {\n      _sfxPool.add(AudioPlayer());\n    }\n  }\n\n  // 효과음 미리 로드 (지연 없이 재생하기 위해)\n  Future<void> preload(String key, String assetPath) async {\n    final player = AudioPlayer();\n    await player.setSource(AssetSource(assetPath));\n    _players[key] = player;\n  }\n\n  // 미리 로드된 효과음 재생\n  Future<void> play(String key) async {\n    final player = _players[key];\n    if (player != null) {\n      await player.seek(Duration.zero);  // 처음으로\n      await player.resume();\n    }\n  }\n\n  // 동시 재생 가능한 효과음 (풀 사용)\n  Future<void> playSfx(String assetPath) async {\n    // 사용 가능한 플레이어 찾기\n    AudioPlayer? availablePlayer;\n    for (final player in _sfxPool) {\n      if (player.state != PlayerState.playing) {\n        availablePlayer = player;\n        break;\n      }\n    }\n\n    // 모두 사용 중이면 첫 번째 것 재사용\n    availablePlayer ??= _sfxPool.first;\n\n    await availablePlayer.play(AssetSource(assetPath));\n  }\n\n  // 모든 효과음 정지\n  Future<void> stopAll() async {\n    for (final player in _players.values) {\n      await player.stop();\n    }\n    for (final player in _sfxPool) {\n      await player.stop();\n    }\n  }\n\n  // 리소스 해제\n  void dispose() {\n    for (final player in _players.values) {\n      player.dispose();\n    }\n    for (final player in _sfxPool) {\n      player.dispose();\n    }\n  }\n}\n\n// AudioCache를 사용한 간단한 효과음 재생\nclass SimpleSoundEffects {\n  static final AudioPlayer _player = AudioPlayer();\n\n  // 한 줄로 효과음 재생\n  static Future<void> playClick() async {\n    await _player.play(AssetSource('audio/click.mp3'));\n  }\n\n  static Future<void> playSuccess() async {\n    await _player.play(AssetSource('audio/success.mp3'));\n  }\n\n  static Future<void> playError() async {\n    await _player.play(AssetSource('audio/error.mp3'));\n  }\n}\n\n// 사용 예시\nclass GameScreen extends StatefulWidget {\n  const GameScreen({super.key});\n\n  @override\n  State<GameScreen> createState() => _GameScreenState();\n}\n\nclass _GameScreenState extends State<GameScreen> {\n  late SoundEffectsManager _sfx;\n\n  @override\n  void initState() {\n    super.initState();\n    _sfx = SoundEffectsManager();\n    _loadSounds();\n  }\n\n  Future<void> _loadSounds() async {\n    await _sfx.preload('jump', 'audio/jump.wav');\n    await _sfx.preload('coin', 'audio/coin.wav');\n    await _sfx.preload('hit', 'audio/hit.wav');\n  }\n\n  @override\n  void dispose() {\n    _sfx.dispose();\n    super.dispose();\n  }\n\n  void _onJump() {\n    _sfx.play('jump');\n  }\n\n  void _onCollectCoin() {\n    _sfx.play('coin');\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      body: GestureDetector(\n        onTap: _onJump,\n        child: const Center(child: Text('탭하면 점프!')),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "• 플레이어 풀: 동시에 여러 효과음을 재생하기 위해 여러 AudioPlayer 인스턴스 사용\n• preload(): 미리 로드하여 재생 지연 최소화\n• setSource(): 오디오를 로드만 하고 재생은 하지 않음\n• resume(): 로드된 오디오를 재생",
+      "beginnerTip": "💡 짧은 효과음(1초 미만)은 WAV 포맷이 MP3보다 빠르게 재생됩니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🎶 음악 플레이어 구현",
+      "description": "재생목록과 함께 완전한 음악 플레이어를 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/services/music_player.dart",
+        "content": "import 'package:audioplayers/audioplayers.dart';\n\nclass Track {\n  final String title;\n  final String artist;\n  final String url;\n  final String? coverUrl;\n\n  Track({\n    required this.title,\n    required this.artist,\n    required this.url,\n    this.coverUrl,\n  });\n}\n\nenum RepeatMode { none, one, all }\n\nclass MusicPlayer {\n  final AudioPlayer _player = AudioPlayer();\n  \n  // 재생목록\n  List<Track> _playlist = [];\n  int _currentIndex = 0;\n  \n  // 설정\n  RepeatMode _repeatMode = RepeatMode.none;\n  bool _shuffle = false;\n  \n  // 상태 스트림\n  Stream<Duration> get onPositionChanged => _player.onPositionChanged;\n  Stream<Duration> get onDurationChanged => _player.onDurationChanged;\n  Stream<PlayerState> get onStateChanged => _player.onPlayerStateChanged;\n  \n  // 현재 트랙\n  Track? get currentTrack => \n      _playlist.isNotEmpty ? _playlist[_currentIndex] : null;\n  \n  MusicPlayer() {\n    // 재생 완료 시 다음 곡\n    _player.onPlayerComplete.listen((_) => _onTrackComplete());\n  }\n\n  // 재생목록 설정\n  void setPlaylist(List<Track> tracks, {int startIndex = 0}) {\n    _playlist = tracks;\n    _currentIndex = startIndex;\n  }\n\n  // 재생\n  Future<void> play({int? index}) async {\n    if (_playlist.isEmpty) return;\n    \n    if (index != null) {\n      _currentIndex = index;\n    }\n    \n    final track = _playlist[_currentIndex];\n    await _player.play(UrlSource(track.url));\n  }\n\n  // 일시정지\n  Future<void> pause() async {\n    await _player.pause();\n  }\n\n  // 다시 재생\n  Future<void> resume() async {\n    await _player.resume();\n  }\n\n  // 재생/일시정지 토글\n  Future<void> togglePlayPause() async {\n    if (_player.state == PlayerState.playing) {\n      await pause();\n    } else {\n      await resume();\n    }\n  }\n\n  // 다음 곡\n  Future<void> next() async {\n    if (_playlist.isEmpty) return;\n    \n    if (_shuffle) {\n      _currentIndex = (_currentIndex + 1 + \n          DateTime.now().millisecond) % _playlist.length;\n    } else {\n      _currentIndex = (_currentIndex + 1) % _playlist.length;\n    }\n    \n    await play();\n  }\n\n  // 이전 곡\n  Future<void> previous() async {\n    if (_playlist.isEmpty) return;\n    \n    // 3초 이상 재생했으면 현재 곡 처음으로\n    final position = await _player.getCurrentPosition();\n    if (position != null && position.inSeconds > 3) {\n      await seek(Duration.zero);\n      return;\n    }\n    \n    _currentIndex = _currentIndex > 0 \n        ? _currentIndex - 1 \n        : _playlist.length - 1;\n    await play();\n  }\n\n  // 위치 이동\n  Future<void> seek(Duration position) async {\n    await _player.seek(position);\n  }\n\n  // 볼륨 설정\n  Future<void> setVolume(double volume) async {\n    await _player.setVolume(volume);\n  }\n\n  // 반복 모드 설정\n  void setRepeatMode(RepeatMode mode) {\n    _repeatMode = mode;\n    _player.setReleaseMode(\n      mode == RepeatMode.one ? ReleaseMode.loop : ReleaseMode.release\n    );\n  }\n\n  // 셔플 토글\n  void toggleShuffle() {\n    _shuffle = !_shuffle;\n  }\n\n  // 트랙 완료 처리\n  void _onTrackComplete() {\n    switch (_repeatMode) {\n      case RepeatMode.one:\n        play();  // 현재 곡 다시 재생 (ReleaseMode.loop으로 자동 처리됨)\n        break;\n      case RepeatMode.all:\n        next();  // 다음 곡\n        break;\n      case RepeatMode.none:\n        if (_currentIndex < _playlist.length - 1) {\n          next();\n        }\n        break;\n    }\n  }\n\n  // 리소스 해제\n  void dispose() {\n    _player.dispose();\n  }\n}\n\n// UI 예시\nimport 'package:flutter/material.dart';\n\nclass MusicPlayerUI extends StatefulWidget {\n  const MusicPlayerUI({super.key});\n\n  @override\n  State<MusicPlayerUI> createState() => _MusicPlayerUIState();\n}\n\nclass _MusicPlayerUIState extends State<MusicPlayerUI> {\n  final MusicPlayer _musicPlayer = MusicPlayer();\n  PlayerState _playerState = PlayerState.stopped;\n  Duration _position = Duration.zero;\n  Duration _duration = Duration.zero;\n\n  @override\n  void initState() {\n    super.initState();\n    \n    // 샘플 재생목록\n    _musicPlayer.setPlaylist([\n      Track(\n        title: 'Song 1',\n        artist: 'Artist 1',\n        url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',\n      ),\n      Track(\n        title: 'Song 2',\n        artist: 'Artist 2',\n        url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',\n      ),\n    ]);\n\n    // 리스너\n    _musicPlayer.onStateChanged.listen((state) {\n      setState(() => _playerState = state);\n    });\n    _musicPlayer.onPositionChanged.listen((pos) {\n      setState(() => _position = pos);\n    });\n    _musicPlayer.onDurationChanged.listen((dur) {\n      setState(() => _duration = dur);\n    });\n  }\n\n  @override\n  void dispose() {\n    _musicPlayer.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      mainAxisAlignment: MainAxisAlignment.center,\n      children: [\n        Text(_musicPlayer.currentTrack?.title ?? 'No Track'),\n        Slider(\n          value: _position.inMilliseconds.toDouble(),\n          max: _duration.inMilliseconds.toDouble() + 1,\n          onChanged: (v) => _musicPlayer.seek(Duration(milliseconds: v.toInt())),\n        ),\n        Row(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            IconButton(\n              icon: const Icon(Icons.skip_previous),\n              onPressed: _musicPlayer.previous,\n            ),\n            IconButton(\n              iconSize: 48,\n              icon: Icon(\n                _playerState == PlayerState.playing\n                    ? Icons.pause_circle\n                    : Icons.play_circle,\n              ),\n              onPressed: () {\n                if (_playerState == PlayerState.stopped) {\n                  _musicPlayer.play();\n                } else {\n                  _musicPlayer.togglePlayPause();\n                }\n              },\n            ),\n            IconButton(\n              icon: const Icon(Icons.skip_next),\n              onPressed: _musicPlayer.next,\n            ),\n          ],\n        ),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "• ReleaseMode.loop: 한 곡 반복 재생\n• onPlayerComplete: 재생 완료 시 콜백\n• getCurrentPosition(): 현재 재생 위치 (Future)\n• 재생목록 관리와 셔플/반복 모드 구현",
+      "beginnerTip": "💡 백그라운드 재생이 필요하면 audio_service 패키지를 추가로 사용하세요."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "method": "play()",
+      "signature": "Future<void> play(Source source, {...})",
+      "description": "오디오를 재생합니다.",
+      "returnType": "Future<void>",
+      "example": "await player.play(UrlSource('https://example.com/audio.mp3'));"
+    },
+    {
+      "method": "pause()",
+      "signature": "Future<void> pause()",
+      "description": "재생을 일시정지합니다.",
+      "returnType": "Future<void>",
+      "example": "await player.pause();"
+    },
+    {
+      "method": "seek()",
+      "signature": "Future<void> seek(Duration position)",
+      "description": "특정 위치로 이동합니다.",
+      "returnType": "Future<void>",
+      "example": "await player.seek(Duration(seconds: 30));"
+    },
+    {
+      "method": "setVolume()",
+      "signature": "Future<void> setVolume(double volume)",
+      "description": "볼륨을 설정합니다 (0.0~1.0).",
+      "returnType": "Future<void>",
+      "example": "await player.setVolume(0.5);"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "오디오가 재생되지 않음",
+      "cause": "Assets 경로가 잘못되었거나 pubspec.yaml에 등록 안 됨",
+      "solution": "pubspec.yaml의 assets 섹션에 오디오 파일 경로를 등록하고 flutter clean 실행 후 다시 빌드하세요."
+    },
+    {
+      "error": "네트워크 오디오 재생 실패",
+      "cause": "인터넷 권한이 없거나 HTTPS가 아닌 URL",
+      "solution": "AndroidManifest.xml에 INTERNET 권한 추가. HTTP URL은 usesCleartextTraffic=\"true\" 필요."
+    },
+    {
+      "error": "AudioPlayer was disposed",
+      "cause": "dispose된 플레이어에서 재생 시도",
+      "solution": "화면 이동 전에 플레이어를 정리하거나, dispose 후 새 인스턴스를 생성하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "플레이어 인스턴스 재사용",
+      "description": "매번 새 인스턴스를 만들지 말고 재사용하세요.",
+      "code": "// 좋은 예: 재사용\nclass AudioService {\n  static final AudioPlayer _player = AudioPlayer();\n  \n  static Future<void> play(String url) async {\n    await _player.play(UrlSource(url));\n  }\n}"
+    },
+    {
+      "title": "효과음 미리 로드",
+      "description": "자주 사용하는 효과음은 미리 로드해두세요.",
+      "code": "Future<void> preloadSounds() async {\n  final player = AudioPlayer();\n  await player.setSource(AssetSource('audio/click.mp3'));\n  // 나중에 player.resume()으로 빠르게 재생\n}"
+    }
+  ],
+
+  "tips": [
+    "🎵 동시 재생이 필요하면 AudioPlayer 인스턴스를 여러 개 만드세요.",
+    "📱 iOS에서는 다른 앱의 오디오와 함께 재생되도록 오디오 세션 설정이 필요할 수 있습니다.",
+    "⚡ 효과음은 WAV, 음악은 MP3/AAC 포맷을 권장합니다.",
+    "🔋 백그라운드에서 계속 재생하려면 audio_service 패키지를 함께 사용하세요."
+  ]
+}

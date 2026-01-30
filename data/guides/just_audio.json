@@ -1,0 +1,147 @@
+{
+  "packageName": "just_audio",
+  "overview": {
+    "what": "just_audio는 Flutter에서 오디오를 재생하기 위한 강력하고 유연한 패키지입니다. 로컬 파일, 네트워크 스트리밍, 재생목록 등을 지원합니다.",
+    "why": "Flutter의 기본 오디오 기능은 제한적입니다. just_audio는 백그라운드 재생, 시크, 속도 조절, 루프, 셔플 등 고급 오디오 기능을 제공합니다.",
+    "when": "음악 플레이어, 팟캐스트 앱, 오디오북 앱, 알림음/효과음 재생, 스트리밍 오디오 등에 사용합니다.",
+    "features": [
+      "로컬 파일 및 네트워크 스트리밍 재생",
+      "백그라운드 재생 지원",
+      "재생목록 (플레이리스트)",
+      "시크, 속도 조절, 루프, 셔플",
+      "버퍼링 상태 모니터링",
+      "오디오 포커스 관리"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치 및 설정",
+      "description": "pubspec.yaml에 패키지를 추가하고 플랫폼별 설정을 합니다.",
+      "code": "# pubspec.yaml\ndependencies:\n  flutter:\n    sdk: flutter\n  just_audio: ^0.9.36\n  # 백그라운드 재생을 위한 추가 패키지\n  audio_service: ^0.18.12\n  just_audio_background: ^0.0.1-beta.11\n\n# Android: android/app/src/main/AndroidManifest.xml\n<manifest ...>\n  <uses-permission android:name=\"android.permission.INTERNET\"/>\n  <!-- 포그라운드 서비스 (백그라운드 재생) -->\n  <uses-permission android:name=\"android.permission.FOREGROUND_SERVICE\"/>\n  <uses-permission android:name=\"android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK\"/>\n</manifest>\n\n# iOS: ios/Runner/Info.plist (백그라운드 재생)\n<key>UIBackgroundModes</key>\n<array>\n  <string>audio</string>\n</array>",
+      "explanation": "네트워크 스트리밍에는 인터넷 권한이 필요합니다. 백그라운드 재생을 위해서는 추가 권한과 audio_service 패키지가 필요합니다."
+    },
+    {
+      "title": "기본 오디오 재생",
+      "description": "AudioPlayer를 사용하여 기본적인 오디오 재생을 구현합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:just_audio/just_audio.dart';\n\nclass BasicAudioPlayerScreen extends StatefulWidget {\n  const BasicAudioPlayerScreen({super.key});\n\n  @override\n  State<BasicAudioPlayerScreen> createState() => _BasicAudioPlayerScreenState();\n}\n\nclass _BasicAudioPlayerScreenState extends State<BasicAudioPlayerScreen> {\n  late AudioPlayer _player;\n\n  @override\n  void initState() {\n    super.initState();\n    _player = AudioPlayer();\n    _loadAudio();\n  }\n\n  Future<void> _loadAudio() async {\n    try {\n      // 네트워크 URL에서 로드\n      await _player.setUrl(\n        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',\n      );\n\n      // 또는 로컬 에셋에서 로드\n      // await _player.setAsset('assets/audio/music.mp3');\n\n      // 또는 로컬 파일에서 로드\n      // await _player.setFilePath('/path/to/file.mp3');\n    } catch (e) {\n      debugPrint('오디오 로드 오류: $e');\n    }\n  }\n\n  @override\n  void dispose() {\n    _player.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('오디오 플레이어')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            // 재생 상태 스트림\n            StreamBuilder<PlayerState>(\n              stream: _player.playerStateStream,\n              builder: (context, snapshot) {\n                final state = snapshot.data;\n                final playing = state?.playing ?? false;\n                final processingState = state?.processingState;\n\n                // 로딩 중\n                if (processingState == ProcessingState.loading ||\n                    processingState == ProcessingState.buffering) {\n                  return const CircularProgressIndicator();\n                }\n\n                // 재생/일시정지 버튼\n                return IconButton(\n                  iconSize: 64,\n                  icon: Icon(playing ? Icons.pause : Icons.play_arrow),\n                  onPressed: () {\n                    if (playing) {\n                      _player.pause();\n                    } else {\n                      _player.play();\n                    }\n                  },\n                );\n              },\n            ),\n            const SizedBox(height: 20),\n            // 진행 바\n            StreamBuilder<Duration?>(\n              stream: _player.positionStream,\n              builder: (context, snapshot) {\n                final position = snapshot.data ?? Duration.zero;\n                final duration = _player.duration ?? Duration.zero;\n\n                return Column(\n                  children: [\n                    Slider(\n                      value: position.inMilliseconds.toDouble(),\n                      max: duration.inMilliseconds.toDouble(),\n                      onChanged: (value) {\n                        _player.seek(Duration(milliseconds: value.toInt()));\n                      },\n                    ),\n                    Text(\n                      '${_formatDuration(position)} / ${_formatDuration(duration)}',\n                    ),\n                  ],\n                );\n              },\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n\n  String _formatDuration(Duration duration) {\n    String twoDigits(int n) => n.toString().padLeft(2, '0');\n    final minutes = twoDigits(duration.inMinutes.remainder(60));\n    final seconds = twoDigits(duration.inSeconds.remainder(60));\n    return '$minutes:$seconds';\n  }\n}",
+      "explanation": "AudioPlayer 인스턴스를 생성하고 setUrl/setAsset/setFilePath로 오디오를 로드합니다. 재생 상태는 스트림으로 구독하여 UI를 업데이트합니다."
+    },
+    {
+      "title": "재생 컨트롤",
+      "description": "시크, 속도 조절, 루프, 볼륨 등 다양한 재생 컨트롤을 구현합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:just_audio/just_audio.dart';\n\nclass AudioControlsExample extends StatefulWidget {\n  const AudioControlsExample({super.key});\n\n  @override\n  State<AudioControlsExample> createState() => _AudioControlsExampleState();\n}\n\nclass _AudioControlsExampleState extends State<AudioControlsExample> {\n  late AudioPlayer _player;\n  double _volume = 1.0;\n  double _speed = 1.0;\n  LoopMode _loopMode = LoopMode.off;\n\n  @override\n  void initState() {\n    super.initState();\n    _player = AudioPlayer();\n    _player.setUrl('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');\n  }\n\n  @override\n  void dispose() {\n    _player.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('재생 컨트롤')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          children: [\n            // 재생 버튼들\n            StreamBuilder<PlayerState>(\n              stream: _player.playerStateStream,\n              builder: (context, snapshot) {\n                final playing = snapshot.data?.playing ?? false;\n                return Row(\n                  mainAxisAlignment: MainAxisAlignment.center,\n                  children: [\n                    // 10초 뒤로\n                    IconButton(\n                      icon: const Icon(Icons.replay_10),\n                      onPressed: () {\n                        final position = _player.position;\n                        _player.seek(position - const Duration(seconds: 10));\n                      },\n                    ),\n                    // 재생/일시정지\n                    IconButton(\n                      iconSize: 48,\n                      icon: Icon(playing ? Icons.pause : Icons.play_arrow),\n                      onPressed: () {\n                        playing ? _player.pause() : _player.play();\n                      },\n                    ),\n                    // 정지 (처음으로)\n                    IconButton(\n                      icon: const Icon(Icons.stop),\n                      onPressed: () {\n                        _player.stop();\n                      },\n                    ),\n                    // 10초 앞으로\n                    IconButton(\n                      icon: const Icon(Icons.forward_10),\n                      onPressed: () {\n                        final position = _player.position;\n                        _player.seek(position + const Duration(seconds: 10));\n                      },\n                    ),\n                  ],\n                );\n              },\n            ),\n            const SizedBox(height: 24),\n\n            // 진행 바\n            StreamBuilder<Duration?>(\n              stream: _player.positionStream,\n              builder: (context, snapshot) {\n                final position = snapshot.data ?? Duration.zero;\n                final duration = _player.duration ?? Duration.zero;\n                return Slider(\n                  value: position.inSeconds.toDouble().clamp(\n                    0,\n                    duration.inSeconds.toDouble(),\n                  ),\n                  max: duration.inSeconds.toDouble(),\n                  onChanged: (value) {\n                    _player.seek(Duration(seconds: value.toInt()));\n                  },\n                );\n              },\n            ),\n            const SizedBox(height: 24),\n\n            // 볼륨\n            Row(\n              children: [\n                const Icon(Icons.volume_down),\n                Expanded(\n                  child: Slider(\n                    value: _volume,\n                    onChanged: (value) {\n                      setState(() => _volume = value);\n                      _player.setVolume(value);\n                    },\n                  ),\n                ),\n                const Icon(Icons.volume_up),\n              ],\n            ),\n\n            // 재생 속도\n            Row(\n              children: [\n                const Text('속도: '),\n                Expanded(\n                  child: Slider(\n                    value: _speed,\n                    min: 0.5,\n                    max: 2.0,\n                    divisions: 6,\n                    label: '${_speed}x',\n                    onChanged: (value) {\n                      setState(() => _speed = value);\n                      _player.setSpeed(value);\n                    },\n                  ),\n                ),\n                Text('${_speed}x'),\n              ],\n            ),\n\n            // 루프 모드\n            Row(\n              mainAxisAlignment: MainAxisAlignment.center,\n              children: [\n                const Text('반복: '),\n                SegmentedButton<LoopMode>(\n                  segments: const [\n                    ButtonSegment(value: LoopMode.off, label: Text('끔')),\n                    ButtonSegment(value: LoopMode.one, label: Text('한 곡')),\n                    ButtonSegment(value: LoopMode.all, label: Text('전체')),\n                  ],\n                  selected: {_loopMode},\n                  onSelectionChanged: (modes) {\n                    setState(() => _loopMode = modes.first);\n                    _player.setLoopMode(_loopMode);\n                  },\n                ),\n              ],\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}",
+      "explanation": "setVolume으로 볼륨(0.0~1.0), setSpeed로 재생 속도(0.5~2.0), setLoopMode로 반복 모드를 설정합니다. seek로 특정 위치로 이동할 수 있습니다."
+    },
+    {
+      "title": "재생목록 (플레이리스트)",
+      "description": "ConcatenatingAudioSource를 사용하여 여러 트랙의 재생목록을 구현합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:just_audio/just_audio.dart';\n\nclass PlaylistExample extends StatefulWidget {\n  const PlaylistExample({super.key});\n\n  @override\n  State<PlaylistExample> createState() => _PlaylistExampleState();\n}\n\nclass _PlaylistExampleState extends State<PlaylistExample> {\n  late AudioPlayer _player;\n  late ConcatenatingAudioSource _playlist;\n\n  final List<Map<String, String>> _tracks = [\n    {'title': 'Song 1', 'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'},\n    {'title': 'Song 2', 'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'},\n    {'title': 'Song 3', 'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'},\n  ];\n\n  @override\n  void initState() {\n    super.initState();\n    _player = AudioPlayer();\n    _setupPlaylist();\n  }\n\n  Future<void> _setupPlaylist() async {\n    _playlist = ConcatenatingAudioSource(\n      children: _tracks.map((track) {\n        return AudioSource.uri(\n          Uri.parse(track['url']!),\n          tag: track['title'], // 메타데이터\n        );\n      }).toList(),\n    );\n\n    await _player.setAudioSource(_playlist);\n  }\n\n  @override\n  void dispose() {\n    _player.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('플레이리스트')),\n      body: Column(\n        children: [\n          // 현재 재생 중인 트랙\n          StreamBuilder<int?>(\n            stream: _player.currentIndexStream,\n            builder: (context, snapshot) {\n              final index = snapshot.data ?? 0;\n              return Container(\n                padding: const EdgeInsets.all(16),\n                color: Colors.blue[100],\n                child: Row(\n                  children: [\n                    const Icon(Icons.music_note, size: 48),\n                    const SizedBox(width: 16),\n                    Expanded(\n                      child: Column(\n                        crossAxisAlignment: CrossAxisAlignment.start,\n                        children: [\n                          const Text('Now Playing', style: TextStyle(fontSize: 12)),\n                          Text(\n                            _tracks[index]['title']!,\n                            style: const TextStyle(\n                              fontSize: 20,\n                              fontWeight: FontWeight.bold,\n                            ),\n                          ),\n                        ],\n                      ),\n                    ),\n                  ],\n                ),\n              );\n            },\n          ),\n\n          // 컨트롤 버튼\n          Padding(\n            padding: const EdgeInsets.all(16),\n            child: StreamBuilder<PlayerState>(\n              stream: _player.playerStateStream,\n              builder: (context, snapshot) {\n                final playing = snapshot.data?.playing ?? false;\n                return Row(\n                  mainAxisAlignment: MainAxisAlignment.center,\n                  children: [\n                    // 셔플\n                    StreamBuilder<bool>(\n                      stream: _player.shuffleModeEnabledStream,\n                      builder: (context, snapshot) {\n                        final enabled = snapshot.data ?? false;\n                        return IconButton(\n                          icon: Icon(\n                            Icons.shuffle,\n                            color: enabled ? Colors.blue : null,\n                          ),\n                          onPressed: () {\n                            _player.setShuffleModeEnabled(!enabled);\n                          },\n                        );\n                      },\n                    ),\n                    // 이전 곡\n                    IconButton(\n                      icon: const Icon(Icons.skip_previous),\n                      iconSize: 36,\n                      onPressed: () => _player.seekToPrevious(),\n                    ),\n                    // 재생/일시정지\n                    IconButton(\n                      icon: Icon(playing ? Icons.pause : Icons.play_arrow),\n                      iconSize: 48,\n                      onPressed: () {\n                        playing ? _player.pause() : _player.play();\n                      },\n                    ),\n                    // 다음 곡\n                    IconButton(\n                      icon: const Icon(Icons.skip_next),\n                      iconSize: 36,\n                      onPressed: () => _player.seekToNext(),\n                    ),\n                    // 반복\n                    StreamBuilder<LoopMode>(\n                      stream: _player.loopModeStream,\n                      builder: (context, snapshot) {\n                        final mode = snapshot.data ?? LoopMode.off;\n                        final icons = {\n                          LoopMode.off: Icons.repeat,\n                          LoopMode.one: Icons.repeat_one,\n                          LoopMode.all: Icons.repeat,\n                        };\n                        return IconButton(\n                          icon: Icon(\n                            icons[mode],\n                            color: mode != LoopMode.off ? Colors.blue : null,\n                          ),\n                          onPressed: () {\n                            final modes = LoopMode.values;\n                            final nextIndex = (modes.indexOf(mode) + 1) % modes.length;\n                            _player.setLoopMode(modes[nextIndex]);\n                          },\n                        );\n                      },\n                    ),\n                  ],\n                );\n              },\n            ),\n          ),\n\n          // 트랙 목록\n          Expanded(\n            child: ListView.builder(\n              itemCount: _tracks.length,\n              itemBuilder: (context, index) {\n                return StreamBuilder<int?>(\n                  stream: _player.currentIndexStream,\n                  builder: (context, snapshot) {\n                    final currentIndex = snapshot.data;\n                    final isPlaying = currentIndex == index;\n\n                    return ListTile(\n                      leading: CircleAvatar(\n                        backgroundColor: isPlaying ? Colors.blue : Colors.grey,\n                        child: Text('${index + 1}'),\n                      ),\n                      title: Text(\n                        _tracks[index]['title']!,\n                        style: TextStyle(\n                          fontWeight: isPlaying ? FontWeight.bold : null,\n                          color: isPlaying ? Colors.blue : null,\n                        ),\n                      ),\n                      trailing: isPlaying\n                          ? const Icon(Icons.equalizer, color: Colors.blue)\n                          : null,\n                      onTap: () => _player.seek(Duration.zero, index: index),\n                    );\n                  },\n                );\n              },\n            ),\n          ),\n        ],\n      ),\n    );\n  }\n}",
+      "explanation": "ConcatenatingAudioSource로 여러 트랙을 하나의 재생목록으로 만듭니다. seekToNext/seekToPrevious로 다음/이전 트랙으로 이동하고, setShuffleModeEnabled로 셔플을 설정합니다."
+    },
+    {
+      "title": "백그라운드 재생",
+      "description": "audio_service와 just_audio_background를 사용하여 백그라운드 재생을 구현합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:just_audio/just_audio.dart';\nimport 'package:just_audio_background/just_audio_background.dart';\n\n// main.dart\nFuture<void> main() async {\n  // 백그라운드 오디오 초기화\n  await JustAudioBackground.init(\n    androidNotificationChannelId: 'com.example.app.audio',\n    androidNotificationChannelName: 'Audio playback',\n    androidNotificationOngoing: true,\n  );\n  \n  runApp(const MyApp());\n}\n\nclass BackgroundAudioPlayer extends StatefulWidget {\n  const BackgroundAudioPlayer({super.key});\n\n  @override\n  State<BackgroundAudioPlayer> createState() => _BackgroundAudioPlayerState();\n}\n\nclass _BackgroundAudioPlayerState extends State<BackgroundAudioPlayer> {\n  late AudioPlayer _player;\n\n  @override\n  void initState() {\n    super.initState();\n    _player = AudioPlayer();\n    _setupAudio();\n  }\n\n  Future<void> _setupAudio() async {\n    // 메타데이터 포함하여 로드\n    await _player.setAudioSource(\n      AudioSource.uri(\n        Uri.parse('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'),\n        tag: MediaItem(\n          id: '1',\n          title: 'Song Title',\n          artist: 'Artist Name',\n          album: 'Album Name',\n          artUri: Uri.parse('https://example.com/album_art.jpg'),\n        ),\n      ),\n    );\n  }\n\n  @override\n  void dispose() {\n    _player.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('백그라운드 재생')),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            const Text('앱을 백그라운드로 전환해도\\n음악이 계속 재생됩니다'),\n            const SizedBox(height: 20),\n            StreamBuilder<PlayerState>(\n              stream: _player.playerStateStream,\n              builder: (context, snapshot) {\n                final playing = snapshot.data?.playing ?? false;\n                return IconButton(\n                  iconSize: 64,\n                  icon: Icon(playing ? Icons.pause : Icons.play_arrow),\n                  onPressed: () {\n                    playing ? _player.pause() : _player.play();\n                  },\n                );\n              },\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\n// 플레이리스트에 메타데이터 추가\nConcatenatingAudioSource createPlaylistWithMetadata() {\n  return ConcatenatingAudioSource(\n    children: [\n      AudioSource.uri(\n        Uri.parse('https://example.com/song1.mp3'),\n        tag: MediaItem(\n          id: '1',\n          title: 'First Song',\n          artist: 'Artist 1',\n          artUri: Uri.parse('https://example.com/art1.jpg'),\n        ),\n      ),\n      AudioSource.uri(\n        Uri.parse('https://example.com/song2.mp3'),\n        tag: MediaItem(\n          id: '2',\n          title: 'Second Song',\n          artist: 'Artist 2',\n          artUri: Uri.parse('https://example.com/art2.jpg'),\n        ),\n      ),\n    ],\n  );\n}",
+      "explanation": "JustAudioBackground.init()을 main에서 호출하고, AudioSource에 MediaItem 태그를 추가하면 잠금 화면과 알림 센터에 미디어 컨트롤이 표시됩니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "AudioPlayer",
+      "description": "오디오 재생을 담당하는 핵심 클래스입니다. 하나의 인스턴스로 하나의 오디오 세션을 관리합니다. dispose()로 반드시 정리해야 합니다."
+    },
+    {
+      "name": "AudioSource",
+      "description": "재생할 오디오 소스를 정의합니다. Uri, Asset, File에서 생성할 수 있고, ConcatenatingAudioSource로 여러 소스를 연결할 수 있습니다."
+    },
+    {
+      "name": "Stream 기반 상태 관리",
+      "description": "playerStateStream, positionStream, currentIndexStream 등 다양한 스트림을 제공하여 UI를 반응형으로 업데이트할 수 있습니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "setUrl / setAsset / setFilePath",
+      "signature": "Future<Duration?> setUrl(String url)",
+      "description": "오디오 소스를 설정합니다. 전체 duration을 반환합니다."
+    },
+    {
+      "name": "play / pause / stop",
+      "signature": "Future<void> play()",
+      "description": "재생을 시작/일시정지/중지합니다."
+    },
+    {
+      "name": "seek",
+      "signature": "Future<void> seek(Duration? position, {int? index})",
+      "description": "특정 위치로 이동합니다. index를 지정하면 플레이리스트의 특정 트랙으로 이동합니다."
+    },
+    {
+      "name": "setVolume / setSpeed",
+      "signature": "Future<void> setVolume(double volume)",
+      "description": "볼륨(0.0~1.0)과 재생 속도(0.5~2.0)를 설정합니다."
+    },
+    {
+      "name": "setLoopMode",
+      "signature": "Future<void> setLoopMode(LoopMode mode)",
+      "description": "반복 모드를 설정합니다. off, one, all이 있습니다."
+    },
+    {
+      "name": "playerStateStream",
+      "signature": "Stream<PlayerState>",
+      "description": "재생 상태(playing, processingState)를 스트림으로 제공합니다."
+    },
+    {
+      "name": "positionStream",
+      "signature": "Stream<Duration>",
+      "description": "현재 재생 위치를 스트림으로 제공합니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "AudioPlayer 재사용 시 오류",
+      "cause": "dispose된 player를 다시 사용하려 함",
+      "solution": "dispose 후에는 새로운 AudioPlayer 인스턴스를 생성해야 합니다."
+    },
+    {
+      "error": "네트워크 스트리밍 실패",
+      "cause": "INTERNET 권한 누락 또는 HTTP URL 사용",
+      "solution": "AndroidManifest에 INTERNET 권한을 추가하고, HTTPS URL을 사용하세요."
+    },
+    {
+      "error": "백그라운드 재생이 안됨",
+      "cause": "audio_service 설정 누락",
+      "solution": "just_audio_background를 설정하고, iOS Info.plist에 audio 백그라운드 모드를 추가하세요."
+    },
+    {
+      "error": "시크가 정확하지 않음",
+      "cause": "일부 오디오 형식은 정밀한 시크를 지원하지 않음",
+      "solution": "MP3 VBR 대신 CBR 또는 다른 형식을 사용해보세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "dispose 필수",
+      "description": "AudioPlayer는 반드시 dispose()를 호출하여 리소스를 해제하세요. StatefulWidget의 dispose에서 처리합니다."
+    },
+    {
+      "title": "에러 처리",
+      "description": "네트워크 스트리밍은 실패할 수 있습니다. try-catch로 에러를 처리하고 사용자에게 알려주세요."
+    },
+    {
+      "title": "버퍼링 상태 표시",
+      "description": "ProcessingState.buffering일 때 로딩 인디케이터를 표시하여 사용자에게 상태를 알려주세요."
+    },
+    {
+      "title": "오디오 포커스 관리",
+      "description": "다른 앱의 오디오와 충돌하지 않도록 적절히 처리하세요. just_audio는 기본적으로 오디오 포커스를 관리합니다."
+    }
+  ],
+  "tips": [
+    "로컬 에셋은 pubspec.yaml의 assets에 등록해야 합니다",
+    "position 스트림의 업데이트 간격은 200ms입니다",
+    "HLS, DASH 스트리밍도 지원됩니다",
+    "AudioSource.clipping으로 오디오의 특정 구간만 재생할 수 있습니다",
+    "audio_session 패키지로 오디오 세션을 더 세밀하게 제어할 수 있습니다",
+    "audioplayers 패키지는 더 간단한 대안이지만 기능이 제한적입니다"
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "packageName": "flutter_secure_storage",
+  "overview": {
+    "what": "flutter_secure_storage는 민감한 데이터를 플랫폼의 보안 저장소에 안전하게 저장하는 Flutter 플러그인입니다. iOS의 Keychain과 Android의 Keystore를 사용합니다.",
+    "why": "토큰, 비밀번호, API 키 등 민감한 정보는 일반 저장소(SharedPreferences 등)에 저장하면 보안에 취약합니다. 플랫폼의 보안 저장소를 사용하면 암호화되어 안전하게 보호됩니다.",
+    "when": "인증 토큰, 리프레시 토큰, 사용자 비밀번호, API 키, 암호화 키 등 민감한 정보를 저장할 때 사용합니다.",
+    "features": [
+      "iOS Keychain 통합",
+      "Android Keystore 통합",
+      "AES 암호화 지원",
+      "생체 인증 연동 가능",
+      "키-값 형태의 간단한 API",
+      "macOS, Linux, Windows 지원"
+    ]
+  },
+  "steps": [
+    {
+      "title": "패키지 설치 및 설정",
+      "description": "pubspec.yaml에 패키지를 추가하고 플랫폼별 설정을 합니다.",
+      "code": "# pubspec.yaml\ndependencies:\n  flutter:\n    sdk: flutter\n  flutter_secure_storage: ^9.0.0\n\n# Android: android/app/build.gradle\nandroid {\n    defaultConfig {\n        minSdkVersion 18\n    }\n}\n\n# Android (선택): 암호화된 SharedPreferences 사용\n# android/app/build.gradle\ndependencies {\n    implementation 'androidx.security:security-crypto:1.1.0-alpha06'\n}\n\n# iOS: 추가 설정 불필요 (Keychain 자동 사용)\n\n# macOS: DebugProfile.entitlements & Release.entitlements에 추가\n<key>keychain-access-groups</key>\n<array>\n  <string>$(AppIdentifierPrefix)com.example.app</string>\n</array>",
+      "explanation": "Android는 minSdkVersion 18 이상이 필요합니다. iOS는 자동으로 Keychain을 사용합니다. macOS는 entitlements 설정이 필요합니다."
+    },
+    {
+      "title": "기본 사용법",
+      "description": "데이터를 읽고, 쓰고, 삭제하는 기본적인 방법입니다.",
+      "code": "import 'package:flutter_secure_storage/flutter_secure_storage.dart';\n\nclass SecureStorageService {\n  // 싱글톤 패턴\n  static final SecureStorageService _instance = SecureStorageService._internal();\n  factory SecureStorageService() => _instance;\n  SecureStorageService._internal();\n\n  // Android 옵션: EncryptedSharedPreferences 사용\n  final _storage = const FlutterSecureStorage(\n    aOptions: AndroidOptions(\n      encryptedSharedPreferences: true,\n    ),\n    iOptions: IOSOptions(\n      accessibility: KeychainAccessibility.first_unlock,\n    ),\n  );\n\n  // 데이터 저장\n  Future<void> write(String key, String value) async {\n    await _storage.write(key: key, value: value);\n  }\n\n  // 데이터 읽기\n  Future<String?> read(String key) async {\n    return await _storage.read(key: key);\n  }\n\n  // 데이터 삭제\n  Future<void> delete(String key) async {\n    await _storage.delete(key: key);\n  }\n\n  // 모든 데이터 삭제\n  Future<void> deleteAll() async {\n    await _storage.deleteAll();\n  }\n\n  // 키 존재 여부 확인\n  Future<bool> containsKey(String key) async {\n    return await _storage.containsKey(key: key);\n  }\n\n  // 모든 데이터 읽기\n  Future<Map<String, String>> readAll() async {\n    return await _storage.readAll();\n  }\n}\n\n// 사용 예시\nvoid example() async {\n  final storage = SecureStorageService();\n\n  // 저장\n  await storage.write('access_token', 'eyJhbGciOiJIUzI1NiIs...');\n  await storage.write('refresh_token', 'dGhpcyBpcyBhIHJlZnJl...');\n\n  // 읽기\n  final token = await storage.read('access_token');\n  print('Token: $token');\n\n  // 삭제\n  await storage.delete('access_token');\n\n  // 전체 삭제 (로그아웃 시)\n  await storage.deleteAll();\n}",
+      "explanation": "FlutterSecureStorage의 기본 API는 write, read, delete입니다. AndroidOptions와 IOSOptions로 플랫폼별 설정을 할 수 있습니다."
+    },
+    {
+      "title": "인증 토큰 관리",
+      "description": "액세스 토큰과 리프레시 토큰을 안전하게 관리하는 서비스를 구현합니다.",
+      "code": "import 'package:flutter_secure_storage/flutter_secure_storage.dart';\nimport 'dart:convert';\n\nclass AuthTokenService {\n  static const _accessTokenKey = 'access_token';\n  static const _refreshTokenKey = 'refresh_token';\n  static const _tokenExpiryKey = 'token_expiry';\n  static const _userDataKey = 'user_data';\n\n  final _storage = const FlutterSecureStorage(\n    aOptions: AndroidOptions(encryptedSharedPreferences: true),\n  );\n\n  // 토큰 저장\n  Future<void> saveTokens({\n    required String accessToken,\n    required String refreshToken,\n    required DateTime expiry,\n  }) async {\n    await Future.wait([\n      _storage.write(key: _accessTokenKey, value: accessToken),\n      _storage.write(key: _refreshTokenKey, value: refreshToken),\n      _storage.write(key: _tokenExpiryKey, value: expiry.toIso8601String()),\n    ]);\n  }\n\n  // 액세스 토큰 가져오기\n  Future<String?> getAccessToken() async {\n    final token = await _storage.read(key: _accessTokenKey);\n    if (token == null) return null;\n\n    // 만료 확인\n    if (await isTokenExpired()) {\n      return null; // 또는 리프레시 로직 호출\n    }\n\n    return token;\n  }\n\n  // 리프레시 토큰 가져오기\n  Future<String?> getRefreshToken() async {\n    return await _storage.read(key: _refreshTokenKey);\n  }\n\n  // 토큰 만료 확인\n  Future<bool> isTokenExpired() async {\n    final expiryStr = await _storage.read(key: _tokenExpiryKey);\n    if (expiryStr == null) return true;\n\n    final expiry = DateTime.parse(expiryStr);\n    // 5분 전에 만료로 처리 (버퍼)\n    return DateTime.now().isAfter(expiry.subtract(const Duration(minutes: 5)));\n  }\n\n  // 로그인 상태 확인\n  Future<bool> isLoggedIn() async {\n    final token = await getAccessToken();\n    return token != null;\n  }\n\n  // 사용자 데이터 저장 (JSON)\n  Future<void> saveUserData(Map<String, dynamic> userData) async {\n    final jsonStr = jsonEncode(userData);\n    await _storage.write(key: _userDataKey, value: jsonStr);\n  }\n\n  // 사용자 데이터 가져오기\n  Future<Map<String, dynamic>?> getUserData() async {\n    final jsonStr = await _storage.read(key: _userDataKey);\n    if (jsonStr == null) return null;\n    return jsonDecode(jsonStr) as Map<String, dynamic>;\n  }\n\n  // 로그아웃\n  Future<void> logout() async {\n    await _storage.deleteAll();\n  }\n\n  // 액세스 토큰만 갱신\n  Future<void> updateAccessToken(String newToken, DateTime newExpiry) async {\n    await Future.wait([\n      _storage.write(key: _accessTokenKey, value: newToken),\n      _storage.write(key: _tokenExpiryKey, value: newExpiry.toIso8601String()),\n    ]);\n  }\n}\n\n// HTTP 인터셉터에서 사용\nclass AuthInterceptor {\n  final AuthTokenService _tokenService;\n\n  AuthInterceptor(this._tokenService);\n\n  Future<Map<String, String>> getAuthHeaders() async {\n    final token = await _tokenService.getAccessToken();\n    if (token == null) {\n      throw Exception('No access token');\n    }\n    return {\n      'Authorization': 'Bearer $token',\n    };\n  }\n}",
+      "explanation": "토큰과 만료 시간을 함께 저장하여 만료 여부를 확인합니다. JSON 데이터도 문자열로 변환하여 저장할 수 있습니다."
+    },
+    {
+      "title": "플랫폼별 옵션 설정",
+      "description": "Android와 iOS의 보안 옵션을 세부적으로 설정합니다.",
+      "code": "import 'package:flutter_secure_storage/flutter_secure_storage.dart';\n\nclass PlatformSecureStorage {\n  // Android 옵션\n  static AndroidOptions getAndroidOptions() {\n    return const AndroidOptions(\n      // EncryptedSharedPreferences 사용 (권장)\n      encryptedSharedPreferences: true,\n      // SharedPreferences 이름 (기본: FlutterSecureStorage)\n      sharedPreferencesName: 'my_secure_prefs',\n      // 키 접두사\n      preferencesKeyPrefix: 'secure_',\n      // 앱 재설치 시 데이터 유지 여부\n      resetOnError: true,\n    );\n  }\n\n  // iOS 옵션\n  static IOSOptions getIOSOptions() {\n    return const IOSOptions(\n      // Keychain 접근성 (언제 접근 가능한지)\n      // first_unlock: 첫 잠금 해제 후 접근 가능 (권장)\n      // unlocked: 잠금 해제 상태에서만 접근 가능\n      // passcode: 패스코드 설정된 경우만\n      // first_unlock_this_device: 이 기기에서 첫 잠금 해제 후\n      accessibility: KeychainAccessibility.first_unlock,\n      // iCloud Keychain 동기화 여부\n      synchronizable: false,\n      // 앱 그룹 (앱 간 데이터 공유 시)\n      // groupId: 'group.com.example.app',\n      // 계정 이름\n      accountName: 'com.example.app',\n    );\n  }\n\n  // macOS 옵션\n  static MacOsOptions getMacOSOptions() {\n    return const MacOsOptions(\n      accessibility: KeychainAccessibility.first_unlock,\n      synchronizable: false,\n      // useDataProtectionKeychain: true,\n    );\n  }\n\n  // 플랫폼별 옵션이 적용된 스토리지\n  static FlutterSecureStorage createStorage() {\n    return FlutterSecureStorage(\n      aOptions: getAndroidOptions(),\n      iOptions: getIOSOptions(),\n      mOptions: getMacOSOptions(),\n    );\n  }\n}\n\n// KeychainAccessibility 설명\nenum KeychainAccessibilityExplained {\n  // 기기 첫 잠금 해제 후 접근 가능 (앱이 백그라운드에서도 접근 가능)\n  first_unlock,\n\n  // 첫 잠금 해제 후 + 이 기기에서만 (iCloud 동기화 안됨)\n  first_unlock_this_device,\n\n  // 기기 잠금 해제 상태에서만 접근 가능\n  unlocked,\n\n  // 잠금 해제 + 이 기기에서만\n  unlocked_this_device,\n\n  // 패스코드가 설정된 경우만 접근 가능\n  passcode,\n}",
+      "explanation": "AndroidOptions에서 encryptedSharedPreferences를 활성화하면 더 강력한 암호화가 적용됩니다. IOSOptions의 accessibility로 Keychain 접근 정책을 설정합니다."
+    },
+    {
+      "title": "실제 앱 적용 예제",
+      "description": "로그인/로그아웃 플로우와 보안 저장소를 연동합니다.",
+      "code": "import 'package:flutter/material.dart';\nimport 'package:flutter_secure_storage/flutter_secure_storage.dart';\nimport 'dart:convert';\n\n// 인증 상태 관리\nclass AuthProvider extends ChangeNotifier {\n  final _storage = const FlutterSecureStorage(\n    aOptions: AndroidOptions(encryptedSharedPreferences: true),\n  );\n\n  bool _isLoggedIn = false;\n  String? _userName;\n\n  bool get isLoggedIn => _isLoggedIn;\n  String? get userName => _userName;\n\n  // 앱 시작 시 인증 상태 확인\n  Future<void> checkAuthStatus() async {\n    final token = await _storage.read(key: 'access_token');\n    final userData = await _storage.read(key: 'user_data');\n\n    if (token != null && userData != null) {\n      _isLoggedIn = true;\n      final user = jsonDecode(userData);\n      _userName = user['name'];\n    } else {\n      _isLoggedIn = false;\n      _userName = null;\n    }\n    notifyListeners();\n  }\n\n  // 로그인\n  Future<void> login(String email, String password) async {\n    // API 호출 (예시)\n    // final response = await api.login(email, password);\n\n    // 임시 데이터\n    final response = {\n      'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',\n      'refresh_token': 'refresh_token_here',\n      'user': {'id': 1, 'name': '홍길동', 'email': email},\n    };\n\n    // 토큰 저장\n    await _storage.write(\n      key: 'access_token',\n      value: response['access_token'] as String,\n    );\n    await _storage.write(\n      key: 'refresh_token',\n      value: response['refresh_token'] as String,\n    );\n    await _storage.write(\n      key: 'user_data',\n      value: jsonEncode(response['user']),\n    );\n\n    _isLoggedIn = true;\n    _userName = (response['user'] as Map)['name'];\n    notifyListeners();\n  }\n\n  // 로그아웃\n  Future<void> logout() async {\n    await _storage.deleteAll();\n    _isLoggedIn = false;\n    _userName = null;\n    notifyListeners();\n  }\n}\n\n// 앱 진입점\nclass MyApp extends StatelessWidget {\n  final AuthProvider authProvider;\n\n  const MyApp({super.key, required this.authProvider});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      home: AnimatedBuilder(\n        animation: authProvider,\n        builder: (context, _) {\n          if (authProvider.isLoggedIn) {\n            return HomeScreen(authProvider: authProvider);\n          } else {\n            return LoginScreen(authProvider: authProvider);\n          }\n        },\n      ),\n    );\n  }\n}\n\n// 로그인 화면\nclass LoginScreen extends StatefulWidget {\n  final AuthProvider authProvider;\n\n  const LoginScreen({super.key, required this.authProvider});\n\n  @override\n  State<LoginScreen> createState() => _LoginScreenState();\n}\n\nclass _LoginScreenState extends State<LoginScreen> {\n  final _emailController = TextEditingController();\n  final _passwordController = TextEditingController();\n  bool _isLoading = false;\n\n  Future<void> _login() async {\n    setState(() => _isLoading = true);\n    try {\n      await widget.authProvider.login(\n        _emailController.text,\n        _passwordController.text,\n      );\n    } catch (e) {\n      ScaffoldMessenger.of(context).showSnackBar(\n        SnackBar(content: Text('로그인 실패: $e')),\n      );\n    } finally {\n      setState(() => _isLoading = false);\n    }\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('로그인')),\n      body: Padding(\n        padding: const EdgeInsets.all(16),\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: [\n            TextField(\n              controller: _emailController,\n              decoration: const InputDecoration(labelText: '이메일'),\n              keyboardType: TextInputType.emailAddress,\n            ),\n            const SizedBox(height: 16),\n            TextField(\n              controller: _passwordController,\n              decoration: const InputDecoration(labelText: '비밀번호'),\n              obscureText: true,\n            ),\n            const SizedBox(height: 24),\n            SizedBox(\n              width: double.infinity,\n              child: ElevatedButton(\n                onPressed: _isLoading ? null : _login,\n                child: _isLoading\n                    ? const CircularProgressIndicator()\n                    : const Text('로그인'),\n              ),\n            ),\n          ],\n        ),\n      ),\n    );\n  }\n}\n\n// 홈 화면\nclass HomeScreen extends StatelessWidget {\n  final AuthProvider authProvider;\n\n  const HomeScreen({super.key, required this.authProvider});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('홈'),\n        actions: [\n          IconButton(\n            icon: const Icon(Icons.logout),\n            onPressed: () => authProvider.logout(),\n          ),\n        ],\n      ),\n      body: Center(\n        child: Text('안녕하세요, ${authProvider.userName}님!'),\n      ),\n    );\n  }\n}",
+      "explanation": "AuthProvider로 인증 상태를 관리하고, 토큰을 안전하게 저장합니다. 앱 시작 시 checkAuthStatus로 로그인 상태를 확인합니다."
+    }
+  ],
+  "coreConcepts": [
+    {
+      "name": "플랫폼 보안 저장소",
+      "description": "iOS는 Keychain, Android는 Keystore/EncryptedSharedPreferences를 사용합니다. 이들은 OS 수준에서 암호화를 제공하여 루팅/탈옥된 기기에서도 데이터를 보호합니다."
+    },
+    {
+      "name": "암호화",
+      "description": "Android의 EncryptedSharedPreferences는 AES-256 GCM 암호화를 사용합니다. iOS Keychain은 기기의 Secure Enclave를 활용합니다."
+    },
+    {
+      "name": "접근성(Accessibility)",
+      "description": "iOS에서 Keychain 항목에 언제 접근할 수 있는지 정의합니다. first_unlock은 기기 첫 잠금 해제 후 언제든 접근 가능하고, unlocked는 현재 잠금 해제 상태에서만 접근 가능합니다."
+    }
+  ],
+  "apiReference": [
+    {
+      "name": "write",
+      "signature": "Future<void> write({required String key, required String? value})",
+      "description": "키-값 쌍을 저장합니다. value가 null이면 해당 키를 삭제합니다."
+    },
+    {
+      "name": "read",
+      "signature": "Future<String?> read({required String key})",
+      "description": "키에 해당하는 값을 읽습니다. 없으면 null을 반환합니다."
+    },
+    {
+      "name": "delete",
+      "signature": "Future<void> delete({required String key})",
+      "description": "키에 해당하는 값을 삭제합니다."
+    },
+    {
+      "name": "deleteAll",
+      "signature": "Future<void> deleteAll()",
+      "description": "저장된 모든 값을 삭제합니다."
+    },
+    {
+      "name": "containsKey",
+      "signature": "Future<bool> containsKey({required String key})",
+      "description": "키가 존재하는지 확인합니다."
+    },
+    {
+      "name": "readAll",
+      "signature": "Future<Map<String, String>> readAll()",
+      "description": "저장된 모든 키-값 쌍을 읽습니다."
+    }
+  ],
+  "commonErrors": [
+    {
+      "error": "PlatformException: Bad state",
+      "cause": "Android에서 암호화 키 손상 또는 앱 재설치",
+      "solution": "AndroidOptions에서 resetOnError: true를 설정하면 오류 시 자동으로 초기화됩니다."
+    },
+    {
+      "error": "Keychain 접근 실패 (iOS)",
+      "cause": "시뮬레이터에서 Keychain 접근 문제 또는 entitlements 누락",
+      "solution": "실제 기기에서 테스트하거나 시뮬레이터를 리셋하세요. macOS는 entitlements 파일을 확인하세요."
+    },
+    {
+      "error": "값이 저장되지 않음",
+      "cause": "비동기 작업을 await하지 않음",
+      "solution": "모든 storage 메서드 호출에 await를 사용하세요."
+    },
+    {
+      "error": "앱 업데이트 후 데이터 손실",
+      "cause": "Android에서 encryptedSharedPreferences 옵션 변경",
+      "solution": "옵션을 변경하면 이전 데이터에 접근할 수 없습니다. 마이그레이션 로직을 구현하세요."
+    }
+  ],
+  "bestPractices": [
+    {
+      "title": "encryptedSharedPreferences 사용",
+      "description": "Android에서는 AndroidOptions(encryptedSharedPreferences: true)를 설정하여 더 강력한 암호화를 사용하세요."
+    },
+    {
+      "title": "싱글톤 패턴",
+      "description": "FlutterSecureStorage 인스턴스를 싱글톤으로 관리하면 일관된 옵션이 적용되고 메모리를 절약할 수 있습니다."
+    },
+    {
+      "title": "민감 데이터만 저장",
+      "description": "보안 저장소는 일반 저장소보다 느립니다. 토큰, 비밀번호 등 민감한 데이터만 저장하고, 일반 설정은 SharedPreferences를 사용하세요."
+    },
+    {
+      "title": "에러 처리",
+      "description": "저장소 접근은 실패할 수 있습니다. try-catch로 에러를 처리하고 적절한 폴백을 제공하세요."
+    }
+  ],
+  "tips": [
+    "JSON 데이터는 jsonEncode/jsonDecode로 문자열 변환하여 저장하세요",
+    "Flutter Web에서는 flutter_secure_storage가 완전히 안전하지 않습니다 (localStorage 사용)",
+    "생체 인증과 연동하려면 local_auth 패키지와 함께 사용하세요",
+    "디버그 시 readAll()로 저장된 모든 데이터를 확인할 수 있습니다",
+    "앱 삭제 시 iOS Keychain 데이터는 유지될 수 있으므로 필요시 명시적으로 삭제하세요",
+    "테스트 시에는 setUp에서 deleteAll()을 호출하여 깨끗한 상태에서 시작하세요"
+  ]
+}
