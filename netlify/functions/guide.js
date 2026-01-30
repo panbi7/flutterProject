@@ -8,6 +8,7 @@
  */
 
 import { generateGuide } from './utils/guideGenerator.js';
+import { normalizeGuide } from './utils/guideNormalizer.js';
 
 // Blobs import를 동적으로 처리 (오류 방지)
 let blobsModule = null;
@@ -67,12 +68,13 @@ export async function handler(event) {
 
     if (cached) {
       console.log(`[Guide API] ✅ 캐시 히트: ${packageId}`);
+      const normalized = normalizeGuide(cached, { packageId });
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
           success: true,
-          guide: { ...cached, source: 'cache' },
+          guide: { ...normalized, source: 'cache' },
         }),
       };
     }
@@ -96,11 +98,13 @@ export async function handler(event) {
       };
     }
 
+    const normalized = normalizeGuide(guide, { packageId });
+
     // 3. Blobs에 저장 시도 (실패해도 응답은 반환)
     try {
       const blobs = await getBlobsModule();
       if (blobs && blobs.setCachedGuide) {
-        await blobs.setCachedGuide(packageId, guide);
+        await blobs.setCachedGuide(packageId, normalized);
         console.log(`[Guide API] ✅ 캐시 저장 완료: ${packageId}`);
       }
     } catch (saveError) {
@@ -115,7 +119,7 @@ export async function handler(event) {
       headers,
       body: JSON.stringify({
         success: true,
-        guide: { ...guide, source },
+        guide: { ...normalized, source },
       }),
     };
   } catch (error) {

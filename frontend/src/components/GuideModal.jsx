@@ -3,6 +3,74 @@ import './GuideModal.css';
 import SimpleMarkdown from './SimpleMarkdown';
 import { clearGuideCache } from '../services/guideApi';
 
+function normalizeGuide(rawGuide) {
+  if (!rawGuide) return rawGuide;
+
+  const guide = { ...rawGuide };
+  const packageId = guide.packageId || guide.packageName || guide.name || guide.id;
+
+  if (packageId && !guide.packageId) {
+    guide.packageId = packageId;
+  }
+
+  if (!guide.title) {
+    guide.title = packageId ? `${packageId} 구현 가이드` : '구현 가이드';
+  }
+
+  if (!guide.description) {
+    guide.description = guide.overview?.what || guide.overview?.why || '';
+  }
+
+  if (!guide.difficulty) {
+    guide.difficulty = '기본';
+  }
+
+  if (!guide.estimatedTime) {
+    guide.estimatedTime = '30분';
+  }
+
+  if (Array.isArray(guide.coreConcepts)) {
+    guide.coreConcepts = guide.coreConcepts.map((concept) => ({
+      ...concept,
+      term: concept.term || concept.name || '',
+      explanation: concept.explanation || concept.description || '',
+    }));
+  }
+
+  if (Array.isArray(guide.steps)) {
+    guide.steps = guide.steps.map((step, index) => {
+      const normalized = { ...step };
+
+      if (!normalized.stepNumber) {
+        normalized.stepNumber = index + 1;
+      }
+
+      if (typeof normalized.code === 'string') {
+        normalized.code = {
+          language: 'text',
+          content: normalized.code,
+        };
+      } else if (normalized.code && typeof normalized.code === 'object') {
+        if (!normalized.code.content && typeof normalized.code.code === 'string') {
+          normalized.code = { ...normalized.code, content: normalized.code.code };
+        }
+      }
+
+      if (!normalized.substeps && Array.isArray(normalized.subSteps)) {
+        normalized.substeps = normalized.subSteps.map((substep) => {
+          if (typeof substep === 'string') return substep;
+          if (!substep || typeof substep !== 'object') return '';
+          return [substep.title, substep.description].filter(Boolean).join(' - ');
+        }).filter(Boolean);
+      }
+
+      return normalized;
+    });
+  }
+
+  return guide;
+}
+
 function GuideModal({ guide: rawGuide, onClose, onRefresh }) {
   // Default to expanding ALL steps
   const [expandedSteps, setExpandedSteps] = useState([]);
@@ -19,13 +87,13 @@ function GuideModal({ guide: rawGuide, onClose, onRefresh }) {
         try {
           const parsed = JSON.parse(trimmed);
           // 파싱 성공하면 구조화된 가이드로 변환
-          return { ...rawGuide, ...parsed, plainText: null };
+          return normalizeGuide({ ...rawGuide, ...parsed, plainText: null });
         } catch {
           // 파싱 실패하면 그대로 유지
         }
       }
     }
-    return rawGuide;
+    return normalizeGuide(rawGuide);
   }, [rawGuide]);
 
   useEffect(() => {
@@ -68,7 +136,7 @@ function GuideModal({ guide: rawGuide, onClose, onRefresh }) {
         {/* 헤더 */}
         <div className="guide-modal-header">
           <div className="guide-header-content">
-            <h2>{guide.title}</h2>
+            <h2>{guide.title || guide.packageName || guide.packageId || '구현 가이드'}</h2>
             <p className="guide-description">{guide.description}</p>
             <div className="guide-meta">
               <span className="badge badge-difficulty">{guide.difficulty}</span>
@@ -134,8 +202,8 @@ function GuideModal({ guide: rawGuide, onClose, onRefresh }) {
                   <div className="concepts-container">
                     {guide.coreConcepts.map((concept, idx) => (
                       <div key={idx} className="concept-card">
-                        <div className="concept-term">{concept.term}</div>
-                        <div className="concept-explanation">{concept.explanation}</div>
+                        <div className="concept-term">{concept.term || concept.name}</div>
+                        <div className="concept-explanation">{concept.explanation || concept.description}</div>
                         {concept.analogy && (
                           <div className="concept-analogy">
                             <span className="analogy-icon">💭</span>
@@ -173,13 +241,22 @@ function GuideModal({ guide: rawGuide, onClose, onRefresh }) {
                   </div>
 
                   <div className="steps-container">
-                    {guide.steps.map((step, idx) => (
+                    {guide.steps.map((step, idx) => {
+                      const stepNumber = step.stepNumber ?? idx + 1;
+                      const codeContent = typeof step.code === 'string'
+                        ? step.code
+                        : step.code?.content;
+                      const codeLabel = typeof step.code === 'object'
+                        ? (step.code.filename || step.code.language)
+                        : 'code';
+
+                      return (
                       <div key={idx} className="step-item">
                         <div
                           className="step-header"
                           onClick={() => toggleStep(idx)}
                         >
-                          <span className="step-number">{step.stepNumber}️⃣</span>
+                          <span className="step-number">{stepNumber}️⃣</span>
                           <span className="step-title">{step.title}</span>
                           <span className="step-toggle">
                             {expandedSteps.includes(idx) ? '▲' : '▼'}
@@ -212,21 +289,21 @@ function GuideModal({ guide: rawGuide, onClose, onRefresh }) {
                             )}
 
                             {/* 코드 블록 */}
-                            {step.code && (
+                            {codeContent && (
                               <div className="code-block">
                                 <div className="code-header">
                                   <span className="code-filename">
-                                    {step.code.filename || step.code.language}
+                                    {codeLabel}
                                   </span>
                                   <button
                                     className="copy-button"
-                                    onClick={() => copyToClipboard(step.code.content, `step-${idx}`)}
+                                    onClick={() => copyToClipboard(codeContent, `step-${idx}`)}
                                   >
                                     {copiedCode === `step-${idx}` ? '✓ 복사됨' : '📋 복사'}
                                   </button>
                                 </div>
                                 <pre>
-                                  <code>{step.code.content}</code>
+                                  <code>{codeContent}</code>
                                 </pre>
                               </div>
                             )}
@@ -293,7 +370,8 @@ function GuideModal({ guide: rawGuide, onClose, onRefresh }) {
                           </div>
                         )}
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </section>
               )}

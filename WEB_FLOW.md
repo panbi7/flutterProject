@@ -12,9 +12,13 @@
    - `frontend` 앱은 `frontend/public/data/` 밑의 정적 JSON을 로딩해 패키지 목록, 인기 차트, 월간 추천 위젯 등을 렌더링합니다. 전체 데이터를 다시 수집할 필요 없이 `packages-lite.json`만으로 대부분 UI를 구성할 수 있으며, `meta.json`으로 통계 기반 UI를 보강합니다.
 
 4. **구현 가이드 노출 흐름**
-   - 홈 화면(`frontend/src/components/HomePage.jsx`)에서 인기 위젯/Top10/최근 업데이트 카드에 있는 `구현 가이드` 버튼을 누르면 `frontend/src/services/guideApi.js`의 캐시 우선 로직을 거쳐 `/api/guide?packageId={패키지}` Netlify 함수(`netlify/functions/api-guide.js`)에 요청합니다.
+   - 홈 화면(`frontend/src/components/HomePage.jsx`)에서 인기 위젯/Top10/최근 업데이트 카드에 있는 `구현 가이드` 버튼을 누르면 `frontend/src/services/guideApi.js`의 캐시 우선 로직을 거쳐 `/api/guide?packageId={패키지}` Netlify 함수(`netlify/functions/guide.js`)에 요청합니다.
    - 성공하면 `GuideModal`이 열려 제목·설명·난이도·예상 시간·핵심 개념·사전 준비·단계별 설명·코드/명령어 블록·팁/참고 링크 등을 카드형 섹션으로 보여 줍니다. 각 단계는 클릭으로 펼치고 복사 버튼으로 코드/명령어를 클립보드에 복사할 수 있으며, 모달 상단의 새로고침 버튼으로 캐시를 지우고 다시 생성할 수도 있습니다.
    - 캐시가 없으면 Netlify 함수에서 Gemini API와 Pub.dev/스크래퍼를 사용해 AI 가이드를 만들고, 성공 시 브라우저 로컬스토리지에 7일간 저장하여 반복 요청을 줄입니다. 실패시에는 이전 가이드나 fallback 정적 내용을 표시하며 디버그 정보와 해결 팁도 함께 제공합니다.
 
-5. **커밋/배포**
+5. **Netlify Blobs 기반 캐시 (DB 없음)**
+   - `netlify/functions/utils/blobsCache.js`는 Netlify Blobs 스토어(환경 변수 `NETLIFY_SITE_ID`, `NETLIFY_AUTH_TOKEN` 또는 `NETLIFY_ACCESS_TOKEN` 이용)를 활용해 가이드 데이터를 JSON으로 저장/조회합니다. 외부 DB가 필요 없으며, 저장된 객체에는 `cachedAt`, `generatorVersion` 같은 메타가 포함됩니다.
+   - `netlify/functions/guide.js`는 Blobs 모듈을 동적으로 import해 캐시 HIT/MISS 여부를 로깅하고, 실패해도 가이드 생성/응답 흐름을 계속 이어갑니다. 캐시에 저장 실패가 있어도 응답에는 영향이 없습니다.
+
+6. **커밋/배포**
    - 변경된 파일이 있으면 워크플로가 자동 커밋하고 푸시하여 최신 데이터가 저장소 및 배포 브랜치에 반영됩니다.
