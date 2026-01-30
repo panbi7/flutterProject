@@ -1,0 +1,174 @@
+{
+  "packageId": "flex_color_scheme",
+  "title": "flex_color_scheme 실전 마스터 가이드",
+  "generatedAt": "2026-01-30T00:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "8.4.0",
+  "packageLikes": 3156,
+
+  "overview": {
+    "what": "flex_color_scheme는 Material 테마를 쉽고 강력하게 구성할 수 있게 해주는 패키지입니다. 사전 정의된 색상 스킴과 서브 테마 설정을 제공합니다.",
+    "why": "Material 3 테마를 직접 구성하면 복잡한데, flex_color_scheme는 최소 설정으로 전문적인 테마를 만들 수 있습니다.",
+    "when": "1) 앱 브랜드 컬러를 일관되게 적용할 때, 2) 라이트/다크 테마를 동시에 구성할 때, 3) Material 3 테마 세부 튜닝이 필요할 때",
+    "features": [
+      "🎨 다양한 프리셋 색상 스킴",
+      "⚙️ 서브 테마(버튼/카드/탭) 설정",
+      "🌗 라이트/다크 테마 자동 구성",
+      "🧩 Material 3 대응",
+      "📦 가독성 높은 API"
+    ]
+  },
+
+  "description": "Material 테마를 쉽게 고급스럽게 구성하는 Flutter 테마 패키지",
+  "difficulty": "중급",
+  "estimatedTime": "35분",
+  "prerequisites": [
+    "Flutter Theme 사용 경험",
+    "MaterialApp 테마 설정 이해",
+    "기본 색상/타이포그래피 개념"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "FlexThemeData",
+      "explanation": "Material 테마를 생성하는 핵심 클래스입니다.",
+      "analogy": "🎛️ 테마 생성기",
+      "usage": "theme: FlexThemeData.light(scheme: FlexScheme.deepBlue)"
+    },
+    {
+      "term": "FlexScheme",
+      "explanation": "미리 정의된 색상 스킴 목록입니다.",
+      "analogy": "🎨 팔레트",
+      "usage": "FlexScheme.bahamaBlue"
+    },
+    {
+      "term": "FlexSubThemesData",
+      "explanation": "버튼, 카드, 탭 등 서브 위젯 스타일을 제어합니다.",
+      "analogy": "🧩 디테일 조정",
+      "usage": "subThemesData: const FlexSubThemesData(...)"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "flex_color_scheme 패키지를 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  flex_color_scheme: ^8.4.0"
+      },
+      "commands": ["flutter pub add flex_color_scheme"],
+      "explanation": "설치 후 앱을 재시작합니다.",
+      "beginnerTip": "💡 기존 ThemeData를 FlexThemeData로 교체하면 됩니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "🌞 기본 라이트 테마 적용",
+      "description": "프리셋 스킴으로 라이트 테마를 구성합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "import 'package:flex_color_scheme/flex_color_scheme.dart';\nimport 'package:flutter/material.dart';\n\nvoid main() => runApp(const MyApp());\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      theme: FlexThemeData.light(\n        scheme: FlexScheme.deepBlue,\n        useMaterial3: true,\n      ),\n      home: const HomePage(),\n    );\n  }\n}"
+      },
+      "explanation": "FlexThemeData.light에 원하는 FlexScheme을 지정하면 바로 테마가 완성됩니다.",
+      "beginnerTip": "🎨 FlexScheme 목록은 공식 문서를 참고하세요."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🌙 다크 테마 추가",
+      "description": "라이트/다크 테마를 동시에 설정합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "return MaterialApp(\n  theme: FlexThemeData.light(\n    scheme: FlexScheme.deepBlue,\n    useMaterial3: true,\n  ),\n  darkTheme: FlexThemeData.dark(\n    scheme: FlexScheme.deepBlue,\n    useMaterial3: true,\n  ),\n  themeMode: ThemeMode.system,\n  home: const HomePage(),\n);"
+      },
+      "explanation": "themeMode를 system으로 두면 시스템 설정에 따라 자동 전환됩니다.",
+      "beginnerTip": "🌗 사용자 설정으로 themeMode를 바꾸는 것도 가능합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🧩 서브 테마 조정",
+      "description": "버튼, 카드, 입력 필드 등 세부 스타일을 조정합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "theme: FlexThemeData.light(\n  scheme: FlexScheme.deepBlue,\n  useMaterial3: true,\n  subThemesData: const FlexSubThemesData(\n    elevatedButtonRadius: 12,\n    outlinedButtonRadius: 12,\n    inputDecoratorRadius: 10,\n    cardRadius: 16,\n  ),\n),"
+      },
+      "explanation": "FlexSubThemesData로 다양한 위젯의 radius/밀도/색상 등을 세밀하게 조정할 수 있습니다.",
+      "beginnerTip": "💡 일관된 라운드 UI를 만들 때 매우 유용합니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🎯 커스텀 색상 스킴",
+      "description": "브랜드 컬러로 맞춤 스킴을 구성합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/theme.dart",
+        "content": "final customScheme = FlexSchemeColor(\n  primary: const Color(0xFF0A6EBD),\n  primaryContainer: const Color(0xFFB3DAFF),\n  secondary: const Color(0xFF00B4D8),\n  secondaryContainer: const Color(0xFFAEEAFF),\n  appBarColor: const Color(0xFF0A6EBD),\n  error: const Color(0xFFB00020),\n);\n\nfinal theme = FlexThemeData.light(\n  colors: customScheme,\n  useMaterial3: true,\n);"
+      },
+      "explanation": "FlexSchemeColor로 직접 색상 팔레트를 정의할 수 있습니다.",
+      "beginnerTip": "🎨 브랜드 컬러가 있다면 이 방식이 가장 깔끔합니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "FlexThemeData.light",
+      "description": "라이트 테마 생성",
+      "parameters": "scheme 또는 colors, useMaterial3 등",
+      "returns": "ThemeData",
+      "example": "FlexThemeData.light(scheme: FlexScheme.deepBlue)"
+    },
+    {
+      "name": "FlexThemeData.dark",
+      "description": "다크 테마 생성",
+      "parameters": "scheme 또는 colors, useMaterial3 등",
+      "returns": "ThemeData",
+      "example": "FlexThemeData.dark(scheme: FlexScheme.deepBlue)"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "Theme looks inconsistent",
+      "cause": "Material3와 Material2 설정이 섞임",
+      "solution": "useMaterial3 값을 라이트/다크에서 동일하게 유지하세요.",
+      "prevention": "FlexThemeData.light/dark에 동일한 옵션 적용"
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "테마 중앙화",
+      "description": "theme.dart에 테마 정의를 모아 관리하세요.",
+      "doThis": "final appTheme = FlexThemeData.light(...);",
+      "dontDoThis": "MaterialApp에 인라인으로 긴 테마 코드 작성"
+    },
+    {
+      "title": "브랜드 컬러 우선",
+      "description": "프리셋 대신 브랜드 색을 먼저 고려하세요.",
+      "doThis": "FlexSchemeColor로 커스텀",
+      "dontDoThis": "아무 스킴이나 임의 선택"
+    }
+  ],
+
+  "tips": [
+    "🎨 FlexScheme는 개발 속도를 크게 줄여줍니다",
+    "🧩 서브테마를 활용하면 UI 통일성이 높아집니다",
+    "🌗 라이트/다크 모두 제공하면 사용자 만족도가 올라갑니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "flex_seed_scheme",
+      "description": "시드 컬러 기반 스킴 생성 유틸리티"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/flex_color_scheme"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/flex_color_scheme/latest/"}
+  ]
+}

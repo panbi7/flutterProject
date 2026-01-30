@@ -1,0 +1,180 @@
+{
+  "packageId": "camera",
+  "title": "camera 실전 마스터 가이드",
+  "generatedAt": "2026-01-30T00:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "0.11.3",
+  "packageLikes": 2557,
+
+  "overview": {
+    "what": "camera는 Flutter에서 기기 카메라를 제어하고 사진/동영상을 촬영할 수 있는 공식 플러그인입니다.",
+    "why": "카메라 기능은 사진 촬영, 스캔, 라이브 스트리밍 등 다양한 앱에 필수입니다.",
+    "when": "1) 사진 촬영/업로드 기능, 2) 문서 스캔, 3) 프로필 사진 변경, 4) 카메라 기반 기능 구현",
+    "features": [
+      "📷 사진 촬영",
+      "🎥 동영상 녹화",
+      "🧭 전/후면 카메라 제어",
+      "⚙️ 해상도/플래시/포커스 설정",
+      "📱 Android/iOS/Web 지원"
+    ]
+  },
+
+  "description": "Flutter에서 카메라 촬영과 녹화를 제공하는 공식 플러그인",
+  "difficulty": "중급 - 권한 및 라이프사이클 필요",
+  "estimatedTime": "60분",
+  "prerequisites": [
+    "Flutter 위젯/상태 관리 이해",
+    "비동기 프로그래밍",
+    "플랫폼 권한 처리 경험"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "CameraController",
+      "explanation": "카메라를 제어하는 핵심 컨트롤러입니다.",
+      "analogy": "🎛️ 카메라 리모컨",
+      "usage": "final controller = CameraController(camera, ResolutionPreset.high);"
+    },
+    {
+      "term": "availableCameras",
+      "explanation": "기기에서 사용 가능한 카메라 목록을 가져옵니다.",
+      "analogy": "📋 카메라 리스트",
+      "usage": "final cameras = await availableCameras();"
+    },
+    {
+      "term": "CameraPreview",
+      "explanation": "카메라 미리보기 화면을 표시합니다.",
+      "analogy": "📺 라이브 뷰",
+      "usage": "CameraPreview(controller)"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "camera 패키지를 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  camera: ^0.11.3\n  path_provider: ^2.1.0"
+      },
+      "commands": ["flutter pub add camera", "flutter pub add path_provider"],
+      "explanation": "사진 저장 경로를 위해 path_provider를 함께 사용합니다.",
+      "beginnerTip": "💡 네이티브 플러그인이므로 재시작이 필요합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "🔐 권한 설정",
+      "description": "Android/iOS 권한을 추가합니다.",
+      "code": {
+        "language": "xml",
+        "filename": "android/app/src/main/AndroidManifest.xml",
+        "content": "<uses-permission android:name=\"android.permission.CAMERA\"/>\n<uses-permission android:name=\"android.permission.RECORD_AUDIO\"/>"
+      },
+      "explanation": "동영상 녹화 시 RECORD_AUDIO 권한도 필요합니다.",
+      "beginnerTip": "🍎 iOS는 Info.plist에 카메라/마이크 설명을 추가하세요."
+    },
+    {
+      "stepNumber": 3,
+      "title": "📷 카메라 초기화",
+      "description": "사용 가능한 카메라를 가져오고 Controller를 초기화합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/camera_service.dart",
+        "content": "import 'package:camera/camera.dart';\n\nclass CameraService {\n  CameraController? controller;\n\n  Future<void> init() async {\n    final cameras = await availableCameras();\n    final camera = cameras.first;\n    controller = CameraController(camera, ResolutionPreset.high);\n    await controller!.initialize();\n  }\n\n  void dispose() {\n    controller?.dispose();\n  }\n}"
+      },
+      "explanation": "initialize() 완료 후에만 CameraPreview를 사용할 수 있습니다.",
+      "beginnerTip": "⚠️ 컨트롤러 해제를 잊지 마세요."
+    },
+    {
+      "stepNumber": 4,
+      "title": "📺 미리보기 + 촬영",
+      "description": "카메라 미리보기와 사진 촬영 버튼을 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/camera_page.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:camera/camera.dart';\n\nclass CameraPage extends StatefulWidget {\n  const CameraPage({super.key});\n\n  @override\n  State<CameraPage> createState() => _CameraPageState();\n}\n\nclass _CameraPageState extends State<CameraPage> {\n  CameraController? _controller;\n  late Future<void> _initFuture;\n\n  @override\n  void initState() {\n    super.initState();\n    _controller = CameraController(\n      (cameraList.first),\n      ResolutionPreset.high,\n    );\n    _initFuture = _controller!.initialize();\n  }\n\n  @override\n  void dispose() {\n    _controller?.dispose();\n    super.dispose();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('카메라')),\n      body: FutureBuilder(\n        future: _initFuture,\n        builder: (context, snapshot) {\n          if (snapshot.connectionState != ConnectionState.done) {\n            return const Center(child: CircularProgressIndicator());\n          }\n          return CameraPreview(_controller!);\n        },\n      ),\n      floatingActionButton: FloatingActionButton(\n        onPressed: () async {\n          final file = await _controller!.takePicture();\n          ScaffoldMessenger.of(context).showSnackBar(\n            SnackBar(content: Text('촬영 완료: ${file.path}')),\n          );\n        },\n        child: const Icon(Icons.camera_alt),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "FutureBuilder로 초기화 완료를 기다린 후 미리보기를 표시합니다.",
+      "beginnerTip": "📸 takePicture는 비동기입니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🎥 동영상 녹화",
+      "description": "녹화 시작/중단을 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/camera_video.dart",
+        "content": "Future<void> startRecording() async {\n  await _controller!.startVideoRecording();\n}\n\nFuture<void> stopRecording() async {\n  final file = await _controller!.stopVideoRecording();\n  print('영상 저장: ${file.path}');\n}"
+      },
+      "explanation": "startVideoRecording/stopVideoRecording으로 녹화를 제어합니다.",
+      "beginnerTip": "🎥 녹화 중에는 takePicture를 호출할 수 없습니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "availableCameras",
+      "description": "사용 가능한 카메라 목록",
+      "parameters": "없음",
+      "returns": "Future<List<CameraDescription>>",
+      "example": "final cameras = await availableCameras();"
+    },
+    {
+      "name": "CameraController.initialize",
+      "description": "카메라 초기화",
+      "parameters": "없음",
+      "returns": "Future<void>",
+      "example": "await controller.initialize();"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "CameraException (Permission denied)",
+      "cause": "권한이 거부됨",
+      "solution": "카메라/마이크 권한을 허용하세요.",
+      "prevention": "런타임 권한 요청을 추가하세요."
+    },
+    {
+      "error": "CameraException (Camera is not initialized)",
+      "cause": "initialize 전에 CameraPreview 사용",
+      "solution": "initialize 완료 후 사용하세요.",
+      "prevention": "FutureBuilder로 초기화 대기"
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "라이프사이클 관리",
+      "description": "dispose에서 controller를 반드시 해제하세요.",
+      "doThis": "@override void dispose(){ controller.dispose(); }",
+      "dontDoThis": "컨트롤러 해제 누락"
+    },
+    {
+      "title": "권한 체크",
+      "description": "카메라/마이크 권한을 런타임에 확인하세요.",
+      "doThis": "permission_handler와 함께 사용",
+      "dontDoThis": "권한 확인 없이 바로 촬영"
+    }
+  ],
+
+  "tips": [
+    "📷 해상도를 높일수록 메모리 사용량이 증가합니다",
+    "🎥 동영상 녹화는 마이크 권한이 필요합니다",
+    "🧪 실제 기기에서 테스트하세요"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "permission_handler",
+      "description": "런타임 권한 요청에 유용"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/camera"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/camera/latest/"}
+  ]
+}

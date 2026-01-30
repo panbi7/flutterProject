@@ -1,0 +1,174 @@
+{
+  "packageId": "showcaseview",
+  "title": "showcaseview 실전 마스터 가이드",
+  "generatedAt": "2026-01-30T00:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "5.0.1",
+  "packageLikes": 3004,
+
+  "overview": {
+    "what": "showcaseview는 앱의 주요 기능을 단계별로 안내하는 온보딩/튜토리얼 오버레이를 제공하는 패키지입니다.",
+    "why": "사용자가 처음 앱을 사용할 때 중요한 기능을 쉽게 이해하도록 도울 수 있습니다.",
+    "when": "1) 앱 최초 실행 시 기능 소개, 2) 새 기능 출시 후 안내, 3) 복잡한 화면의 사용법 설명",
+    "features": [
+      "🎯 특정 위젯 하이라이트",
+      "🧭 단계별 안내 시퀀스",
+      "🎨 커스텀 스타일 지원",
+      "✅ 완료/건너뛰기 콜백",
+      "📱 다양한 화면 크기 대응"
+    ]
+  },
+
+  "description": "앱 기능을 단계별로 안내하는 오버레이 튜토리얼 패키지",
+  "difficulty": "중급",
+  "estimatedTime": "30분",
+  "prerequisites": [
+    "Flutter 위젯 트리 이해",
+    "StatefulWidget/GlobalKey 사용 경험",
+    "onboarding 흐름 설계 경험"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "ShowCaseWidget",
+      "explanation": "튜토리얼을 관리하는 루트 위젯입니다.",
+      "analogy": "🎬 튜토리얼 감독",
+      "usage": "ShowCaseWidget(builder: Builder(...))"
+    },
+    {
+      "term": "Showcase",
+      "explanation": "하이라이트할 개별 위젯을 감싸는 래퍼입니다.",
+      "analogy": "🔦 스포트라이트",
+      "usage": "Showcase(key: key, description: '설명', child: ...)"
+    },
+    {
+      "term": "GlobalKey",
+      "explanation": "각 Showcase를 식별하는 키입니다.",
+      "analogy": "🏷️ 단계 번호표",
+      "usage": "final key = GlobalKey();"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "showcaseview를 프로젝트에 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  showcaseview: ^5.0.1"
+      },
+      "commands": ["flutter pub add showcaseview"],
+      "explanation": "패키지를 추가한 후 앱을 재시작하세요.",
+      "beginnerTip": "💡 hot reload만으로는 패키지가 반영되지 않을 수 있습니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "🏗️ ShowCaseWidget 감싸기",
+      "description": "앱 루트를 ShowCaseWidget으로 감쌉니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:showcaseview/showcaseview.dart';\n\nvoid main() => runApp(const MyApp());\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      home: ShowCaseWidget(\n        builder: Builder(\n          builder: (context) => const HomePage(),\n        ),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "ShowCaseWidget은 튜토리얼 시퀀스를 관리하는 컨테이너입니다.",
+      "beginnerTip": "💡 반드시 Builder로 context를 분리하세요."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🔦 Showcase 위젯 적용",
+      "description": "하이라이트할 위젯을 Showcase로 감쌉니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/home_page.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:showcaseview/showcaseview.dart';\n\nclass HomePage extends StatefulWidget {\n  const HomePage({super.key});\n\n  @override\n  State<HomePage> createState() => _HomePageState();\n}\n\nclass _HomePageState extends State<HomePage> {\n  final GlobalKey _keyMenu = GlobalKey();\n  final GlobalKey _keySearch = GlobalKey();\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Showcase Demo')),\n      body: Column(\n        children: [\n          Showcase(\n            key: _keyMenu,\n            description: '여기에서 메뉴를 열 수 있어요',\n            child: IconButton(\n              icon: const Icon(Icons.menu),\n              onPressed: () {},\n            ),\n          ),\n          Showcase(\n            key: _keySearch,\n            description: '검색 기능을 사용할 수 있어요',\n            child: const TextField(decoration: InputDecoration(hintText: '검색')),\n          ),\n        ],\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "Showcase는 설명 텍스트와 함께 위젯을 강조 표시합니다.",
+      "beginnerTip": "🔑 각 Showcase에는 고유한 GlobalKey가 필요합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "▶️ 튜토리얼 시작",
+      "description": "첫 프레임 렌더 후 시퀀스를 실행합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/home_page.dart",
+        "content": "@override\nvoid initState() {\n  super.initState();\n  WidgetsBinding.instance.addPostFrameCallback((_) {\n    ShowCaseWidget.of(context).startShowCase([_keyMenu, _keySearch]);\n  });\n}"
+      },
+      "explanation": "위젯이 렌더링된 이후에 startShowCase를 호출해야 합니다.",
+      "beginnerTip": "💡 첫 실행 시에만 보여주려면 shared_preferences에 플래그를 저장하세요."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🎨 스타일 커스터마이징",
+      "description": "오버레이 색상/텍스트 스타일을 커스터마이징합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/showcase_style.dart",
+        "content": "Showcase(\n  key: _keyMenu,\n  description: '메뉴 버튼입니다',\n  overlayColor: Colors.black54,\n  textColor: Colors.white,\n  descTextStyle: const TextStyle(fontSize: 16),\n  child: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),\n);"
+      },
+      "explanation": "overlayColor, textColor, descTextStyle 등으로 UI를 맞출 수 있습니다.",
+      "beginnerTip": "🎨 앱 브랜드 컬러와 맞춰 사용자 경험을 높이세요."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "ShowCaseWidget.startShowCase",
+      "description": "튜토리얼 시퀀스를 시작합니다.",
+      "parameters": "List<GlobalKey>",
+      "returns": "void",
+      "example": "ShowCaseWidget.of(context).startShowCase([key1, key2]);"
+    },
+    {
+      "name": "Showcase",
+      "description": "개별 위젯을 하이라이트하는 래퍼",
+      "parameters": "key, description, child 등",
+      "returns": "Widget",
+      "example": "Showcase(key: key, description: '설명', child: ...)"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "ShowCaseWidget.of(context) returns null",
+      "cause": "ShowCaseWidget이 위젯 트리 상단에 없거나, context가 잘못됨",
+      "solution": "ShowCaseWidget이 상단에 있는지 확인하고 Builder로 context를 분리하세요.",
+      "prevention": "ShowCaseWidget(builder: Builder(...)) 패턴 사용"
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "첫 실행에만 노출",
+      "description": "사용자 경험을 위해 최초 1회만 튜토리얼을 보여주세요.",
+      "doThis": "shared_preferences에 완료 플래그 저장",
+      "dontDoThis": "앱 실행마다 튜토리얼 강제"
+    },
+    {
+      "title": "핵심 기능만 강조",
+      "description": "너무 많은 단계를 만들지 말고 중요한 요소만 표시하세요.",
+      "doThis": "3~5단계 핵심 기능",
+      "dontDoThis": "모든 버튼에 Showcase 추가"
+    }
+  ],
+
+  "tips": [
+    "✅ 튜토리얼 완료 후 플래그를 저장해 반복 표시를 막으세요",
+    "🎯 설명은 짧고 명확하게 작성하는 것이 좋습니다",
+    "📱 다양한 해상도에서 레이아웃이 깨지지 않는지 확인하세요"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "tutorial_coach_mark",
+      "description": "유사한 기능을 제공하는 튜토리얼 패키지"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/showcaseview"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/showcaseview/latest/"}
+  ]
+}

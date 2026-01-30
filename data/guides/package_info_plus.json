@@ -1,0 +1,166 @@
+{
+  "packageId": "package_info_plus",
+  "title": "package_info_plus 실전 마스터 가이드",
+  "generatedAt": "2026-01-30T00:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "9.0.0",
+  "packageLikes": 2741,
+
+  "overview": {
+    "what": "package_info_plus는 앱의 버전, 빌드 번호, 패키지명 등의 정보를 가져오는 플러그인입니다.",
+    "why": "앱 정보 표시, 버전 체크, 로그/리포트 등에 필수 정보를 간단히 제공할 수 있습니다.",
+    "when": "1) 설정 화면에 앱 버전 표시, 2) 강제 업데이트 체크, 3) 오류 리포트에 앱 정보 포함",
+    "features": [
+      "📦 앱 버전/빌드 번호 조회",
+      "🧾 패키지명/앱 이름 조회",
+      "📱 Android/iOS/Web/Desktop 지원",
+      "⚙️ 간단한 API",
+      "🧪 분석/로그용 활용"
+    ]
+  },
+
+  "description": "앱의 메타 정보를 가져오는 Flutter 플러그인",
+  "difficulty": "초급",
+  "estimatedTime": "15분",
+  "prerequisites": [
+    "Flutter 기본 위젯 이해",
+    "설정 화면 구성 경험"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "PackageInfo",
+      "explanation": "앱의 이름/버전/빌드 번호를 담는 객체입니다.",
+      "analogy": "🏷️ 앱 라벨 정보",
+      "usage": "final info = await PackageInfo.fromPlatform();"
+    },
+    {
+      "term": "buildNumber",
+      "explanation": "스토어 배포에 사용되는 빌드 번호입니다.",
+      "analogy": "🔢 배포 버전 번호",
+      "usage": "info.buildNumber"
+    },
+    {
+      "term": "version",
+      "explanation": "사용자에게 표시되는 앱 버전입니다.",
+      "analogy": "🔖 사용자용 버전",
+      "usage": "info.version"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "package_info_plus를 프로젝트에 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  package_info_plus: ^9.0.0"
+      },
+      "commands": ["flutter pub add package_info_plus"],
+      "explanation": "패키지 추가 후 앱을 재시작하세요.",
+      "beginnerTip": "💡 네이티브 플러그인이므로 재시작이 필요합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📦 앱 정보 가져오기",
+      "description": "PackageInfo.fromPlatform으로 앱 정보를 읽습니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/package_info_service.dart",
+        "content": "import 'package:package_info_plus/package_info_plus.dart';\n\nFuture<Map<String, String>> getAppInfo() async {\n  final info = await PackageInfo.fromPlatform();\n  return {\n    'appName': info.appName,\n    'packageName': info.packageName,\n    'version': info.version,\n    'buildNumber': info.buildNumber,\n  };\n}"
+      },
+      "explanation": "appName, packageName, version, buildNumber를 사용할 수 있습니다.",
+      "beginnerTip": "🧾 설정 화면에 표시하기 좋은 정보입니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🧾 설정 화면에 표시",
+      "description": "앱 정보 UI를 구성합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/app_info_page.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:package_info_plus/package_info_plus.dart';\n\nclass AppInfoPage extends StatefulWidget {\n  const AppInfoPage({super.key});\n\n  @override\n  State<AppInfoPage> createState() => _AppInfoPageState();\n}\n\nclass _AppInfoPageState extends State<AppInfoPage> {\n  PackageInfo? _info;\n\n  @override\n  void initState() {\n    super.initState();\n    PackageInfo.fromPlatform().then((value) => setState(() => _info = value));\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('앱 정보')),\n      body: _info == null\n          ? const Center(child: CircularProgressIndicator())\n          : ListView(\n              children: [\n                ListTile(title: const Text('앱 이름'), subtitle: Text(_info!.appName)),\n                ListTile(title: const Text('패키지명'), subtitle: Text(_info!.packageName)),\n                ListTile(title: const Text('버전'), subtitle: Text(_info!.version)),\n                ListTile(title: const Text('빌드 번호'), subtitle: Text(_info!.buildNumber)),\n              ],\n            ),\n    );\n  }\n}"
+      },
+      "explanation": "초기 로딩 후 정보를 표시하는 기본 패턴입니다.",
+      "beginnerTip": "💡 앱 설정 화면에 자주 쓰입니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "⬆️ 업데이트 체크",
+      "description": "서버 버전과 비교해 업데이트 필요 여부를 판단합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/update_check.dart",
+        "content": "Future<bool> needsUpdate(String latestVersion) async {\n  final info = await PackageInfo.fromPlatform();\n  final current = info.version.split('.').map(int.parse).toList();\n  final latest = latestVersion.split('.').map(int.parse).toList();\n  for (int i = 0; i < 3; i++) {\n    if (latest[i] > current[i]) return true;\n    if (latest[i] < current[i]) return false;\n  }\n  return false;\n}"
+      },
+      "explanation": "버전 문자열을 비교해 업데이트 여부를 판단합니다.",
+      "beginnerTip": "⚠️ 버전 비교는 문자열이 아닌 숫자 비교를 사용하세요."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🧪 버그 리포트에 포함",
+      "description": "에러 리포트에 앱 정보를 함께 기록합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/error_report.dart",
+        "content": "Future<Map<String, dynamic>> buildReport(Object error) async {\n  final info = await PackageInfo.fromPlatform();\n  return {\n    'error': error.toString(),\n    'appName': info.appName,\n    'version': info.version,\n    'buildNumber': info.buildNumber,\n  };\n}"
+      },
+      "explanation": "버그 리포트 품질이 높아집니다.",
+      "beginnerTip": "🧾 고객센터/로그 시스템에 전달하면 유용합니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "PackageInfo.fromPlatform",
+      "description": "플랫폼에서 앱 정보를 읽어옵니다.",
+      "parameters": "없음",
+      "returns": "Future<PackageInfo>",
+      "example": "final info = await PackageInfo.fromPlatform();"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "MissingPluginException",
+      "cause": "플러그인 적용 전 hot reload만 수행",
+      "solution": "앱을 완전히 재시작하세요.",
+      "prevention": "플러그인 추가 후 flutter run 재시작"
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "버전 비교 함수 분리",
+      "description": "버전 비교 로직은 별도 유틸로 관리하세요.",
+      "doThis": "VersionUtils.compare(a, b)",
+      "dontDoThis": "문자열 비교"
+    },
+    {
+      "title": "설정 화면에 노출",
+      "description": "사용자가 앱 버전을 쉽게 확인하도록 제공합니다.",
+      "doThis": "설정 > 앱 정보",
+      "dontDoThis": "버전 정보를 숨김"
+    }
+  ],
+
+  "tips": [
+    "📦 packageName은 플랫폼별 식별자입니다",
+    "🧪 업데이트 체크는 서버 버전과 비교하세요",
+    "🧾 버그 리포트에 앱 버전이 있으면 분석이 쉬워집니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "device_info_plus",
+      "description": "디바이스 정보와 함께 사용하면 리포트 품질이 높아집니다"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/package_info_plus"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/package_info_plus/latest/"}
+  ]
+}

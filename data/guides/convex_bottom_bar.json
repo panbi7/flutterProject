@@ -1,0 +1,167 @@
+{
+  "packageId": "convex_bottom_bar",
+  "title": "convex_bottom_bar 실전 마스터 가이드",
+  "generatedAt": "2026-01-30T00:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "3.2.0",
+  "packageLikes": 2917,
+
+  "overview": {
+    "what": "convex_bottom_bar는 중앙이 돌출된 형태의 하단 네비게이션 바를 제공하는 패키지입니다.",
+    "why": "기본 BottomNavigationBar보다 눈에 띄는 디자인을 제공해 주요 액션을 강조할 수 있습니다.",
+    "when": "1) 하단 탭 네비게이션 UI, 2) 중앙 액션 강조, 3) 브랜드 스타일 적용",
+    "features": [
+      "🔘 볼록한 중앙 탭",
+      "🎨 다양한 스타일 지원",
+      "🧭 BottomNavigationBar 대체",
+      "⚙️ 아이콘/배지 지원",
+      "📱 간단한 설정"
+    ]
+  },
+
+  "description": "볼록한 스타일의 하단 네비게이션 바",
+  "difficulty": "초급",
+  "estimatedTime": "20분",
+  "prerequisites": [
+    "Scaffold와 탭 구조 이해",
+    "아이콘/페이지 구성 경험"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "ConvexAppBar",
+      "explanation": "볼록한 하단 네비게이션 바 위젯입니다.",
+      "analogy": "🚢 배의 중앙 뱃머리처럼突出된 탭",
+      "usage": "ConvexAppBar(items: [...])"
+    },
+    {
+      "term": "TabController",
+      "explanation": "탭 전환 상태를 관리합니다.",
+      "analogy": "📑 탭 스위처",
+      "usage": "TabController(length: 3, vsync: this)"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "convex_bottom_bar를 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  convex_bottom_bar: ^3.2.0"
+      },
+      "commands": ["flutter pub add convex_bottom_bar"],
+      "explanation": "패키지 추가 후 앱을 재시작하세요.",
+      "beginnerTip": "💡 기본 BottomNavigationBar 대신 ConvexAppBar를 사용합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "🧭 기본 네비게이션 구성",
+      "description": "ConvexAppBar와 IndexedStack으로 화면을 전환합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/convex_nav.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:convex_bottom_bar/convex_bottom_bar.dart';\n\nclass ConvexNav extends StatefulWidget {\n  const ConvexNav({super.key});\n\n  @override\n  State<ConvexNav> createState() => _ConvexNavState();\n}\n\nclass _ConvexNavState extends State<ConvexNav> {\n  int index = 0;\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      body: IndexedStack(\n        index: index,\n        children: const [\n          Center(child: Text('홈')),\n          Center(child: Text('검색')),\n          Center(child: Text('프로필')),\n        ],\n      ),\n      bottomNavigationBar: ConvexAppBar(\n        items: const [\n          TabItem(icon: Icons.home, title: '홈'),\n          TabItem(icon: Icons.search, title: '검색'),\n          TabItem(icon: Icons.person, title: '프로필'),\n        ],\n        initialActiveIndex: index,\n        onTap: (i) => setState(() => index = i),\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "IndexedStack으로 탭 상태를 유지하며 화면 전환이 가능합니다.",
+      "beginnerTip": "💡 상태 보존이 필요 없으면 직접 body를 바꿔도 됩니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🎨 스타일 커스터마이징",
+      "description": "색상/스타일을 변경합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/convex_style.dart",
+        "content": "ConvexAppBar(\n  style: TabStyle.reactCircle,\n  backgroundColor: Colors.white,\n  activeColor: Colors.blue,\n  color: Colors.grey,\n  items: const [\n    TabItem(icon: Icons.home, title: '홈'),\n    TabItem(icon: Icons.add, title: '등록'),\n    TabItem(icon: Icons.person, title: '내정보'),\n  ],\n)"
+      },
+      "explanation": "TabStyle을 바꾸면 다양한 시각적 효과를 적용할 수 있습니다.",
+      "beginnerTip": "🎨 activeColor로 강조 색상을 지정하세요."
+    },
+    {
+      "stepNumber": 4,
+      "title": "⭐ 중앙 탭 강조",
+      "description": "중앙 탭을 핵심 액션으로 강조합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/convex_center.dart",
+        "content": "ConvexAppBar(\n  items: const [\n    TabItem(icon: Icons.home, title: '홈'),\n    TabItem(icon: Icons.add, title: '작성'),\n    TabItem(icon: Icons.person, title: '프로필'),\n  ],\n  onTap: (i) {\n    if (i == 1) {\n      // 중앙 탭 액션\n    }\n  },\n)"
+      },
+      "explanation": "중앙 탭을 주요 CTA로 활용할 수 있습니다.",
+      "beginnerTip": "🚀 중앙 탭은 행동 유도(작성/등록)에 적합합니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🔔 배지 적용",
+      "description": "탭에 알림 배지를 표시합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/convex_badge.dart",
+        "content": "ConvexAppBar.badge(\n  const <int, dynamic>{2: '3'},\n  items: const [\n    TabItem(icon: Icons.home, title: '홈'),\n    TabItem(icon: Icons.search, title: '검색'),\n    TabItem(icon: Icons.notifications, title: '알림'),\n  ],\n  onTap: (i) {},\n)"
+      },
+      "explanation": "badge API로 특정 탭에 숫자/점 표시가 가능합니다.",
+      "beginnerTip": "🔔 알림 탭에 배지를 표시하면 효과적입니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "ConvexAppBar",
+      "description": "볼록 네비게이션 바 위젯",
+      "parameters": "items, onTap, style 등",
+      "returns": "Widget",
+      "example": "ConvexAppBar(items: [...])"
+    },
+    {
+      "name": "ConvexAppBar.badge",
+      "description": "배지 적용 네비게이션 바",
+      "parameters": "badges, items",
+      "returns": "Widget",
+      "example": "ConvexAppBar.badge({2:'3'}, items: [...])"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "Tabs not switching",
+      "cause": "onTap에서 상태 업데이트 누락",
+      "solution": "setState로 index를 업데이트하세요.",
+      "prevention": "onTap 콜백에서 index 변경"
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "IndexedStack 사용",
+      "description": "탭 상태를 유지하려면 IndexedStack이 적합합니다.",
+      "doThis": "IndexedStack(index: index, children: [...])",
+      "dontDoThis": "탭 전환 때마다 위젯 새로 생성"
+    },
+    {
+      "title": "중앙 탭에 핵심 액션",
+      "description": "중앙 탭은 중요 기능을 배치하세요.",
+      "doThis": "작성/등록/촬영",
+      "dontDoThis": "중요하지 않은 메뉴 배치"
+    }
+  ],
+
+  "tips": [
+    "🎨 TabStyle을 바꿔 다양한 디자인을 시도해 보세요",
+    "📱 탭 개수는 3~5개가 가장 보기 좋습니다",
+    "🔔 배지는 알림/메시지 표시용으로 유용합니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "salomon_bottom_bar",
+      "description": "유사한 스타일의 네비게이션 바 패키지"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/convex_bottom_bar"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/convex_bottom_bar/latest/"}
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "packageId": "local_auth",
+  "title": "local_auth 실전 마스터 가이드",
+  "generatedAt": "2026-01-30T00:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "3.0.0",
+  "packageLikes": 3291,
+
+  "overview": {
+    "what": "local_auth는 기기의 지문/Face ID/기기 자격 증명(핀/패턴) 등 로컬 인증을 Flutter에서 사용할 수 있게 해주는 공식 플러그인입니다.",
+    "why": "결제, 민감한 설정 변경, 로그인 재확인 등 보안이 중요한 작업에서 간단히 로컬 인증을 추가할 수 있습니다. 플랫폼별 네이티브 API를 직접 구현하지 않아도 됩니다.",
+    "when": "1) 앱 잠금/보안 영역 접근 시, 2) 결제/송금 등 민감 작업 승인 시, 3) 로그인 세션 갱신 시, 4) 계정 삭제 같은 고위험 행동 확인 시",
+    "features": [
+      "🔐 지문/Face ID 인증",
+      "🔑 디바이스 자격 증명(핀/패턴) 사용",
+      "📱 Android/iOS 지원",
+      "⚙️ 인증 가능 여부 체크",
+      "🧩 맞춤 메시지/옵션 지원"
+    ]
+  },
+
+  "description": "Flutter에서 생체 인증과 디바이스 자격 증명으로 보안 작업을 보호하는 공식 플러그인",
+  "difficulty": "중급 - 플랫폼별 설정 필요",
+  "estimatedTime": "40분",
+  "prerequisites": [
+    "Flutter 기본 위젯과 async/await 이해",
+    "AndroidManifest/Info.plist 기본 수정 경험",
+    "보안 처리(민감 데이터 보호) 기본 개념"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "LocalAuthentication",
+      "explanation": "로컬 인증을 수행하는 메인 클래스입니다. 기기 지원 여부 확인과 인증 요청을 제공합니다.",
+      "analogy": "🚪 도어락에 비유하면, 문을 열기 전에 지문을 확인하는 역할입니다.",
+      "usage": "final auth = LocalAuthentication();"
+    },
+    {
+      "term": "canCheckBiometrics",
+      "explanation": "기기가 생체인식을 지원하고, 사용자가 생체인증을 설정했는지 확인합니다.",
+      "analogy": "🪪 등록된 지문이 있는지 확인하는 과정과 같습니다.",
+      "usage": "final canCheck = await auth.canCheckBiometrics;"
+    },
+    {
+      "term": "authenticate()",
+      "explanation": "실제 인증을 요청하는 메서드입니다. 성공하면 true를 반환합니다.",
+      "analogy": "🔒 문을 열기 위해 실제로 인증하는 단계입니다.",
+      "usage": "final ok = await auth.authenticate(localizedReason: '보안 확인');"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "local_auth 패키지를 프로젝트에 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  local_auth: ^3.0.0"
+      },
+      "commands": ["flutter pub add local_auth", "flutter pub get"],
+      "explanation": "네이티브 플러그인이 포함되므로 추가 후 앱을 완전히 재시작해야 합니다.",
+      "beginnerTip": "💡 hot reload로는 플러그인 적용이 되지 않습니다. flutter run으로 재시작하세요."
+    },
+    {
+      "stepNumber": 2,
+      "title": "🤖 Android 설정",
+      "description": "AndroidManifest와 Activity 설정을 추가합니다.",
+      "code": {
+        "language": "xml",
+        "filename": "android/app/src/main/AndroidManifest.xml",
+        "content": "<!-- 권장: 생체 인증 권한 -->\n<uses-permission android:name=\"android.permission.USE_BIOMETRIC\"/>\n\n<!-- (선택) 기기 자격 증명 허용 시 필요 -->\n<uses-permission android:name=\"android.permission.USE_FINGERPRINT\"/>"
+      },
+      "explanation": "Android 11 이상에서는 USE_BIOMETRIC 권한이 권장됩니다. 또한 MainActivity가 FragmentActivity를 상속해야 합니다.",
+      "beginnerTip": "⚠️ MainActivity는 FlutterFragmentActivity를 사용하세요. 예: class MainActivity: FlutterFragmentActivity()"
+    },
+    {
+      "stepNumber": 3,
+      "title": "🍎 iOS 설정",
+      "description": "Info.plist에 Face ID 사용 설명을 추가합니다.",
+      "code": {
+        "language": "xml",
+        "filename": "ios/Runner/Info.plist",
+        "content": "<key>NSFaceIDUsageDescription</key>\n<string>보안을 위해 Face ID를 사용합니다.</string>"
+      },
+      "explanation": "Face ID를 사용하는 경우 필수로 사용자 설명을 제공해야 합니다.",
+      "beginnerTip": "💡 Touch ID만 사용하더라도 설명 문구를 추가하면 안전합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🔐 인증 요청 구현",
+      "description": "LocalAuthentication으로 인증을 실행합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/local_auth_service.dart",
+        "content": "import 'package:local_auth/local_auth.dart';\n\nclass LocalAuthService {\n  final LocalAuthentication _auth = LocalAuthentication();\n\n  Future<bool> authenticate() async {\n    final isSupported = await _auth.isDeviceSupported();\n    if (!isSupported) return false;\n\n    final canCheck = await _auth.canCheckBiometrics;\n    if (!canCheck) return false;\n\n    return _auth.authenticate(\n      localizedReason: '보안을 위해 인증이 필요합니다',\n      options: const AuthenticationOptions(\n        biometricOnly: false, // PIN/패턴도 허용\n        stickyAuth: true,\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "isDeviceSupported → canCheckBiometrics 순서로 체크 후 authenticate를 호출합니다.",
+      "beginnerTip": "💡 biometricOnly=false이면 핀/패턴 등 기기 자격 증명도 허용됩니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🧭 민감 작업에 적용",
+      "description": "중요한 액션을 실행하기 전에 인증을 확인합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/secure_action_button.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'local_auth_service.dart';\n\nclass SecureActionButton extends StatelessWidget {\n  const SecureActionButton({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return ElevatedButton(\n      onPressed: () async {\n        final ok = await LocalAuthService().authenticate();\n        if (!ok) {\n          ScaffoldMessenger.of(context).showSnackBar(\n            const SnackBar(content: Text('인증 실패')),\n          );\n          return;\n        }\n        // 민감 작업 실행\n        ScaffoldMessenger.of(context).showSnackBar(\n          const SnackBar(content: Text('승인 완료')),\n        );\n      },\n      child: const Text('보안 작업 실행'),\n    );\n  }\n}"
+      },
+      "explanation": "인증 성공 시에만 민감 작업을 실행하도록 게이트를 거는 패턴입니다.",
+      "beginnerTip": "🔒 인증 실패/취소 케이스를 반드시 처리하세요."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "LocalAuthentication.authenticate",
+      "description": "로컬 인증을 수행합니다.",
+      "parameters": "localizedReason (String), options (AuthenticationOptions)",
+      "returns": "Future<bool>",
+      "example": "final ok = await auth.authenticate(localizedReason: '보안 확인');"
+    },
+    {
+      "name": "LocalAuthentication.canCheckBiometrics",
+      "description": "생체 인증 사용 가능 여부를 확인합니다.",
+      "parameters": "없음",
+      "returns": "Future<bool>",
+      "example": "final canCheck = await auth.canCheckBiometrics;"
+    },
+    {
+      "name": "LocalAuthentication.isDeviceSupported",
+      "description": "기기가 로컬 인증을 지원하는지 확인합니다.",
+      "parameters": "없음",
+      "returns": "Future<bool>",
+      "example": "final supported = await auth.isDeviceSupported();"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "PlatformException(NotAvailable)",
+      "cause": "기기에서 생체 인증이 설정되지 않았거나 지원되지 않음",
+      "solution": "설정 > 보안에서 지문/Face ID를 등록하세요.",
+      "prevention": "authenticate 전에 isDeviceSupported/canCheckBiometrics로 확인하세요."
+    },
+    {
+      "error": "PlatformException(PasscodeNotSet)",
+      "cause": "기기에 잠금 화면 비밀번호(핀/패턴)가 설정되지 않음",
+      "solution": "기기 잠금 화면 설정을 켠 뒤 재시도하세요.",
+      "prevention": "biometricOnly=false인 경우에도 기기 잠금 설정이 필요할 수 있습니다."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "인증 전 조건 체크",
+      "description": "isDeviceSupported와 canCheckBiometrics를 먼저 확인하고 실패 시 대체 UX를 제공합니다.",
+      "doThis": "if (!await auth.isDeviceSupported()) { /* 대체 화면 */ }",
+      "dontDoThis": "await auth.authenticate(localizedReason: '인증'); // 바로 호출"
+    },
+    {
+      "title": "민감 작업에만 적용",
+      "description": "모든 화면마다 인증을 요구하면 UX가 खराब해집니다. 민감 작업에만 사용하세요.",
+      "doThis": "결제/설정 변경/로그아웃 등",
+      "dontDoThis": "모든 버튼 클릭마다 인증 요청"
+    }
+  ],
+
+  "tips": [
+    "💡 인증 실패/취소를 구분해 안내하면 사용자 경험이 좋아집니다",
+    "🧪 에뮬레이터에서는 생체 인증이 제한될 수 있으니 실제 기기 테스트를 권장합니다",
+    "🔐 인증 후에도 중요한 데이터는 안전하게 보관하세요"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "flutter_secure_storage",
+      "description": "인증 후 저장해야 할 민감 데이터를 안전하게 보관하는 데 유용"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/local_auth"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/local_auth/latest/"}
+  ]
+}

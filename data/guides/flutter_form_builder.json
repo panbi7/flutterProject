@@ -1,0 +1,176 @@
+{
+  "packageId": "flutter_form_builder",
+  "title": "flutter_form_builder 실전 마스터 가이드",
+  "generatedAt": "2026-01-30T00:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "10.2.0",
+  "packageLikes": 2777,
+
+  "overview": {
+    "what": "flutter_form_builder는 다양한 폼 필드를 쉽게 구성하고 검증할 수 있는 패키지입니다.",
+    "why": "복잡한 폼 UI와 검증 로직을 단순화하고 일관된 구조로 관리할 수 있습니다.",
+    "when": "1) 회원가입/로그인 폼, 2) 설문조사, 3) 복잡한 입력 화면",
+    "features": [
+      "📝 다양한 Form 필드 제공",
+      "✅ 유효성 검증 지원",
+      "🔄 자동 값 관리",
+      "🧩 커스텀 필드 확장",
+      "📦 폼 상태 관리"
+    ]
+  },
+
+  "description": "복잡한 폼 UI와 검증을 쉽게 만드는 Flutter 패키지",
+  "difficulty": "중급",
+  "estimatedTime": "40분",
+  "prerequisites": [
+    "Flutter Form 기본 이해",
+    "TextFormField 사용 경험",
+    "Validation 개념"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "FormBuilder",
+      "explanation": "폼 전체를 감싸는 위젯입니다.",
+      "analogy": "📋 설문지 폼",
+      "usage": "FormBuilder(key: _formKey, child: ...)"
+    },
+    {
+      "term": "FormBuilderTextField",
+      "explanation": "텍스트 입력 필드입니다.",
+      "analogy": "✍️ 텍스트 입력 칸",
+      "usage": "FormBuilderTextField(name: 'email')"
+    },
+    {
+      "term": "FormBuilderValidators",
+      "explanation": "검증 함수를 제공합니다.",
+      "analogy": "✅ 입력 규칙",
+      "usage": "FormBuilderValidators.required()"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "flutter_form_builder 패키지를 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  flutter_form_builder: ^10.2.0"
+      },
+      "commands": ["flutter pub add flutter_form_builder"],
+      "explanation": "패키지를 추가한 후 앱을 재시작하세요.",
+      "beginnerTip": "💡 validators 패키지는 통합되어 있습니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📝 기본 폼 구성",
+      "description": "FormBuilder와 TextField를 구성합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/form_basic.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:flutter_form_builder/flutter_form_builder.dart';\n\nclass SignUpForm extends StatefulWidget {\n  const SignUpForm({super.key});\n\n  @override\n  State<SignUpForm> createState() => _SignUpFormState();\n}\n\nclass _SignUpFormState extends State<SignUpForm> {\n  final _formKey = GlobalKey<FormBuilderState>();\n\n  @override\n  Widget build(BuildContext context) {\n    return FormBuilder(\n      key: _formKey,\n      child: Column(\n        children: [\n          FormBuilderTextField(\n            name: 'email',\n            decoration: const InputDecoration(labelText: '이메일'),\n          ),\n          FormBuilderTextField(\n            name: 'password',\n            obscureText: true,\n            decoration: const InputDecoration(labelText: '비밀번호'),\n          ),\n        ],\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "FormBuilder 안에서 각 필드를 name으로 정의합니다.",
+      "beginnerTip": "💡 name은 폼 값의 key로 사용됩니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "✅ 검증 추가",
+      "description": "필드 검증 규칙을 적용합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/form_validate.dart",
+        "content": "FormBuilderTextField(\n  name: 'email',\n  decoration: const InputDecoration(labelText: '이메일'),\n  validator: FormBuilderValidators.compose([\n    FormBuilderValidators.required(),\n    FormBuilderValidators.email(),\n  ]),\n);"
+      },
+      "explanation": "compose로 여러 검증 규칙을 결합합니다.",
+      "beginnerTip": "✅ validator는 null이면 통과입니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "📤 폼 제출",
+      "description": "폼 값을 검증하고 제출합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/form_submit.dart",
+        "content": "ElevatedButton(\n  onPressed: () {\n    final state = _formKey.currentState;\n    if (state?.saveAndValidate() ?? false) {\n      final values = state!.value;\n      print(values);\n    } else {\n      print('검증 실패');\n    }\n  },\n  child: const Text('제출'),\n)"
+      },
+      "explanation": "saveAndValidate()로 저장+검증을 동시에 수행합니다.",
+      "beginnerTip": "📌 validate만 쓰면 값 저장은 안 됩니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🧩 다양한 필드 사용",
+      "description": "DatePicker, Dropdown 등 다양한 필드를 추가합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/form_fields.dart",
+        "content": "FormBuilderDropdown(\n  name: 'gender',\n  items: const [\n    DropdownMenuItem(value: 'M', child: Text('남성')),
+    DropdownMenuItem(value: 'F', child: Text('여성')),
+  ],\n  decoration: const InputDecoration(labelText: '성별'),\n);\n\nFormBuilderDateTimePicker(\n  name: 'birth',\n  inputType: InputType.date,\n  decoration: const InputDecoration(labelText: '생년월일'),\n);"
+      },
+      "explanation": "FormBuilder에는 다양한 입력 위젯이 포함되어 있습니다.",
+      "beginnerTip": "🧩 필요한 필드만 선택해 사용하세요."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "FormBuilder",
+      "description": "폼 컨테이너 위젯",
+      "parameters": "key, child",
+      "returns": "Widget",
+      "example": "FormBuilder(key: _formKey, child: ...)"
+    },
+    {
+      "name": "FormBuilderTextField",
+      "description": "텍스트 입력 필드",
+      "parameters": "name, validator",
+      "returns": "Widget",
+      "example": "FormBuilderTextField(name: 'email')"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "No FormBuilderState found",
+      "cause": "FormBuilder 밖에서 필드를 사용했거나 key가 없음",
+      "solution": "FormBuilder로 감싸고 GlobalKey를 지정하세요.",
+      "prevention": "FormBuilder(key: _formKey, child: ...)"
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "name 규칙 통일",
+      "description": "폼 필드 name을 일관되게 관리하세요.",
+      "doThis": "const fieldEmail = 'email';",
+      "dontDoThis": "'email', 'e-mail', 'emailAddress' 혼용"
+    },
+    {
+      "title": "검증 우선",
+      "description": "저장 전에 saveAndValidate로 검증하세요.",
+      "doThis": "if (state.saveAndValidate())",
+      "dontDoThis": "검증 없이 바로 값 사용"
+    }
+  ],
+
+  "tips": [
+    "🧪 복잡한 폼은 섹션별 위젯으로 분리하세요",
+    "✅ 에러 메시지는 사용자 친화적으로 작성하세요",
+    "📦 값 모델링이 필요하면 value를 DTO로 변환하세요"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "form_builder_validators",
+      "description": "더 다양한 검증 규칙 제공"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/flutter_form_builder"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/flutter_form_builder/latest/"}
+  ]
+}

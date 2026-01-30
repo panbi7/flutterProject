@@ -1,0 +1,175 @@
+{
+  "packageId": "fluent_ui",
+  "title": "fluent_ui 실전 마스터 가이드",
+  "generatedAt": "2026-01-30T00:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "4.13.0",
+  "packageLikes": 3161,
+
+  "overview": {
+    "what": "fluent_ui는 Windows 디자인 시스템(Fluent Design)을 Flutter에서 구현할 수 있도록 제공하는 UI 패키지입니다.",
+    "why": "Windows 스타일 데스크톱 앱을 Flutter로 만들 때 기본 Material/Cupertino보다 더 자연스러운 UI를 제공할 수 있습니다.",
+    "when": "1) Windows 전용 앱 UI 구축 시, 2) 데스크톱 앱을 Fluent 스타일로 통일하고 싶을 때, 3) NavigationView 같은 Windows 내비게이션 패턴이 필요할 때",
+    "features": [
+      "🪟 Fluent Design 위젯 제공",
+      "🧭 NavigationView 지원",
+      "🎨 아크릴/머티리얼 느낌의 스타일",
+      "⚙️ 테마 및 AccentColor 지원",
+      "💻 Windows 친화적 UI"
+    ]
+  },
+
+  "description": "Flutter에서 Windows Fluent Design UI를 구현하는 패키지",
+  "difficulty": "중급 - UI 구조 이해 필요",
+  "estimatedTime": "45분",
+  "prerequisites": [
+    "Flutter 기본 위젯 이해",
+    "MaterialApp/Theme 설정 경험",
+    "데스크톱 앱 구조 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "FluentApp",
+      "explanation": "MaterialApp 대신 사용하는 앱 루트 위젯으로, Fluent 테마를 적용합니다.",
+      "analogy": "🏢 Windows 앱의 메인 쉘 역할",
+      "usage": "return FluentApp(home: const HomePage());"
+    },
+    {
+      "term": "NavigationView",
+      "explanation": "Windows 스타일 사이드 내비게이션 레이아웃을 제공하는 핵심 위젯입니다.",
+      "analogy": "📂 파일 탐색기의 왼쪽 메뉴",
+      "usage": "NavigationView(pane: NavigationPane(...))"
+    },
+    {
+      "term": "AccentColor",
+      "explanation": "앱의 강조 색상을 지정하여 Fluent 스타일을 완성합니다.",
+      "analogy": "🎨 윈도우 설정의 강조 색상",
+      "usage": "theme: FluentThemeData(accentColor: Colors.blue)"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "fluent_ui 패키지를 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  fluent_ui: ^4.13.0"
+      },
+      "commands": ["flutter pub add fluent_ui"],
+      "explanation": "Fluent 위젯을 사용하기 위해 패키지를 추가합니다.",
+      "beginnerTip": "💡 MaterialApp 대신 FluentApp을 사용합니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "🏠 FluentApp 구성",
+      "description": "앱 루트를 FluentApp으로 교체합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "import 'package:fluent_ui/fluent_ui.dart';\n\nvoid main() => runApp(const MyApp());\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return FluentApp(\n      title: 'Fluent Demo',\n      theme: FluentThemeData(\n        accentColor: Colors.blue,
+      ),\n      home: const HomePage(),\n    );\n  }\n}"
+      },
+      "explanation": "FluentApp은 FluentThemeData를 적용해 Windows 스타일을 제공합니다.",
+      "beginnerTip": "🎨 accentColor로 앱 포인트 색을 지정하세요."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🧭 NavigationView 구현",
+      "description": "Windows 스타일 내비게이션 레이아웃을 구성합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/home_page.dart",
+        "content": "import 'package:fluent_ui/fluent_ui.dart';\n\nclass HomePage extends StatefulWidget {\n  const HomePage({super.key});\n\n  @override\n  State<HomePage> createState() => _HomePageState();\n}\n\nclass _HomePageState extends State<HomePage> {\n  int index = 0;\n\n  @override\n  Widget build(BuildContext context) {\n    return NavigationView(\n      pane: NavigationPane(\n        selected: index,\n        onChanged: (i) => setState(() => index = i),\n        displayMode: PaneDisplayMode.auto,\n        items: [\n          PaneItem(icon: const Icon(FluentIcons.home), title: const Text('홈')),\n          PaneItem(icon: const Icon(FluentIcons.settings), title: const Text('설정')),\n        ],\n      ),\n      content: NavigationBody(\n        index: index,\n        children: const [\n          Center(child: Text('홈 화면')),\n          Center(child: Text('설정 화면')),\n        ],\n      ),\n    );\n  }\n}"
+      },
+      "explanation": "NavigationView + NavigationPane으로 윈도우 스타일 메뉴를 구성합니다.",
+      "beginnerTip": "💡 PaneDisplayMode.auto는 화면 크기에 따라 레이아웃을 자동 전환합니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🎨 Fluent 위젯 사용",
+      "description": "기본 버튼/입력 위젯을 Fluent 스타일로 구성합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/widgets_demo.dart",
+        "content": "import 'package:fluent_ui/fluent_ui.dart';\n\nclass WidgetsDemo extends StatelessWidget {\n  const WidgetsDemo({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      crossAxisAlignment: CrossAxisAlignment.start,\n      children: [\n        Button(\n          child: const Text('기본 버튼'),\n          onPressed: () {},\n        ),\n        const SizedBox(height: 12),\n        FilledButton(\n          child: const Text('강조 버튼'),\n          onPressed: () {},\n        ),\n        const SizedBox(height: 12),\n        TextBox(placeholder: '검색어 입력'),\n      ],\n    );\n  }\n}"
+      },
+      "explanation": "Fluent UI는 Button, FilledButton, TextBox 등 전용 위젯을 제공합니다.",
+      "beginnerTip": "🧩 Material 위젯과 혼용하지 않는 것이 일관성을 유지하기 좋습니다."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🌗 테마/다크모드 적용",
+      "description": "FluentThemeData로 라이트/다크 테마를 설정합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/main.dart",
+        "content": "return FluentApp(\n  theme: FluentThemeData(\n    brightness: Brightness.light,\n    accentColor: Colors.blue,\n  ),\n  darkTheme: FluentThemeData(\n    brightness: Brightness.dark,\n    accentColor: Colors.orange,\n  ),\n  themeMode: ThemeMode.system,\n  home: const HomePage(),\n);"
+      },
+      "explanation": "theme/darkTheme을 지정하면 시스템 테마에 맞게 자동 전환됩니다.",
+      "beginnerTip": "💡 themeMode를 사용자 설정으로 바꿀 수 있습니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "FluentApp",
+      "description": "Fluent 디자인을 적용하는 앱 루트 위젯",
+      "parameters": "theme, darkTheme, home 등",
+      "returns": "Widget",
+      "example": "FluentApp(theme: FluentThemeData(...))"
+    },
+    {
+      "name": "NavigationView",
+      "description": "Windows 스타일 내비게이션 레이아웃",
+      "parameters": "pane, content",
+      "returns": "Widget",
+      "example": "NavigationView(pane: NavigationPane(...))"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "No MaterialLocalizations found",
+      "cause": "Material 위젯을 Fluent 환경에서 사용했을 때 발생",
+      "solution": "Fluent 위젯을 사용하거나 필요한 로컬라이제이션을 추가하세요.",
+      "prevention": "Material과 Fluent 위젯 혼용을 최소화하세요."
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "Fluent 위젯 통일",
+      "description": "UI 일관성을 위해 Fluent 위젯만 사용하세요.",
+      "doThis": "Button, TextBox, NavigationView 등",
+      "dontDoThis": "Material 버튼과 섞어 사용"
+    },
+    {
+      "title": "NavigationView로 구조화",
+      "description": "복잡한 페이지는 NavigationView + NavigationBody로 구조화하세요.",
+      "doThis": "NavigationPane + NavigationBody",
+      "dontDoThis": "복잡한 Drawer 구조 직접 구현"
+    }
+  ],
+
+  "tips": [
+    "🪟 Windows 데스크톱 앱에 최적화된 디자인입니다",
+    "🎨 accentColor 하나로 전체 톤을 조정할 수 있습니다",
+    "📦 앱이 커지면 NavigationView에 섹션을 추가해 확장하세요"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "fluentui_system_icons",
+      "description": "Fluent UI 전용 아이콘 팩"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/fluent_ui"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/fluent_ui/latest/"}
+  ]
+}

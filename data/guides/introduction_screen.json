@@ -1,0 +1,168 @@
+{
+  "packageId": "introduction_screen",
+  "title": "introduction_screen 실전 마스터 가이드",
+  "generatedAt": "2026-01-30T00:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "4.0.0",
+  "packageLikes": 2924,
+
+  "overview": {
+    "what": "introduction_screen은 앱 온보딩 화면을 쉽게 만들 수 있는 패키지입니다.",
+    "why": "앱의 핵심 기능을 첫 사용자에게 효과적으로 전달할 수 있습니다.",
+    "when": "1) 앱 최초 실행 시, 2) 신규 기능 소개, 3) 회원가입 전 안내",
+    "features": [
+      "📖 페이지 기반 온보딩",
+      "🧭 Skip/Next/Done 버튼 지원",
+      "🎨 커스텀 인디케이터",
+      "✅ 완료 콜백",
+      "📱 반응형 레이아웃"
+    ]
+  },
+
+  "description": "온보딩 화면을 쉽게 구성할 수 있는 Flutter 패키지",
+  "difficulty": "초급",
+  "estimatedTime": "25분",
+  "prerequisites": [
+    "Flutter 위젯 이해",
+    "상태 관리 기본",
+    "간단한 라우팅 경험"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "IntroductionScreen",
+      "explanation": "온보딩 전체를 관리하는 메인 위젯입니다.",
+      "analogy": "📘 안내서 표지",
+      "usage": "IntroductionScreen(pages: [...])"
+    },
+    {
+      "term": "PageViewModel",
+      "explanation": "각 온보딩 페이지를 정의하는 모델입니다.",
+      "analogy": "📄 한 장의 안내 페이지",
+      "usage": "PageViewModel(title: '...', body: '...')"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "introduction_screen을 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  introduction_screen: ^4.0.0\n  shared_preferences: ^2.5.4"
+      },
+      "commands": ["flutter pub add introduction_screen", "flutter pub add shared_preferences"],
+      "explanation": "온보딩 완료 여부 저장을 위해 shared_preferences를 함께 사용합니다.",
+      "beginnerTip": "💡 완료 여부를 저장하지 않으면 매번 온보딩이 표시됩니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "📄 페이지 정의",
+      "description": "PageViewModel로 온보딩 페이지를 작성합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/onboarding_pages.dart",
+        "content": "final pages = [\n  PageViewModel(\n    title: '환영합니다',\n    body: '앱의 핵심 기능을 소개합니다.',\n    image: Center(child: Icon(Icons.star, size: 120)),\n  ),\n  PageViewModel(\n    title: '빠른 탐색',\n    body: '원하는 정보를 쉽게 찾을 수 있어요.',\n    image: Center(child: Icon(Icons.search, size: 120)),\n  ),\n  PageViewModel(\n    title: '시작하기',\n    body: '지금 바로 사용해 보세요!',\n    image: Center(child: Icon(Icons.check, size: 120)),\n  ),\n];"
+      },
+      "explanation": "title, body, image로 간단히 페이지를 구성할 수 있습니다.",
+      "beginnerTip": "🎨 이미지는 SVG/PNG 등으로 커스터마이징 가능합니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "🧭 IntroductionScreen 구성",
+      "description": "IntroductionScreen 위젯에 페이지를 연결합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/onboarding_screen.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:introduction_screen/introduction_screen.dart';\n\nclass OnboardingScreen extends StatelessWidget {\n  const OnboardingScreen({super.key, required this.onDone});\n  final VoidCallback onDone;\n\n  @override\n  Widget build(BuildContext context) {\n    return IntroductionScreen(\n      pages: pages,\n      showSkipButton: true,\n      skip: const Text('건너뛰기'),\n      next: const Icon(Icons.arrow_forward),\n      done: const Text('시작하기'),\n      onDone: onDone,\n    );\n  }\n}"
+      },
+      "explanation": "onDone 콜백으로 홈으로 이동할 수 있습니다.",
+      "beginnerTip": "✅ onSkip도 함께 제공하면 UX가 좋습니다."
+    },
+    {
+      "stepNumber": 4,
+      "title": "✅ 완료 여부 저장",
+      "description": "온보딩 완료 여부를 저장하고 다음 실행부터 건너뜁니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/onboarding_storage.dart",
+        "content": "import 'package:shared_preferences/shared_preferences.dart';\n\nclass OnboardingStorage {\n  static const _key = 'onboarding_done';\n\n  static Future<void> setDone() async {\n    final prefs = await SharedPreferences.getInstance();\n    await prefs.setBool(_key, true);\n  }\n\n  static Future<bool> isDone() async {\n    final prefs = await SharedPreferences.getInstance();\n    return prefs.getBool(_key) ?? false;\n  }\n}"
+      },
+      "explanation": "첫 실행에서만 OnboardingScreen을 보여주도록 분기합니다.",
+      "beginnerTip": "📌 앱 시작 시 isDone()을 체크하세요."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🎨 스타일 커스터마이징",
+      "description": "인디케이터와 텍스트 스타일을 변경합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/onboarding_style.dart",
+        "content": "IntroductionScreen(\n  pages: pages,\n  dotsDecorator: DotsDecorator(\n    activeColor: Colors.blue,\n    size: const Size(8, 8),\n    activeSize: const Size(20, 8),\n    activeShape: RoundedRectangleBorder(\n      borderRadius: BorderRadius.circular(25),\n    ),\n  ),\n  globalBackgroundColor: Colors.white,\n);"
+      },
+      "explanation": "dotsDecorator로 인디케이터 스타일을 커스터마이징할 수 있습니다.",
+      "beginnerTip": "🎨 앱 테마와 색상을 맞추면 일관성이 높습니다."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "IntroductionScreen",
+      "description": "온보딩 화면 메인 위젯",
+      "parameters": "pages, onDone, showSkipButton 등",
+      "returns": "Widget",
+      "example": "IntroductionScreen(pages: pages, onDone: ...)"
+    },
+    {
+      "name": "PageViewModel",
+      "description": "온보딩 페이지 모델",
+      "parameters": "title, body, image 등",
+      "returns": "PageViewModel",
+      "example": "PageViewModel(title: '...', body: '...')"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "Onboarding shows every time",
+      "cause": "완료 플래그를 저장하지 않음",
+      "solution": "shared_preferences로 완료 여부를 저장하세요.",
+      "prevention": "앱 시작 시 isDone 체크"
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "3~5 페이지 구성",
+      "description": "너무 긴 온보딩은 사용자 이탈을 유발합니다.",
+      "doThis": "핵심 기능 위주 3~5 페이지",
+      "dontDoThis": "10페이지 이상 길게 구성"
+    },
+    {
+      "title": "완료 플래그 저장",
+      "description": "완료 여부를 반드시 저장해 반복 표시를 막습니다.",
+      "doThis": "onDone에서 setDone 호출",
+      "dontDoThis": "항상 IntroductionScreen 표시"
+    }
+  ],
+
+  "tips": [
+    "📌 온보딩은 기능 설명보다 가치 전달에 집중하세요",
+    "🎨 브랜드 컬러와 일관된 디자인을 유지하세요",
+    "✅ 완료 후 즉시 메인 화면으로 연결하세요"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "showcaseview",
+      "description": "앱 내 기능 튜토리얼 오버레이 제공"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/introduction_screen"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/introduction_screen/latest/"}
+  ]
+}

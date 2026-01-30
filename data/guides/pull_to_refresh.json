@@ -1,0 +1,168 @@
+{
+  "packageId": "pull_to_refresh",
+  "title": "pull_to_refresh 실전 마스터 가이드",
+  "generatedAt": "2026-01-30T00:00:00.000Z",
+  "source": "pre-generated",
+  "packageVersion": "2.0.0",
+  "packageLikes": 2815,
+
+  "overview": {
+    "what": "pull_to_refresh는 Flutter에서 당겨서 새로고침과 무한 스크롤 로딩을 쉽게 구현하는 패키지입니다.",
+    "why": "리스트 기반 화면에서 새로고침/추가 로딩 UX를 간단하게 구현할 수 있습니다.",
+    "when": "1) 피드/리스트 새로고침, 2) 페이지네이션 무한 스크롤, 3) 사용자에게 로딩 상태 제공",
+    "features": [
+      "🔄 당겨서 새로고침",
+      "⬇️ 무한 스크롤 로딩",
+      "🎛️ 다양한 헤더/푸터",
+      "📱 ListView/GridView 지원",
+      "⚙️ 커스터마이징 가능"
+    ]
+  },
+
+  "description": "리스트 새로고침과 페이지네이션을 쉽게 구현하는 Flutter 패키지",
+  "difficulty": "중급",
+  "estimatedTime": "30분",
+  "prerequisites": [
+    "ListView/GridView 사용 경험",
+    "비동기 데이터 로딩 이해"
+  ],
+
+  "coreConcepts": [
+    {
+      "term": "RefreshController",
+      "explanation": "새로고침/로딩 상태를 제어하는 핵심 컨트롤러입니다.",
+      "analogy": "🎛️ 리모컨",
+      "usage": "final controller = RefreshController();"
+    },
+    {
+      "term": "SmartRefresher",
+      "explanation": "리스트를 감싸서 pull-to-refresh 기능을 추가하는 위젯입니다.",
+      "analogy": "🧲 기능을 붙이는 래퍼",
+      "usage": "SmartRefresher(controller: controller, child: ListView(...))"
+    }
+  ],
+
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "🔧 패키지 설치",
+      "description": "pull_to_refresh 패키지를 추가합니다.",
+      "code": {
+        "language": "yaml",
+        "filename": "pubspec.yaml",
+        "content": "dependencies:\n  flutter:\n    sdk: flutter\n  pull_to_refresh: ^2.0.0"
+      },
+      "commands": ["flutter pub add pull_to_refresh"],
+      "explanation": "패키지 추가 후 앱을 재시작하세요.",
+      "beginnerTip": "💡 RefreshController가 필수입니다."
+    },
+    {
+      "stepNumber": 2,
+      "title": "🔄 기본 새로고침",
+      "description": "당겨서 새로고침 기능을 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/refresh_basic.dart",
+        "content": "import 'package:flutter/material.dart';\nimport 'package:pull_to_refresh/pull_to_refresh.dart';\n\nclass RefreshPage extends StatefulWidget {\n  const RefreshPage({super.key});\n\n  @override\n  State<RefreshPage> createState() => _RefreshPageState();\n}\n\nclass _RefreshPageState extends State<RefreshPage> {\n  final RefreshController _controller = RefreshController();\n  List<int> items = List.generate(10, (i) => i);\n\n  Future<void> _onRefresh() async {\n    await Future.delayed(const Duration(milliseconds: 800));\n    setState(() => items = List.generate(10, (i) => i));\n    _controller.refreshCompleted();\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return SmartRefresher(\n      controller: _controller,\n      onRefresh: _onRefresh,\n      child: ListView.builder(\n        itemCount: items.length,\n        itemBuilder: (_, i) => ListTile(title: Text('Item ${items[i]}')),
+      ),\n    );\n  }\n}"
+      },
+      "explanation": "onRefresh에서 데이터 갱신 후 refreshCompleted를 호출해야 합니다.",
+      "beginnerTip": "🔄 완료 콜백을 호출하지 않으면 로딩이 계속됩니다."
+    },
+    {
+      "stepNumber": 3,
+      "title": "⬇️ 무한 스크롤",
+      "description": "하단 로딩으로 페이지네이션을 구현합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/refresh_load_more.dart",
+        "content": "Future<void> _onLoading() async {\n  await Future.delayed(const Duration(milliseconds: 800));\n  setState(() {\n    items.addAll(List.generate(10, (i) => items.length + i));\n  });\n  _controller.loadComplete();\n}\n\nSmartRefresher(\n  controller: _controller,\n  onRefresh: _onRefresh,\n  onLoading: _onLoading,\n  enablePullUp: true,\n  child: ListView.builder(...),\n)"
+      },
+      "explanation": "enablePullUp=true로 하단 로딩을 활성화합니다.",
+      "beginnerTip": "📦 더 이상 데이터가 없으면 loadNoData()를 호출하세요."
+    },
+    {
+      "stepNumber": 4,
+      "title": "🎨 헤더/푸터 커스터마이징",
+      "description": "기본 헤더/푸터 대신 커스텀 스타일을 적용합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/refresh_style.dart",
+        "content": "SmartRefresher(\n  header: const WaterDropHeader(),\n  footer: const ClassicFooter(\n    loadingText: '로딩 중...',\n    idleText: '더 불러오기',\n  ),\n  controller: _controller,\n  onRefresh: _onRefresh,\n  onLoading: _onLoading,\n  enablePullUp: true,\n  child: ListView.builder(...),\n)"
+      },
+      "explanation": "WaterDropHeader, ClassicFooter 등 다양한 기본 스타일을 제공합니다.",
+      "beginnerTip": "🎨 디자인 톤에 맞춰 텍스트/색상을 조정하세요."
+    },
+    {
+      "stepNumber": 5,
+      "title": "🧭 상태 관리 패턴",
+      "description": "API 실패/빈 데이터 상태를 처리합니다.",
+      "code": {
+        "language": "dart",
+        "filename": "lib/refresh_error.dart",
+        "content": "Future<void> _onLoading() async {\n  try {\n    final newItems = await fetchPage();\n    if (newItems.isEmpty) {\n      _controller.loadNoData();\n      return;\n    }\n    setState(() => items.addAll(newItems));\n    _controller.loadComplete();\n  } catch (e) {\n    _controller.loadFailed();\n  }\n}"
+      },
+      "explanation": "loadFailed/loadNoData로 상태를 명확히 구분합니다.",
+      "beginnerTip": "📌 실패 시 재시도 UX를 제공하세요."
+    }
+  ],
+
+  "apiReference": [
+    {
+      "name": "RefreshController",
+      "description": "리프레시/로딩 상태 제어",
+      "parameters": "initialRefresh, initialLoadStatus",
+      "returns": "Controller",
+      "example": "final controller = RefreshController();"
+    },
+    {
+      "name": "SmartRefresher",
+      "description": "리프레시 기능을 제공하는 래퍼",
+      "parameters": "controller, onRefresh, onLoading",
+      "returns": "Widget",
+      "example": "SmartRefresher(controller: c, child: ListView(...))"
+    }
+  ],
+
+  "commonErrors": [
+    {
+      "error": "Refresh indicator stuck",
+      "cause": "refreshCompleted/loadComplete 호출 누락",
+      "solution": "콜백에서 완료 메서드를 호출하세요.",
+      "prevention": "try/finally로 완료 처리"
+    }
+  ],
+
+  "bestPractices": [
+    {
+      "title": "완료 콜백 보장",
+      "description": "성공/실패 모두에서 완료 메서드를 호출하세요.",
+      "doThis": "try/finally에서 refreshCompleted",
+      "dontDoThis": "성공 시에만 호출"
+    },
+    {
+      "title": "빈 데이터 처리",
+      "description": "더 이상 불러올 데이터가 없을 때 loadNoData 사용",
+      "doThis": "controller.loadNoData()",
+      "dontDoThis": "계속 로딩 시도"
+    }
+  ],
+
+  "tips": [
+    "🔄 pull-to-refresh는 리스트 UX의 표준입니다",
+    "⬇️ 페이지네이션은 enablePullUp으로 쉽게 구현됩니다",
+    "🎨 헤더/푸터를 바꾸면 앱 완성도가 올라갑니다"
+  ],
+
+  "relatedPackages": [
+    {
+      "name": "infinite_scroll_pagination",
+      "description": "페이지네이션 전용 패키지"
+    }
+  ],
+
+  "references": [
+    {"title": "pub.dev 공식 페이지", "url": "https://pub.dev/packages/pull_to_refresh"},
+    {"title": "API 문서", "url": "https://pub.dev/documentation/pull_to_refresh/latest/"}
+  ]
+}
